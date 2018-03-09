@@ -10,6 +10,7 @@ find_package(LLVM REQUIRED CONFIG)
 # Add the LLVM definitions and include directories to build the project.
 add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
+link_directories(${LLVM_LIBRARY_DIRS})
 
 # Recursively add the pass subdirectory's CMake file as well.
 add_subdirectory(blockperf)
