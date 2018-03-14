@@ -24,3 +24,9 @@ Makefile*
 # Compiled Static libraries
 *.a
 *.lib
+
+# Compiled Assembly and IR files
+*.s
+*.asm
+*.bc
+*.bitcode

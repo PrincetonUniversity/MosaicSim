@@ -2,8 +2,6 @@
 #include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
 
-#include <map>
-
 using namespace llvm;
 
 // Anonymous namespace (local to this file).
@@ -106,22 +104,21 @@ namespace {
 
     // The transformation that is run on all functions of the input program.
     virtual bool runOnFunction(Function &function) {
-
-      // A mapping from LHSes to their approximate calculation times (in cycles).
-      std::map<std::string,int> cycleMap;
-
+      outs() << "Function " << function.getIntrinsicID() << "\n";
+      int index = 0;
       // Traverse over all of the basic blocks in the program.
       for (auto &basicBlock : function) {
+        outs() << "----------------------------------------" << "\n";
+        outs() << "  Basic block " << index << "\n";
         for (auto &inst : basicBlock) {
-          cycleMap[inst.getOpcodeName()] = countCycles(inst.getOpcode());
+          int c = countCycles(inst.getOpcode());
+          if (c > 0) {
+            outs() << "    " << inst.getOpcodeName()  << ": " << c << " cycles\n";
+          }
         }
+        index++;
       }
-
-      // Iterate through the map and print all of the cycle times.
-      for (auto &entry : cycleMap) {
-        outs() << entry.first << ": " << std::to_string(entry.second) << " cycles\n";
-      }
-
+      outs() << "----------------------------------------" << "\n";
       // The actual function is never modified.
       return false;
     }
@@ -133,4 +130,4 @@ char PerformancePass::ID = 0;
 
 // Register the pass with LLVM.
 static RegisterPass<PerformancePass>
-  X("blockperf", "Analyze cycle constraints on basic blocks.");
+  X("estimate", "Analyze constraints in basic blocks to estimate performance.");
