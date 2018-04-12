@@ -8,9 +8,6 @@
 #include "llvm/IR/CFG.h"
 #include "llvm/PassSupport.h"
 
-// Pull in LLVM-style RTTI for castings.
-#include "llvm/Support/Casting.h"
-
 // Avoid having to preface LLVM class names.
 using namespace llvm;
 

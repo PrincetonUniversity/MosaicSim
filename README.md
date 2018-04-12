@@ -4,11 +4,13 @@
 
 ### Prerequisites
 
-This project requires the following tools:
+This project was built with the following tools:
 
- + A `clang`/LLVM toolchain, 5.0.0+
+ + A `clang`/LLVM toolchain, 6.0.0+
  + `cmake` 3.10+
  + `ninja` 1.8.2 (optional)
+
+No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible. :-)
 
 ### Usage
 
