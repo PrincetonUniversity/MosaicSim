@@ -1,7 +1,7 @@
 #ifndef APOLLO_DATA_DEP_GRAPH
 #define APOLLO_DATA_DEP_GRAPH
 
-// Pull in various LLVM structures necessary for writing the pass.
+// Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/Function.h"
 #include "llvm/IR/Instruction.h"
 #include "llvm/Pass.h"
@@ -22,16 +22,19 @@ public:
   // Identifier for this pass.
   static char ID;
 
-  /* [runOnFunction] is called on every function [F] present in the original
+  // Simple constructor that just invokes the parent constructor by default.
+  DataDependencyPass() : FunctionPass(ID) { }
+
+  /* [runOnFunction] is called on every function [fun] present in the original
    *   program's IR. It statically-analyzes the program structure to compress a
    *   graph in which edges represent read-after-write dependencies. No other
    *   relationships are captured in this single pass. Returns true if the pass
    *   modifies the IR in any way, and returns false otherwise.
-   *     [F]: The function on which to run this pass.
+   *     [fun]: The function on which to run this pass.
    *
-   * Requires: [F] is present in the original program's IR.
+   * Requires: [fun] is present in the original program's IR.
    */
-  bool runOnFunction(Function &F) override;
+  bool runOnFunction(Function &fun) override;
 
   /* [getPassName] returns a string specifying a customized name of the pass.
    */
