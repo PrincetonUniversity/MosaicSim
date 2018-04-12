@@ -1,4 +1,4 @@
-// Pull in the data dependency graph class.
+// Pull in the data-dependency graph class.
 #include "DataDependencyGraph.h"
 
 // Pull in various LLVM structures necessary for writing the pass.
