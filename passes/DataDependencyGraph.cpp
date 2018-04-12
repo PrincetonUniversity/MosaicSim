@@ -20,7 +20,7 @@ namespace apollo {
 
   // Register this LLVM pass with the pass manager.
   RegisterPass<DataDependencyPass>
-    registerGraph("ddg", "Construct the data-dependency graph.");
+    registerDDG("ddg", "Construct the data-dependency graph.");
 
   bool DataDependencyPass::runOnFunction(Function &fun) {
     // Create nodes.
@@ -56,8 +56,8 @@ namespace apollo {
     ddeps.clear(); // "Free" all of the entries
   }
 
-  void DataDependencyPass::getAnalysisUsage(AnalysisUsage &info) const {
-    info.setPreservesAll(); // No input transformation
+  void DataDependencyPass::getAnalysisUsage(AnalysisUsage &mgr) const {
+    mgr.setPreservesAll(); // No input transformation
   }
 
   const Graph<Instruction> &DataDependencyPass::getGraph() const {

@@ -45,12 +45,12 @@ public:
    */
   void releaseMemory() override;
 
-  /* [getAnalysisUsage] fills [info] with the list of passes that the current
+  /* [getAnalysisUsage] fills [mgr] with the list of passes that the current
    *   pass depends on. In this case, the pass does not transform the input at
    *   all by calling other passes.
-   *     [info]: The pass state manager that tracks pass usages over time.
+   *     [mgr]: The pass state manager that tracks pass usages over time.
    */
-  void getAnalysisUsage(AnalysisUsage &info) const override;
+  void getAnalysisUsage(AnalysisUsage &mgr) const override;
 
   /* [getGraph] returns the data-dependency graph in an unmodifiable form.
    */
