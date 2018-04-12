@@ -31,7 +31,7 @@ namespace apollo {
     }
 
     // Fill in the edges via adjacency determination. MUST be done second, as
-    // the dependencies in the checks below can only occur after all nods have
+    // the dependencies in the checks below can only occur after all nodes have
     // been created via the process above.
     for (auto &basicBlock : fun) {
       for (auto &inst : basicBlock) {
@@ -44,7 +44,6 @@ namespace apollo {
       }
     }
 
-    // Does not perform any in-place modification of the IR, so unchanged.
     return false;
   }
 
