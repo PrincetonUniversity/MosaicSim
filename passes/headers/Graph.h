@@ -13,7 +13,7 @@ namespace apollo {
 
 // Base class for all dependency graphs, parameterized on a node type.
 template <typename Node>
-class DependencyGraph {
+class Graph {
 public:
   // Iterator on the actual nodes themselves.
   typedef typename std::map<const Node*, std::set<const Node*>>::iterator
@@ -40,6 +40,36 @@ public:
    */
   void clear() {
     nodes.clear();
+  }
+
+  /* [degree] returns the (out-)degree of the node [v] in the graph.
+   *     [v]: The node whose degree is to be determined.
+   *
+   * Requires: [v] is present in the graph.
+   */
+  int degree(const Node *v) {
+    return nodes.at(v).size();
+  }
+
+  /* [isAdjacent] returns true if and only if [v] is adjacent to [u] in the graph,
+   *   i.e. it returns whether [v] is in the adjacency list of [u].
+   *     [u]: The vertex to be tested against for adjacency.
+   *     [v]: The vertex source to test.
+   *
+   * Requires: [u] and [v] are present in the graph.
+   */
+  bool isAdjacent(const Node *u, const Node *v) {
+    return (nodes[u].find(v) != nodes[v].end());
+  }
+
+  /* [adj] returns the list of nodes that are adjacent to [v] in the graph, i.e.
+   *   it returns the adjacency list of [v].
+   *     [v]: The node whose adjacency list is to be determined.
+   *
+   * Requires: [v] is present in the graph.
+   */
+  const std::set<const Node*> adj(const Node *v) {
+    return nodes.at(v);
   }
 
   /* [addVertex] adds the node [v] to the graph. It is initially not adjacent
@@ -91,36 +121,6 @@ public:
     nodes.at(u).erase(v);
   }
 
-  /* [degree] returns the (out-)degree of the node [v] in the graph.
-   *     [v]: The node whose degree is to be determined.
-   *
-   * Requires: [v] is present in the graph.
-   */
-  int degree(const Node *v) {
-    return nodes.at(v).size();
-  }
-
-  /* [isAdjacent] returns true if and only if [v] is adjacent to [u] in the graph,
-   *   i.e. it returns whether [v] is in the adjacency list of [u].
-   *     [u]: The vertex to be tested against for adjacency.
-   *     [v]: The vertex source to test.
-   *
-   * Requires: [u] and [v] are present in the graph.
-   */
-  bool isAdjacent(const Node *u, const Node *v) {
-    return (nodes[u].find(v) != nodes[v].end());
-  }
-
-  /* [adj] returns the list of nodes that are adjacent to [v] in the graph, i.e.
-   *   it returns the adjacency list of [v].
-   *     [v]: The node whose adjacency list is to be determined.
-   *
-   * Requires: [v] is present in the graph.
-   */
-  const std::set<const Node*> adj(const Node *v) {
-    return nodes.at(v);
-  }
-
   /* [begin] returns the starting position for looping over this graph with a
    *   simple iterator. Useful for range-based for loops in C++14.
    */
@@ -152,7 +152,7 @@ public:
 protected:
   // Actual graph structure, represented as an adjacency list (set) of nodes.
   std::map<const Node*, std::set<const Node*>> nodes;
-}
+};
 
 }
 
