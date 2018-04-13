@@ -1,5 +1,5 @@
-#ifndef APOLLO_GRAPH
-#define APOLLO_GRAPH
+#ifndef APOLLO_GRAPHS_GRAPH
+#define APOLLO_GRAPHS_GRAPH
 
 // Pull in some standard data structures.
 #include <map>

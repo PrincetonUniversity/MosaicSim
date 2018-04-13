@@ -1,5 +1,5 @@
-// Pull in the data-dependency graph class.
-#include "DataDependencyGraph.h"
+// Pull in the data-dependence graph class.
+#include "passes/DataDependenceGraph.h"
 
 // Pull in various LLVM structures necessary for writing the pass.
 #include "llvm/PassSupport.h"
@@ -16,13 +16,13 @@ namespace apollo {
 
   // See header file for comments.
 
-  char DataDependencyPass::ID = 0; // Default value.
+  char DataDependencePass::ID = 0; // Default value.
 
   // Register this LLVM pass with the pass manager.
-  RegisterPass<DataDependencyPass>
-    registerDDG("ddg", "Construct the data-dependency graph.");
+  RegisterPass<DataDependencePass>
+    registerDDG("ddg", "Construct the data-dependence graph.");
 
-  bool DataDependencyPass::runOnFunction(Function &fun) {
+  bool DataDependencePass::runOnFunction(Function &fun) {
     // Create nodes.
     for (auto &basicBlock : fun) {
       for (auto &inst : basicBlock) {
@@ -47,19 +47,19 @@ namespace apollo {
     return false;
   }
 
-  StringRef DataDependencyPass::getPassName() const {
-    return "data-dependency graph";
+  StringRef DataDependencePass::getPassName() const {
+    return "data-dependence graph";
   }
 
-  void DataDependencyPass::releaseMemory() {
+  void DataDependencePass::releaseMemory() {
     ddeps.clear(); // "Free" all of the entries
   }
 
-  void DataDependencyPass::getAnalysisUsage(AnalysisUsage &mgr) const {
+  void DataDependencePass::getAnalysisUsage(AnalysisUsage &mgr) const {
     mgr.setPreservesAll(); // No input transformation
   }
 
-  const Graph<Instruction> &DataDependencyPass::getGraph() const {
+  const Graph<Instruction> &DataDependencePass::getGraph() const {
     return ddeps;
   }
 

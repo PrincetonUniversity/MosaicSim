@@ -2,18 +2,18 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Name of the subdirectory.
-project(programs)
+project(visitors)
 
 # Add the files to be compiled from this subdirectory.
-file(GLOB PROGRAM_SOURCES "*.cpp")
+file(GLOB VISITOR_SOURCES "*.cpp")
 
 # Create a run-time library based on these source files from above.
-add_library(programs STATIC ${PROGRAM_SOURCES})
+add_library(visitors STATIC ${VISITOR_SOURCES})
 
 # Use C++14 to compile the pass.
 # Build the LLVM without any C++ run-time type information (RTTI).
 set_target_properties(
-  programs
+  visitors
   PROPERTIES
     COMPILE_FLAGS "-std=c++14 -fno-rtti"
 )

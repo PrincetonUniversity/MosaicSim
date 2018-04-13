@@ -19,17 +19,14 @@ include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
 # Use C++14 to compile the pass.
-# Build the LLVM without any C++ run-time type information (RTTI).
+# Build the LLVM with C++ run-time type information (RTTI).
 # Also build the .so library file without any prefixes (e.g. 'lib').
 set_target_properties(
   passes
   PROPERTIES
-    COMPILE_FLAGS "-std=c++14 -fno-rtti"
+    COMPILE_FLAGS "-std=c++14"
     PREFIX        ""
 )
-
-# Include the header files in the compilation process.
-target_include_directories(passes PUBLIC "headers")
 
 # Specify where the shared-library pass files should be created.
 install(TARGETS passes DESTINATION lib)

@@ -1,5 +1,5 @@
 // Pull in the control-flow graph class.
-#include "ControlFlowGraph.h"
+#include "passes/ControlFlowGraph.h"
 
 // For smart pointers (shared_ptr and unique_ptr);
 #include <memory>
@@ -72,7 +72,7 @@ namespace apollo {
         // Get the child of the post-dominated node
         BasicBlock *child = postDomNode->getBlock();
 
-        // Loop over all of the frontier blocks, conditioning on post-domination as above
+        // Loop over all of the frontier blocks, conditioning on post-domination
         for (const auto &frontBlock : frontier[child]) {
           if (node != tree.getNode(frontBlock)->getIDom()) {
             frontier[block].insert(frontBlock);

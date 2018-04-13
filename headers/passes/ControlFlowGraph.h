@@ -1,5 +1,5 @@
-#ifndef APOLLO_CTRL_FLOW_GRAPH
-#define APOLLO_CTRL_FLOW_GRAPH
+#ifndef APOLLO_PASSES_CTRLFLOWGRAPH
+#define APOLLO_PASSES_CTRLFLOWGRAPH
 
 // Pull in some standard data structures.
 #include <map>
@@ -15,7 +15,7 @@
 #include "llvm/PassAnalysisSupport.h"
 
 // Pull in the base graph class.
-#include "Graph.h"
+#include "graphs/Graph.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;

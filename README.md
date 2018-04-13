@@ -6,6 +6,7 @@
 
 This project was built with the following tools:
 
+ + GNU Make 3.81+ 
  + A `clang`/LLVM toolchain, 6.0.0+
  + `cmake` 3.10+
  + `ninja` 1.8.2 (optional)
@@ -29,3 +30,9 @@ Alternatively, run it without the flags to target `Makefile` instead. Then, a si
 Obviously, this is not a very good pass right now, but we hope to make it better. To generate the bitcode (`.bc`) file, one can use `clang` or `clang++`:
 
     clang++ -std=c++14 -emit-llvm -c SRC_FILE.cpp
+
+### Sources
+
+We used the following sources to aid in our design of this tool:
+
+1. [https://github.com/smanilov/icsa-dswp](https://github.com/smanilov/icsa-dswp)

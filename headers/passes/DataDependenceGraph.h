@@ -1,5 +1,5 @@
-#ifndef APOLLO_DATA_DEP_GRAPH
-#define APOLLO_DATA_DEP_GRAPH
+#ifndef APOLLO_PASSES_DATADEPGRAPH
+#define APOLLO_PASSES_DATADEPGRAPH
 
 // Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/Function.h"
@@ -8,7 +8,7 @@
 #include "llvm/PassAnalysisSupport.h"
 
 // Pull in the base graph class.
-#include "Graph.h"
+#include "graphs/Graph.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;
@@ -16,14 +16,14 @@ using namespace llvm;
 // Shared namespace within the project.
 namespace apollo {
 
-// Use a pass over functions in the LLVM IR to construct a data dependency graph.
-class DataDependencyPass : public FunctionPass {
+// Use a pass over functions in the LLVM IR to construct a data-dependence graph.
+class DataDependencePass : public FunctionPass {
 public:
   // Identifier for this pass.
   static char ID;
 
   // Simple constructor that just invokes the parent constructor by default.
-  DataDependencyPass() : FunctionPass(ID) { }
+  DataDependencePass() : FunctionPass(ID) { }
 
   /* [runOnFunction] is called on every function [fun] present in the original
    *   program's IR. It statically-analyzes the program structure to compress a
@@ -52,12 +52,12 @@ public:
    */
   void getAnalysisUsage(AnalysisUsage &mgr) const override;
 
-  /* [getGraph] returns the data-dependency graph in an unmodifiable form.
+  /* [getGraph] returns the data-dependence graph in an unmodifiable form.
    */
   const Graph<Instruction> &getGraph() const;
 
 private:
-  // Data-dependency graph, defined at the instruction-level granularity.
+  // Data-dependence graph, defined at the instruction-level granularity.
   Graph<Instruction> ddeps;
 };
 
