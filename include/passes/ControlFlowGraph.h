@@ -14,7 +14,7 @@
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 
-// Pull in the base graph class.
+// Pull in the all-encompassing node class.
 #include "graphs/Graph.h"
 
 // Avoid having to preface LLVM class names.

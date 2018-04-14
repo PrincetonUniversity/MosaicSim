@@ -4,5 +4,5 @@
 // Shared namespace within the project.
 using namespace apollo;
 
-ConstantNode::ConstantNode()
-  : BaseNode(Constant) { }
+ConstantNode::ConstantNode(Constant *con)
+  : BaseNode(ApolloConstant), con(con) { }

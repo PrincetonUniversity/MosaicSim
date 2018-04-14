@@ -4,6 +4,12 @@
 // Pull in the other node classes needed.
 #include "BaseNode.h"
 
+// Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/Operator.h"
+
+// Avoid having to preface LLVM class names.
+using namespace llvm;
+
 // Shared namespace within the project.
 namespace apollo {
 
@@ -20,16 +26,25 @@ class ProgramDependenceVisitor;
 class OperatorNode : public BaseNode {
 public:
   /* Constructor for operator nodes.
+   *     [op]: An LLVM operator (not an operator within an instruction).
    *
-   * Override: Just call the default BaseNode's constructor.
+   * Override: A simple wrapper around the provided parameter.
    */
-  OperatorNode();
+  OperatorNode(Operator *op);
 
   /* Destructor for operator nodes.
    *
    * Override: Use C++'s default destruction process.
    */
   virtual ~OperatorNode() override { }
+
+  /* Returns the operator around which this node wraps.
+   *
+   * Default: Non-overridable.
+   */
+  const Operator *getOperator() const {
+    return op;
+  }
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
@@ -76,9 +91,12 @@ public:
    *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
    */
   static bool classof(const BaseNode *n) {
-    return n->getType() == Operator;
+    return n->getType() == ApolloOperator;
   }
 
+private:
+  // The operator around which this node wraps.
+  const Operator *op;
 };
 
 }

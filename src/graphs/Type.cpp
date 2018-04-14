@@ -13,17 +13,13 @@ using namespace apollo;
 std::string Type::toString(NodeType t) {
   // Better than chaining together if-then-else statements.
   switch (t) {
-    case Base:
-      return "Base";
-    case Graph:
-      return "Graph";
-    case Constant:
+    case ApolloConstant:
       return "Constant";
-    case Instruction:
+    case ApolloInstruction:
       return "Instruction";
-    case Operator:
+    case ApolloOperator:
       return "Operator";
-    case BasicBlock:
+    case ApolloBasicBlock:
       return "BasicBlock";
     default:
       assert(false);

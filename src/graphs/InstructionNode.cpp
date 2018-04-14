@@ -4,5 +4,5 @@
 // Shared namespace within the project.
 using namespace apollo;
 
-InstructionNode::InstructionNode()
-  : BaseNode(Instruction) { }
+InstructionNode::InstructionNode(Instruction *inst)
+  : BaseNode(ApolloInstruction), inst(inst) { }

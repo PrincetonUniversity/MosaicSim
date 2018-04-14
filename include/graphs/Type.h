@@ -6,12 +6,10 @@ namespace apollo {
 
 // The underlying enumerated type that captures the information.
 enum NodeType {
-  Base,
-  Graph,
-  Constant,
-  Instruction,
-  Operator,
-  BasicBlock
+  ApolloConstant,
+  ApolloInstruction,
+  ApolloOperator,
+  ApolloBasicBlock
 };
 
 // A Type is a dynamic type of a node in a graph.

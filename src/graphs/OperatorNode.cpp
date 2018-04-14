@@ -4,5 +4,5 @@
 // Shared namespace within the project.
 using namespace apollo;
 
-OperatorNode::OperatorNode()
-  : BaseNode(Operator) { }
+OperatorNode::OperatorNode(Operator *op)
+  : BaseNode(ApolloOperator), op(op) { }

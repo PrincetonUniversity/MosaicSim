@@ -12,7 +12,6 @@ namespace apollo {
 // custom graph handling (e.g. "basic block nodes"). This allows for multiple
 // types of graphs to utilize this interface cleanly.
 class BaseNode;
-class GraphNode;
 class ConstantNode;
 class InstructionNode;
 class OperatorNode;
@@ -26,14 +25,6 @@ public:
    * Override: Use C++'s default destruction process.
    */
   virtual ~MemoryDependenceVisitor() { }
-
-  /* [visit] performs a stateful action on the top-level graph node [n].
-   *   Returns nothing.
-   *     [n]: A graph to visit.
-   *
-   * Override: TODO.
-   */
-  virtual void visit(GraphNode *n) override;
 
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.

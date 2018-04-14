@@ -5,6 +5,12 @@
 #include "BaseNode.h"
 #include "Type.h"
 
+// Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/BasicBlock.h"
+
+// Avoid having to preface LLVM class names.
+using namespace llvm;
+
 // Shared namespace within the project.
 namespace apollo {
 
@@ -23,16 +29,25 @@ class ProgramDependenceVisitor;
 class BasicBlockNode : public BaseNode {
 public:
   /* Constructor for basic block nodes.
+   *     [block]: A basic block of many LLVM instructions.
    *
-   * Override: Just call the default BaseNode's constructor.
+   * Override: A simple wrapper around the provided parameter.
    */
-  BasicBlockNode();
+  BasicBlockNode(BasicBlock *block);
 
   /* Destructor for nodes at the basic-block level of granularity.
    *
    * Override: Use C++'s default destruction process.
    */
   virtual ~BasicBlockNode() override { }
+
+  /* Returns the basic block around which this node wraps.
+   *
+   * Default: Non-overridable.
+   */
+  const BasicBlock *getBasicBlock() const {
+    return block;
+  }
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
@@ -79,9 +94,12 @@ public:
    *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
    */
   static bool classof(const BaseNode *n) {
-    return n->getType() == BasicBlock;
+    return n->getType() == ApolloBasicBlock;
   }
 
+private:
+  // The basic block around which this node wraps.
+  const BasicBlock *block;
 };
 
 }

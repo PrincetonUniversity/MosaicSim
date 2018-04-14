@@ -3,7 +3,6 @@
 
 // Pull in all of the node types into one place.
 #include "BaseNode.h"
-#include "GraphNode.h"
 #include "ConstantNode.h"
 #include "InstructionNode.h"
 #include "OperatorNode.h"

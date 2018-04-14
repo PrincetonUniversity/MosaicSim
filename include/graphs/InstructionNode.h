@@ -4,6 +4,12 @@
 // Pull in the other node classes needed.
 #include "BaseNode.h"
 
+// Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/Instruction.h"
+
+// Avoid having to preface LLVM class names.
+using namespace llvm;
+
 // Shared namespace within the project.
 namespace apollo {
 
@@ -20,16 +26,25 @@ class ProgramDependenceVisitor;
 class InstructionNode : public BaseNode {
 public:
   /* Constructor for instruction nodes.
+   *     [inst]: An LLVM instruction itself.
    *
-   * Override: Just call the default BaseNode's constructor.
+   * Override: A simple wrapper around the provided parameter.
    */
-  InstructionNode();
+  InstructionNode(Instruction *inst);
 
   /* Destructor for instruction nodes.
    *
    * Override: Use C++'s default destruction process.
    */
   virtual ~InstructionNode() override { }
+
+  /* Returns the instruction around which this node wraps.
+   *
+   * Default: Non-overridable.
+   */
+  const Instruction *getInstruction() const {
+    return inst;
+  }
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
@@ -76,9 +91,12 @@ public:
    *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
    */
   static bool classof(const BaseNode *n) {
-    return n->getType() == Instruction;
+    return n->getType() == ApolloInstruction;
   }
 
+private:
+  // The instruction around which this node wraps.
+  const Instruction *inst;
 };
 
 }

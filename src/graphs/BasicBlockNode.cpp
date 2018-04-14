@@ -4,5 +4,5 @@
 // Shared namespace within the project.
 using namespace apollo;
 
-BasicBlockNode::BasicBlockNode()
-  : BaseNode(BasicBlock) { }
+BasicBlockNode::BasicBlockNode(BasicBlock *block)
+  : BaseNode(ApolloBasicBlock), block(block) { }

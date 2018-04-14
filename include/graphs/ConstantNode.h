@@ -4,6 +4,12 @@
 // Pull in the other node classes needed.
 #include "BaseNode.h"
 
+// Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/Constant.h"
+
+// Avoid having to preface LLVM class names.
+using namespace llvm;
+
 // Shared namespace within the project.
 namespace apollo {
 
@@ -20,16 +26,25 @@ class ProgramDependenceVisitor;
 class ConstantNode : public BaseNode {
 public:
   /* Constructor for constant nodes.
+   *     [con]: A constant in an LLVM instruction.
    *
-   * Override: Just call the default BaseNode's constructor.
+   * Override: A simple wrapper around the provided parameter.
    */
-  ConstantNode();
+  ConstantNode(Constant *con);
 
   /* Destructor for constant nodes.
    *
    * Override: Use C++'s default destruction process.
    */
   virtual ~ConstantNode() override { }
+
+  /* Returns the constant around which this node wraps.
+   *
+   * Default: Non-overridable.
+   */
+  const Constant *getConstant() const {
+    return con;
+  }
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
@@ -76,9 +91,12 @@ public:
    *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
    */
   static bool classof(const BaseNode *n) {
-    return n->getType() == Constant;
+    return n->getType() == ApolloConstant;
   }
 
+private:
+  // The constant around which this node wraps.
+  const Constant *con;
 };
 
 }
