@@ -3,3 +3,21 @@
 
 // Shared namespace within the project.
 using namespace apollo;
+
+// See header file for comments.
+
+void ProgramDependenceVisitor::visit(ConstantNode *n) {
+  return;
+}
+
+void ProgramDependenceVisitor::visit(InstructionNode *n) {
+  return;
+}
+
+void ProgramDependenceVisitor::visit(OperatorNode *n) {
+  return;
+}
+
+void ProgramDependenceVisitor::visit(BasicBlockNode *n) {
+  return;
+}

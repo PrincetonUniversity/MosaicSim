@@ -8,7 +8,6 @@ namespace apollo {
 // Based on the types of users allowed by LLVM, but with augmentations for our
 // custom graph handling (e.g. "basic block nodes"). This allows for multiple
 // types of graphs to utilize this interface cleanly.
-class BaseNode;
 class ConstantNode;
 class InstructionNode;
 class OperatorNode;
