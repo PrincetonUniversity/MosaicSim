@@ -36,3 +36,5 @@ To generate a bitcode (`.bc`) file, one can use `clang` or `clang++`:
 We used the following sources to aid in our design of this tool:
 
 1. [https://github.com/smanilov/icsa-dswp](https://github.com/smanilov/icsa-dswp)
+
+2. [https://github.com/ysshao/ALADDIN](https://github.com/ysshao/ALADDIN)
