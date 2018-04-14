@@ -7,8 +7,9 @@
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 
-// Pull in the base graph class.
+// Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"
+#include "graphs/Node.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;
@@ -52,13 +53,12 @@ public:
    */
   void getAnalysisUsage(AnalysisUsage &mgr) const override;
 
-  /* [getGraph] returns the data-dependence graph in an unmodifiable form.
-   */
-  const Graph<Instruction> &getGraph() const;
+  /* [getGraph] returns the data-dependence graph in an unmodifiable form. */
+  const Graph<const BaseNode> getGraph() const;
 
 private:
   // Data-dependence graph, defined at the instruction-level granularity.
-  Graph<Instruction> ddeps;
+  Graph<const BaseNode> ddeps;
 };
 
 }

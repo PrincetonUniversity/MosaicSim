@@ -12,20 +12,20 @@
 namespace apollo {
 
 // Base class for all dependency graphs, parameterized on a node type.
-template <typename Node>
+template <typename T>
 class Graph {
 public:
   // Iterator on the actual nodes themselves.
-  typedef typename std::map<const Node*, std::set<const Node*>>::iterator
+  typedef typename std::map<T*, std::set<T*>>::iterator
     iterator;
   // Iterator on the adjacencies.
-  typedef typename std::set<const Node*>::iterator
+  typedef typename std::set<T*>::iterator
     adj_iterator;
   // Constant version of the iterator on actual nodes themselves.
-  typedef typename std::map<const Node*, std::set<const Node*>>::const_iterator
+  typedef typename std::map<T*, std::set<T*>>::const_iterator
     const_iterator;
   // Constant version of the iterator on the adjacencies.
-  typedef typename std::set<const Node*>::const_iterator
+  typedef typename std::set<T*>::const_iterator
     adj_const_iterator;
 
 
@@ -36,7 +36,7 @@ public:
     return nodes.empty();
   }
 
-  /* [clear] clears the graph so that it contains no vertices or edges.
+  /* [clear] clears the graph so that it contains no nodes or edges.
    */
   void clear() {
     nodes.clear();
@@ -47,18 +47,18 @@ public:
    *
    * Requires: [v] is present in the graph.
    */
-  int degree(const Node *v) {
+  int degree(T *v) {
     return nodes.at(v).size();
   }
 
   /* [isAdjacent] returns true if and only if [v] is adjacent to [u] in the graph,
    *   i.e. it returns whether [v] is in the adjacency list of [u].
-   *     [u]: The vertex to be tested against for adjacency.
-   *     [v]: The vertex source to test.
+   *     [u]: The node to be tested against for adjacency.
+   *     [v]: The node source to test.
    *
    * Requires: [u] and [v] are present in the graph.
    */
-  bool isAdjacent(const Node *u, const Node *v) {
+  bool isAdjacent(T *u, T *v) {
     return (nodes[u].find(v) != nodes[v].end());
   }
 
@@ -68,56 +68,56 @@ public:
    *
    * Requires: [v] is present in the graph.
    */
-  const std::set<const Node*> adj(const Node *v) {
+  const std::set<T*> adj(T *v) {
     return nodes.at(v);
   }
 
-  /* [addVertex] adds the node [v] to the graph. It is initially not adjacent
+  /* [addNode] adds the node [v] to the graph. It is initially not adjacent
    *   to any other node, i.e. its adjacency list is empty.
-   *     [v]: The vertex to add.
+   *     [v]: The node to add.
    *
    * Requires: [v] is not already present in the graph.
    */
-  void addVertex(const Node *v) {
+  void addNode(T *v) {
     nodes[v];
   }
 
-  /* [addVertex] deletes the node [v] from the graph.
-   *     [v]: The vertex to remove.
+  /* [removeNode] deletes the node [v] from the graph.
+   *     [v]: The node to remove.
    *
    * Requires: [v] is present in the graph.
    */
-  void removeVertex(const Node *v) {
-    // Loop through and remove all edge connections to this vertex.
+  void removeNode(T *v) {
+    // Loop through and remove all edge connections to this node.
     for (const auto &entry : nodes) {
       auto node = entry.first;
       auto adjs = entry.second;
       adjs.erase(v);
     }
-    // Finally, remove this vertex itself.
+    // Finally, remove this node itself.
     nodes.erase(v);
   }
 
   /* [addEdge] adds a directed edge from [u] to [v] in the graph. Thus, [v] is
    *   added to the end of the adjacency list of [u].
-   *     [u]: The starting vertex of the directed edge.
-   *     [v]: The ending vertex of the directed edge.
+   *     [u]: The starting node of the directed edge.
+   *     [v]: The ending node of the directed edge.
    *
    * Requires: [u] and [v] are present in the graph.
    */
-  void addEdge(const Node *u, const Node *v) {
+  void addEdge(T *u, T *v) {
     // Cannot have "parallel edges", i.e. multiple directed edges from u->v.
     nodes[u].insert(v);
   }
 
   /* [removeEdge] deletes the directed edge from [u] to [v] in the graph. Thus,
    *   [v] is removed from the adjacency list of [u].
-   *     [u]: The starting vertex of the directed edge to remove.
-   *     [v]: The ending vertex of the directed edge to remove.
+   *     [u]: The starting node of the directed edge to remove.
+   *     [v]: The ending node of the directed edge to remove.
    *
    * Requires: [v] is in the adjacency list of [u] in the graph.
    */
-  void removeEdge(const Node *u, const Node *v) {
+  void removeEdge(T *u, T *v) {
     nodes.at(u).erase(v);
   }
 
@@ -149,9 +149,9 @@ public:
     return nodes.cend();
   }
 
-protected:
+private:
   // Actual graph structure, represented as an adjacency list (set) of nodes.
-  std::map<const Node*, std::set<const Node*>> nodes;
+  std::map<T*, std::set<T*>> nodes;
 };
 
 }

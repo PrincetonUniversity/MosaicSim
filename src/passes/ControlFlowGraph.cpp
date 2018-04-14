@@ -1,11 +1,7 @@
 // Pull in the control-flow graph class.
 #include "passes/ControlFlowGraph.h"
 
-// For smart pointers (shared_ptr and unique_ptr);
-#include <memory>
-
 // Pull in various LLVM structures necessary for writing the pass.
-#include "llvm/IR/CFG.h"
 #include "llvm/PassSupport.h"
 
 // Avoid having to preface LLVM class names.
@@ -15,6 +11,12 @@ using namespace llvm;
 namespace apollo {
 
   // See header file for comments.
+
+  ControlFlowPass::~ControlFlowPass() {
+    for (auto &entry: cflows) {
+      delete entry.first;
+    }
+  }
 
   char ControlFlowPass::ID = 0; // Default value.
 
@@ -94,17 +96,20 @@ namespace apollo {
     // Loop through the post-dominant frontier and create CFG nodes.
     for (auto &entry : frontier) {
       BasicBlock *block = entry.first;
-      cflows.addVertex(block);
+      const auto &node = new BasicBlockNode(block);
+      cflows.addNode(node);
     }
 
     // Fill in the edges via the frontier. MUST be done second, as both nodes 
     // may not exist yet if this loop is done at the same time as the one above.
     for (auto &entry : frontier) {
       BasicBlock *sink = entry.first;
+      const auto &sinkNode = new BasicBlockNode(sink);
 
       // Loop over all of the sources and create an edge for each one
       for (auto &source : entry.second) {
-        cflows.addEdge(source, sink);
+        const auto &sourceNode = new BasicBlockNode(source);
+        cflows.addEdge(sourceNode, sinkNode);
       }
     }
 
@@ -124,7 +129,7 @@ namespace apollo {
     mgr.setPreservesAll(); // Retain all of the original dependencies
   }
 
-  const Graph<BasicBlock> &ControlFlowPass::getGraph() const {
+  const Graph<const BaseNode> ControlFlowPass::getGraph() const {
     return cflows;
   }
 

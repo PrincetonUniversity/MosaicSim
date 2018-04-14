@@ -7,15 +7,6 @@
 // Shared namespace within the project.
 namespace apollo {
 
-// All the types of nodes that are allowed to exist in our custom graph types.
-// Based on the types of users allowed by LLVM, but with augmentations for our
-// custom graph handling (e.g. "basic block nodes"). This allows for multiple
-// types of graphs to utilize this interface cleanly.
-class ConstantNode;
-class InstructionNode;
-class OperatorNode;
-class BasicBlockNode;
-
 // Use the Visitor pattern to operate over our custom graph types.
 class DataDependenceVisitor : public Visitor {
 public:

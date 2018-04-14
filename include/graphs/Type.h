@@ -1,6 +1,9 @@
 #ifndef APOLLO_GRAPHS_TYPE
 #define APOLLO_GRAPHS_TYPE
 
+// Pull in standard library for strings.
+#include <string>
+
 // Shared namespace within the project.
 namespace apollo {
 

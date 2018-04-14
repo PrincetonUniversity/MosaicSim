@@ -1,6 +1,3 @@
-// Pull in standard library for strings.
-#include <string>
-
 // For "assert false" defaults in switch statements.
 #include <assert.h>
 

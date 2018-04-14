@@ -1,9 +1,6 @@
 #ifndef APOLLO_GRAPHS_BASENODE
 #define APOLLO_GRAPHS_BASENODE
 
-// Pull in some standard data structures.
-#include <set>
-
 // Pull in the dynamic type lookup information.
 #include "graphs/Type.h"
 
@@ -89,9 +86,6 @@ public:
 private:
   // The dynamic type of the node being used.
   const NodeType type;
-
-  // The list of descendants of this node (i.e. all the adjacent nodes).
-  std::set<const BaseNode*> adjs;
 };
 
 }

@@ -6,5 +6,6 @@
 #include "ConstantNode.h"
 #include "InstructionNode.h"
 #include "OperatorNode.h"
+#include "BasicBlockNode.h"
 
 #endif

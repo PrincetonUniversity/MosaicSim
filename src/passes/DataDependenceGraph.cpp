@@ -26,7 +26,8 @@ namespace apollo {
     // Create nodes.
     for (auto &basicBlock : fun) {
       for (auto &inst : basicBlock) {
-        ddeps.addVertex(&inst);
+        const auto &instNode = new InstructionNode(&inst);
+        ddeps.addNode(instNode);
       }
     }
 
@@ -35,10 +36,12 @@ namespace apollo {
     // been created via the process above.
     for (auto &basicBlock : fun) {
       for (auto &inst : basicBlock) {
+        const auto &instNode = new InstructionNode(&inst);
         for (const auto &user : inst.users()) {
           // Adjacent instruction, if the RTTI-cast passes.
           if (auto adjInst = dyn_cast<Instruction>(user)) {
-            ddeps.addEdge(&inst, adjInst); // Add it to the mapping
+            const auto &adjInstNode = new InstructionNode(adjInst);
+            ddeps.addEdge(instNode, adjInstNode); // Add it to the mapping
           }
         }
       }
@@ -59,7 +62,7 @@ namespace apollo {
     mgr.setPreservesAll(); // No input transformation
   }
 
-  const Graph<Instruction> &DataDependencePass::getGraph() const {
+  const Graph<const BaseNode> DataDependencePass::getGraph() const {
     return ddeps;
   }
 

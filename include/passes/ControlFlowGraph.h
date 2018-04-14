@@ -8,14 +8,14 @@
 
 // Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/Function.h"
-#include "llvm/IR/BasicBlock.h"
 #include "llvm/IR/Dominators.h"
 #include "llvm/Analysis/PostDominators.h"
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 
-// Pull in the all-encompassing node class.
+// Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"
+#include "graphs/Node.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;
@@ -31,6 +31,10 @@ public:
 
   // Simple constructor that just invokes the parent constructor by default.
   ControlFlowPass() : FunctionPass(ID) { }
+
+  // Destructor that deletes the contents of the underlying graph by removing
+  // the nodes one by one.
+  ~ControlFlowPass();
 
   /* [runOnFunction] is called on every function [fun] present in the original
    *   program's IR. It statically-analyzes the program structure to compress a
@@ -59,13 +63,12 @@ public:
    */
   void getAnalysisUsage(AnalysisUsage &mgr) const override;
 
-  /* [getGraph] returns the control-flow graph in an unmodifiable form.
-   */
-  const Graph<BasicBlock> &getGraph() const;
+  /* [getGraph] returns the control-flow graph in an unmodifiable form. */
+  const Graph<const BaseNode> getGraph() const;
 
 private:
-  // Control-flow graph, defined at the basic block-level granularity.
-  Graph<BasicBlock> cflows;
+  // Control-flow graph, defined at the basic block level of granularity.
+  Graph<const BaseNode> cflows;
 
   /* [traverse] uses [tree] to construct a stack of nodes corresponding to a
    *   bottom-up version of a depth-first traversal on the post-dominator tree.
