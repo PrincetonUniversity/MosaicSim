@@ -19,6 +19,12 @@ class ProgramDependenceVisitor;
 // A ConstantNode is a node representing a constant in an LLVM instruction.
 class ConstantNode : public BaseNode {
 public:
+  /* Constructor for constant nodes.
+   *
+   * Override: Just call the default BaseNode's constructor.
+   */
+  ConstantNode();
+
   /* Destructor for constant nodes.
    *
    * Override: Use C++'s default destruction process.
@@ -64,6 +70,14 @@ public:
    * Override: TODO.
    */
   virtual void accept(ProgramDependenceVisitor &v) override;
+
+  /* [classof] returns true if the dynamic type of [n] is ConstantNode and
+   *   returns false otherwise. Necessary for LLVM-style RTTI support.
+   *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
+   */
+  static bool classof(const BaseNode *n) {
+    return n->getType() == Constant;
+  }
 
 };
 

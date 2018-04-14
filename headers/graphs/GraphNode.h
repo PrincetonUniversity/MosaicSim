@@ -21,6 +21,12 @@ class ProgramDependenceVisitor;
 // each graph during the recursive Visitor pattern.
 class GraphNode : public BaseNode {
 public:
+  /* Constructor for top-level graph nodes.
+   *
+   * Override: Just call the default BaseNode's constructor.
+   */
+  GraphNode();
+
   /* Destructor for top-level graph nodes.
    *
    * Override: Use C++'s default destruction process.
@@ -66,6 +72,14 @@ public:
    * Override: TODO.
    */
   virtual void accept(ProgramDependenceVisitor &v) override;
+
+  /* [classof] returns true if the dynamic type of [n] is GraphNode and returns
+   *   false otherwise. Necessary for LLVM-style RTTI support.
+   *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
+   */
+  static bool classof(const BaseNode *n) {
+    return n->getType() == Graph;
+  }
 
 };
 

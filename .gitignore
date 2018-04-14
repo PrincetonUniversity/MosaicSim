@@ -18,9 +18,6 @@ Makefile*
 *.o
 *.obj
 
-# Compiled Dynamic libraries
-*.so
-
 # Compiled Static libraries
 *.a
 *.lib

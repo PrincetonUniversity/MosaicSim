@@ -3,3 +3,6 @@
 
 // Shared namespace within the project.
 using namespace apollo;
+
+OperatorNode::OperatorNode()
+  : BaseNode(Operator) { }

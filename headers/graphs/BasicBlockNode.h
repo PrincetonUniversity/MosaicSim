@@ -3,6 +3,7 @@
 
 // Pull in the other node classes needed.
 #include "BaseNode.h"
+#include "Type.h"
 
 // Shared namespace within the project.
 namespace apollo {
@@ -21,6 +22,12 @@ class ProgramDependenceVisitor;
 // nodes to handle the "phi node" situation in control flow.
 class BasicBlockNode : public BaseNode {
 public:
+  /* Constructor for basic block nodes.
+   *
+   * Override: Just call the default BaseNode's constructor.
+   */
+  BasicBlockNode();
+
   /* Destructor for nodes at the basic-block level of granularity.
    *
    * Override: Use C++'s default destruction process.
@@ -66,6 +73,14 @@ public:
    * Override: TODO.
    */
   virtual void accept(ProgramDependenceVisitor &v) override;
+
+  /* [classof] returns true if the dynamic type of [n] is BasicBlockNode and
+   *   returns false otherwise. Necessary for LLVM-style RTTI support.
+   *     [n]: A node of static type BaseNode and a to-be-determined dynamic type.
+   */
+  static bool classof(const BaseNode *n) {
+    return n->getType() == BasicBlock;
+  }
 
 };
 
