@@ -1,6 +1,9 @@
 #ifndef APOLLO_VISITORS_VISITOR
 #define APOLLO_VISITORS_VISITOR
 
+// Pull in the all-encompassing graph class.
+#include "graphs/Graph.h"
+
 // Shared namespace within the project.
 namespace apollo {
 
@@ -8,6 +11,7 @@ namespace apollo {
 // Based on the types of users allowed by LLVM, but with augmentations for our
 // custom graph handling (e.g. "basic block nodes"). This allows for multiple
 // types of graphs to utilize this interface cleanly.
+class BaseNode;
 class ConstantNode;
 class InstructionNode;
 class OperatorNode;
@@ -21,6 +25,14 @@ public:
    * Default: Use C++'s default destruction process.
    */
   virtual ~Visitor() { }
+
+  /* [visit] performs a stateful action on the top-level graph [g].
+   *   Returns nothing.
+   *     [g]: A graph to visit.
+   *
+   * Default: Purely virtual. TODO: Fix.
+   */
+  virtual void visit(Graph<const BaseNode> *g) = 0;
 
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.

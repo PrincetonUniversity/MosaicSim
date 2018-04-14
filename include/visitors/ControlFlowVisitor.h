@@ -16,6 +16,14 @@ public:
    */
   virtual ~ControlFlowVisitor() { }
 
+  /* [visit] performs a stateful action on the top-level graph [g].
+   *   Returns nothing.
+   *     [g]: A graph to visit.
+   *
+   * Override: TODO.
+   */
+  virtual void visit(Graph<const BaseNode> *g) override;
+
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.
    *     [n]: A constant to visit.

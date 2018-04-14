@@ -6,6 +6,10 @@ using namespace apollo;
 
 // See header file for comments.
 
+void MemoryDependenceVisitor::visit(Graph<const BaseNode> *g) {
+  return;
+}
+
 void MemoryDependenceVisitor::visit(ConstantNode *n) {
   return;
 }
