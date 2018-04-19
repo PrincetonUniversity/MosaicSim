@@ -8,8 +8,6 @@
 
 // Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/Function.h"
-#include "llvm/IR/Dominators.h"
-#include "llvm/Analysis/PostDominators.h"
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 

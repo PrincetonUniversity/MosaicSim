@@ -10,7 +10,14 @@ namespace apollo {
 // Use the Visitor pattern to operate over our custom graph types.
 class VisualizationVisitor : public Visitor {
 public:
-  /* Destructor for dependence Visitors.
+  /* Constructor for visualization Visitors. Saves the name of the program.
+   *     [name]: The name of the program being run.
+   *
+   * Override: .
+   */
+  VisualizationVisitor(std::string name);
+
+  /* Destructor for visualization Visitors.
    *
    * Override: Use C++'s default destruction process.
    */
@@ -20,7 +27,7 @@ public:
    *   Returns nothing.
    *     [g]: A graph to visit.
    *
-   * Override: Visit the top-level dependence graph.
+   * Override: Visualize the top-level dependence graph.
    */
   virtual void visit(Graph<const BaseNode> *g) override;
 
@@ -28,7 +35,7 @@ public:
    *   Returns nothing.
    *     [n]: A constant to visit.
    *
-   * Override: Visit constants in the dependence graph.
+   * Override: Visualize constants in the dependence graph.
    */
   virtual void visit(ConstantNode *n) override;
 
@@ -36,7 +43,7 @@ public:
    *   Returns nothing.
    *     [n]: An instruction to visit.
    *
-   * Override: Visit instructions in the dependence graph.
+   * Override: Visualize instructions in the dependence graph.
    */
   virtual void visit(InstructionNode *n) override;
 
@@ -44,7 +51,7 @@ public:
    *   Returns nothing.
    *     [n]: An operator to visit.
    *
-   * Override: Visit operators in the dependence graph.
+   * Override: Visualize operators in the dependence graph.
    */
   virtual void visit(OperatorNode *n) override;
 
@@ -52,9 +59,13 @@ public:
    *   Returns nothing.
    *     [n]: A basic block to visit.
    *
-   * Override: Visit basic blocks in the dependence graph.
+   * Override: Visualize basic blocks in the dependence graph.
    */
   virtual void visit(BasicBlockNode *n) override;
+
+private:
+  // Save the name of the program, to be used when outputting a DOT file.
+  const std::string name;
 };
 
 }

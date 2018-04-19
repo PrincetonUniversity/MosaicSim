@@ -2,7 +2,9 @@
 #define APOLLO_PASSES_PROGPASS
 
 // Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/Function.h"
 #include "llvm/Pass.h"
+#include "llvm/PassAnalysisSupport.h"
 
 // Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"

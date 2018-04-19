@@ -2,6 +2,11 @@
 #include "passes/VisualizationPass.h"
 #include "passes/ProgramPass.h"
 
+// Pull in various LLVM structures necessary for writing the signatures.
+#include "llvm/IR/Module.h"
+#include "llvm/Pass.h"
+#include "llvm/PassAnalysisSupport.h"
+
 // Pull in the various visitor classes.
 #include "visitors/Visitors.h"
 
@@ -32,8 +37,11 @@ namespace apollo {
     registerVisualizer("viz", "Visualize the program's dependence graph.");
 
   bool VisualizationPass::runOnModule(Module &mdl) {
+    // Get the name so that it can be passed into the visualization file name
+    auto name = mdl.getSourceFileName();
+
     // Visit each of the nodes in the graph using a visualization algorithm
-    VisualizationVisitor vv;
+    VisualizationVisitor vv(name);
     vv.visit(&graph);
 
     return false;
