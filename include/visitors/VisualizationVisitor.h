@@ -1,5 +1,5 @@
-#ifndef APOLLO_VISITORS_DEPVISITOR
-#define APOLLO_VISITORS_DEPVISITOR
+#ifndef APOLLO_VISITORS_VISUALVISITOR
+#define APOLLO_VISITORS_VISUALVISITOR
 
 // Pull in the default visitor behaviors.
 #include "Visitor.h"
@@ -8,13 +8,13 @@
 namespace apollo {
 
 // Use the Visitor pattern to operate over our custom graph types.
-class DependenceVisitor : public Visitor {
+class VisualizationVisitor : public Visitor {
 public:
   /* Destructor for dependence Visitors.
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~DependenceVisitor() { }
+  virtual ~VisualizationVisitor() { }
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.

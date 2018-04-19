@@ -14,6 +14,6 @@ void OperatorNode::accept(Visitor &v) {
   v.visit(this);
 }
 
-void OperatorNode::accept(DependenceVisitor &v) {
+void OperatorNode::accept(VisualizationVisitor &v) {
   v.visit(this);
 }

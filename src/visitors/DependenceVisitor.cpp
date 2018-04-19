@@ -1,27 +1,27 @@
 // Pull in the dependence visitor behaviors.
-#include "visitors/DependenceVisitor.h"
+#include "visitors/VisualizationVisitor.h"
 
 // Shared namespace within the project.
 using namespace apollo;
 
 // See header file for comments.
 
-void DependenceVisitor::visit(Graph<const BaseNode> *g) {
+void VisualizationVisitor::visit(Graph<const BaseNode> *g) {
   return;
 }
 
-void DependenceVisitor::visit(ConstantNode *n) {
+void VisualizationVisitor::visit(ConstantNode *n) {
   return;
 }
 
-void DependenceVisitor::visit(InstructionNode *n) {
+void VisualizationVisitor::visit(InstructionNode *n) {
   return;
 }
 
-void DependenceVisitor::visit(OperatorNode *n) {
+void VisualizationVisitor::visit(OperatorNode *n) {
   return;
 }
 
-void DependenceVisitor::visit(BasicBlockNode *n) {
+void VisualizationVisitor::visit(BasicBlockNode *n) {
   return;
 }

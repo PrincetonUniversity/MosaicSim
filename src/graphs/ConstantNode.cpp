@@ -14,6 +14,6 @@ void ConstantNode::accept(Visitor &v) {
   v.visit(this);
 }
 
-void ConstantNode::accept(DependenceVisitor &v) {
+void ConstantNode::accept(VisualizationVisitor &v) {
   v.visit(this);
 }

@@ -17,7 +17,7 @@ namespace apollo {
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
 class Visitor;
-class DependenceVisitor;
+class VisualizationVisitor;
 
 // An InstructionNode is a node representing an LLVM instruction.
 class InstructionNode : public BaseNode {
@@ -45,19 +45,19 @@ public:
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
-   *     [v]: A generic visitor that operates on all types of graphs.
+   *     [v]: A generic visitor that operates on dependence graphs.
    *
    * Override: Accept generic visitors, but only to instructions.
    */
   virtual void accept(Visitor &v) override;
 
-  /* [accept] records actions from the overall-dependence visitor [v].
+  /* [accept] records actions from the visualization visitor [v].
    *   Returns nothing.
-   *     [v]: A visitor that only operates on dependence graphs.
+   *     [v]: A visualization visitor that operates on dependence graphs.
    *
-   * Override: Accept overall-dependence visitors, but only to instructions.
+   * Override: Accept visualization visitors, but only to instructions.
    */
-  virtual void accept(DependenceVisitor &v) override;
+  virtual void accept(VisualizationVisitor &v) override;
 
   /* [classof] returns true if the dynamic type of [n] is InstructionNode and
    *   returns false otherwise. Necessary for LLVM-style RTTI support.

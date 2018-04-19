@@ -18,7 +18,7 @@ namespace apollo {
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
 class Visitor;
-class DependenceVisitor;
+class VisualizationVisitor;
 
 // A BasicBlockNode is a node at the basic-block level of granularity, used in
 // control-flow graphs as the type of each node. Sometimes inserted as "dummy"
@@ -48,19 +48,19 @@ public:
 
   /* [accept] records actions from the generic visitor [v].
    *   Returns nothing.
-   *     [v]: A generic visitor that operates on all types of graphs.
+   *     [v]: A generic visitor that operates on dependence graphs.
    *
    * Override: Accept generic visitors, but only to basic blocks.
    */
   virtual void accept(Visitor &v) override;
 
-  /* [accept] records actions from the overall-dependence visitor [v].
+  /* [accept] records actions from the visualization visitor [v].
    *   Returns nothing.
-   *     [v]: A visitor that only operates on dependence graphs.
+   *     [v]: A visualization visitor that operates on dependence graphs.
    *
-   * Override: Accept overall-dependence visitors, but only to basic blocks.
+   * Override: Accept visualization visitors, but only to basic blocks.
    */
-  virtual void accept(DependenceVisitor &v) override;
+  virtual void accept(VisualizationVisitor &v) override;
 
   /* [classof] returns true if the dynamic type of [n] is BasicBlockNode and
    *   returns false otherwise. Necessary for LLVM-style RTTI support.

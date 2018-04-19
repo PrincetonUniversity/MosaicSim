@@ -32,7 +32,9 @@ namespace apollo {
     registerVisualizer("viz", "Visualize the program's dependence graph.");
 
   bool VisualizationPass::runOnModule(Module &mdl) {
-    // TODO: Add the visualization logic by calling a dependence visitor
+    // Visit each of the nodes in the graph using a visualization algorithm
+    VisualizationVisitor vv;
+    vv.visit(&graph);
 
     return false;
   }

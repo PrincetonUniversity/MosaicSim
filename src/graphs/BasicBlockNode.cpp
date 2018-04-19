@@ -14,6 +14,6 @@ void BasicBlockNode::accept(Visitor &v) {
   v.visit(this);
 }
 
-void BasicBlockNode::accept(DependenceVisitor &v) {
+void BasicBlockNode::accept(VisualizationVisitor &v) {
   v.visit(this);
 }

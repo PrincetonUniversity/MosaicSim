@@ -3,6 +3,6 @@
 
 // Pull in all of the visitor types into one place.
 #include "Visitor.h"
-#include "DependenceVisitor.h"
+#include "VisualizationVisitor.h"
 
 #endif

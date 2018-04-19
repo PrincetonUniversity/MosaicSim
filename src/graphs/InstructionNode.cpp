@@ -14,6 +14,6 @@ void InstructionNode::accept(Visitor &v) {
   v.visit(this);
 }
 
-void InstructionNode::accept(DependenceVisitor &v) {
+void InstructionNode::accept(VisualizationVisitor &v) {
   v.visit(this);
 }
