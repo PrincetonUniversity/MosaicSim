@@ -30,7 +30,7 @@ public:
    *   Returns nothing.
    *     [g]: A graph to visit.
    *
-   * Default: Purely virtual. TODO: Fix.
+   * Default: Purely virtual.
    */
   virtual void visit(Graph<const BaseNode> *g) = 0;
 
@@ -38,7 +38,7 @@ public:
    *   Returns nothing.
    *     [n]: A constant to visit.
    *
-   * Default: Purely virtual. TODO: Fix.
+   * Default: Purely virtual.
    */
   virtual void visit(ConstantNode *n) = 0;
 
@@ -46,7 +46,7 @@ public:
    *   Returns nothing.
    *     [n]: An instruction to visit.
    *
-   * Default: Purely virtual. TODO: Fix.
+   * Default: Purely virtual.
    */
   virtual void visit(InstructionNode *n) = 0;
 
@@ -54,7 +54,7 @@ public:
    *   Returns nothing.
    *     [n]: An operator to visit.
    *
-   * Default: Purely virtual. TODO: Fix.
+   * Default: Purely virtual.
    */
   virtual void visit(OperatorNode *n) = 0;
 
@@ -62,7 +62,7 @@ public:
    *   Returns nothing.
    *     [n]: A basic block to visit.
    *
-   * Default: Purely virtual. TODO: Fix.
+   * Default: Purely virtual.
    */
   virtual void visit(BasicBlockNode *n) = 0;
 };

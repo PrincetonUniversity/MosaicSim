@@ -1,5 +1,5 @@
-// Pull in the data-dependence graph class.
-#include "passes/DataDependenceGraph.h"
+// Pull in the data-dependence pass class.
+#include "passes/DataDependencePass.h"
 
 // Pull in various LLVM structures necessary for writing the pass.
 #include "llvm/PassSupport.h"
@@ -16,7 +16,13 @@ namespace apollo {
 
   // See header file for comments.
 
-  char DataDependencePass::ID = 0; // Default value.
+  DataDependencePass::~DataDependencePass() {
+    for (auto &entry: graph) {
+      delete entry.first;
+    }
+  }
+
+  char DataDependencePass::ID = 0;
 
   // Register this LLVM pass with the pass manager.
   RegisterPass<DataDependencePass>
@@ -27,7 +33,7 @@ namespace apollo {
     for (auto &basicBlock : fun) {
       for (auto &inst : basicBlock) {
         const auto &instNode = new InstructionNode(&inst);
-        ddeps.addNode(instNode);
+        graph.addNode(instNode);
       }
     }
 
@@ -38,11 +44,21 @@ namespace apollo {
       for (auto &inst : basicBlock) {
         const auto &instNode = new InstructionNode(&inst);
         for (const auto &user : inst.users()) {
+          // General declaration to make life easier.
+          const BaseNode *adjNode;
           // Adjacent instruction, if the RTTI-cast passes.
           if (auto adjInst = dyn_cast<Instruction>(user)) {
-            const auto &adjInstNode = new InstructionNode(adjInst);
-            ddeps.addEdge(instNode, adjInstNode); // Add it to the mapping
+            adjNode = new InstructionNode(adjInst);
+          } else if (auto adjCon = dyn_cast<Constant>(user)) {
+            adjNode = new ConstantNode(adjCon);
+          } else if (auto adjOp = dyn_cast<Operator>(user)) {
+            adjNode = new OperatorNode(adjOp);
+          } else {
+            // assert(false)
+            adjNode = nullptr; // No way to express this node type
           }
+          // Regardless of the dynamic type, just add it to the mapping
+          graph.addEdge(instNode, adjNode);
         }
       }
     }
@@ -55,15 +71,16 @@ namespace apollo {
   }
 
   void DataDependencePass::releaseMemory() {
-    ddeps.clear(); // "Free" all of the entries
+    graph.clear();
   }
 
   void DataDependencePass::getAnalysisUsage(AnalysisUsage &mgr) const {
-    mgr.setPreservesAll(); // No input transformation
+    // Analysis pass: No transformations on the program IR.
+    mgr.setPreservesAll();
   }
 
   const Graph<const BaseNode> DataDependencePass::getGraph() const {
-    return ddeps;
+    return graph;
   }
 
 }

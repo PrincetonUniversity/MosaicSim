@@ -14,10 +14,7 @@ namespace apollo {
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
 class Visitor;
-class DataDependenceVisitor;
-class ControlFlowVisitor;
-class MemoryDependenceVisitor;
-class ProgramDependenceVisitor;
+class DependenceVisitor;
 
 // Base class for all nodes (including top-level graph nodes).
 class BaseNode {
@@ -51,37 +48,13 @@ public:
    */
   virtual void accept(Visitor &v) = 0;
 
-  /* [accept] records actions from the data-dependence visitor [v].
+  /* [accept] records actions from the overall-dependence visitor [v].
    *   Returns nothing.
-   *     [v]: A visitor that only operates on data-dependence graphs.
+   *     [v]: A visitor that operates on dependence graphs.
    *
    * Default: Purely virtual.
    */
-  virtual void accept(DataDependenceVisitor &v) = 0;
-
-  /* [accept] records actions from the control-flow visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on control-flow graphs.
-   *
-   * Default: Purely virtual.
-   */
-  virtual void accept(ControlFlowVisitor &v) = 0;
-
-  /* [accept] records actions from the memory-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on memory-dependence graphs.
-   *
-   * Default: Purely virtual.
-   */
-  virtual void accept(MemoryDependenceVisitor &v) = 0;
-
-  /* [accept] records actions from the program-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on program-dependence graphs.
-   *
-   * Default: Purely virtual.
-   */
-  virtual void accept(ProgramDependenceVisitor &v) = 0;
+  virtual void accept(DependenceVisitor &v) = 0;
 
 private:
   // The dynamic type of the node being used.

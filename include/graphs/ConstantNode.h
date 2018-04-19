@@ -17,10 +17,7 @@ namespace apollo {
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
 class Visitor;
-class DataDependenceVisitor;
-class ControlFlowVisitor;
-class MemoryDependenceVisitor;
-class ProgramDependenceVisitor;
+class DependenceVisitor;
 
 // A ConstantNode is a node representing a constant in an LLVM instruction.
 class ConstantNode : public BaseNode {
@@ -50,41 +47,17 @@ public:
    *   Returns nothing.
    *     [v]: A generic visitor that operates on all types of graphs.
    *
-   * Override: TODO.
+   * Override: Accept generic visitors, but only to constants.
    */
   virtual void accept(Visitor &v) override;
 
-  /* [accept] records actions from the data-dependence visitor [v].
+  /* [accept] records actions from the overall-dependence visitor [v].
    *   Returns nothing.
-   *     [v]: A visitor that only operates on data-dependence graphs.
+   *     [v]: A visitor that only operates on dependence graphs.
    *
-   * Override: TODO.
+   * Override: Accept overall-dependence visitors, but only to constants.
    */
-  virtual void accept(DataDependenceVisitor &v) override;
-
-  /* [accept] records actions from the control-flow visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on control-flow graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(ControlFlowVisitor &v) override;
-
-  /* [accept] records actions from the memory-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on memory-dependence graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(MemoryDependenceVisitor &v) override;
-
-  /* [accept] records actions from the program-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on program-dependence graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(ProgramDependenceVisitor &v) override;
+  virtual void accept(DependenceVisitor &v) override;
 
   /* [classof] returns true if the dynamic type of [n] is ConstantNode and
    *   returns false otherwise. Necessary for LLVM-style RTTI support.

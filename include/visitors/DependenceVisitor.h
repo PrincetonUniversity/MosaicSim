@@ -1,5 +1,5 @@
-#ifndef APOLLO_VISITORS_PROGDEPVISITOR
-#define APOLLO_VISITORS_PROGDEPVISITOR
+#ifndef APOLLO_VISITORS_DEPVISITOR
+#define APOLLO_VISITORS_DEPVISITOR
 
 // Pull in the default visitor behaviors.
 #include "Visitor.h"
@@ -8,19 +8,19 @@
 namespace apollo {
 
 // Use the Visitor pattern to operate over our custom graph types.
-class ProgramDependenceVisitor : public Visitor {
+class DependenceVisitor : public Visitor {
 public:
-  /* Destructor for program-dependence Visitors.
+  /* Destructor for dependence Visitors.
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~ProgramDependenceVisitor() { }
+  virtual ~DependenceVisitor() { }
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.
    *     [g]: A graph to visit.
    *
-   * Override: TODO.
+   * Override: Visit the top-level dependence graph.
    */
   virtual void visit(Graph<const BaseNode> *g) override;
 
@@ -28,7 +28,7 @@ public:
    *   Returns nothing.
    *     [n]: A constant to visit.
    *
-   * Override: TODO.
+   * Override: Visit constants in the dependence graph.
    */
   virtual void visit(ConstantNode *n) override;
 
@@ -36,7 +36,7 @@ public:
    *   Returns nothing.
    *     [n]: An instruction to visit.
    *
-   * Override: TODO.
+   * Override: Visit instructions in the dependence graph.
    */
   virtual void visit(InstructionNode *n) override;
 
@@ -44,7 +44,7 @@ public:
    *   Returns nothing.
    *     [n]: An operator to visit.
    *
-   * Override: TODO.
+   * Override: Visit operators in the dependence graph.
    */
   virtual void visit(OperatorNode *n) override;
 
@@ -52,7 +52,7 @@ public:
    *   Returns nothing.
    *     [n]: A basic block to visit.
    *
-   * Override: TODO.
+   * Override: Visit basic blocks in the dependence graph.
    */
   virtual void visit(BasicBlockNode *n) override;
 };

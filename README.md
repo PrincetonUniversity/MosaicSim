@@ -9,7 +9,7 @@ This project was built with the following tools:
  + GNU Make 3.81+ 
  + `cmake` 3.10+
  + `ninja` 1.8.2
- + `clang`/LLVM toolchain, 6.0.0+
+ + `clang`/LLVM toolchain, 6.0.0+ (with C++14 support)
 
 No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible. :-)
 
@@ -38,3 +38,5 @@ We used the following sources to aid in our design of this tool:
 1. [https://github.com/smanilov/icsa-dswp](https://github.com/smanilov/icsa-dswp)
 
 2. [https://github.com/ysshao/ALADDIN](https://github.com/ysshao/ALADDIN)
+
+3. J. Ferrante, K. J. Ottenstein, and J. D. Warren, "The program dependence graph and its use in optimization," in *Symposium on Programming*, 1984.

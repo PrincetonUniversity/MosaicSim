@@ -18,10 +18,7 @@ namespace apollo {
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
 class Visitor;
-class DataDependenceVisitor;
-class ControlFlowVisitor;
-class MemoryDependenceVisitor;
-class ProgramDependenceVisitor;
+class DependenceVisitor;
 
 // A BasicBlockNode is a node at the basic-block level of granularity, used in
 // control-flow graphs as the type of each node. Sometimes inserted as "dummy"
@@ -53,41 +50,17 @@ public:
    *   Returns nothing.
    *     [v]: A generic visitor that operates on all types of graphs.
    *
-   * Override: TODO.
+   * Override: Accept generic visitors, but only to basic blocks.
    */
   virtual void accept(Visitor &v) override;
 
-  /* [accept] records actions from the data-dependence visitor [v].
+  /* [accept] records actions from the overall-dependence visitor [v].
    *   Returns nothing.
-   *     [v]: A visitor that only operates on data-dependence graphs.
+   *     [v]: A visitor that only operates on dependence graphs.
    *
-   * Override: TODO.
+   * Override: Accept overall-dependence visitors, but only to basic blocks.
    */
-  virtual void accept(DataDependenceVisitor &v) override;
-
-  /* [accept] records actions from the control-flow visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on control-flow graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(ControlFlowVisitor &v) override;
-
-  /* [accept] records actions from the memory-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on memory-dependence graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(MemoryDependenceVisitor &v) override;
-
-  /* [accept] records actions from the program-dependence visitor [v].
-   *   Returns nothing.
-   *     [v]: A visitor that only operates on program-dependence graphs.
-   *
-   * Override: TODO.
-   */
-  virtual void accept(ProgramDependenceVisitor &v) override;
+  virtual void accept(DependenceVisitor &v) override;
 
   /* [classof] returns true if the dynamic type of [n] is BasicBlockNode and
    *   returns false otherwise. Necessary for LLVM-style RTTI support.

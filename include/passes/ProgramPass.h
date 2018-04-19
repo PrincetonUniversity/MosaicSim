@@ -1,11 +1,8 @@
-#ifndef APOLLO_PASSES_DATADEPGRAPH
-#define APOLLO_PASSES_DATADEPGRAPH
+#ifndef APOLLO_PASSES_PROGPASS
+#define APOLLO_PASSES_PROGPASS
 
 // Pull in various LLVM structures necessary for writing the signatures.
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Instruction.h"
 #include "llvm/Pass.h"
-#include "llvm/PassAnalysisSupport.h"
 
 // Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"
@@ -17,28 +14,31 @@ using namespace llvm;
 // Shared namespace within the project.
 namespace apollo {
 
-// Use a pass over functions in the LLVM IR to construct a data-dependence graph.
-class DataDependencePass : public FunctionPass {
+// Use a pass over functions in the LLVM IR to construct a control-flow graph.
+class ProgramPass : public FunctionPass {
 public:
   // Identifier for this pass.
   static char ID;
 
   // Simple constructor that just invokes the parent constructor by default.
-  DataDependencePass() : FunctionPass(ID) { }
+  ProgramPass() : FunctionPass(ID) { }
+
+  // Destructor that deletes the contents of the underlying graph by removing
+  // the nodes one by one.
+  ~ProgramPass();
 
   /* [runOnFunction] is called on every function [fun] present in the original
    *   program's IR. It statically-analyzes the program structure to compress a
-   *   graph in which edges represent read-after-write dependencies. No other
-   *   relationships are captured in this single pass. Returns true if the pass
-   *   modifies the IR in any way, and returns false otherwise.
+   *   graph in which edges represent any sort of dependency. Thus, all of the
+   *   relationships are linked together in this single pass. Returns true if the
+   *   pass modifies the IR in any way, and returns false otherwise.
    *     [fun]: The function on which to run this pass.
    *
    * Requires: [fun] is present in the original program's IR.
    */
   bool runOnFunction(Function &fun) override;
 
-  /* [getPassName] returns a string specifying a customized name of the pass.
-   */
+  /* [getPassName] returns a string specifying a customized name of the pass. */
   StringRef getPassName() const override;
 
   /* [releaseMemory] frees the pass in the statistics calculation and ends its
@@ -46,9 +46,8 @@ public:
    */
   void releaseMemory() override;
 
-  /* [getAnalysisUsage] fills [mgr] with the list of passes that the current
-   *   pass depends on. In this case, the pass does not transform the input at
-   *   all by calling other passes.
+  /* [getAnalysisUsage] fills [mgr] with the appropriate metadata on whether this
+   *   pass analyzes or transforms the program IR.
    *     [mgr]: The pass state manager that tracks pass usages over time.
    */
   void getAnalysisUsage(AnalysisUsage &mgr) const override;
@@ -57,8 +56,9 @@ public:
   const Graph<const BaseNode> getGraph() const;
 
 private:
-  // Data-dependence graph, defined at the instruction-level granularity.
-  Graph<const BaseNode> ddeps;
+  // Internal graph state, defined at the most general granularity due to the
+  // heterogeneity of structures across the various passes.
+  Graph<const BaseNode> graph;
 };
 
 }
