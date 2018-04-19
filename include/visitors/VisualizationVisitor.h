@@ -13,15 +13,15 @@ public:
   /* Constructor for visualization Visitors. Saves the name of the program.
    *     [name]: The name of the program being run.
    *
-   * Override: .
+   * Override: Construct a visualization Visitor with a source program's name.
    */
-  VisualizationVisitor(std::string name);
+  VisualizationVisitor(const std::string name);
 
   /* Destructor for visualization Visitors.
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~VisualizationVisitor() { }
+  virtual ~VisualizationVisitor() override { }
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.

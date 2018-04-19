@@ -22,9 +22,9 @@ class Visitor {
 public:
   /* Destructor for all Visitors.
    *
-   * Default: Use C++'s default destruction process.
+   * Default: Purely virtual;
    */
-  virtual ~Visitor() { }
+  virtual ~Visitor() = 0;
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.

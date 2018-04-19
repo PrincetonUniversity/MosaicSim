@@ -11,11 +11,10 @@ file(GLOB GRAPH_SOURCES "*.cpp")
 add_library(graphs STATIC ${GRAPH_SOURCES})
 
 # Use C++14 to compile the pass.
-# Build the LLVM without any C++ run-time type information (RTTI).
 set_target_properties(
   graphs
   PROPERTIES
-    COMPILE_FLAGS "-std=c++14 -fno-rtti"
+    COMPILE_FLAGS "-std=c++14"
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib
 )
 

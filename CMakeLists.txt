@@ -12,5 +12,8 @@ add_definitions(${LLVM_DEFINITIONS})
 include_directories(${LLVM_INCLUDE_DIRS})
 link_directories(${LLVM_LIBRARY_DIRS})
 
+# Also add the `lib` subdirectory so that libraries can be linked together.
+link_directories(lib)
+
 # Recursively add the source files into the entire project.
 add_subdirectory(src)

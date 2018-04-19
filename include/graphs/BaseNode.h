@@ -28,9 +28,9 @@ public:
 
   /* Destructor for all nodes.
    *
-   * Default: Use C++'s default destruction process.
+   * Default: Purely virtual;
    */
-  virtual ~BaseNode() { }
+  virtual ~BaseNode() = 0;
 
   /* Returns the dynamic type of the node being used.
    *

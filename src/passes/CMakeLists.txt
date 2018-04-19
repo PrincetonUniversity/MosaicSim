@@ -11,12 +11,12 @@ file(GLOB PASS_SOURCES "*.cpp")
 add_library(passes MODULE ${PASS_SOURCES})
 
 # Use C++14 to compile the pass.
-# Build the LLVM with C++ run-time type information (RTTI).
+# Build the LLVM without C++ run-time type information (RTTI). IMPORTANT!!
 # Also build the .so library file without any prefixes (e.g. 'lib').
 set_target_properties(
   passes
   PROPERTIES
-    COMPILE_FLAGS "-std=c++14"
+    COMPILE_FLAGS "-std=c++14 -fno-rtti"
     PREFIX        ""
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib
 )
