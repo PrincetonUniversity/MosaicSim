@@ -32,7 +32,7 @@ public:
   /* Simple constructor that just invokes the parent constructor by default and
    *   initializes the internal state variables.
    */
-  ControlFlowPass() : FunctionPass(ID) { }
+  ControlFlowPass();
 
   /* Destructor that deletes the contents of the underlying graph (i.e. the
    *   internal state) by removing the nodes one by one.

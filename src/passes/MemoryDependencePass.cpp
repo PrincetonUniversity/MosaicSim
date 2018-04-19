@@ -1,5 +1,6 @@
-// Pull in the memory-dependence pass class.
+// Pull in the control-flow pass class and prerequisite pass classes.
 #include "passes/MemoryDependencePass.h"
+#include "passes/ControlFlowPass.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;
@@ -8,6 +9,12 @@ using namespace llvm;
 namespace apollo {
 
   // See header file for comments.
+
+  MemoryDependencePass::MemoryDependencePass()
+    : FunctionPass(ID) {
+    auto passedGraph = Pass::getAnalysis<ControlFlowPass>().getGraph();
+    graph = passedGraph;
+  }
 
   MemoryDependencePass::~MemoryDependencePass() {
     for (auto &entry: graph) {
@@ -34,6 +41,9 @@ namespace apollo {
   }
 
   void MemoryDependencePass::getAnalysisUsage(AnalysisUsage &mgr) const {
+    // Pull in earlier/prerequisite passes.
+    mgr.addRequiredTransitive<ControlFlowPass>();
+
     // Analysis pass: No transformations on the program IR.
     mgr.setPreservesAll();
   }

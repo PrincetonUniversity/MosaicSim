@@ -14,7 +14,7 @@ using namespace llvm;
 // Shared namespace within the project.
 namespace apollo {
 
-// Use a pass over functions in the LLVM IR to construct a control-flow graph.
+// Use a pass over functions in the LLVM IR to construct a memory-dependence graph.
 class MemoryDependencePass : public FunctionPass {
 public:
   // Identifier for this pass.
@@ -23,7 +23,7 @@ public:
   /* Simple constructor that just invokes the parent constructor by default and
    *   initializes the internal state variables.
    */
-  MemoryDependencePass() : FunctionPass(ID) { }
+  MemoryDependencePass();
 
   /* Destructor that deletes the contents of the underlying graph (i.e. the
    *   internal state) by removing the nodes one by one.

@@ -14,17 +14,20 @@ using namespace llvm;
 // Shared namespace within the project.
 namespace apollo {
 
-// Use a pass over functions in the LLVM IR to construct a control-flow graph.
+// Use a pass over functions in the LLVM IR to construct an overall-dependence graph.
 class ProgramPass : public FunctionPass {
 public:
   // Identifier for this pass.
   static char ID;
 
-  // Simple constructor that just invokes the parent constructor by default.
-  ProgramPass() : FunctionPass(ID) { }
+  /* Simple constructor that just invokes the parent constructor by default and
+   *   initializes the internal state variables.
+   */
+  ProgramPass();
 
-  // Destructor that deletes the contents of the underlying graph by removing
-  // the nodes one by one.
+  /* Destructor that deletes the contents of the underlying graph (i.e. the
+   *   internal state) by removing the nodes one by one.
+   */
   ~ProgramPass();
 
   /* [runOnFunction] is called on every function [fun] present in the original

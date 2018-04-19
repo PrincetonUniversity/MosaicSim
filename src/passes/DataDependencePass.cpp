@@ -16,6 +16,11 @@ namespace apollo {
 
   // See header file for comments.
 
+  DataDependencePass::DataDependencePass()
+    : FunctionPass(ID) {
+
+  }
+
   DataDependencePass::~DataDependencePass() {
     for (auto &entry: graph) {
       delete entry.first;

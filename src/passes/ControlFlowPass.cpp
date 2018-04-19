@@ -1,5 +1,6 @@
-// Pull in the control-flow pass class.
+// Pull in the control-flow pass class and prerequisite pass classes.
 #include "passes/ControlFlowPass.h"
+#include "passes/DataDependencePass.h"
 
 // Pull in various LLVM structures necessary for writing the pass.
 #include "llvm/PassSupport.h"
@@ -11,6 +12,12 @@ using namespace llvm;
 namespace apollo {
 
   // See header file for comments.
+
+  ControlFlowPass::ControlFlowPass()
+    : FunctionPass(ID) {
+    auto passedGraph = Pass::getAnalysis<DataDependencePass>().getGraph();
+    graph = passedGraph;
+  }
 
   ControlFlowPass::~ControlFlowPass() {
     for (auto &entry: graph) {
@@ -37,6 +44,9 @@ namespace apollo {
   }
 
   void ControlFlowPass::getAnalysisUsage(AnalysisUsage &mgr) const {
+    // Pull in earlier/prerequisite passes.
+    mgr.addRequiredTransitive<DataDependencePass>();
+
     // Analysis pass: No transformations on the program IR.
     mgr.setPreservesAll();
   }

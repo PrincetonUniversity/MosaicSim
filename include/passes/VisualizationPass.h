@@ -1,11 +1,8 @@
-#ifndef APOLLO_PASSES_DATADEPPASS
-#define APOLLO_PASSES_DATADEPPASS
+#ifndef APOLLO_PASSES_VISUALPASS
+#define APOLLO_PASSES_VISUALPASS
 
 // Pull in various LLVM structures necessary for writing the signatures.
-#include "llvm/IR/Function.h"
-#include "llvm/IR/Instruction.h"
 #include "llvm/Pass.h"
-#include "llvm/PassAnalysisSupport.h"
 
 // Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"
@@ -17,8 +14,8 @@ using namespace llvm;
 // Shared namespace within the project.
 namespace apollo {
 
-// Use a pass over functions in the LLVM IR to construct a data-dependence graph.
-class DataDependencePass : public FunctionPass {
+// Use a pass over programs in the LLVM IR to visualize an overall-dependence graph.
+class VisualizationPass : public ModulePass {
 public:
   // Identifier for this pass.
   static char ID;
@@ -26,23 +23,22 @@ public:
   /* Simple constructor that just invokes the parent constructor by default and
    *   initializes the internal state variables.
    */
-  DataDependencePass();
+  VisualizationPass();
 
   /* Destructor that deletes the contents of the underlying graph (i.e. the
    *   internal state) by removing the nodes one by one.
    */
-  ~DataDependencePass();
+  ~VisualizationPass();
 
-  /* [runOnFunction] is called on every function [fun] present in the original
-   *   program's IR. It statically-analyzes the program structure to compress a
-   *   graph in which edges represent read-after-write dependencies. No other
-   *   relationships are captured in this single pass. Returns true if the pass
-   *   modifies the IR in any way, and returns false otherwise.
-   *     [fun]: The function on which to run this pass.
+  /* [runOnModule] is called on the overall module [mdl] present in the original
+   *   program's IR. It statically-analyzes the program visualize the resulting
+   *   overall dependency graph. Returns true if the pass modifies the IR in any
+   *   way, and returns false otherwise.
+   *     [mdl]: The module on which to run this pass.
    *
-   * Requires: [fun] is present in the original program's IR.
+   * Requires: [mdl] is present in the original program's IR.
    */
-  bool runOnFunction(Function &fun) override;
+  bool runOnModule(Module &mdl) override;
 
   /* [getPassName] returns a string specifying a customized name of the pass. */
   StringRef getPassName() const override;
@@ -57,9 +53,6 @@ public:
    *     [mgr]: The pass state manager that tracks pass usages over time.
    */
   void getAnalysisUsage(AnalysisUsage &mgr) const override;
-
-  /* [getGraph] returns the data-dependence graph in an unmodifiable form. */
-  const Graph<const BaseNode> getGraph() const;
 
 private:
   // Internal graph state, defined at the most general granularity due to the
