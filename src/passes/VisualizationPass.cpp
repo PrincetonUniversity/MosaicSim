@@ -4,67 +4,62 @@
 
 // Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/Module.h"
+#include "llvm/IR/Function.h"
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 
 // Pull in the various visitor classes.
 #include "visitors/Visitors.h"
 
+// Pull in the appropriate node classes.
+#include "graphs/Node.h"
+
 // Avoid having to preface LLVM class names.
 using namespace llvm;
 
 // Shared namespace within the project.
-namespace apollo {
+using namespace apollo;
 
-  // See header file for comments.
+// See header file for comments.
 
-  VisualizationPass::VisualizationPass()
-    : ModulePass(ID) { }
+VisualizationPass::VisualizationPass()
+  : FunctionPass(ID) { }
 
-  VisualizationPass::~VisualizationPass() {
-    for (auto &entry: graph) {
-      delete entry.first;
-    }
+VisualizationPass::~VisualizationPass() {
+  for (auto &entry: graph) {
+    delete entry.first;
   }
+}
 
-  char VisualizationPass::ID = 0;
+char VisualizationPass::ID = 0;
 
-  // Register this LLVM pass with the pass manager.
-  RegisterPass<VisualizationPass>
-    registerVisualizer("viz", "Visualize the program's dependence graph.");
+// Register this LLVM pass with the pass manager.
+RegisterPass<VisualizationPass>
+  registerVisualizer("viz", "Visualize the program's dependence graph.");
 
-  bool VisualizationPass::runOnModule(Module &mdl) {
-    for (auto &funct : mdl) {
-      // "Constructor" by pulling in the information from earlier passes.
-      graph = Pass::getAnalysis<ProgramPass>(funct).getGraph();
+bool VisualizationPass::runOnFunction(Function &fun) {
+  // "Constructor" by pulling in the information from earlier passes.
+  graph = Pass::getAnalysis<ProgramPass>(fun).getGraph();
 
-      // Get the name so that it can be passed into the visualization file name
-      auto name = (mdl.getName()   + "-"
-                +  funct.getName() + "-"
-                +  mdl.getSourceFileName()).str();
+  // Get the name so that it can be passed into the visualization file name
+  auto name = (fun.getName() + "-"
+            +  fun.getParent()->getSourceFileName()).str();
 
-      // Visit each of the nodes in the graph using a visualization algorithm
-      VisualizationVisitor vv(name);
-      vv.visit(&graph);
-    }
+  // Visit each of the nodes in the graph using a visualization algorithm
+  VisualizationVisitor vv(name);
+  vv.visit(graph);
 
-    return false;
-  }
+  return false;
+}
 
-  //StringRef VisualizationPass::getPassName() const {
-  //  return "dependence graph visualizer";
-  //}
+void VisualizationPass::releaseMemory() {
+  graph.clear();
+}
 
-  void VisualizationPass::releaseMemory() {
-    graph.clear();
-  }
+void VisualizationPass::getAnalysisUsage(AnalysisUsage &mgr) const {
+  // Pull in earlier/prerequisite passes.
+  mgr.addRequiredTransitive<ProgramPass>();
 
-  void VisualizationPass::getAnalysisUsage(AnalysisUsage &mgr) const {
-    // Pull in earlier/prerequisite passes.
-    mgr.addRequiredTransitive<ProgramPass>();
-
-    // Analysis pass: No transformations on the program IR.
-    mgr.setPreservesAll();
-  }
-
+  // Analysis pass: No transformations on the program IR.
+  mgr.setPreservesAll();
 }

@@ -14,11 +14,11 @@ foreach(program ${PROGRAM_SOURCES})
 
   # Set the appropriate arguments for the custom compilation command.
   set(COMPILER clang++)
-  set(FLAGS -std=c++11 -emit-llvm -S -c)
+  set(FLAGS -std=c++11 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S)
   set(SRC ${program})
   set(OUTPUT ${CMAKE_SOURCE_DIR}/bin/${base}.ll)
 
-  # Builds the appropriate llvm IR file out of the source/base file.
+  # Builds the appropriate LLVM IR file out of the source/base file.
   add_custom_command(
     OUTPUT  ${OUTPUT}
     COMMAND ${COMPILER} ${FLAGS} ${SRC} -o ${OUTPUT}

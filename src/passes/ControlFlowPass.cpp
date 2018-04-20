@@ -5,6 +5,9 @@
 // Pull in various LLVM structures necessary for writing the pass.
 #include "llvm/PassSupport.h"
 
+// Pull in the appropriate node classes.
+#include "graphs/Node.h"
+
 // Avoid having to preface LLVM class names.
 using namespace llvm;
 
@@ -33,10 +36,6 @@ bool ControlFlowPass::runOnFunction(Function &fun) {
   graph = Pass::getAnalysis<DataDependencePass>().getGraph();
   return false;
 }
-
-//StringRef ControlFlowPass::getPassName() const {
-//  return "control-flow graph";
-//}
 
 void ControlFlowPass::releaseMemory() {
   graph.clear();

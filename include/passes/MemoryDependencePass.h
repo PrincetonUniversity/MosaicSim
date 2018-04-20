@@ -8,13 +8,22 @@
 
 // Pull in the all-encompassing graph and node classes.
 #include "graphs/Graph.h"
-#include "graphs/Node.h"
 
 // Avoid having to preface LLVM class names.
 using namespace llvm;
 
 // Shared namespace within the project.
 namespace apollo {
+
+// All the types of nodes that are allowed to exist in our custom graph types.
+// Based on the types of users allowed by LLVM, but with augmentations for our
+// custom graph handling (e.g. "basic block nodes"). This allows for multiple
+// types of graphs to utilize this interface cleanly.
+class BaseNode;
+class ConstantNode;
+class InstructionNode;
+class OperatorNode;
+class BasicBlockNode;
 
 // Use a pass over functions in the LLVM IR to construct a memory-dependence graph.
 class MemoryDependencePass : public FunctionPass {
@@ -42,9 +51,6 @@ public:
    * Requires: [fun] is present in the original program's IR.
    */
   virtual bool runOnFunction(Function &fun) override;
-
-  /* [getPassName] returns a string specifying a customized name of the pass. */
-  //virtual StringRef getPassName() const override;
 
   /* [releaseMemory] frees the pass in the statistics calculation and ends its
    *   lifetime from the perspective of usage analyses.

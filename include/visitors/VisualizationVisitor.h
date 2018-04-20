@@ -29,7 +29,7 @@ public:
    *
    * Override: Visualize the top-level dependence graph.
    */
-  virtual void visit(Graph<const BaseNode> *g) override;
+  virtual void visit(Graph<const BaseNode> g) override;
 
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.

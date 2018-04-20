@@ -3,7 +3,6 @@
 
 // Pull in the other node classes needed.
 #include "BaseNode.h"
-#include "Type.h"
 
 // Pull in various LLVM structures necessary for writing the signatures.
 #include "llvm/IR/BasicBlock.h"

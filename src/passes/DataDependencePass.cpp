@@ -5,6 +5,9 @@
 #include "llvm/PassSupport.h"
 #include "llvm/IR/User.h"
 
+// Pull in the appropriate node classes.
+#include "graphs/Node.h"
+
 // Pull in LLVM-style RTTI for castings.
 #include "llvm/Support/Casting.h"
 
@@ -68,10 +71,6 @@ bool DataDependencePass::runOnFunction(Function &fun) {
 
   return false;
 }
-
-//StringRef DataDependencePass::getPassName() const {
-//  return "data-dependence graph";
-//}
 
 void DataDependencePass::releaseMemory() {
   graph.clear();

@@ -32,7 +32,7 @@ public:
    *
    * Default: Purely virtual.
    */
-  virtual void visit(Graph<const BaseNode> *g) = 0;
+  virtual void visit(Graph<const BaseNode> g) = 0;
 
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.

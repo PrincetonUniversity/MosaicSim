@@ -2,7 +2,7 @@
 #define APOLLO_GRAPHS_BASENODE
 
 // Pull in the dynamic type lookup information.
-#include "graphs/Type.h"
+#include "Type.h"
 
 // Pull in LLVM-style RTTI functions.
 #include "llvm/Support/Casting.h"
