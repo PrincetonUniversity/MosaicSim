@@ -69,9 +69,9 @@ bool DataDependencePass::runOnFunction(Function &fun) {
   return false;
 }
 
-StringRef DataDependencePass::getPassName() const {
-  return "data-dependence graph";
-}
+//StringRef DataDependencePass::getPassName() const {
+//  return "data-dependence graph";
+//}
 
 void DataDependencePass::releaseMemory() {
   graph.clear();

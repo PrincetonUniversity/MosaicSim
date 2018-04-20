@@ -29,7 +29,7 @@ in the root directory will generate the pass in the `lib` directory. One can the
   
 To generate a bitcode (`.bc`) file, one can use `clang` or `clang++`:
 
-    clang++ -std=c++14 -emit-llvm -c SRC_FILE.cpp
+    clang++ -std=c++11 -emit-llvm -c SRC_FILE.cpp
 
 ### Sources
 

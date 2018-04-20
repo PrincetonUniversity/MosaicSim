@@ -34,9 +34,9 @@ bool ProgramPass::runOnFunction(Function &fun) {
   return false;
 }
 
-StringRef ProgramPass::getPassName() const {
-  return "dependence graph";
-}
+//StringRef ProgramPass::getPassName() const {
+//  return "dependence graph";
+//}
 
 void ProgramPass::releaseMemory() {
   graph.clear();

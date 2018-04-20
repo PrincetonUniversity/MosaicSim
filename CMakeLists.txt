@@ -5,9 +5,9 @@ cmake_minimum_required(VERSION 3.10)
 if (APPLE)
   set(CMAKE_C_COMPILER "/usr/local/opt/llvm/bin/clang")
   set(CMAKE_CXX_COMPILER "/usr/local/opt/llvm/bin/clang++")
-elseif (LINUX)
-  set(CMAKE_C_COMPILER "/usr/local/bin/clang")
-  set(CMAKE_CXX_COMPILER "/usr/local/bin/clang++")
+#elseif (LINUX)
+#  set(CMAKE_C_COMPILER "/usr/local/bin/clang")
+#  set(CMAKE_CXX_COMPILER "/usr/local/bin/clang++")
 endif (APPLE)
 
 # Add functionality to handle LLVM bitcode generation in CMake more simply.

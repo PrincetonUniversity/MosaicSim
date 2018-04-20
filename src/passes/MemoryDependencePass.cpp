@@ -34,9 +34,9 @@ bool MemoryDependencePass::runOnFunction(Function &fun) {
   return false;
 }
 
-StringRef MemoryDependencePass::getPassName() const {
-  return "memory-dependence graph";
-}
+//StringRef MemoryDependencePass::getPassName() const {
+//  return "memory-dependence graph";
+//}
 
 void MemoryDependencePass::releaseMemory() {
   graph.clear();

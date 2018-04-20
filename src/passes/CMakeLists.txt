@@ -16,7 +16,7 @@ add_library(DependenceGraph MODULE ${PASS_SOURCES})
 set_target_properties(
   DependenceGraph
   PROPERTIES
-    COMPILE_FLAGS "-std=c++14 -fno-rtti"
+    COMPILE_FLAGS "-std=c++11 -fno-rtti"
     PREFIX        ""
     LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib
 )

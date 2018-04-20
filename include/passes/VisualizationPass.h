@@ -41,7 +41,7 @@ public:
   virtual bool runOnModule(Module &mdl) override;
 
   /* [getPassName] returns a string specifying a customized name of the pass. */
-  virtual StringRef getPassName() const override;
+  //virtual StringRef getPassName() const override;
 
   /* [releaseMemory] frees the pass in the statistics calculation and ends its
    *   lifetime from the perspective of usage analyses.

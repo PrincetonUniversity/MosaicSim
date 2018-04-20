@@ -14,11 +14,11 @@ foreach(program ${PROGRAM_SOURCES})
 
   # Set the appropriate arguments for the custom compilation command.
   set(COMPILER clang++)
-  set(FLAGS -std=c++14 -emit-llvm -c)
+  set(FLAGS -std=c++11 -emit-llvm -S -c)
   set(SRC ${program})
-  set(OUTPUT ${CMAKE_SOURCE_DIR}/bin/${base}.bc)
+  set(OUTPUT ${CMAKE_SOURCE_DIR}/bin/${base}.ll)
 
-  # Builds the appropriate bitcode file out of the source/base file.
+  # Builds the appropriate llvm IR file out of the source/base file.
   add_custom_command(
     OUTPUT  ${OUTPUT}
     COMMAND ${COMPILER} ${FLAGS} ${SRC} -o ${OUTPUT}
@@ -27,7 +27,7 @@ foreach(program ${PROGRAM_SOURCES})
 
   # Create the custom target based on the output information.
   add_custom_target(
-    ${base}.bc
+    ${base}.ll
     ALL DEPENDS
       ${OUTPUT}
   )

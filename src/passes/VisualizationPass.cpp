@@ -51,9 +51,9 @@ namespace apollo {
     return false;
   }
 
-  StringRef VisualizationPass::getPassName() const {
-    return "dependence graph visualizer";
-  }
+  //StringRef VisualizationPass::getPassName() const {
+  //  return "dependence graph visualizer";
+  //}
 
   void VisualizationPass::releaseMemory() {
     graph.clear();

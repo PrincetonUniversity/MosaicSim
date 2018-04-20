@@ -34,9 +34,9 @@ bool ControlFlowPass::runOnFunction(Function &fun) {
   return false;
 }
 
-StringRef ControlFlowPass::getPassName() const {
-  return "control-flow graph";
-}
+//StringRef ControlFlowPass::getPassName() const {
+//  return "control-flow graph";
+//}
 
 void ControlFlowPass::releaseMemory() {
   graph.clear();

@@ -15,7 +15,7 @@ add_library(visitors STATIC ${VISITOR_SOURCES})
 set_target_properties(
   visitors
   PROPERTIES
-    COMPILE_FLAGS "-std=c++14"
+    COMPILE_FLAGS "-std=c++11"
     PREFIX        ""
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib
 )

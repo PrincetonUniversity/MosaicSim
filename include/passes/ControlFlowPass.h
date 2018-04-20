@@ -49,7 +49,7 @@ public:
   virtual bool runOnFunction(Function &fun) override;
 
   /* [getPassName] returns a string specifying a customized name of the pass. */
-  virtual StringRef getPassName() const override;
+  // virtual getPassName() const override;
 
   /* [releaseMemory] frees the pass in the statistics calculation and ends its
    *   lifetime from the perspective of usage analyses.
