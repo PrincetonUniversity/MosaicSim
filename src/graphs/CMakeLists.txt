@@ -11,10 +11,12 @@ file(GLOB GRAPH_SOURCES "*.cpp")
 add_library(graphs STATIC ${GRAPH_SOURCES})
 
 # Use C++14 to compile the pass.
+# Also build the .a library file without any prefixes (e.g. 'lib').
 set_target_properties(
   graphs
   PROPERTIES
     COMPILE_FLAGS "-std=c++14"
+    PREFIX        ""
     ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib
 )
 

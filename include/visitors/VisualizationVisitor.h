@@ -21,7 +21,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~VisualizationVisitor() override { }
+  virtual ~VisualizationVisitor() override;
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.

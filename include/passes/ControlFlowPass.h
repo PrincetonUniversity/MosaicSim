@@ -35,7 +35,7 @@ public:
   /* Destructor that deletes the contents of the underlying graph (i.e. the
    *   internal state) by removing the nodes one by one.
    */
-  ~ControlFlowPass();
+  virtual ~ControlFlowPass() override;
 
   /* [runOnFunction] is called on every function [fun] present in the original
    *   program's IR. It statically-analyzes the program structure to compress a
@@ -46,21 +46,21 @@ public:
    *
    * Requires: [fun] is present in the original program's IR.
    */
-  bool runOnFunction(Function &fun) override;
+  virtual bool runOnFunction(Function &fun) override;
 
   /* [getPassName] returns a string specifying a customized name of the pass. */
-  StringRef getPassName() const override;
+  virtual StringRef getPassName() const override;
 
   /* [releaseMemory] frees the pass in the statistics calculation and ends its
    *   lifetime from the perspective of usage analyses.
    */
-  void releaseMemory() override;
+  virtual void releaseMemory() override;
 
   /* [getAnalysisUsage] fills [mgr] with the appropriate metadata on whether this
    *   pass analyzes or transforms the program IR.
    *     [mgr]: The pass state manager that tracks pass usages over time.
    */
-  void getAnalysisUsage(AnalysisUsage &mgr) const override;
+  virtual void getAnalysisUsage(AnalysisUsage &mgr) const override;
 
   /* [getGraph] returns the new dependence graph in an unmodifiable form. */
   const Graph<const BaseNode> getGraph() const;

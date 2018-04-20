@@ -12,6 +12,8 @@ using namespace apollo;
 VisualizationVisitor::VisualizationVisitor(const std::string name)
   : name(name) { }
 
+VisualizationVisitor::~VisualizationVisitor() { }
+
 void VisualizationVisitor::visit(Graph<const BaseNode> *g) {
   // Create a stream through which to write to the visualization file
   std::ofstream fout;

@@ -8,13 +8,13 @@ project(passes)
 file(GLOB PASS_SOURCES "*.cpp")
 
 # Create a run-time library out of the various LLVM passes from above.
-add_library(passes MODULE ${PASS_SOURCES})
+add_library(DependenceGraph MODULE ${PASS_SOURCES})
 
 # Use C++14 to compile the pass.
 # Build the LLVM without C++ run-time type information (RTTI). IMPORTANT!!
 # Also build the .so library file without any prefixes (e.g. 'lib').
 set_target_properties(
-  passes
+  DependenceGraph
   PROPERTIES
     COMPILE_FLAGS "-std=c++14 -fno-rtti"
     PREFIX        ""
@@ -25,7 +25,7 @@ set_target_properties(
 # when the shared library is linked) on Mac OS X.
 if (APPLE)
   set_target_properties(
-    passes
+    DependenceGraph
     PROPERTIES
       LINK_FLAGS  "-undefined dynamic_lookup"
   )

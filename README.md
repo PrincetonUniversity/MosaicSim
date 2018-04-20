@@ -39,4 +39,8 @@ We used the following sources to aid in our design of this tool:
 
 2. [https://github.com/ysshao/ALADDIN](https://github.com/ysshao/ALADDIN)
 
-3. J. Ferrante, K. J. Ottenstein, and J. D. Warren, "The program dependence graph and its use in optimization," in *Symposium on Programming*, 1984.
+3. [https://github.com/compor/llvm-ir-cmake-utils](https://github.com/compor/llvm-ir-cmake-utils)
+
+4. [https://github.com/S2E/tools/blob/master/LLVMBitcode.cmake](https://github.com/S2E/tools/blob/master/LLVMBitcode.cmake)
+
+5. J. Ferrante, K. J. Ottenstein, and J. D. Warren, "The program dependence graph and its use in optimization," in *Symposium on Programming*, 1984.

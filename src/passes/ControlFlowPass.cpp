@@ -9,50 +9,48 @@
 using namespace llvm;
 
 // Shared namespace within the project.
-namespace apollo {
+using namespace apollo;
 
-  // See header file for comments.
+// See header file for comments.
 
-  ControlFlowPass::ControlFlowPass()
-    : FunctionPass(ID) {
-    auto passedGraph = Pass::getAnalysis<DataDependencePass>().getGraph();
-    graph = passedGraph;
+ControlFlowPass::ControlFlowPass()
+  : FunctionPass(ID) {
+  auto passedGraph = Pass::getAnalysis<DataDependencePass>().getGraph();
+  graph = passedGraph;
+}
+
+ControlFlowPass::~ControlFlowPass() {
+  for (auto &entry: graph) {
+    delete entry.first;
   }
+}
 
-  ControlFlowPass::~ControlFlowPass() {
-    for (auto &entry: graph) {
-      delete entry.first;
-    }
-  }
+char ControlFlowPass::ID = 0;
 
-  char ControlFlowPass::ID = 0;
+// Register this LLVM pass with the pass manager.
+RegisterPass<ControlFlowPass>
+  registerCFG("cfg", "Construct the control-flow graph.");
 
-  // Register this LLVM pass with the pass manager.
-  RegisterPass<ControlFlowPass>
-    registerCFG("cfg", "Construct the control-flow graph.");
+bool ControlFlowPass::runOnFunction(Function &fun) {
+  return false;
+}
 
-  bool ControlFlowPass::runOnFunction(Function &fun) {
-    return false;
-  }
+StringRef ControlFlowPass::getPassName() const {
+  return "control-flow graph";
+}
 
-  StringRef ControlFlowPass::getPassName() const {
-    return "control-flow graph";
-  }
+void ControlFlowPass::releaseMemory() {
+  graph.clear();
+}
 
-  void ControlFlowPass::releaseMemory() {
-    graph.clear();
-  }
+void ControlFlowPass::getAnalysisUsage(AnalysisUsage &mgr) const {
+  // Pull in earlier/prerequisite passes.
+  mgr.addRequiredTransitive<DataDependencePass>();
 
-  void ControlFlowPass::getAnalysisUsage(AnalysisUsage &mgr) const {
-    // Pull in earlier/prerequisite passes.
-    mgr.addRequiredTransitive<DataDependencePass>();
+  // Analysis pass: No transformations on the program IR.
+  mgr.setPreservesAll();
+}
 
-    // Analysis pass: No transformations on the program IR.
-    mgr.setPreservesAll();
-  }
-
-  const Graph<const BaseNode> ControlFlowPass::getGraph() const {
-    return graph;
-  }
-
+const Graph<const BaseNode> ControlFlowPass::getGraph() const {
+  return graph;
 }
