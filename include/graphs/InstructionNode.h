@@ -16,7 +16,6 @@ namespace apollo {
 // All the types of visitors that are allowed to exist in our custom graph types.
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
-class Visitor;
 class VisualizationVisitor;
 
 // An InstructionNode is a node representing an LLVM instruction.
@@ -42,14 +41,6 @@ public:
   const Instruction *getInstruction() const {
     return inst;
   }
-
-  /* [accept] records actions from the generic visitor [v].
-   *   Returns nothing.
-   *     [v]: A generic visitor that operates on dependence graphs.
-   *
-   * Override: Accept generic visitors, but only to instructions.
-   */
-  virtual void accept(Visitor &v) override;
 
   /* [accept] records actions from the visualization visitor [v].
    *   Returns nothing.

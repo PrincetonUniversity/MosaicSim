@@ -9,7 +9,11 @@
 #include "visitors/VisualizationVisitor.h"
 
 // Pull in the actual node classes.
-#include "graphs/Node.h"
+#include "graphs/BaseNode.h"
+#include "graphs/ConstantNode.h"
+#include "graphs/InstructionNode.h"
+#include "graphs/OperatorNode.h"
+#include "graphs/BasicBlockNode.h"
 
 // Shared namespace within the project.
 using namespace apollo;

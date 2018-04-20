@@ -2,7 +2,7 @@
 #include "graphs/InstructionNode.h"
 
 // Pull in the various visitor classes.
-#include "visitors/Visitors.h"
+#include "visitors/VisualizationVisitor.h"
 
 // Shared namespace within the project.
 using namespace apollo;
@@ -12,10 +12,6 @@ InstructionNode::InstructionNode(Instruction *inst)
 
 InstructionNode::~InstructionNode()
   { };
-
-void InstructionNode::accept(Visitor &v) {
-  v.visit(this);
-}
 
 void InstructionNode::accept(VisualizationVisitor &v) {
   v.visit(this);

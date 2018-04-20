@@ -13,7 +13,6 @@ namespace apollo {
 // All the types of visitors that are allowed to exist in our custom graph types.
 // Necessary for the visit() and accept() functions when using the recursive
 // Visitor pattern in node classes.
-class Visitor;
 class VisualizationVisitor;
 
 // Base class for all nodes (including top-level graph nodes).
@@ -39,14 +38,6 @@ public:
   const NodeType getType() const {
     return type;
   }
-
-  /* [accept] records actions from the generic visitor [v].
-   *   Returns nothing.
-   *     [v]: A generic visitor that operates on dependence graphs.
-   *
-   * Default: Purely virtual.
-   */
-  virtual void accept(Visitor &v) = 0;
 
   /* [accept] records actions from the visualization visitor [v].
    *   Returns nothing.

@@ -1,14 +1,24 @@
 #ifndef APOLLO_VISITORS_VISUALVISITOR
 #define APOLLO_VISITORS_VISUALVISITOR
 
-// Pull in the default visitor behaviors.
-#include "Visitor.h"
+// Pull in the graph template.
+#include "graphs/Graph.h"
 
 // Shared namespace within the project.
 namespace apollo {
 
+// All the types of nodes that are allowed to exist in our custom graph types.
+// Based on the types of users allowed by LLVM, but with augmentations for our
+// custom graph handling (e.g. "basic block nodes"). This allows for multiple
+// types of graphs to utilize this interface cleanly.
+class BaseNode;
+class ConstantNode;
+class InstructionNode;
+class OperatorNode;
+class BasicBlockNode;
+
 // Use the Visitor pattern to operate over our custom graph types.
-class VisualizationVisitor : public Visitor {
+class VisualizationVisitor {
 public:
   /* Constructor for visualization Visitors. Saves the name of the program.
    *     [name]: The name of the program being run.
@@ -21,7 +31,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~VisualizationVisitor() override;
+  ~VisualizationVisitor();
 
   /* [visit] performs a stateful action on the top-level graph [g].
    *   Returns nothing.
@@ -29,7 +39,7 @@ public:
    *
    * Override: Visualize the top-level dependence graph.
    */
-  virtual void visit(Graph<const BaseNode> g) override;
+  void visit(Graph<const BaseNode> g);
 
   /* [visit] performs a stateful action on the constant node [n] in a graph.
    *   Returns nothing.
@@ -37,7 +47,7 @@ public:
    *
    * Override: Visualize constants in the dependence graph.
    */
-  virtual void visit(ConstantNode *n) override;
+  void visit(ConstantNode *n);
 
   /* [visit] performs a stateful action on the instruction node [n] in a graph.
    *   Returns nothing.
@@ -45,7 +55,7 @@ public:
    *
    * Override: Visualize instructions in the dependence graph.
    */
-  virtual void visit(InstructionNode *n) override;
+  void visit(InstructionNode *n);
 
   /* [visit] performs a stateful action on the operator node [n] in a graph.
    *   Returns nothing.
@@ -53,7 +63,7 @@ public:
    *
    * Override: Visualize operators in the dependence graph.
    */
-  virtual void visit(OperatorNode *n) override;
+  void visit(OperatorNode *n);
 
   /* [visit] performs a stateful action on the basic block node [n] in a graph.
    *   Returns nothing.
@@ -61,7 +71,7 @@ public:
    *
    * Override: Visualize basic blocks in the dependence graph.
    */
-  virtual void visit(BasicBlockNode *n) override;
+  void visit(BasicBlockNode *n);
 
 private:
   // Save the name of the program, to be used when outputting a DOT file.
