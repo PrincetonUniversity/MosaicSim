@@ -33,7 +33,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~OperatorNode() override { }
+  virtual ~OperatorNode() override;
 
   /* Returns the operator around which this node wraps.
    *

@@ -10,6 +10,9 @@ using namespace apollo;
 BasicBlockNode::BasicBlockNode(BasicBlock *block)
   : BaseNode(ApolloBasicBlock), block(block) { }
 
+BasicBlockNode::~BasicBlockNode()
+  { }
+
 void BasicBlockNode::accept(Visitor &v) {
   v.visit(this);
 }

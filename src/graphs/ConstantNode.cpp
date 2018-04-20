@@ -10,6 +10,9 @@ using namespace apollo;
 ConstantNode::ConstantNode(Constant *con)
   : BaseNode(ApolloConstant), con(con) { }
 
+ConstantNode::~ConstantNode()
+  { }
+
 void ConstantNode::accept(Visitor &v) {
   v.visit(this);
 }

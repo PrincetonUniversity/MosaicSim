@@ -33,7 +33,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~InstructionNode() override { }
+  virtual ~InstructionNode() override;
 
   /* Returns the instruction around which this node wraps.
    *

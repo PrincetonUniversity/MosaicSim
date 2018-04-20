@@ -36,7 +36,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~BasicBlockNode() override { }
+  virtual ~BasicBlockNode() override;
 
   /* Returns the basic block around which this node wraps.
    *

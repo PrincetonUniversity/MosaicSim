@@ -33,7 +33,7 @@ public:
    *
    * Override: Use C++'s default destruction process.
    */
-  virtual ~ConstantNode() override { }
+  virtual ~ConstantNode() override;
 
   /* Returns the constant around which this node wraps.
    *

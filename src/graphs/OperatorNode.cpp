@@ -10,6 +10,9 @@ using namespace apollo;
 OperatorNode::OperatorNode(Operator *op)
   : BaseNode(ApolloOperator), op(op) { }
 
+OperatorNode::~OperatorNode()
+  { }
+
 void OperatorNode::accept(Visitor &v) {
   v.visit(this);
 }
