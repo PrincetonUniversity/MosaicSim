@@ -19,10 +19,7 @@ namespace apollo {
   // See header file for comments.
 
   VisualizationPass::VisualizationPass()
-    : ModulePass(ID) {
-    auto passedGraph = Pass::getAnalysis<ProgramPass>().getGraph();
-    graph = passedGraph;
-  }
+    : ModulePass(ID) { }
 
   VisualizationPass::~VisualizationPass() {
     for (auto &entry: graph) {
@@ -37,12 +34,19 @@ namespace apollo {
     registerVisualizer("viz", "Visualize the program's dependence graph.");
 
   bool VisualizationPass::runOnModule(Module &mdl) {
-    // Get the name so that it can be passed into the visualization file name
-    auto name = mdl.getSourceFileName();
+    for (auto &funct : mdl) {
+      // "Constructor" by pulling in the information from earlier passes.
+      graph = Pass::getAnalysis<ProgramPass>(funct).getGraph();
 
-    // Visit each of the nodes in the graph using a visualization algorithm
-    VisualizationVisitor vv(name);
-    vv.visit(&graph);
+      // Get the name so that it can be passed into the visualization file name
+      auto name = (mdl.getName()   + "-"
+                +  funct.getName() + "-"
+                +  mdl.getSourceFileName()).str();
+
+      // Visit each of the nodes in the graph using a visualization algorithm
+      VisualizationVisitor vv(name);
+      vv.visit(&graph);
+    }
 
     return false;
   }

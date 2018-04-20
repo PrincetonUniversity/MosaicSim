@@ -14,10 +14,7 @@ using namespace apollo;
 // See header file for comments.
 
 ControlFlowPass::ControlFlowPass()
-  : FunctionPass(ID) {
-  auto passedGraph = Pass::getAnalysis<DataDependencePass>().getGraph();
-  graph = passedGraph;
-}
+  : FunctionPass(ID) { }
 
 ControlFlowPass::~ControlFlowPass() {
   for (auto &entry: graph) {
@@ -32,6 +29,8 @@ RegisterPass<ControlFlowPass>
   registerCFG("cfg", "Construct the control-flow graph.");
 
 bool ControlFlowPass::runOnFunction(Function &fun) {
+  // "Constructor" by pulling in the information from earlier passes.
+  graph = Pass::getAnalysis<DataDependencePass>().getGraph();
   return false;
 }
 

@@ -14,10 +14,7 @@ using namespace apollo;
 // See header file for comments.
 
 ProgramPass::ProgramPass()
-  : FunctionPass(ID) {
-  auto passedGraph = Pass::getAnalysis<MemoryDependencePass>().getGraph();
-  graph = passedGraph;
-}
+  : FunctionPass(ID) { }
 
 ProgramPass::~ProgramPass() {
   for (auto &entry: graph) {
@@ -32,6 +29,8 @@ RegisterPass<ProgramPass>
   registerPDG("pdg", "Construct the program's dependence graph.");
 
 bool ProgramPass::runOnFunction(Function &fun) {
+  // "Constructor" by pulling in the information from earlier passes.
+  graph = Pass::getAnalysis<MemoryDependencePass>().getGraph();
   return false;
 }
 

@@ -14,10 +14,7 @@ using namespace apollo;
 // See header file for comments.
 
 MemoryDependencePass::MemoryDependencePass()
-  : FunctionPass(ID) {
-  auto passedGraph = Pass::getAnalysis<ControlFlowPass>().getGraph();
-  graph = passedGraph;
-}
+  : FunctionPass(ID) { }
 
 MemoryDependencePass::~MemoryDependencePass() {
   for (auto &entry: graph) {
@@ -32,6 +29,8 @@ RegisterPass<MemoryDependencePass>
   registerMDG("mdg", "Construct the memory-dependence graph.");
 
 bool MemoryDependencePass::runOnFunction(Function &fun) {
+  // "Constructor" by pulling in the information from earlier passes.
+  graph = Pass::getAnalysis<ControlFlowPass>().getGraph();
   return false;
 }
 
