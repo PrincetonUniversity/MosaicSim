@@ -147,10 +147,11 @@ public:
       for(it = n->c_adjs.begin(); it!= n->c_adjs.end(); ++it) {
         Node *dst = *it;
         bool rev = false;
-        if(Instruction *inst = dyn_cast<Instruction>(n->v))
+        if(Instruction *inst = dyn_cast<Instruction>(n->v)) {
           if(inst->getParent() == dst->v) {
             rev = true;
           }
+        }
         if(!rev)
           fout << n->id << " -> " << dst->id << "[color=blue];\n";
         else
@@ -162,7 +163,17 @@ public:
       }
       for(it = n->p_adjs.begin(); it!= n->p_adjs.end(); ++it) {
         Node *dst = *it;
-        fout << n->id << " -> " << dst->id << "[color=navy];\n";
+        bool rev = false;
+        if(isa<Instruction>(n->v) && isa<Instruction>(dst->v)) {
+          Instruction *srcinst = cast<Instruction>(n->v);
+          Instruction *dstinst = cast<Instruction>(dst->v);
+          if(srcinst->getParent() == dstinst->getParent())
+            rev = true;
+        }  
+        if(!rev)
+          fout << n->id << " -> " << dst->id << "[color=skyblue];\n";
+        else
+          fout << dst->id << " -> " << n->id << "[color=skyblue,dir=back];\n";
       }
       for(it = n->bb_s_adjs.begin(); it!= n->bb_s_adjs.end(); ++it) {
         Node *dst = *it;
