@@ -27,3 +27,6 @@ Testing
 *.bc
 *.bitcode
 *.ll
+*.png
+*.dot
+*.out
