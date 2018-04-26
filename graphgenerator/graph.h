@@ -70,7 +70,7 @@ public:
       vals.insert(v);
     }
   }
-  void addEdge(Value *s, Value *d, int type, int dist=0) {
+  void addEdge(Value *s, Value *d, int type, int dist=-999) {
     if((isConstantorArgument(s) || isConstantorArgument(d)) && !includeConstant)
       return;
     if((vmap.find(s) == vmap.end()) || (vmap.find(d) == vmap.end())) {
@@ -191,12 +191,18 @@ public:
       for(it = n->lc_adjs.begin(); it!= n->lc_adjs.end(); ++it) {
         Node *dst = *it;
         int dist = n->lc_dist.at(dst);
-        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange];\n";
+        std::string dstr = "";
+        if(dist != -999)
+          dstr = std::to_string(dist);
+        fout << n->id << " -> " << dst->id << "[label=\"" << dstr <<"\",color=orange];\n";
       }
       for(it = n->lcm_adjs.begin(); it!= n->lcm_adjs.end(); ++it) {
         Node *dst = *it;
         int dist = n->lcm_dist.at(dst);
-        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange,style=dotted];\n";
+        std::string dstr = "";
+        if(dist != -999)
+          dstr = std::to_string(dist);
+        fout << n->id << " -> " << dst->id << "[label=\"" << dstr <<"\",color=orange,style=dotted];\n";
       }
     }
     fout << "subgraph cluster_help {\ncolor=black;\n";

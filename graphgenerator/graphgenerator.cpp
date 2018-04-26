@@ -115,7 +115,7 @@ struct graphGen : public FunctionPass {
           else {
             
             unsigned Levels = dep->getLevels();
-            int dist = 0;
+            int dist = -999;
             for (unsigned II = 1; II <= Levels; ++II) {
               const SCEV *Distance = dep->getDistance(II);
               if(Distance != NULL) {
@@ -126,7 +126,7 @@ struct graphGen : public FunctionPass {
             if(dep->isConsistent())
               g.addEdge(src, dst, 5, dist);
             else
-              g.addEdge(src, dst, 6, dist);
+              g.addEdge(src, dst, 6, dist); 
           }   
           dep->getDst()->print(errs(), false);
           errs() << "   ---> ";
