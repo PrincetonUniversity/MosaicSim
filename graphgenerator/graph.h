@@ -9,9 +9,12 @@ public:
   std::set<Node*> c_adjs;
   std::set<Node*> d_adjs;
   std::set<Node*> m_adjs;
+  std::set<Node*> mm_adjs;
   std::set<Node*> p_adjs;
-  std::set<Node*> bb_s_adjs;
-  std::set<Node*> bb_e_adjs;
+  std::set<Node*> lc_adjs;
+  std::set<Node*> lcm_adjs;
+  std::map<Node*, int> lc_dist;
+  std::map<Node*, int> lcm_dist;
   int id;
   int type;
   Value *v;
@@ -67,7 +70,7 @@ public:
       vals.insert(v);
     }
   }
-  void addEdge(Value *s, Value *d, int type) {
+  void addEdge(Value *s, Value *d, int type, int dist=0) {
     if((isConstantorArgument(s) || isConstantorArgument(d)) && !includeConstant)
       return;
     if((vmap.find(s) == vmap.end()) || (vmap.find(d) == vmap.end())) {
@@ -89,14 +92,20 @@ public:
     else if(type == 3)
       adjs = &(src->p_adjs);
     else if(type == 4)
-      adjs = &(src->bb_s_adjs);
+      adjs = &(src->mm_adjs);
     else if(type == 5)
-      adjs = &(src->bb_e_adjs);
+      adjs = &(src->lc_adjs);
+    else if(type == 6)
+      adjs = &(src->lcm_adjs);
     else
       assert(false);
     if(adjs->find(dst) != adjs->end())
       assert(false);
     adjs->insert(dst);
+    if(type == 5)
+      src->lc_dist.insert(std::make_pair(dst, dist));
+    if(type == 6)
+      src->lcm_dist.insert(std::make_pair(dst, dist));
   }
   void visualize() {
     std::ofstream fout;
@@ -158,8 +167,12 @@ public:
           fout << dst->id << " -> " << n->id << "[color=blue,dir=back];\n";
       }
       for(it = n->m_adjs.begin(); it!= n->m_adjs.end(); ++it) {
-        Node *dst = *it;
+        Node *dst = *it;  
         fout << n->id << " -> " << dst->id << "[color=red];\n";
+      }
+      for(it = n->mm_adjs.begin(); it!= n->mm_adjs.end(); ++it) {
+        Node *dst = *it;
+        fout << n->id << " -> " << dst->id << "[color=red,style=dotted];\n";
       }
       for(it = n->p_adjs.begin(); it!= n->p_adjs.end(); ++it) {
         Node *dst = *it;
@@ -171,24 +184,26 @@ public:
             rev = true;
         }  
         if(!rev)
-          fout << n->id << " -> " << dst->id << "[color=skyblue];\n";
+          fout << n->id << " -> " << dst->id << "[color=navyblue];\n";
         else
-          fout << dst->id << " -> " << n->id << "[color=skyblue,dir=back];\n";
+          fout << dst->id << " -> " << n->id << "[color=navyblue,dir=back];\n";
       }
-      for(it = n->bb_s_adjs.begin(); it!= n->bb_s_adjs.end(); ++it) {
+      for(it = n->lc_adjs.begin(); it!= n->lc_adjs.end(); ++it) {
         Node *dst = *it;
-        fout << n->id << " -> " << dst->id << "[color=black,style=invis];\n";
+        int dist = n->lc_dist.at(dst);
+        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange,style=dotted];\n";
       }
-      for(it = n->bb_e_adjs.begin(); it!= n->bb_e_adjs.end(); ++it) {
+      for(it = n->lcm_adjs.begin(); it!= n->lcm_adjs.end(); ++it) {
         Node *dst = *it;
-        fout << n->id << " -> " << dst->id << "[color=black,style=invis];\n";
+        int dist = n->lcm_dist.at(dst);
+        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange,style=dotted];\n";
       }
     }
     fout << "subgraph cluster_help {\ncolor=black;\n";
     fout << "t1[label=\"Red Ellipse = LD/ST\",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];\n";
     fout << "t2[label=\"Blue Rectangle = BasicBlock\",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];\n";
     fout << "t3[label=\"Blue Ellipse = Terminator Instruction\",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];\n";
-    fout << "t4[label=\"Black Edge = Data Dependence\n Red Edge = Memory Dependence\n Blue Edge = Control\n Navy Edge = Phi Data Dependence\",fontsize=10,shape=rectangle,fontcolor=black];\n";
+    fout << "t4[label=\"Black Edge = Data Dependence\n Red Edge = Memory Dependence (Dotted=Maybe) \n Orange Edge = Loop-carried Memory Dependence (Dotted=Maybe) \n Blue Edge = Control\n Navy Edge = Phi Data Dependence \",fontsize=10,shape=rectangle,fontcolor=black];\n";
     fout << "t1->t2 [style=invis];\n";
     fout << "t2->t3 [style=invis];\n";
     fout << "t3->t4 [style=invis];\n";
