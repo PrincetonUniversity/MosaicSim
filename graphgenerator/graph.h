@@ -191,7 +191,7 @@ public:
       for(it = n->lc_adjs.begin(); it!= n->lc_adjs.end(); ++it) {
         Node *dst = *it;
         int dist = n->lc_dist.at(dst);
-        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange,style=dotted];\n";
+        fout << n->id << " -> " << dst->id << "[label=" << dist <<",color=orange];\n";
       }
       for(it = n->lcm_adjs.begin(); it!= n->lcm_adjs.end(); ++it) {
         Node *dst = *it;
