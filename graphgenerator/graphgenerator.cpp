@@ -11,6 +11,13 @@
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
+#include "polly/DependenceInfo.h"
+#include "polly/LinkAllPasses.h"
+#include "polly/Options.h"
+#include "polly/ScopInfo.h"
+#include "polly/Support/GICHelper.h"
+#include "llvm/Analysis/LoopInfo.h"
+
 #include <string>
 #include <set>
 #include <sstream>
@@ -19,6 +26,7 @@
 #define KERNEL_STR "_kernel_"
 
 using namespace llvm;
+using namespace polly;
 namespace apollo {
 
 // Identify Induction Variable
@@ -30,6 +38,9 @@ struct graphGen : public FunctionPass {
   MemorySSA *MSSA;
   MemoryDependenceResults *MDA;
   AliasAnalysis *AA;
+  ScopInfo *SI;
+  LoopInfo *LI;
+  DependenceInfoWrapperPass *DI;
   Graph g;
 
   graphGen() : FunctionPass(ID) {}
@@ -41,6 +52,9 @@ struct graphGen : public FunctionPass {
     AU.addRequiredTransitive<MemorySSAWrapperPass>();
     AU.addRequiredTransitive<MemoryDependenceWrapperPass>();
     AU.addRequired<DependenceAnalysisWrapperPass>();
+    AU.addRequired<LoopInfoWrapperPass>();
+    AU.addRequiredTransitive<DependenceInfoWrapperPass>();
+    AU.addRequiredTransitive<ScopInfoWrapperPass>();
     AU.setPreservesAll();
   }
 
@@ -50,13 +64,19 @@ struct graphGen : public FunctionPass {
     auto &AAR = getAnalysis<AAResultsWrapperPass>().getAAResults();
     auto &MSSAR = getAnalysis<MemorySSAWrapperPass>().getMSSA();
     auto &MDAR = getAnalysis<MemoryDependenceWrapperPass>().getMemDep();
+    auto &DIR = getAnalysis<polly::DependenceInfoWrapperPass>();
+    auto &LIR = getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+    SI = getAnalysis<ScopInfoWrapperPass>().getSI();
     AA = &AAR;
+    LI = &LIR;
     MSSA = &MSSAR;
     MDA = &MDAR;
+    DI = &DIR;
     if (isFoI(F)) {
       errs() << F.getName() << "\n";
       dataDependence(F);
       controlDependence(F);
+      pollyCheck();
       //memoryDependence(F);
       dependenceCheck(F);
       memdepCheck(F);
@@ -67,6 +87,38 @@ struct graphGen : public FunctionPass {
   
   bool isFoI(Function &F) {
     return (F.getName().str().find(KERNEL_STR) != std::string::npos);
+  }
+  const Scop *getScopContainingLoop(Loop *L) const {
+   for (auto &It : *SI) {
+     Region *R = It.first;
+     if (R->contains(L))
+       return It.second.get();
+   }
+   return nullptr;
+ }
+  void pollyCheck() {
+    for(Loop *L : *LI) {
+      const Scop *S = getScopContainingLoop(L);
+      if (!S) {
+       errs() << "Loop " << *L << "lacks S \n";
+       continue;
+      }
+      const Dependences &D = DI->getDependences(const_cast<Scop *>(S), Dependences::AL_Access);
+      if (!D.hasValidDependences()) {
+      errs() << "Loop " << *L << "lacks D \n";
+       continue;
+      }
+      errs() << "Loop :\t" << L->getHeader()->getName() << ":\n";
+
+      isl_union_map *Deps = D.getDependences(Dependences::TYPE_RAW | Dependences::TYPE_WAW | Dependences::TYPE_WAR | Dependences::TYPE_RED);
+      errs() << "Dependences :\t" << stringFromIslObj(Deps) << "\n";
+
+      //isl_union_map *Schedule = getScheduleForLoop(S, L);
+      //errs() << "Schedule: \t" << stringFromIslObj(Schedule) << "\n";
+
+      isl_union_map_free(Deps);
+      //isl_union_map_free(Schedule);
+    }
   }
   void memdepCheck(Function &F) { 
     for (auto &I : instructions(F)) {
@@ -88,7 +140,7 @@ struct graphGen : public FunctionPass {
    }
   }
   void dependenceCheck(Function &F) {
-    DependenceInfo *depinfo = &getAnalysis<DependenceAnalysisWrapperPass>().getDI();
+    llvm::DependenceInfo *depinfo = &getAnalysis<DependenceAnalysisWrapperPass>().getDI();
     for (inst_iterator I = inst_begin(F), E = inst_end(F); I != E; I++) {
       for (inst_iterator J = I; J != E; J++) {
         Instruction *src = (&*I);
@@ -178,7 +230,7 @@ struct graphGen : public FunctionPass {
     for (inst_iterator iI = inst_begin(F), iE = inst_end(F);iI != iE; iI++) {
       Instruction *inst = &(*iI);
       if (isa<LoadInst>(inst) || isa<StoreInst>(inst)) {
-        MemoryAccess *m = MSSA->getWalker()->getClobberingMemoryAccess(inst);
+        llvm::MemoryAccess *m = MSSA->getWalker()->getClobberingMemoryAccess(inst);
         if (auto *u = dyn_cast<MemoryUse>(m)) {
           Instruction *cinst = u->getMemoryInst();
           if(cinst != NULL)
