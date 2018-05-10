@@ -56,17 +56,16 @@ class Node {
       }
    
       void eraseEdge(Node *dest) {
-         Edge *e; // = adjs.find();
+         Edge *e; //= adjs.find();
          eraseEdge(e);
          delete e;
       }
    
       friend std::ostream &operator<<(std::ostream &os, const Node &n) {
-         os << n.instr_name << ": ";
+         os << n.instr_name << ": Adj = [";
          for ( std::set<Edge *>::iterator it = n.adjs.begin(); it != n.adjs.end(); ++it )
-            std::cout << ", " << it->dst.instr_name;
-
-         cout << endl;
+            std::cout << *it->dst->instr_name << ", " ;
+         cout << "]" << endl;
       }
 };
 
