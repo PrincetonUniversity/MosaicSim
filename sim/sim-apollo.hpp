@@ -53,8 +53,8 @@ class Node {
    
       void eraseDependent(Node *dest, TEdge type) {
          std::set<Edge>::iterator it;
-         it = std::find(dependents.begin(), dependents.end(), Edge(this,dest, type));
-         if (it != dependents.end()) // found
+         it = std::find( dependents.begin(), dependents.end(), Edge(this,dest,type) );
+         if ( it != dependents.end() )  // found
             dependents.erase(*it);
       }
 
@@ -68,7 +68,7 @@ class Node {
 
 
 class Graph {
-   public:
+   private:
       std::set<Node *> nodes;
 
    public:
