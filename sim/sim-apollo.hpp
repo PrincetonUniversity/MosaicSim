@@ -7,10 +7,7 @@
 
 // Header file
 
-using namespace std;
-
 #include <set>
-#include <vector>
 #include <iostream>                         
 #include <algorithm>
 #include <iterator> 
@@ -18,60 +15,60 @@ using namespace std;
 namespace apollo {
 
 typedef enum {add, sub, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
-typedef enum {true_mem_dep, maybe_mem_dep, CF_dep} TEdge;
+typedef enum {always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
 
 class Node;
 
 class Edge {
-   private:
+   public:
       TEdge edge_type;
       Node *src;
       Node *dst;
 
-   public:
       Edge(Node *s, Node *d, TEdge type) : src(s), dst(d), edge_type(type) {}
+      bool operator< (const Edge &e) const {         
+         return (this < &e);
+      }
+      bool operator==(const Edge &e) const {
+         return ( this->src == e.src && this->dst == e.dst );
+      }
 };
 
 
 class Node {
    private:
+      TInstr instr_type;
       int instr_id;
       std::string instr_name;
-      TInstr instr_type;
-      std::set<Edge *> adjs;
+      std::set<Edge> dependents;
    
    public:
-      Node(TInstr type, int id) : instr_type(type), instr_id(id) {}
+      Node(TInstr type, int id, std::string name) : 
+               instr_type(type), instr_id(id), instr_name(name) {}
    
-      void insertEdge(Edge *e) {
-         adjs.insert(e);  
+      void addDependent(Node *dest, TEdge type) {
+         Edge e(this, dest, type);
+         dependents.insert(e);  
       }
    
-      void eraseEdge(Edge *e) {
-         adjs.erase( e );
+      void eraseDependent(Node *dest, TEdge type) {
+         std::set<Edge>::iterator it;
+         it = std::find(dependents.begin(), dependents.end(), Edge(this,dest, type));
+         if (it != dependents.end()) // found
+            dependents.erase(*it);
       }
-   
-      void insertEdge(Node *dest, TEdge type) {
-         adjs.insert( new Edge(this, dest, type) );  
-      }
-   
-      void eraseEdge(Node *dest) {
-         Edge *e; //= adjs.find();
-         eraseEdge(e);
-         delete e;
-      }
-   
+
       friend std::ostream &operator<<(std::ostream &os, const Node &n) {
-         os << n.instr_name << ": Adj = [";
-         for ( std::set<Edge *>::iterator it = n.adjs.begin(); it != n.adjs.end(); ++it )
-            std::cout << *it->dst->instr_name << ", " ;
-         cout << "]" << endl;
+         os << "instr[" << n.instr_name << "], Deps = {";
+         for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
+            std::cout << "[" << (*it).dst->instr_name << "], " ;
+         std::cout << "}" << std::endl;
       }
 };
 
 
 class Graph {
-   private:
+   public:
       std::set<Node *> nodes;
 
    public:
@@ -79,8 +76,10 @@ class Graph {
    
       int get_num_nodes() { return nodes.size(); }
    
-      void insertNode(TInstr instr_type, int instr_id, std::string instr_name = "") {
-         nodes.insert( new Node(instr_type, instr_id) );
+      Node *addNode(TInstr instr_type, int instr_id, std::string instr_name = "") {
+         Node *n = new Node(instr_type, instr_id, instr_name);
+         nodes.insert(n);
+         return n;
       }
    
       void eraseNode(Node *n) { 
@@ -88,12 +87,20 @@ class Graph {
          delete n;
       }
    
-      void insertEdge(Node *s, Node *d, TEdge type) {
-         s->insertEdge(d, type);
+      void addDependent(Node *src, Node *dest, TEdge type) {
+         src->addDependent(dest, type);
       }
 
-      void eraseEdge(Node *s, Node *d) {
-         s->eraseEdge(d);
+      void eraseDependent(Node *src, Node *dest, TEdge type) {
+         src->eraseDependent(dest, type);
+      }
+
+      friend std::ostream &operator<<(std::ostream &os, Graph &gr) {
+         os << "Graph: total_nodes=" << gr.get_num_nodes() << std::endl;
+         int i=0;
+         for ( std::set<Node *>::iterator it = gr.nodes.begin(); it != gr.nodes.end(); ++it )
+            std::cout << "node_" << ++i << ": " << **it;
+         std::cout << std::endl;
       }
 };
 
