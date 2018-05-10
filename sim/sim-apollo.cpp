@@ -3,7 +3,7 @@
 //
 // Project Apollo - simulator
 // Authors: 
-//=======================================================================// Project Apollo - simulator
+//=======================================================================
 
 #include "sim-apollo.hpp"
 using namespace apollo;
