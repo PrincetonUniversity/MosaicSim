@@ -61,7 +61,7 @@ class Node {
          delete e;
       }
    
-      friend std::ostr   eam &operator<<(std::ostream &os, const Node &n) {
+      friend std::ostream &operator<<(std::ostream &os, const Node &n) {
          os << n.instr_name << ": ";
          for ( std::set<Edge *>::iterator it = n.adjs.begin(); it != n.adjs.end(); ++it )
             std::cout << ", " << it->dst.instr_name;
