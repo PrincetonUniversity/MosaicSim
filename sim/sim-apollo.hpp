@@ -22,7 +22,7 @@ class Node;
 class Edge {
    public:
       TEdge edge_type;
-      Node *src;
+      Node *src;   
       Node *dst;
 
       Edge(Node *s, Node *d, TEdge type) : src(s), dst(d), edge_type(type) {}
@@ -61,7 +61,7 @@ class Node {
       friend std::ostream &operator<<(std::ostream &os, const Node &n) {
          os << "instr[" << n.instr_name << "], Deps = {";
          for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
-            std::cout << "[" << (*it).dst->instr_name << "], " ;
+            std::cout << "[" << it->dst->instr_name << "], " ;
          std::cout << "}" << std::endl;
       }
 };
@@ -95,10 +95,10 @@ class Graph {
          src->eraseDependent(dest, type);
       }
 
-      friend std::ostream &operator<<(std::ostream &os, Graph &gr) {
-         os << "Graph: total_nodes=" << gr.get_num_nodes() << std::endl;
+      friend std::ostream &operator<<(std::ostream &os, Graph &g) {
+         os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
          int i=0;
-         for ( std::set<Node *>::iterator it = gr.nodes.begin(); it != gr.nodes.end(); ++it )
+         for ( std::set<Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it )
             std::cout << "node_" << ++i << ": " << **it;
          std::cout << std::endl;
       }
