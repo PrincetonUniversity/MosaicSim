@@ -14,36 +14,55 @@ using namespace std;
 
 int main(int argc, char const *argv[])
 {
-   /* code */
    Graph g;
    Node *nodes[10];
+   int lats[10];
+   int instr_id = 1;
 
-   // create some nodes
-   nodes[0] = g.addNode(1, 4, add, "add $1,$3,$4");
-   nodes[1] = g.addNode(2, 4, sub, "sub $1,$3,$4");
-   nodes[2] = g.addNode(3, 4, logical, "xor $1,$3,$4");
-   nodes[3] = g.addNode();
+   // initilize the latencies array
+   lats[add] = 2;
+   lats[sub] = 2;
+   lats[logical] = 1;
+   lats[mult] = 5;
+   lats[apollo::div] = 10;
+   lats[ld] = 3;
+   lats[st] = 3;
+   lats[branch_cond] = 2;
+   lats[branch_uncond] = 2;
 
-   // add some dependants
-   nodes[0]->addDependent(nodes[1], always_mem_dep);
-   nodes[0]->addDependent(nodes[2], always_mem_dep);
+   // create a BB graph
 
-   nodes[1]->addDependent(nodes[0], always_mem_dep);
-   nodes[1]->addDependent(nodes[2], always_mem_dep);
+   // first, create ALL the nodes
+   nodes[0] = g.addNode();  // this is the entry point
+   nodes[1] = g.addNode(instr_id++, lats[add], add, "add $1,$3,$4");
+   nodes[2] = g.addNode(instr_id++, lats[sub], sub, "sub $1,$3,$4");
+   nodes[3] = g.addNode(instr_id++, lats[logical], logical, "xor $1,$3,$4");
+   nodes[4] = g.addNode(instr_id++, lats[add], add, "add $1,$3,$4");
+   nodes[5] = g.addNode(instr_id++, lats[sub], sub, "sub $1,$3,$4");
+   nodes[6] = g.addNode(instr_id++, lats[logical], logical, "xor $1,$3,$4");
 
-   nodes[2]->addDependent(nodes[0], always_mem_dep);
-   nodes[2]->addDependent(nodes[1], always_mem_dep);
+   // add some dependents
+   nodes[0]->addDependent(nodes[1], data_dep);
 
+   nodes[1]->addDependent(nodes[2], data_dep);
+   nodes[1]->addDependent(nodes[3], data_dep);
+   nodes[1]->addDependent(nodes[4], data_dep);
+
+   nodes[2]->addDependent(nodes[5], data_dep);
+   nodes[2]->addDependent(nodes[6], data_dep);
+   
    cout << g;
+   cout << "latency=" << g.calculate_latency() << endl << endl;
 
-   nodes[0]->eraseDependent(nodes[1], always_mem_dep);
-   nodes[0]->eraseDependent(nodes[2], always_mem_dep);
-
-   cout << g;
+   // some sanity checks
+   nodes[2]->eraseDependent(nodes[5], data_dep);
+   nodes[2]->eraseDependent(nodes[6], data_dep);
+   cout << g << endl;
 
    g.eraseNode(nodes[0]);
    g.eraseNode(nodes[1]);
    g.eraseNode(nodes[2]);
-   cout << g;
+   cout << g << endl;
+   
    return 0;
 }
