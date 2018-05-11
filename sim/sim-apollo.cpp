@@ -19,9 +19,9 @@ int main(int argc, char const *argv[])
    Node *node1, *node2, *node3;
 
    // create some nodes
-   node1 = g.addNode(add, 1, "add $1,$3,$4");
-   node2 = g.addNode(add, 1, "sub $1,$3,$4");
-   node3 = g.addNode(add, 1, "xor $1,$3,$4");
+   node1 = g.addNode(1, 4, add, "add $1,$3,$4");
+   node2 = g.addNode(2, 4, sub, "sub $1,$3,$4");
+   node3 = g.addNode(3, 4, logical, "xor $1,$3,$4");
 
    // add some dependants
    node1->addDependent(node2, always_mem_dep);

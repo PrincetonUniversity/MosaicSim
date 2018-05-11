@@ -1,4 +1,4 @@
-//=======================================================================
+ //=======================================================================
 // Copyright 2018 University of Princeton.
 //
 // Project Apollo - simulator
@@ -14,7 +14,7 @@
 
 namespace apollo {
 
-typedef enum {add, sub, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
+typedef enum {add=1, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
 typedef enum {always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
 
 class Node;
@@ -26,26 +26,33 @@ class Edge {
       Node *dst;
 
       Edge(Node *s, Node *d, TEdge type) : src(s), dst(d), edge_type(type) {}
+      
       bool operator< (const Edge &e) const {         
          return (this < &e);
       }
+      
       bool operator==(const Edge &e) const {
          return ( this->src == e.src && this->dst == e.dst );
       }
 };
 
-
 class Node {
    private:
-      TInstr instr_type;
+      std::set<Edge> dependents;    // set of dependent nodes (defined as Edges) 
+      enum {instr, special} type;   // indicates the "type" of node
       int instr_id;
+      int instr_lat;
+      TInstr instr_type;
       std::string instr_name;
-      std::set<Edge> dependents;
-   
+
    public:
-      Node(TInstr type, int id, std::string name) : 
-               instr_type(type), instr_id(id), instr_name(name) {}
-   
+      // constructor for an "instruction"-type Node
+      Node(int id, int lat, TInstr type, std::string name) : 
+               instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), type(instr) {}
+
+      // constructor for a "special" Node (ie, a BB's entry/exit point)
+      Node() : instr_name("special"), type(special) {}
+
       void addDependent(Node *dest, TEdge type) {
          Edge e(this, dest, type);
          dependents.insert(e);  
@@ -58,7 +65,7 @@ class Node {
             dependents.erase(*it);
       }
 
-      friend std::ostream &operator<<(std::ostream &os, const Node &n) {
+      friend std::ostream &operator<<(std::ostream &os, Node &n) {
          os << "instr[" << n.instr_name << "], Deps = {";
          for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
             std::cout << "[" << it->dst->instr_name << "], " ;
@@ -66,18 +73,23 @@ class Node {
       }
 };
 
-
 class Graph {
    private:
       std::set<Node *> nodes;
 
    public:
-      Graph() {}
-   
       int get_num_nodes() { return nodes.size(); }
    
-      Node *addNode(TInstr instr_type, int instr_id, std::string instr_name = "") {
-         Node *n = new Node(instr_type, instr_id, instr_name);
+      // adding an "instruction"-type Node
+      Node *addNode(int id, int lat, TInstr type, std::string name) {
+         Node *n = new Node( id, lat, type, name);
+         nodes.insert(n);
+         return n;
+      }
+
+      // adding a "special"-type Node
+      Node *addNode() {
+         Node *n = new Node;
          nodes.insert(n);
          return n;
       }
