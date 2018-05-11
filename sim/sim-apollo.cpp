@@ -52,7 +52,7 @@ int main(int argc, char const *argv[])
    nodes[2]->addDependent(nodes[6], data_dep);
    
    cout << g;
-   cout << "latency=" << g.calculate_latency() << endl << endl;
+   cout << "latency=" << g.calculate_accum_latency() << endl << endl;
 
    // some sanity checks
    nodes[2]->eraseDependent(nodes[5], data_dep);

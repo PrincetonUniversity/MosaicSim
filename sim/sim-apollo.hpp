@@ -73,7 +73,8 @@ class Node {
          std::cout << "}";
       }
 
-      int calculate_latency_from_me() {
+      // FIXME: note this is the accumulated latency not the real critical path
+      int calculate_accum_latency_from_me() {
          int lat = instr_lat;
          if (visited) {
             std::cout << "error! cycle detected\n";
@@ -82,7 +83,7 @@ class Node {
          else visited = true;
 
          for ( std::set<Edge>::iterator it = dependents.begin(); it != dependents.end(); ++it )
-            lat += it->dst->calculate_latency_from_me();
+            lat += it->dst->calculate_accum_latency_from_me();
          return lat;
       }
 };
@@ -141,10 +142,10 @@ class Graph {
             (*it)->visited = false;
       }
 
-      int calculate_latency() {
+      int calculate_accum_latency() {
          clear_all_visits();
          Node *n = (*nodes.begin()); // FIXME: we must locate "the correct entry point"
-         return n->calculate_latency_from_me();
+         return n->calculate_accum_latency_from_me();
       }
 };
 
