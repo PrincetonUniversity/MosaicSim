@@ -16,33 +16,34 @@ int main(int argc, char const *argv[])
 {
    /* code */
    Graph g;
-   Node *node1, *node2, *node3;
+   Node *nodes[10];
 
    // create some nodes
-   node1 = g.addNode(1, 4, add, "add $1,$3,$4");
-   node2 = g.addNode(2, 4, sub, "sub $1,$3,$4");
-   node3 = g.addNode(3, 4, logical, "xor $1,$3,$4");
+   nodes[0] = g.addNode(1, 4, add, "add $1,$3,$4");
+   nodes[1] = g.addNode(2, 4, sub, "sub $1,$3,$4");
+   nodes[2] = g.addNode(3, 4, logical, "xor $1,$3,$4");
+   nodes[3] = g.addNode();
 
    // add some dependants
-   node1->addDependent(node2, always_mem_dep);
-   node1->addDependent(node3, always_mem_dep);
+   nodes[0]->addDependent(nodes[1], always_mem_dep);
+   nodes[0]->addDependent(nodes[2], always_mem_dep);
 
-   node2->addDependent(node1, always_mem_dep);
-   node2->addDependent(node3, always_mem_dep);
+   nodes[1]->addDependent(nodes[0], always_mem_dep);
+   nodes[1]->addDependent(nodes[2], always_mem_dep);
 
-   node3->addDependent(node1, always_mem_dep);
-   node3->addDependent(node2, always_mem_dep);
-
-   cout << g;
-
-   node1->eraseDependent(node2, always_mem_dep);
-   node1->eraseDependent(node3, always_mem_dep);
+   nodes[2]->addDependent(nodes[0], always_mem_dep);
+   nodes[2]->addDependent(nodes[1], always_mem_dep);
 
    cout << g;
 
-   g.eraseNode(node1);
-   g.eraseNode(node2);
-   g.eraseNode(node3);
+   nodes[0]->eraseDependent(nodes[1], always_mem_dep);
+   nodes[0]->eraseDependent(nodes[2], always_mem_dep);
+
+   cout << g;
+
+   g.eraseNode(nodes[0]);
+   g.eraseNode(nodes[1]);
+   g.eraseNode(nodes[2]);
    cout << g;
    return 0;
 }

@@ -74,10 +74,9 @@ class Node {
 };
 
 class Graph {
-   private:
-      std::set<Node *> nodes;
-
    public:
+      std::set<Node *> nodes;
+      
       int get_num_nodes() { return nodes.size(); }
    
       // adding an "instruction"-type Node
