@@ -73,7 +73,8 @@ class Node {
          std::cout << "}";
       }
 
-      // FIXME: note this is the accumulated latency not the real critical path
+      // FIXME: note this is the "accumulated" latency and NOT the real critical path
+      // Depth First Search
       int calculate_accum_latency_from_me() {
          int lat = instr_lat;
          if (visited) {
@@ -96,7 +97,7 @@ class Graph {
    
       // adding an "instruction"-type Node
       Node *addNode(int id, int lat, TInstr type, std::string name) {
-         Node *n = new Node( id, lat, type, name);
+         Node *n = new Node(id, lat, type, name);
          nodes.insert(n);
          return n;
       }
@@ -109,7 +110,7 @@ class Graph {
       }
 
       Node *getNode(int id) {
-         // search the Instr-Node with <instr_id> 
+         // search the Node with <instr_id> == <id>
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
             if ( (*it)->instr_id == id )
                return *it;
@@ -117,8 +118,10 @@ class Graph {
       }
    
       void eraseNode(Node *n) { 
-         nodes.erase( n ); 
-         delete n;
+         if (n) {
+            nodes.erase( n ); 
+            delete n;
+         }
       }
    
       void addDependent(Node *src, Node *dest, TEdge type) {
