@@ -40,6 +40,7 @@ class Edge {
 class Node {
    public:
       std::set<Edge> dependents;    // set of dependent nodes (defined as Edges) 
+      int parent_count;
       enum {instr, special} type;   // indicates the "type" of node
       int instr_id;
       int instr_lat;
@@ -47,9 +48,10 @@ class Node {
       std::string instr_name;
       bool visited;
 
+
       // constructor for an "instruction"-type Node
       Node(int id, int lat, TInstr type, std::string name) : 
-               instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
+               parent_count(0), instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
                type(instr), visited(false)     {}
 
       // constructor for a "special" Node (ie, a BB's entry/exit point)
@@ -57,7 +59,8 @@ class Node {
 
       void addDependent(Node *dest, TEdge type) {
          Edge e(this, dest, type);
-         dependents.insert(e);  
+         dependents.insert(e); 
+         dest->parent_count++; 
       }
    
       void eraseDependent(Node *dest, TEdge type) {
@@ -111,7 +114,6 @@ class Node {
 class Graph {
    public:
       std::set<Node *> nodes;
-
       int get_num_nodes() { return nodes.size(); }
    
       // adding an "instruction"-type Node
