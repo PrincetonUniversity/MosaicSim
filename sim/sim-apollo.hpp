@@ -59,7 +59,8 @@ class Node {
          Edge e(this, dest, type);
          dependents.insert(e);  
       }
-   
+
+      // -------------------------------
       void eraseDependent(Node *dest, TEdge type) {
          std::set<Edge>::iterator it;
          it = std::find( dependents.begin(), dependents.end(), Edge(this,dest,type) );
@@ -67,6 +68,7 @@ class Node {
             dependents.erase(*it);
       }
 
+      // Outputing a Node
       friend std::ostream &operator<<(std::ostream &os, Node &n) {
          os << "I[" << n.instr_name << "], lat=" << n.instr_lat << ", Deps = {";
          for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
@@ -128,7 +130,7 @@ class Graph {
          return n;
       }
 
-      // return an exsisting node given an instr_id
+      // return an exsisting node given an <instr_id>
       Node *getNode(int id) {
          // search the Node with <instr_id> == <id>
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
@@ -137,6 +139,7 @@ class Graph {
          return NULL;  // not found -> but this should not happen !!!
       }
    
+      // -------------------------------
       void eraseNode(Node *n) { 
          if (n) {
             nodes.erase( n ); 
@@ -144,14 +147,17 @@ class Graph {
          }
       }
    
+      // -------------------------------
       void addDependent(Node *src, Node *dest, TEdge type) {
          src->addDependent(dest, type);
       }
 
+      // -------------------------------
       void eraseDependent(Node *src, Node *dest, TEdge type) {
          src->eraseDependent(dest, type);
       }
 
+      // Outputing a Graph
       friend std::ostream &operator<<(std::ostream &os, Graph &g) {
          os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
          int i=0;
@@ -160,6 +166,7 @@ class Graph {
          std::cout << "";
       }
 
+      // -------------------------------
       void clear_all_visits() {
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
             (*it)->visited = false;
