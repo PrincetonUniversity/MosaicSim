@@ -7,8 +7,9 @@
 
 // Header file
 
-#include <set>
 #include <iostream>                         
+#include <set>
+#include <stack>
 #include <algorithm>
 #include <iterator> 
 
@@ -73,8 +74,7 @@ class Node {
          std::cout << "}";
       }
 
-      // FIXME: note this is the "accumulated" latency and NOT the real critical path
-      // Depth First Search
+      // Note this is Depth First Search -> it calculates the accumulated latency of ALL nodes
       int calculate_accum_latency_from_me() {
          int lat = instr_lat;
          if (visited) {
@@ -86,6 +86,25 @@ class Node {
          for ( std::set<Edge>::iterator it = dependents.begin(); it != dependents.end(); ++it )
             lat += it->dst->calculate_accum_latency_from_me();
          return lat;
+      }
+
+      // A recursive function used by topologicalSort
+      void topologicalSort(std::stack<int> &Stack) {
+         // Mark the current node as visited.
+         if (visited) {
+            std::cout << "error! cycle detected\n";
+            return;
+         }
+         else visited = true;
+
+         // Recur for all the nodes depending on this node
+         std::set<Edge>::iterator it;
+         for (  it = dependents.begin(); it != dependents.end(); ++it )
+            if ( !visited )
+               it->dst->topologicalSort(Stack);
+ 
+         // Push the laency of current node into the stack
+         Stack.push(instr_lat);        
       }
 };
 
@@ -109,6 +128,7 @@ class Graph {
          return n;
       }
 
+      // return an exsisting node given an instr_id
       Node *getNode(int id) {
          // search the Node with <instr_id> == <id>
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
@@ -145,10 +165,33 @@ class Graph {
             (*it)->visited = false;
       }
 
+      // This is a DFS search (eg., if you simply want to make sure you visit ALL the nodes but 
+      //    do not need a special visiting order)
       int calculate_accum_latency() {
          clear_all_visits();
-         Node *n = (*nodes.begin()); // FIXME: we must locate "the correct entry point"
+         Node *n = (*nodes.begin()); // FIXME: maybe we need to locate "a correct entry point"
          return n->calculate_accum_latency_from_me();
+      }
+
+      // Calculating the "Critical Path" -> for that we use a Topological sorting
+      int calculate_critical_path() {
+         std::stack<int> Stack;
+         int cp_length = 0;
+
+         clear_all_visits();
+
+         // Call the recursive helper function to store Topological
+         // traverse ALL nodes one by one and call the recursive helper function
+         for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+            if ( ! (*it)->visited )
+               (*it)->topologicalSort(Stack);
+
+         // traverse the STACK and accumulate latencies
+         while (Stack.empty() == false) {
+            std::cout << Stack.top() << " ";
+            Stack.pop();
+         }
+         return cp_length;
       }
 };
 

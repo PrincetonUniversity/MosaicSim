@@ -20,8 +20,8 @@ int main(int argc, char const *argv[])
    int instr_id = 1;
 
    // initilize the latencies array
-   lats[add] = 2;
-   lats[sub] = 2;
+   lats[add] = 1;
+   lats[sub] = 1;
    lats[logical] = 1;
    lats[mult] = 5;
    lats[apollo::div] = 10;
@@ -53,6 +53,10 @@ int main(int argc, char const *argv[])
    
    cout << g;
    cout << "Accum.latency=" << g.calculate_accum_latency() << endl << endl;
+
+   cout << "Critical Path=";
+   cout << g.calculate_critical_path() << endl << endl;
+
 
    // some sanity checks
    nodes[2]->eraseDependent(nodes[5], data_dep);
