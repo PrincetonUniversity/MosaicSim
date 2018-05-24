@@ -15,7 +15,7 @@
 
 namespace apollo {
 
-typedef enum {add, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
+typedef enum {NAI, add, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
 typedef enum {data_dep, always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
 
 class Node;
@@ -50,19 +50,21 @@ class Node {
 
 
       // constructor for an "instruction"-type Node
-      Node(int id, int lat, TInstr type, std::string name) : 
+      Node(int id, int lat, TInstr type, std::string name) :
                parent_count(0), instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
-               type(instr), visited(false)     {}
-
+               type(instr), visited(false)  {}
+               
       // constructor for a "special" Node (ie, a BB's entry/exit point)
-      Node() : instr_name("special"), type(special), visited(false) {}
+      Node() : type(special), instr_id(0), instr_lat(0), instr_type(NAI), instr_name("special"),
+               visited(false)     {}
 
       void addDependent(Node *dest, TEdge type) {
          Edge e(this, dest, type);
          dependents.insert(e); 
          dest->parent_count++; 
       }
-   
+
+      // -------------------------------
       void eraseDependent(Node *dest, TEdge type) {
          std::set<Edge>::iterator it;
          it = std::find( dependents.begin(), dependents.end(), Edge(this,dest,type) );
@@ -70,6 +72,7 @@ class Node {
             dependents.erase(*it);
       }
 
+      // Outputing a Node
       friend std::ostream &operator<<(std::ostream &os, Node &n) {
          os << "I[" << n.instr_name << "], lat=" << n.instr_lat << ", Deps = {";
          for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
@@ -103,10 +106,10 @@ class Node {
          // Recur for all the nodes depending on this node
          std::set<Edge>::iterator it;
          for (  it = dependents.begin(); it != dependents.end(); ++it )
-            if ( !visited )
+            if ( ! visited )
                it->dst->topologicalSort(Stack);
  
-         // Push the laency of current node into the stack
+         // Push the latency of current node into the stack
          Stack.push(instr_lat);        
       }
 };
@@ -130,7 +133,7 @@ class Graph {
          return n;
       }
 
-      // return an exsisting node given an instr_id
+      // return an exsisting node given an <instr_id>
       Node *getNode(int id) {
          // search the Node with <instr_id> == <id>
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
@@ -139,6 +142,7 @@ class Graph {
          return NULL;  // not found -> but this should not happen !!!
       }
    
+      // -------------------------------
       void eraseNode(Node *n) { 
          if (n) {
             nodes.erase( n ); 
@@ -146,14 +150,17 @@ class Graph {
          }
       }
    
+      // -------------------------------
       void addDependent(Node *src, Node *dest, TEdge type) {
          src->addDependent(dest, type);
       }
 
+      // -------------------------------
       void eraseDependent(Node *src, Node *dest, TEdge type) {
          src->eraseDependent(dest, type);
       }
 
+      // Outputing a Graph
       friend std::ostream &operator<<(std::ostream &os, Graph &g) {
          os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
          int i=0;
@@ -162,6 +169,7 @@ class Graph {
          std::cout << "";
       }
 
+      // -------------------------------
       void clear_all_visits() {
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
             (*it)->visited = false;

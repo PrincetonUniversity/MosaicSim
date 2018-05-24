@@ -91,14 +91,14 @@ int main(int argc, char const *argv[])
    nodes[6] = g.addNode(instr_id++, lats[logical], logical, "6-xor $1,$3,$4");
 
    // add some dependents
-   nodes[0]->addDependent(nodes[1], data_dep);
+   nodes[0]->addDependent(nodes[1], /*type*/ data_dep);
 
-   nodes[1]->addDependent(nodes[2], data_dep);
-   nodes[1]->addDependent(nodes[3], data_dep);
-   nodes[1]->addDependent(nodes[4], data_dep);
+   nodes[1]->addDependent(nodes[2], /*type*/ data_dep);
+   nodes[1]->addDependent(nodes[3], /*type*/ data_dep);
+   nodes[1]->addDependent(nodes[4], /*type*/ data_dep);
 
-   nodes[2]->addDependent(nodes[5], data_dep);
-   nodes[2]->addDependent(nodes[6], data_dep);
+   nodes[2]->addDependent(nodes[5], /*type*/ data_dep);
+   nodes[2]->addDependent(nodes[6], /*type*/ data_dep);
    
    //cout << g;
    cout << "Test \n";
