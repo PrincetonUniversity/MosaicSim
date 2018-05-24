@@ -102,10 +102,10 @@ class Node {
          // Recur for all the nodes depending on this node
          std::set<Edge>::iterator it;
          for (  it = dependents.begin(); it != dependents.end(); ++it )
-            if ( !visited )
+            if ( ! visited )
                it->dst->topologicalSort(Stack);
  
-         // Push the laency of current node into the stack
+         // Push the latency of current node into the stack
          Stack.push(instr_lat);        
       }
 };
