@@ -15,7 +15,7 @@
 
 namespace apollo {
 
-typedef enum {add, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
+typedef enum {NAI, add, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
 typedef enum {data_dep, always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
 
 class Node;
@@ -49,11 +49,12 @@ class Node {
 
       // constructor for an "instruction"-type Node
       Node(int id, int lat, TInstr type, std::string name) : 
-               instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
-               type(instr), visited(false)     {}
+               type(instr), instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
+               visited(false)     {}
 
       // constructor for a "special" Node (ie, a BB's entry/exit point)
-      Node() : instr_name("special"), type(special), visited(false) {}
+      Node() : type(special), instr_id(0), instr_lat(0), instr_type(NAI), instr_name("special"),
+               visited(false)     {}
 
       void addDependent(Node *dest, TEdge type) {
          Edge e(this, dest, type);
