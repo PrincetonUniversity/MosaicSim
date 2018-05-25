@@ -15,7 +15,7 @@
 
 namespace apollo {
 
-typedef enum {NAI, add, sub, logical, mult, div, ld, st, branch_cond, branch_uncond} TInstr;
+typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, BR_COND, BR_UNCOND} TInstr;
 typedef enum {data_dep, always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
 
 class Node;
@@ -32,7 +32,7 @@ class Edge {
          return (this < &e);
       }
       
-      bool operator==(const Edge &e) const {
+      bool operator== (const Edge &e) const {
          return ( this->src == e.src && this->dst == e.dst );
       }
 };
@@ -48,92 +48,101 @@ class Node {
       std::string instr_name;
       bool visited;
 
-
-      // constructor for an "instruction"-type Node
+      // Constructor for an "instruction"-type Node -----------------------------
       Node(int id, int lat, TInstr type, std::string name) :
-               parent_count(0), instr_id(id), instr_lat(lat), instr_type(type), instr_name(name), 
-               type(instr), visited(false)  {}
+               parent_count(0), type(instr), instr_id(id), instr_lat(lat), instr_type(type), 
+               instr_name(name), visited(false)    {}
                
-      // constructor for a "special" Node (ie, a BB's entry/exit point)
-      Node() : type(special), instr_id(0), instr_lat(0), instr_type(NAI), instr_name("special"),
-               visited(false)     {}
+      // Constructor for a "special" Node (ie, a BB's entry/exit point)----------
+      Node() : parent_count(0), type(special), instr_id(0), instr_lat(0), instr_type(NAI), 
+               instr_name("special"), visited(false)     {}
 
+      // -----------------------------------------------------------------------
       void addDependent(Node *dest, TEdge type) {
          Edge e(this, dest, type);
          dependents.insert(e); 
          dest->parent_count++; 
       }
 
-      // -------------------------------
+      // -----------------------------------------------------------------------
       void eraseDependent(Node *dest, TEdge type) {
          std::set<Edge>::iterator it;
          it = std::find( dependents.begin(), dependents.end(), Edge(this,dest,type) );
-         if ( it != dependents.end() )  // found
+         if ( it != dependents.end() ) {  // found
             dependents.erase(*it);
+            dest->parent_count--; 
+         }
       }
 
-      // Outputing a Node
+      // Outputing a Node -----------------------------------------------------------
       friend std::ostream &operator<<(std::ostream &os, Node &n) {
          os << "I[" << n.instr_name << "], lat=" << n.instr_lat << ", Deps = {";
-         for ( std::set<Edge>::iterator it = n.dependents.begin(); it != n.dependents.end(); ++it )
+         std::set<Edge>::iterator it;
+         for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
             std::cout << "[" << it->dst->instr_name << "], ";
          std::cout << "}";
       }
 
-      // Note this is Depth First Search -> it calculates the accumulated latency of ALL nodes
+      // Recursive function for Depth First Search ------------------------------------
       int calculate_accum_latency_from_me() {
-         int lat = instr_lat;
-         if (visited) {
-            std::cout << "error! cycle detected\n";
-            return 0;
+         int lat = 0;
+         
+         if ( !visited ) {
+            visited = true;
+            lat = instr_lat;
+            
+            // Recursively traverse ALL dependents
+            std::set<Edge>::iterator it;
+            for ( it = dependents.begin(); it != dependents.end(); ++it )
+               lat += it->dst->calculate_accum_latency_from_me();
          }
-         else visited = true;
-
-         for ( std::set<Edge>::iterator it = dependents.begin(); it != dependents.end(); ++it )
-            lat += it->dst->calculate_accum_latency_from_me();
          return lat;
       }
 
-      // A recursive function used by topologicalSort
-      void topologicalSort(std::stack<int> &Stack) {
-         // Mark the current node as visited.
-         if (visited) {
-            std::cout << "error! cycle detected\n";
-            return;
-         }
-         else visited = true;
+      // Recursive function for doing a Topological Sort traversal -----------------------
+      void topologicalSort(std::stack<Node *> &Stack) {
+         
+         if ( !visited ) {
+            visited = true;
 
-         // Recur for all the nodes depending on this node
-         std::set<Edge>::iterator it;
-         for (  it = dependents.begin(); it != dependents.end(); ++it )
-            if ( ! visited )
-               it->dst->topologicalSort(Stack);
+            // Recursively traverse ALL dependents
+            std::set<Edge>::iterator it;
+            for (  it = dependents.begin(); it != dependents.end(); ++it )
+               if ( !visited ) {
+                  it->dst->topologicalSort(Stack); std::cout << " a ";
+               }
  
-         // Push the latency of current node into the stack
-         Stack.push(instr_lat);        
+            // Push current Node into the stack
+            Stack.push(this);        
+         }
       }
 };
 
+// ******************************************************************************
 class Graph {
    public:
       std::set<Node *> nodes;
       int get_num_nodes() { return nodes.size(); }
+      int size() { return nodes.size(); }
    
-      // adding an "instruction"-type Node
+      // Destructor -----------------------------------------------------------------
+      ~Graph() { eraseAllNodes(); } 
+
+      // Adding an "instruction"-type Node ------------------------------------------
       Node *addNode(int id, int lat, TInstr type, std::string name) {
          Node *n = new Node(id, lat, type, name);
          nodes.insert(n);
          return n;
       }
 
-      // adding a "special"-type Node
+      // Adding a "special"-type Node -----------------------------------------------
       Node *addNode() {
          Node *n = new Node;
          nodes.insert(n);
          return n;
       }
 
-      // return an exsisting node given an <instr_id>
+      // Return an exsisting NODE given an <instr_id> ---------------------------------
       Node *getNode(int id) {
          // search the Node with <instr_id> == <id>
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
@@ -142,66 +151,62 @@ class Graph {
          return NULL;  // not found -> but this should not happen !!!
       }
    
-      // -------------------------------
+      // --------------------------------------------------------------------------------
       void eraseNode(Node *n) { 
          if (n) {
             nodes.erase( n ); 
             delete n;
          }
       }
+
+      // --------------------------------------------------------------------------------
+      void eraseAllNodes() { 
+         for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+            eraseNode(*it);
+      }
    
-      // -------------------------------
+      // --------------------------------------------------------------------------------
       void addDependent(Node *src, Node *dest, TEdge type) {
          src->addDependent(dest, type);
       }
 
-      // -------------------------------
+      // --------------------------------------------------------------------------------
       void eraseDependent(Node *src, Node *dest, TEdge type) {
          src->eraseDependent(dest, type);
       }
 
-      // Outputing a Graph
+      // Outputing a Graph --------------------------------------------------------------
       friend std::ostream &operator<<(std::ostream &os, Graph &g) {
          os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
          int i=0;
-         for ( std::set<Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it )
+         std::set<Node *>::iterator it;
+         for ( it = g.nodes.begin(); it != g.nodes.end(); ++it )
             std::cout << "node_" << i++ << ": " << **it << std::endl;
          std::cout << "";
       }
 
-      // -------------------------------
+      // --------------------------------------------------------------------------------
       void clear_all_visits() {
          for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
             (*it)->visited = false;
       }
 
-      // This is a DFS search (eg., if you simply want to make sure you visit ALL the nodes but 
-      //    do not need a special visiting order)
+      // Graph's accumulated latency by doing a DFS search -----------------------------------
       int calculate_accum_latency() {
          clear_all_visits();
          Node *n = (*nodes.begin()); // FIXME: maybe we need to locate "a correct entry point"
          return n->calculate_accum_latency_from_me();
       }
 
-      // Calculating the "Critical Path" -> for that we use a Topological sorting
-      int calculate_critical_path() {
-         std::stack<int> Stack;
-         int cp_length = 0;
-
+      // Make a Topological Sorting ----------------------------------------------------------
+      void make_topological_sort( std::stack<Node *> &Stack ) {
          clear_all_visits();
-
-         // Call the recursive helper function to store Topological
-         // traverse ALL nodes one by one and call the recursive helper function
-         for ( std::set<Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+         
+         // traverse ALL nodes one by one AND call the recursive helper function
+         std::set<Node *>::iterator it;
+         for (  it = nodes.begin(); it != nodes.end(); ++it )
             if ( ! (*it)->visited )
                (*it)->topologicalSort(Stack);
-
-         // traverse the STACK and accumulate latencies
-         while (Stack.empty() == false) {
-            std::cout << Stack.top() << " ";
-            Stack.pop();
-         }
-         return cp_length;
       }
 };
 
