@@ -12,7 +12,8 @@ __attribute__((noinline)) void printBranch(char* name, int cond, char* n1, char 
 		target = n1;
 	else
 		target = n2;
-	std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
+	std::cout << "B: "<<name << "," << target << "\n";
+	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
 }
 
 __attribute__((noinline)) void printMem(char *name, bool type, long long addr, int size)
@@ -47,5 +48,6 @@ __attribute__((noinline)) void printSw(char *name, int value, char *def, int n, 
 	}
 	if(!found)
 		target = def;
-	std::cout << "Switch [" << name << "]: " << value << " / " << target << "\n";
+	std::cout << "S: " <<name << "," << target <<"\n";
+	//std::cout << "Switch [" << name << "]: " << value << " / " << target << "\n";
 }
