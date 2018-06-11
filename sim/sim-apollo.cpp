@@ -12,7 +12,8 @@ using namespace apollo;
 #include <map>
 #include "assert.h"
 #include "dramsim2/DRAMSim.h"
-#include <vector>                        
+#include <vector>
+#include <cstdio> 
 using namespace std;
 
 
@@ -180,6 +181,7 @@ int main(int argc, char const *argv[])
    while ( active_list.size() != 0 || dep_map.size() != 0 )
       process_cycle();
    mem->printStats(true);
+   
    // some sanity checks
    //nodes[2]->eraseDependent(nodes[5], data_dep);
    //nodes[2]->eraseDependent(nodes[6], data_dep);
