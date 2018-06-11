@@ -1,10 +1,5 @@
-
-
 cmake_minimum_required(VERSION 3.10)
-
-#set(CMAKE_C_COMPILER "gcc")
-#set(CMAKE_CXX_COMPILER "g++")
- 
 Project(sim-apollo)
- 
+LINK_DIRECTORIES(.)
 ADD_EXECUTABLE(sim-apollo sim-apollo.cpp)
+target_link_libraries(sim-apollo dramsim)

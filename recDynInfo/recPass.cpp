@@ -44,8 +44,9 @@ struct recordDynamicInfo : public ModulePass {
     }
     return false;
   }
-  int findBID(Function *f, BasicBlock *bb)
+  int findBID(BasicBlock *bb)
   {
+    Function *f = bb->getParent();
     int id = 0;
     for (BasicBlock &B : *f)  {
       BasicBlock *curb = &(B);
@@ -55,17 +56,17 @@ struct recordDynamicInfo : public ModulePass {
     }
     return -1;
   }
-  int findID(BasicBlock *bb, Instruction *ins)
+  int findID(Instruction *ins)
   {
+    Function *F = ins->getParent()->getParent();
     int ct = 0;
-    for (Instruction &I : *bb) {
-        Instruction *curins = &(I);
-        if(ins == curins)
+    for (inst_iterator iI = inst_begin(*F), iE = inst_end(*F);iI != iE; iI++) {
+        Instruction *inst = &(*iI);
+        if(ins == inst)
           return ct;
-      ct++;
+        ct++;
     }
-    return 0;
-    assert(false);
+    return -1;
   }
   bool isFoI(Function &F) {
     return (F.getName().str().find(KERNEL_STR) != std::string::npos);
@@ -74,32 +75,25 @@ struct recordDynamicInfo : public ModulePass {
     IRBuilder<> Builder(pi);
     LLVMContext& ctx = mod->getContext();
     Value *v = pi->getCondition();
-    StringRef n1;
-    StringRef n2;
-    std::string nk1;
-    std::string nk2;
+    StringRef p1, p2;
+    std::string temp1, temp2;
     if(v->getType()->isIntegerTy()) {
       BasicBlock *b1 = pi->getSuccessor(1);
       BasicBlock *b2 = pi->getSuccessor(0);
-      nk1 = std::to_string(findBID(b1->getParent(), b1));
-      nk2  = std::to_string(findBID(b2->getParent(), b2));
-      errs() << "nk.. " << nk1 << " / " << nk2 << "\n";
-      //n1 = pi->getSuccessor(1)->getName();
-      //n2 = pi->getSuccessor(0)->getName();
+      temp1 = std::to_string(findBID(b1));
+      temp2 = std::to_string(findBID(b2));
     }
     else
       assert(false);    
-    n1 = nk1;
-    n2 = nk2; 
-    errs() << "[Branch] " << *pi << " - " << n1 << " / " << n2 << "\n";
+    p1 = temp1;
+    p2 = temp2; 
+    errs() << "[Branch] " << *pi << " - " << p1 << " / " << p2 << "\n";
     Value *castI;
     castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
-    std::string nn = std::to_string(findBID(pi->getParent()->getParent(), pi->getParent()));
-    StringRef no;
-    no = nn;
-    Value *name = Builder.CreateGlobalStringPtr(no);
-    Value *name1= Builder.CreateGlobalStringPtr(n1);
-    Value *name2= Builder.CreateGlobalStringPtr(n2);
+    std::string bbname = std::to_string(findBID(pi->getParent()));
+    Value *name = Builder.CreateGlobalStringPtr(bbname);
+    Value *name1= Builder.CreateGlobalStringPtr(p1);
+    Value *name2= Builder.CreateGlobalStringPtr(p2);
     Value* args[] = {name, castI, name1, name2};
     CallInst* cI = Builder.CreateCall(printBR, args);
   }
@@ -116,13 +110,10 @@ struct recordDynamicInfo : public ModulePass {
     std::vector<Value*> args;
     int len = pi->getNumCases();
     ConstantInt *length = llvm::ConstantInt::get(ctx, llvm::APInt(32, len , false));
-    //int id = findID(pi->getParent(), pi);
-    std::string namestr = std::to_string(findBID(pi->getParent()->getParent(), pi->getParent()));//pi->getParent()->getName().str() + "/" + std::to_string(id);
+    std::string namestr = std::to_string(findBID(pi->getParent()));//pi->getParent()->getName().str() + "/" + std::to_string(id);
     Value *name = Builder.CreateGlobalStringPtr(namestr);
-    BasicBlock *bdef = dyn_cast<BasicBlock>(pi->getOperand(1));
-    if(bdef == NULL)
-      assert(false);
-    std::string defstr = std::to_string(findBID(pi->getParent()->getParent(), bdef));
+    BasicBlock *bdefault = dyn_cast<BasicBlock>(pi->getOperand(1));
+    std::string defstr = std::to_string(findBID(bdefault));
     Value *def = Builder.CreateGlobalStringPtr(defstr);
     args.push_back(name);
     args.push_back(castI);
@@ -130,7 +121,7 @@ struct recordDynamicInfo : public ModulePass {
     args.push_back(length);
     for(int i=0; i<pi->getNumCases(); i++) {
       BasicBlock *bop = dyn_cast<BasicBlock>(pi->getOperand(3+i*2));
-      std::string bbstr = std::to_string(findBID(pi->getParent()->getParent(), bop));
+      std::string bbstr = std::to_string(findBID(bop));
       errs() << "BB : " << bbstr << "\n";
       Value *n = Builder.CreateGlobalStringPtr(bbstr);
       args.push_back(pi->getOperand(2+i*2));
@@ -149,15 +140,15 @@ struct recordDynamicInfo : public ModulePass {
       isLoad = true;
       errs() << "[Load] " << *pi << "\n";
       v = li->getPointerOperand();
-      name = Builder.CreateGlobalStringPtr(pi->getName());
+      std::string namestr = std::to_string(findID(pi));//pi->getParent()->getName().str() + "/" + std::to_string(id);
+      name = Builder.CreateGlobalStringPtr(namestr);
       ctype = llvm::ConstantInt::get(ctx, llvm::APInt(1, 0, false));
     }
     else if(auto *si = dyn_cast<StoreInst>(pi)) {
       isLoad = false;
       errs() << "[Store] " << *pi << "\n";
       v = si->getPointerOperand();
-      int id = findID(pi->getParent(), pi);
-      std::string namestr = pi->getParent()->getName().str() + "/" + std::to_string(id);
+      std::string namestr = std::to_string(findID(pi));//pi->getParent()->getName().str() + "/" + std::to_string(id);
       name = Builder.CreateGlobalStringPtr(namestr);
       ctype = llvm::ConstantInt::get(ctx, llvm::APInt(1, 1, false));
     }
@@ -179,17 +170,15 @@ struct recordDynamicInfo : public ModulePass {
           }
         }
         else if (auto *bI = dyn_cast<IndirectBrInst>(inst)) {
-          // Not Supported
           assert(false);
         }
         else if (auto *bI = dyn_cast<SwitchInst>(inst)) {
           printSwitch(bI);
         }
-        /*else if(auto *lI = dyn_cast<LoadInst>(inst))
+        else if(auto *lI = dyn_cast<LoadInst>(inst))
           printMemory(inst);
         else if(auto *sI = dyn_cast<StoreInst>(inst))
-          printMemory(inst);*/
-
+          printMemory(inst);
     }
   }
 };
