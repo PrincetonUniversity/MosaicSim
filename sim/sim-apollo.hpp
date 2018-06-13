@@ -78,7 +78,7 @@ public:
             count++;
          }
       }
-      if(count != 0)
+      if(count != 1)
          assert(false);
    }
 };
@@ -163,7 +163,6 @@ public:
       for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
          eraseNode(it->second);
    }
-
    void addDependent(Node *src, Node *dest, TEdge type) {
       src->addDependent(dest, type);
    }
