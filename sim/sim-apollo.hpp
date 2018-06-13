@@ -94,11 +94,7 @@ public:
             count++;
          }
       }
-<<<<<<< HEAD
       if (count != 1)
-=======
-      if(count != 1)
->>>>>>> 356d22614faef2e8f7096c4c483b7df88e26cbbf
          assert(false);
    }
 
@@ -144,6 +140,10 @@ class Context {
       int id;
       int bbid;
       int processed;
+      std::vector<Node*> active_list;
+      std::set<Node*> start_set;
+      std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
+      std::map<Node*, int> pending_ancestors_map; // tracks the # of pending ancestors for each node
 
       Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
 
@@ -152,17 +152,14 @@ class Context {
             assert(false);
          bbid = bb->id;
          active_list.push_back(bb->entry);
-         process_map.insert(std::make_pair(bb->entry, 0));
-         for (int i=0; i<bb->inst.size(); i++) {
+         remaining_cycles_map.insert( std::make_pair(bb->entry, 0) );
+
+         // for each node in the BB initialize the 
+         for ( int i=0; i<bb->inst.size(); i++ ) {
             Node *n = bb->inst.at(i);
-            ready_map.insert(std::make_pair(n, n->n_parents));
+            pending_ancestors_map.insert( std::make_pair(n, n->n_parents) );
          }
       }
-
-      std::vector<Node*> active_list;
-      std::set<Node*> start_set;
-      std::map<Node*, int> process_map;
-      std::map<Node*, int> ready_map;
 };
 
 // -------------------------------------------------------------------------------------
@@ -178,7 +175,6 @@ class Graph {
       void addBasicBlock(int id) {
          bbs.insert( std::make_pair(id, new BasicBlock(id)) );
       }
-<<<<<<< HEAD
 
       Node *addNode(int id, TInstr type, int bbid, std::string name) {
          Node *n = new Node(id, type, bbid, name);
@@ -233,18 +229,4 @@ class Graph {
 
    };
 
-=======
-   }
-   void eraseAllNodes() { 
-      for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
-         eraseNode(it->second);
-   }
-   void addDependent(Node *src, Node *dest, TEdge type) {
-      src->addDependent(dest, type);
-   }
-   void eraseDependent(Node *src, Node *dest, TEdge type) {
-      src->eraseDependent(dest, type);
-   }
-};
->>>>>>> 356d22614faef2e8f7096c4c483b7df88e26cbbf
 }

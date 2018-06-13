@@ -17,85 +17,101 @@ Graph g;
 int cycle_count = 0;
 int curr_context_id = 0;
 std::vector<Context*> context_list;
-std::map<uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
+std::map< uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
 DRAMSim::MultiChannelMemorySystem *mem;
 // TODO: Memory address overlap across contexts
 // TODO: Handle 0-latency instructions correctly
-class DRAMSimCallBack
-{
-public: 
-   void read_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
-      printf("[DRAM] Memory Read Complete: %d %lu cycle=%lu\n", id, address, clock_cycle);
-      if(outstanding_access_map.find(address) == outstanding_access_map.end())
-         assert(false);
-      Node *n = outstanding_access_map.at(address).first;
-      Context *c = outstanding_access_map.at(address).second;
-      c->process_map.at(n) = 0;
-      outstanding_access_map.erase(address);
-   }
-   void write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
-      printf("[DRAM] Memory Write Complete: %d %lu cycle=%lu\n", id, address, clock_cycle);
-      if(outstanding_access_map.find(address) == outstanding_access_map.end())
-         assert(false);
-      outstanding_access_map.erase(address);
-   }
+
+class DRAMSimCallBack {
+   public: 
+      void read_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
+         printf("[DRAM] Memory Read Complete: %d %lu cycle=%lu\n", id, address, clock_cycle);
+         if ( outstanding_access_map.find(address) == outstanding_access_map.end() )
+            assert(false);
+         Node *n = outstanding_access_map.at(address).first;
+         Context *c = outstanding_access_map.at(address).second;
+         c->remaining_cycles_map.at(n) = 0;
+         outstanding_access_map.erase(address);
+      }
+      void write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
+         printf("[DRAM] Memory Write Complete: %d %lu cycle=%lu\n", id, address, clock_cycle);
+         if( outstanding_access_map.find(address) == outstanding_access_map.end() )
+            assert(false);
+         outstanding_access_map.erase(address);
+      }
 };
 
 void process_context(Context *c)
 {
    std::set<Node*> next_start_set;
    std::vector<Node *> next_active_list;
-   for (int i=0; i <c->active_list.size(); i++ ) {
+
+   // process ALL nodes in <active_list>, ie, those being executed in this cycle
+   for ( int i=0; i < c->active_list.size(); i++ ) {
+
       Node *n = c->active_list.at(i);
-      if(c->start_set.find(n) != c->start_set.end()) {
+      if ( c->start_set.find(n) != c->start_set.end() ) {
+         
          std::cout << "Node [" << n->name << "]: Starts Execution \n";
-         if(n->type == LD || n->type == ST) {
+         
+         // Memory instructions treatment
+         if (n->type == LD || n->type == ST) {
             uint64_t addr = n->id * 64; // TODO: Use Real Address
             std::cout << "Node [" << n->name << "]: Inserts Memory Transaction for Address "<< addr << "\n";
-            if(!mem->willAcceptTransaction(addr))
+            if ( !mem->willAcceptTransaction(addr) )
                assert(false);
-            if(n->type == LD) {
+            if ( n->type == LD ) {
                mem->addTransaction(false, addr);
-               outstanding_access_map.insert(std::make_pair(addr, std::make_pair(n,c)));
+               outstanding_access_map.insert( std::make_pair(addr, std::make_pair(n,c)) );
             }
-            else if(n->type == ST) {
+            else if ( n->type == ST ) {
                mem->addTransaction(true, addr);
-               outstanding_access_map.insert(std::make_pair(addr, std::make_pair(n,c)));
+               outstanding_access_map.insert( std::make_pair(addr, std::make_pair(n,c)) );
             }
          }
       }
-      else {
+      else 
          std::cout << "Node [" << n->name << "]: Processing \n";
+
+      // decrease the remaining # of cycles for current node <n>
+      int remainig_cycles = c->remaining_cycles_map.at(n);
+      if (remainig_cycles > 0)
+        remainig_cycles--;
+
+      if ( remainig_cycles > 0 || remainig_cycles == -1 ) {  // Node <n> will continue execution in next cycle 
+         // JLA: is this correct when remainig_cycles == -1 ??
+         c->remaining_cycles_map.at(n) = remainig_cycles;
+         next_active_list.push_back(n);  
       }
-      int lat = c->process_map.at(n);
-      if(lat > 0)
-         lat--;
-      if (lat > 0 || lat == -1) { // Continue Execution 
-         c->process_map.at(n) = lat;
-         next_active_list.push_back(n);
-      }
-      else if (lat == 0) { // Execution Finished
+      else if (remainig_cycles == 0) { // Execution Finished for node <n>
          std::cout << "Node [" << n->name << "]: Finished Execution \n";
-         c->process_map.erase(n);
-         if(n->type != NAI)
+
+         c->remaining_cycles_map.erase(n);
+         if ( n->type != NAI )
             c->processed++;
+
          // Update Dependents
-         std::set<std::pair<Node*, TEdge> >::iterator it;
+         std::set< std::pair<Node*, TEdge> >::iterator it;
          for ( it = n->dependents.begin(); it != n->dependents.end(); ++it ) {
             Node *d = it->first;
             TEdge t = it->second;
-            if(t == data_dep || t == bb_dep) {
-               if (c->ready_map.find(d) == c->ready_map.end())  
+            
+            if ( t == data_dep || t == bb_dep ) {
+               if ( c->pending_ancestors_map.find(d) == c->pending_ancestors_map.end() )  
                   assert(false);
-               c->ready_map.at(d)--;
-               if (c->ready_map.at(d) == 0) {
+               
+               // decrease # of pending ancestors of dependent <d>
+               c->pending_ancestors_map.at(d)--;
+
+               // if <d> has no more pending ancestors -> push it for "execution" in next cycle
+               if ( c->pending_ancestors_map.at(d) == 0 ) {
                   next_active_list.push_back(d);
                   next_start_set.insert(d);
                   std::cout << "Node [" << d->name << "]: Ready to Execute\n";
-                  c->process_map.insert(std::make_pair(d, d->lat));
+                  c->remaining_cycles_map.insert( std::make_pair(d, d->lat) );
                }
             }
-            else if(t == phi_dep) {// && getNextBB() == d->bid) {
+            else if ( t == phi_dep ) {// && getNextBB() == d->bid) {
                // TODO: Update different context's node
             }
          }
@@ -103,9 +119,12 @@ void process_context(Context *c)
       else
          assert(false);
    }
+
+   // continue with following active instructions
    c->start_set = next_start_set;
    c->active_list = next_active_list;
-   if (c->processed == g.bbs.at(c->bbid)->inst_count) {
+   // check if current conect is DONE !
+   if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       std::cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
    }
@@ -115,21 +134,25 @@ void process_memory()
 {
    mem->update();
 }
+
 bool process_cycle()
 {
    std::cout << "Cycle: " << cycle_count << "\n";
    cycle_count++;
    bool simulate = false;
-   if(cycle_count > 500)
+
+   if (cycle_count > 500)
       assert(false);
-   for(int i=0; i<context_list.size(); i++) {
-      process_context(context_list.at(i));
-      if(context_list.at(i)->live)
+   for (int i=0; i<context_list.size(); i++) {
+      process_context( context_list.at(i) );
+      if ( context_list.at(i)->live )
          simulate = true;
    }
    process_memory();
    return simulate;
 }
+
+// ------------------------------------------------------------------------------------------
 
 int main(int argc, char const *argv[])
 {
@@ -162,8 +185,8 @@ int main(int argc, char const *argv[])
    nodes[6]->addDependent(nodes[4], /*type*/ data_dep);
    
    cycle_count = 0;
-   context_list.push_back(new Context(curr_context_id++));
-   context_list.at(0)->initialize(g.bbs.at(0));
+   context_list.push_back( new Context(curr_context_id++) );
+   context_list.at(0)->initialize( g.bbs.at(0) );
    bool simulate = true;
    while (simulate) {
       simulate = process_cycle();
