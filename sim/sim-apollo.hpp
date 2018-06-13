@@ -94,7 +94,11 @@ public:
             count++;
          }
       }
+<<<<<<< HEAD
       if (count != 1)
+=======
+      if(count != 1)
+>>>>>>> 356d22614faef2e8f7096c4c483b7df88e26cbbf
          assert(false);
    }
 
@@ -174,6 +178,7 @@ class Graph {
       void addBasicBlock(int id) {
          bbs.insert( std::make_pair(id, new BasicBlock(id)) );
       }
+<<<<<<< HEAD
 
       Node *addNode(int id, TInstr type, int bbid, std::string name) {
          Node *n = new Node(id, type, bbid, name);
@@ -228,4 +233,18 @@ class Graph {
 
    };
 
+=======
+   }
+   void eraseAllNodes() { 
+      for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+         eraseNode(it->second);
+   }
+   void addDependent(Node *src, Node *dest, TEdge type) {
+      src->addDependent(dest, type);
+   }
+   void eraseDependent(Node *src, Node *dest, TEdge type) {
+      src->eraseDependent(dest, type);
+   }
+};
+>>>>>>> 356d22614faef2e8f7096c4c483b7df88e26cbbf
 }
