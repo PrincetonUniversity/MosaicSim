@@ -31,7 +31,7 @@ class DRAMSimCallBack {
             assert(false);
          Node *n = outstanding_access_map.at(address).first;
          Context *c = outstanding_access_map.at(address).second;
-         c->remaining_cycles_map.at(n) = 0;
+         c->remaining_cycles_map.at(n) = 0; // load marked as DONE !
          outstanding_access_map.erase(address);
       }
       void write_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
