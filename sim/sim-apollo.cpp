@@ -25,8 +25,8 @@ DRAMSim::MultiChannelMemorySystem *mem;
 
 class DRAMSimCallBack {
    public: 
-      void read_complete(unsigned id, uint64_t address, uint64_t clock_cycle) {
-         printf("[DRAM] Memory Read Complete: %d %lu cycle=%lu\n", id, address, clock_cycle);
+      void read_complete(unsigned id, uint64_t address, uint64_t mem_clock_cycle) {
+         printf("[DRAM] Memory Read Complete. id:%d addr:%lu mem_cycle:%lu\n", id, address, mem_clock_cycle);
          if ( outstanding_access_map.find(address) == outstanding_access_map.end() )
             assert(false);
          Node *n = outstanding_access_map.at(address).first;
