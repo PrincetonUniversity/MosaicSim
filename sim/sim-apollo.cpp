@@ -1,3 +1,10 @@
+//=======================================================================
+// Copyright 2018 University of Princeton.
+//
+// Project Apollo - simulator
+// Authors: 
+//=======================================================================
+
 #include "sim-apollo.hpp"
 using namespace apollo;
 using namespace std;
@@ -98,7 +105,7 @@ void process_context(Context *c)
    }
    c->start_set = next_start_set;
    c->active_list = next_active_list;
-   if(c->processed == g.bbs.at(c->bid)->inst_count) {
+   if (c->processed == g.bbs.at(c->bbid)->inst_count) {
       std::cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
    }
@@ -137,12 +144,14 @@ int main(int argc, char const *argv[])
    int id = 1;
 
    g.addBasicBlock(0);
-   nodes[1] = g.addNode(id++, ADD,0, "1-add $1,$3,$4");
+   nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
    nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
    nodes[3] = g.addNode(id++, LOGICAL, 0,"3-xor $1,$3,$4");
    nodes[4] = g.addNode(id++, DIV, 0,"4-mult $1,$3,$4");
    nodes[5] = g.addNode(id++, SUB, 0,"5-sub $1,$3,$4");
    nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
+
+   cout << g;
 
    // add some dependents
    nodes[1]->addDependent(nodes[2], /*type*/ data_dep);
