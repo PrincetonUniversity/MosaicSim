@@ -1,5 +1,5 @@
 //=======================================================================
-// Copyright 2018 University of Princeton.
+// Copyright 2018 Princeton University.
 //
 // Project Apollo - simulator
 // Authors: 
@@ -78,14 +78,14 @@ public:
    }
 
    void addDependent(Node *dest, TEdge type) {
-      dependents.insert( std::make_pair(dest,type) );
+      dependents.insert(std::make_pair(dest,type));
       dest->n_parents++; 
    }
 
    void eraseDependent(Node *dest, TEdge type) {
       int count = 0;
       std::set< std::pair<Node*, TEdge> >::iterator it;
-      for ( it = dependents.begin(); it != dependents.end(); ++it ) {
+      for (it = dependents.begin(); it != dependents.end(); ++it) {
          Node *d = it->first;
          TEdge t = it->second;
          if (dest == d && type == t) {
@@ -143,7 +143,7 @@ class Context {
       std::vector<Node*> active_list;
       std::set<Node*> start_set;
       std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
-      std::map<Node*, int> pending_ancestors_map; // tracks the # of pending ancestors for each node
+      std::map<Node*, int> pending_parents_map; // tracks the # of pending ancestors for each node
 
       Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
 
@@ -157,7 +157,7 @@ class Context {
          // for each node in the BB initialize the 
          for ( int i=0; i<bb->inst.size(); i++ ) {
             Node *n = bb->inst.at(i);
-            pending_ancestors_map.insert( std::make_pair(n, n->n_parents) );
+            pending_parents_map.insert( std::make_pair(n, n->n_parents) );
          }
       }
 };

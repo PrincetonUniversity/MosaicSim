@@ -1,5 +1,5 @@
 //=======================================================================
-// Copyright 2018 University of Princeton.
+// Copyright 2018 Princeton University.
 //
 // Project Apollo - simulator
 // Authors: 
@@ -18,6 +18,7 @@ int cycle_count = 0;
 int curr_context_id = 0;
 std::vector<Context*> context_list;
 std::map< uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
+std::vector<int> bbid_list; // 1->3->1->1->1->1->4->5->6->6->6->6->6->6
 DRAMSim::MultiChannelMemorySystem *mem;
 // TODO: Memory address overlap across contexts
 // TODO: Handle 0-latency instructions correctly
@@ -53,7 +54,6 @@ void process_context(Context *c)
       if ( c->start_set.find(n) != c->start_set.end() ) {
          
          std::cout << "Node [" << n->name << "]: Starts Execution \n";
-         
          // Memory instructions treatment
          if (n->type == LD || n->type == ST) {
             uint64_t addr = n->id * 64; // TODO: Use Real Address
@@ -77,9 +77,8 @@ void process_context(Context *c)
       int remainig_cycles = c->remaining_cycles_map.at(n);
       if (remainig_cycles > 0)
         remainig_cycles--;
-
       if ( remainig_cycles > 0 || remainig_cycles == -1 ) {  // Node <n> will continue execution in next cycle 
-         // JLA: is this correct when remainig_cycles == -1 ??
+         // A remaining_cycles == -1 represents a outstanding memory request being processed currently by DRAMsim
          c->remaining_cycles_map.at(n) = remainig_cycles;
          next_active_list.push_back(n);  
       }
@@ -97,14 +96,14 @@ void process_context(Context *c)
             TEdge t = it->second;
             
             if ( t == data_dep || t == bb_dep ) {
-               if ( c->pending_ancestors_map.find(d) == c->pending_ancestors_map.end() )  
+               if ( c->pending_parents_map.find(d) == c->pending_parents_map.end() )  
                   assert(false);
                
                // decrease # of pending ancestors of dependent <d>
-               c->pending_ancestors_map.at(d)--;
+               c->pending_parents_map.at(d)--;
 
                // if <d> has no more pending ancestors -> push it for "execution" in next cycle
-               if ( c->pending_ancestors_map.at(d) == 0 ) {
+               if ( c->pending_parents_map.at(d) == 0 ) {
                   next_active_list.push_back(d);
                   next_start_set.insert(d);
                   std::cout << "Node [" << d->name << "]: Ready to Execute\n";
@@ -120,10 +119,10 @@ void process_context(Context *c)
          assert(false);
    }
 
-   // continue with following active instructions
+   // Continue with following active instructions
    c->start_set = next_start_set;
    c->active_list = next_active_list;
-   // check if current conect is DONE !
+   // Check if current context is done
    if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       std::cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
