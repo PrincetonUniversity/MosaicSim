@@ -19,20 +19,26 @@ class Context;
 
 int cycle_count = 0;
 int recent_context_id = 0;
-std::map<uint64_t, std::pair<Node*,Context*> > outstanding_access_map;
+std::map<uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
+std::map<int, BasicBlock*> bb_map; // FIX
 std::vector<Context*> context_list;
+
 DRAMSim::MultiChannelMemorySystem *mem;
 
 // TODO: Memory address overlap across contexts
 class Context
 {
 public:
-   Context(int id) {
+   Context(int id, int bid) {
       live = true;
       cid = id;
+      bbid = bid;
+      count = 0;
    }
    bool live;
    int cid;
+   int bbid; // bb id that this context represents
+   int count;
    std::vector<Node*> active_list;
    std::set<Node*> newly_active_nodes;
    std::map<Node*, int> latency_map;
@@ -98,7 +104,7 @@ void process_context(Context *c)
          std::cout << "Node [" << n->instr_name << "] finished execution \n";
          c->latency_map.erase(n);
          c->dep_map.erase(n);
-         
+         c->count++;
          // traverse ALL dependents
          std::set<Edge>::iterator it;
          for ( it = n->dependents.begin(); it != n->dependents.end(); ++it ) {
@@ -128,22 +134,29 @@ void process_context(Context *c)
    }
    c->newly_active_nodes = next_newly_active_nodes;
    c->active_list = next_active_list;
+   if(c->count == bb_map.at(c->bbid)->inst.size()) {
+      c->live = false;
+   }
 }
 
 void process_memory()
 {
    mem->update();
 }
-void process_cycle()
+bool process_cycle()
 {
    std::cout << "Cycle : " << cycle_count << "\n";
    cycle_count++;
+   bool simulate = false;
    if(cycle_count > 500)
       assert(false);
    for(int i=0; i<context_list.size(); i++) {
       process_context(context_list.at(i));
+      if(context_list.at(i)->live)
+         simulate = true;
    }
    process_memory();
+   return simulate;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -176,40 +189,36 @@ int main(int argc, char const *argv[])
    // create a BB graph
 
    // first, create ALL the nodes
+   
    nodes[0] = g.addNode();  // this is the entry point
-   nodes[1] = g.addNode(instr_id++, lats[ADD], ADD, "1-add $1,$3,$4");
-   nodes[2] = g.addNode(instr_id++, lats[LD], LD, "2-LD $1,$3,$4");
-   nodes[3] = g.addNode(instr_id++, lats[LOGICAL], LOGICAL, "3-xor $1,$3,$4");
-   nodes[4] = g.addNode(instr_id++, lats[DIV], DIV, "4-mult $1,$3,$4");
-   nodes[5] = g.addNode(instr_id++, lats[SUB], SUB, "5-sub $1,$3,$4");
-   nodes[6] = g.addNode(instr_id++, lats[LOGICAL], LOGICAL, "6-xor $1,$3,$4");
+   nodes[1] = g.addNode(instr_id++, lats[ADD], ADD, "1-add $1,$3,$4", 0);
+   nodes[2] = g.addNode(instr_id++, lats[LD], LD, "2-LD $1,$3,$4", 0);
+   nodes[3] = g.addNode(instr_id++, lats[LOGICAL], LOGICAL, "3-xor $1,$3,$4", 0);
+   nodes[4] = g.addNode(instr_id++, lats[DIV], DIV, "4-mult $1,$3,$4", 0);
+   nodes[5] = g.addNode(instr_id++, lats[SUB], SUB, "5-sub $1,$3,$4", 0);
+   nodes[6] = g.addNode(instr_id++, lats[LOGICAL], LOGICAL, "6-xor $1,$3,$4", 0);
 
    // add some dependents
    nodes[0]->addDependent(nodes[1], /*type*/ data_dep);
    nodes[0]->addDependent(nodes[6], /*type*/ data_dep);
    nodes[0]->addDependent(nodes[6], /*type*/ data_dep);
-
    nodes[1]->addDependent(nodes[2], /*type*/ data_dep);
    nodes[1]->addDependent(nodes[3], /*type*/ data_dep);
    nodes[1]->addDependent(nodes[4], /*type*/ data_dep);
-
    nodes[2]->addDependent(nodes[5], /*type*/ data_dep);
    nodes[2]->addDependent(nodes[6], /*type*/ data_dep);
-   
    nodes[6]->addDependent(nodes[4], /*type*/ data_dep);
+   bb_map.insert(std::make_pair(0, new BasicBlock(0)));
+   for(int i=0; i<7; i++)
+      bb_map.at(0)->addInst(nodes[i]);
 
    cycle_count = 0;
-   context_list.push_back(new Context(recent_context_id++));
+   context_list.push_back(new Context(recent_context_id++, 0));
    context_list.at(0)->active_list.push_back(nodes[0]);
    context_list.at(0)->latency_map.insert(std::make_pair(nodes[0], nodes[0]->instr_lat));
    bool simulate = true;
    while (simulate) {
-      simulate = false;
-      process_cycle();
-      for(int i=0; i<context_list.size(); i++) {
-         if(context_list.at(i)->active_list.size() != 0 || context_list.at(i)->dep_map.size() !=0)
-            simulate = true;
-      }
+      simulate = process_cycle();
    }
    mem->printStats(true);  
    return 0;
