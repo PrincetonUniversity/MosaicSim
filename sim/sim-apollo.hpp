@@ -1,5 +1,4 @@
 //=======================================================================
-// Copyright 2018 University of Princeton.
 //
 // Project Apollo - simulator
 // Authors: 
@@ -15,18 +14,18 @@
 
 namespace apollo {
 
-typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, BR_COND, BR_UNCOND} TInstr;
-typedef enum {data_dep, always_mem_dep, maybe_mem_dep, cf_dep} TEdge;
+typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, BR_COND, BR_UNCOND, PHI} TInstr;
+typedef enum {data_dep, always_mem_dep, maybe_mem_dep, cf_dep, phi_dep} TEdge;
 
 class Node;
 
 class Edge {
    public:
-      TEdge edge_type;
+      TEdge type;
       Node *src;   
       Node *dst;
 
-      Edge(Node *s, Node *d, TEdge type) : src(s), dst(d), edge_type(type) {}
+      Edge(Node *s, Node *d, TEdge type) : src(s), dst(d), type(type) {}
       
       bool operator< (const Edge &e) const {         
          return (this < &e);
@@ -47,15 +46,16 @@ class Node {
       TInstr instr_type;
       std::string instr_name;
       bool visited;
+      int bb_id;
 
       // Constructor for an "instruction"-type Node -----------------------------
       Node(int id, int lat, TInstr type, std::string name) :
                parent_count(0), type(instr), instr_id(id), instr_lat(lat), instr_type(type), 
-               instr_name(name), visited(false)    {}
+               instr_name(name), visited(false), bb_id(-1) {}
                
       // Constructor for a "special" Node (ie, a BB's entry/exit point)----------
       Node() : parent_count(0), type(special), instr_id(0), instr_lat(0), instr_type(NAI), 
-               instr_name("special"), visited(false)     {}
+               instr_name("special"), visited(false), bb_id(-1) {}
 
       // -----------------------------------------------------------------------
       void addDependent(Node *dest, TEdge type) {
@@ -73,7 +73,7 @@ class Node {
             dest->parent_count--; 
          }
       }
-
+      /*
       // Outputing a Node -----------------------------------------------------------
       friend std::ostream &operator<<(std::ostream &os, Node &n) {
          os << "I[" << n.instr_name << "], lat=" << n.instr_lat << ", Deps = {";
@@ -115,7 +115,7 @@ class Node {
             // Push current Node into the stack
             Stack.push(this);        
          }
-      }
+      }*/
 };
 
 // ******************************************************************************
@@ -175,6 +175,7 @@ class Graph {
          src->eraseDependent(dest, type);
       }
 
+      /* 
       // Outputing a Graph --------------------------------------------------------------
       friend std::ostream &operator<<(std::ostream &os, Graph &g) {
          os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
@@ -207,7 +208,7 @@ class Graph {
          for (  it = nodes.begin(); it != nodes.end(); ++it )
             if ( ! (*it)->visited )
                (*it)->topologicalSort(Stack);
-      }
+      }*/
 };
 
 }
