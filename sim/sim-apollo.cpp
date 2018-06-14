@@ -3,14 +3,14 @@
 //=======================================================================
 
 #include "sim-apollo.hpp"
-using namespace apollo;
-using namespace std;
-
 #include "dramsim2/DRAMSim.h"
 #include <iostream>
 #include <fstream>
 #include <sstream> 
 #include <cstdio> 
+
+using namespace apollo;
+using namespace std;
 
 vector<string> split(const string &s, char delim) {
     stringstream ss(s);
@@ -48,11 +48,11 @@ public:
    };
 
    Graph g;
+   DRAMSimCallBack cb;
    int cycle_count = 0;
    int curr_context_id = 0;
    std::vector<Context*> context_list;
    std::vector<int> cf; // List of basic blocks in a program order 
-   DRAMSimCallBack cb;
    std::map<int, std::map<Node *, int> > future_contexts; // context id, list of nodes, processed inter-context dependency
    DRAMSim::MultiChannelMemorySystem *mem;
 
@@ -83,9 +83,12 @@ public:
 
    void readGraph()
    {
+      int numBB = 1;
+      for(int i=0; i<numBB; i++)
+         g.addBasicBlock(i);
+
       Node *nodes[10];  
       int id = 1;
-      g.addBasicBlock(0);
       nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
       nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
       nodes[3] = g.addNode(id++, LOGICAL, 0,"3-xor $1,$3,$4");
@@ -100,12 +103,16 @@ public:
       nodes[2]->addDependent(nodes[5], /*type*/ data_dep);
       nodes[2]->addDependent(nodes[6], /*type*/ data_dep);
       nodes[6]->addDependent(nodes[4], /*type*/ data_dep);
+      
       cout << g;
-      createContext(g.bbs.at(0));
+      createContext(0); // starting basic block id
    }
 
-   Context* createContext(BasicBlock *bb)
+   Context* createContext(int bid)
    {
+      if(g.bbs.size() <= bid)
+         assert(false);
+      BasicBlock *bb = g.bbs.at(bid);
       int cid = curr_context_id;
       context_list.push_back(new Context(cid));
       curr_context_id++;
