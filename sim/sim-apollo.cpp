@@ -1,8 +1,5 @@
 //=======================================================================
 // Copyright 2018 Princeton University.
-//
-// Project Apollo - simulator
-// Authors: 
 //=======================================================================
 
 #include "sim-apollo.hpp"
@@ -10,7 +7,9 @@ using namespace apollo;
 using namespace std;
 
 #include "dramsim2/DRAMSim.h"
-#include <iostream> 
+#include <iostream>
+#include <fstream>
+#include <sstream> 
 #include <cstdio> 
 
 Graph g;
@@ -18,11 +17,36 @@ int cycle_count = 0;
 int curr_context_id = 0;
 std::vector<Context*> context_list;
 std::map< uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
-std::vector<int> bbid_list; // 1->3->1->1->1->1->4->5->6->6->6->6->6->6
+std::vector<int> cf; // List of basic blocks in a program order
 DRAMSim::MultiChannelMemorySystem *mem;
 // TODO: Memory address overlap across contexts
 // TODO: Handle 0-latency instructions correctly
-
+vector<string> split(const string &s, char delim) {
+    stringstream ss(s);
+    string item;
+    vector<string> tokens;
+    while (getline(ss, item, delim)) {
+        tokens.push_back(item);
+    }
+    return tokens;
+}
+void readCF() {
+   string line;
+   ifstream cfile ("ctrl.txt");
+   int last_bbid = -1;
+   if (cfile.is_open()) {
+    while (getline (cfile,line)) {
+      vector<string> s = split(line, ',');
+      if(s.size() != 3)
+         assert(false);
+      if(stoi(s.at(1)) != last_bbid && last_bbid != -1)
+         assert(false);
+      last_bbid = stoi(s.at(1));
+      cf.push_back(stoi(s.at(2)));
+    }
+  }
+  cfile.close();
+}
 class DRAMSimCallBack {
    public: 
       void read_complete(unsigned id, uint64_t address, uint64_t mem_clock_cycle) {
@@ -151,18 +175,9 @@ bool process_cycle()
    return simulate;
 }
 
-// ------------------------------------------------------------------------------------------
-
-int main(int argc, char const *argv[])
+void readGraph()
 {
-   DRAMSimCallBack cb;
-   DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
-   DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
-   mem = DRAMSim::getMemorySystemInstance("sim/dramsim2/ini/DDR2_micron_16M_8b_x8_sg3E.ini", "sim/dramsys.ini", "..", "Apollo", 16384); 
-   mem->RegisterCallbacks(read_cb, write_cb, NULL);
-   mem->setCPUClockSpeed(2000000000);
-
-   Node *nodes[10];
+   Node *nodes[10];  
    int id = 1;
 
    g.addBasicBlock(0);
@@ -173,8 +188,6 @@ int main(int argc, char const *argv[])
    nodes[5] = g.addNode(id++, SUB, 0,"5-sub $1,$3,$4");
    nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
 
-   cout << g;
-
    // add some dependents
    nodes[1]->addDependent(nodes[2], /*type*/ data_dep);
    nodes[1]->addDependent(nodes[3], /*type*/ data_dep);
@@ -182,7 +195,17 @@ int main(int argc, char const *argv[])
    nodes[2]->addDependent(nodes[5], /*type*/ data_dep);
    nodes[2]->addDependent(nodes[6], /*type*/ data_dep);
    nodes[6]->addDependent(nodes[4], /*type*/ data_dep);
-   
+   cout << g;
+}
+int main(int argc, char const *argv[])
+{
+   DRAMSimCallBack cb;
+   DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
+   DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
+   mem = DRAMSim::getMemorySystemInstance("sim/dramsim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "sim/dramsys.ini", "..", "Apollo", 16384); 
+   mem->RegisterCallbacks(read_cb, write_cb, NULL);
+   mem->setCPUClockSpeed(2000000000);
+   readGraph();
    cycle_count = 0;
    context_list.push_back( new Context(curr_context_id++) );
    context_list.at(0)->initialize( g.bbs.at(0) );

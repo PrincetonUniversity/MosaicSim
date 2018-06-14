@@ -1,8 +1,5 @@
 //=======================================================================
 // Copyright 2018 Princeton University.
-//
-// Project Apollo - simulator
-// Authors: 
 //=======================================================================
 
 // Header file
@@ -21,7 +18,6 @@ namespace apollo {
 typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {data_dep, bb_dep, always_mem_dep, maybe_mem_dep, cf_dep, phi_dep} TEdge;
 
-// -------------------------------------------------------------------------------------
 class Node {
 public:
    std::set< std::pair<Node*,TEdge> > dependents; // TODO: Make it map of sets (type, dst)
@@ -37,7 +33,7 @@ public:
       lat = getLatency(type);
    }            
    
-   // Constructor for the BB's entry point ------------------------------------
+   // Constructor for the BB's entry point
    Node(int bbid) : id(-1), lat(0), type(NAI), bbid(bbid), name("BB-Entry"),  n_parents(0) {}
 
    // TODO: get latencies from a CONFIG file instead
@@ -98,19 +94,18 @@ public:
          assert(false);
    }
 
-   // Outputing a Node -----------------------------------------------------------
-   friend std::ostream &operator<<(std::ostream &os, Node &n) {
+   // Print
+   friend std::ostream& operator<<(std::ostream &os, Node &n) {
       os << "I[" << n.name << "], lat=" << n.lat << ", Deps = {";
       std::set< std::pair<Node*,TEdge> >::iterator it;
       for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
          std::cout << "[" << it->first->name << "], ";
       std::cout << "}";
+      return os;
    }
 
 };
 
-
-// -------------------------------------------------------------------------------------
 class BasicBlock {
    public:
       int id;
@@ -133,7 +128,6 @@ class BasicBlock {
       }
 };
 
-// -------------------------------------------------------------------------------------
 class Context {
    public:
       bool live;
@@ -162,7 +156,6 @@ class Context {
       }
 };
 
-// -------------------------------------------------------------------------------------
 class Graph {
    public:
       std::map<int, Node *> nodes;
@@ -218,13 +211,14 @@ class Graph {
          src->eraseDependent(dest, type);
       }
 
-      // Very basic outputing a Graph --------------------------------------------------------------
+      // Print
       friend std::ostream &operator<<(std::ostream &os, Graph &g) {
          os << "Graph: total_nodes=" << g.get_num_nodes() << std::endl;
          int i=0;
          for ( std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it )
             std::cout << "node_" << i++ << ": " << *it->second << std::endl;
          std::cout << "";
+         return os;
       }
 
    };

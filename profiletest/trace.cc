@@ -15,7 +15,7 @@ __attribute__((noinline)) void printBranch(char* name, int cond, char* n1, char 
 		target = n1;
 	else
 		target = n2;
-	f1 << "B:"<<name << "," << target << "\n";
+	f1 << "B,"<<name << "," << target << "\n";
 	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
 }
 
@@ -26,9 +26,9 @@ __attribute__((noinline)) void printMem(char *name, bool type, long long addr, i
 	
 	if(type == 0)
 		//std::cout << "Load ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
-		f2 << "L:"<< name << "," << addr << ","<< size <<"\n";
+		f2 << "L,"<< name << "," << addr << ","<< size <<"\n";
 	else if(type == 1)
-		f2 << "S:"<< name << "," << addr << ","<< size <<"\n";
+		f2 << "S,"<< name << "," << addr << ","<< size <<"\n";
 		//std::cout << "Store ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
 }
 __attribute__((noinline)) void printSw(char *name, int value, char *def, int n, ...)
