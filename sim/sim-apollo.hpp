@@ -136,6 +136,8 @@ class Context {
       int processed;
       std::vector<Node*> active_list;
       std::set<Node*> start_set;
+      std::set<Node*> next_start_set;
+      std::vector<Node *> next_active_list;
       std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
       std::map<Node*, int> pending_parents_map; // tracks the # of pending ancestors for each node
 
@@ -152,6 +154,15 @@ class Context {
          for ( int i=0; i<bb->inst.size(); i++ ) {
             Node *n = bb->inst.at(i);
             pending_parents_map.insert( std::make_pair(n, n->n_parents) );
+         }
+      }
+      void updateDependency(std::map<Node*, int> m) {
+         std::map<Node*, int>::iterator it;
+         for(it = m.begin(); it != m.end(); ++it) {
+            int c = pending_parents_map.at(it->first);
+            pending_parents_map.at(it->first) = c - it->second;
+            if(pending_parents_map.at(it->first) == 0)
+               assert(false); // Should never be the case since there should always be a dependency from artificial "entry" node
          }
       }
 };

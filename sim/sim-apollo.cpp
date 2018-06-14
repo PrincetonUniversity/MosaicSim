@@ -16,7 +16,8 @@ Graph g;
 int cycle_count = 0;
 int curr_context_id = 0;
 std::vector<Context*> context_list;
-std::map< uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
+std::map<uint64_t, std::pair<Node*,Context*> > outstanding_access_map; 
+std::map<int, std::map<Node *, int> > future_contexts; // context id, list of nodes, processed inter-context dependency
 std::vector<int> cf; // List of basic blocks in a program order
 DRAMSim::MultiChannelMemorySystem *mem;
 // TODO: Memory address overlap across contexts
@@ -66,11 +67,32 @@ class DRAMSimCallBack {
       }
 };
 
+void updateFutureDependent(int cid, Node *d)
+{
+   if(future_contexts.find(cid) != future_contexts.end() && future_contexts.at(cid).find(d) != future_contexts.at(cid).end())
+      future_contexts.at(cid).at(d)++;
+   else {
+      future_contexts[cid][d]=1;
+   }
+}
+void updateDependent(Context *c, Node *d)
+{
+   if (c->pending_parents_map.find(d) == c->pending_parents_map.end())  
+      assert(false);
+   
+   // decrease # of pending ancestors of dependent <d>
+   c->pending_parents_map.at(d)--;
+
+   // if <d> has no more pending ancestors -> push it for "execution" in next cycle
+   if ( c->pending_parents_map.at(d) == 0 ) {
+      c->next_active_list.push_back(d);
+      c->next_start_set.insert(d);
+      std::cout << "Node [" << d->name << "]: Ready to Execute\n";
+      c->remaining_cycles_map.insert( std::make_pair(d, d->lat) );
+   }
+}
 void process_context(Context *c)
 {
-   std::set<Node*> next_start_set;
-   std::vector<Node *> next_active_list;
-
    // process ALL nodes in <active_list>, ie, those being executed in this cycle
    for ( int i=0; i < c->active_list.size(); i++ ) {
 
@@ -104,7 +126,7 @@ void process_context(Context *c)
       if ( remainig_cycles > 0 || remainig_cycles == -1 ) {  // Node <n> will continue execution in next cycle 
          // A remaining_cycles == -1 represents a outstanding memory request being processed currently by DRAMsim
          c->remaining_cycles_map.at(n) = remainig_cycles;
-         next_active_list.push_back(n);  
+         c->next_active_list.push_back(n);  
       }
       else if (remainig_cycles == 0) { // Execution Finished for node <n>
          std::cout << "Node [" << n->name << "]: Finished Execution \n";
@@ -119,40 +141,31 @@ void process_context(Context *c)
             Node *d = it->first;
             TEdge t = it->second;
             
-            if ( t == data_dep || t == bb_dep ) {
-               if ( c->pending_parents_map.find(d) == c->pending_parents_map.end() )  
-                  assert(false);
-               
-               // decrease # of pending ancestors of dependent <d>
-               c->pending_parents_map.at(d)--;
-
-               // if <d> has no more pending ancestors -> push it for "execution" in next cycle
-               if ( c->pending_parents_map.at(d) == 0 ) {
-                  next_active_list.push_back(d);
-                  next_start_set.insert(d);
-                  std::cout << "Node [" << d->name << "]: Ready to Execute\n";
-                  c->remaining_cycles_map.insert( std::make_pair(d, d->lat) );
-               }
+            if (t == data_dep || t == bb_dep) {
+               updateDependent(c, d);
             }
-            else if ( t == phi_dep ) {// && getNextBB() == d->bid) {
-               // TODO: Update different context's node
+            else if (t == phi_dep  && (cf.at(c->id+1) == d->bbid)) {
+               if(context_list.size() > c->id +1)
+                  updateDependent(context_list.at(c->id+1),d);
+               else
+                  updateFutureDependent(c->id+1, d);
             }
          }
       }
       else
          assert(false);
    }
-
    // Continue with following active instructions
-   c->start_set = next_start_set;
-   c->active_list = next_active_list;
+   c->start_set = c->next_start_set;
+   c->active_list = c->next_active_list;
+   c->next_start_set.clear();
+   c->next_active_list.clear();
    // Check if current context is done
    if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       std::cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
    }
 }
-
 void process_memory()
 {
    mem->update();
@@ -173,6 +186,18 @@ bool process_cycle()
    }
    process_memory();
    return simulate;
+}
+Context* createContext(BasicBlock *bb)
+{
+   int cid = curr_context_id;
+   context_list.push_back(new Context(cid));
+   curr_context_id++;
+   context_list.at(cid)->initialize(bb);
+   if(future_contexts.find(cid) != future_contexts.end()) {
+      context_list.at(cid)->updateDependency(future_contexts.at(cid));
+      future_contexts.erase(cid);
+   }
+   return context_list.at(cid);
 }
 
 void readGraph()
@@ -206,9 +231,9 @@ int main(int argc, char const *argv[])
    mem->RegisterCallbacks(read_cb, write_cb, NULL);
    mem->setCPUClockSpeed(2000000000);
    readGraph();
+   readCF();
    cycle_count = 0;
-   context_list.push_back( new Context(curr_context_id++) );
-   context_list.at(0)->initialize( g.bbs.at(0) );
+   createContext(g.bbs.at(0));
    bool simulate = true;
    while (simulate) {
       simulate = process_cycle();
