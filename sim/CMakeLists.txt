@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 Project(sim-apollo)
 LINK_DIRECTORIES(.)
+set(CMAKE_CXX_STANDARD 11)
 ADD_EXECUTABLE(sim-apollo sim-apollo.cpp)
 target_link_libraries(sim-apollo dramsim)

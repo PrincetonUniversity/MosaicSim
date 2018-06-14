@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream> 
 #include <cstdio> 
+#include <string> 
 
 using namespace apollo;
 using namespace std;
@@ -63,7 +64,9 @@ public:
       mem->RegisterCallbacks(read_cb, write_cb, NULL);
       mem->setCPUClockSpeed(2000000000);  
    }
-   void readCF() {
+
+   void readCF() 
+   {
       string line;
       string last_line;
       ifstream cfile ("ctrl.txt");
@@ -71,10 +74,10 @@ public:
       if (cfile.is_open()) {
        while (getline (cfile,line)) {
          vector<string> s = split(line, ',');
-         if(s.size() != 3) {
+         if (s.size() != 3) {
             assert(false);
          }
-         if(stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
             cout << last_bbid << " / " << s.at(1) << "\n";
             cout << last_line << " / " << line << "\n";
             assert(false);
@@ -90,7 +93,7 @@ public:
    void readGraph()
    {
       int numBB = 1;
-      for(int i=0; i<numBB; i++)
+      for (int i=0; i<numBB; i++)
          g.addBasicBlock(i);
 
       Node *nodes[10];  
@@ -116,27 +119,29 @@ public:
 
    Context* createContext(int bid)
    {
-      if(g.bbs.size() <= bid)
+      if (g.bbs.size() <= bid)
          assert(false);
       BasicBlock *bb = g.bbs.at(bid);
       int cid = curr_context_id;
       context_list.push_back(new Context(cid));
       curr_context_id++;
       context_list.at(cid)->initialize(bb);
-      if(future_contexts.find(cid) != future_contexts.end()) {
+      if (future_contexts.find(cid) != future_contexts.end()) {
          context_list.at(cid)->updateDependency(future_contexts.at(cid));
          future_contexts.erase(cid);
       }
       return context_list.at(cid);
    }
+
    void updateFutureDependent(int cid, Node *d)
    {
-      if(future_contexts.find(cid) != future_contexts.end() && future_contexts.at(cid).find(d) != future_contexts.at(cid).end())
+      if (future_contexts.find(cid) != future_contexts.end() && future_contexts.at(cid).find(d) != future_contexts.at(cid).end())
          future_contexts.at(cid).at(d)++;
       else {
          future_contexts[cid][d]=1;
       }
    }
+
    void updateDependent(Context *c, Node *d)
    {
       if (c->pending_parents_map.find(d) == c->pending_parents_map.end())  
@@ -153,6 +158,7 @@ public:
          c->remaining_cycles_map.insert( std::make_pair(d, d->lat) );
       }
    }
+
    void process_context(Context *c)
    {
       // process ALL nodes in <active_list>, ie, those being executed in this cycle
@@ -228,10 +234,12 @@ public:
          c->live = false;
       }
    }
+
    void process_memory()
    {
       mem->update();
    }
+
    bool process_cycle()
    {
       std::cout << "Cycle: " << cycle_count << "\n";
@@ -248,6 +256,7 @@ public:
       process_memory();
       return simulate;
    }
+
    void run()
    {
       bool simulate = true;
