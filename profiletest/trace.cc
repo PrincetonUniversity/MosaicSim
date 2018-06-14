@@ -19,6 +19,14 @@ __attribute__((noinline)) void printBranch(char* name, int cond, char* n1, char 
 	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
 }
 
+__attribute__((noinline)) void printuBranch(char* name, char *n1)
+{
+	if(f1 == NULL)
+		f1.open("ctrl.txt");
+	f1 << "U,"<<name << "," << n1 << "\n";
+	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
+}
+
 __attribute__((noinline)) void printMem(char *name, bool type, long long addr, int size)
 {
 	if(f2 == NULL)
@@ -57,6 +65,6 @@ __attribute__((noinline)) void printSw(char *name, int value, char *def, int n, 
 	}
 	if(!found)
 		target = def;
-	f1 << "S:" <<name << "," << target <<"\n";
+	f1 << "S," <<name << "," << target <<"\n";
 	//std::cout << "Switch [" << name << "]: " << value << " / " << target << "\n";
 }

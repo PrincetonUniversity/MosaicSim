@@ -16,6 +16,7 @@ using namespace llvm;
 namespace {
 struct recordDynamicInfo : public ModulePass {
   static char ID;
+  Function *printuBR;
   Function *printBR;
   Function *printSw;
   Function *printMem;
@@ -24,6 +25,7 @@ struct recordDynamicInfo : public ModulePass {
   bool runOnModule(Module &M) override {
     mod = &(M);
     LLVMContext& ctx = M.getContext();
+    Constant *printuBRFunc = M.getOrInsertFunction("_Z12printuBranchPcS_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
     Constant *printBRFunc = M.getOrInsertFunction("_Z11printBranchPciS_S_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
     std::vector<Type*> targs;
     targs.push_back(Type::getInt8PtrTy(ctx));
@@ -33,6 +35,7 @@ struct recordDynamicInfo : public ModulePass {
     FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
     Constant *printSwitchFunc = M.getOrInsertFunction("_Z7printSwPciS_iz", sF);
     Constant *printMemFunc = M.getOrInsertFunction("_Z8printMemPcbxi", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
+    printuBR = cast<Function>(printuBRFunc);
     printBR= cast<Function>(printBRFunc);
     printSw= cast<Function>(printSwitchFunc);
     printMem = cast<Function>(printMemFunc);
@@ -71,31 +74,43 @@ struct recordDynamicInfo : public ModulePass {
   bool isFoI(Function &F) {
     return (F.getName().str().find(KERNEL_STR) != std::string::npos);
   }
-  void printBranch(BranchInst *pi) {  
+  void printBranch(BranchInst *pi, int conditional) {  
     IRBuilder<> Builder(pi);
     LLVMContext& ctx = mod->getContext();
-    Value *v = pi->getCondition();
-    StringRef p1, p2;
-    std::string temp1, temp2;
-    if(v->getType()->isIntegerTy()) {
-      BasicBlock *b1 = pi->getSuccessor(1);
-      BasicBlock *b2 = pi->getSuccessor(0);
-      temp1 = std::to_string(findBID(b1));
-      temp2 = std::to_string(findBID(b2));
+    if(conditional) {
+      std::string temp1, temp2;
+      Value *v = pi->getCondition();
+      if(v->getType()->isIntegerTy()) {
+        BasicBlock *b1 = pi->getSuccessor(1);
+        BasicBlock *b2 = pi->getSuccessor(0);
+        temp1 = std::to_string(findBID(b1));
+        temp2 = std::to_string(findBID(b2));
+      }
+      else
+        assert(false);   
+      StringRef p1, p2;
+      Value *castI; 
+      p1 = temp1;
+      p2 = temp2; 
+      errs() << "[Branch] " << *pi << " - " << p1 << " / " << p2 << "\n";
+      castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
+      std::string bbname = std::to_string(findBID(pi->getParent()));
+      Value *name = Builder.CreateGlobalStringPtr(bbname);
+      Value *name1= Builder.CreateGlobalStringPtr(p1);
+      Value *name2= Builder.CreateGlobalStringPtr(p2);
+      Value* args[] = {name, castI, name1, name2};
+      CallInst* cI = Builder.CreateCall(printBR, args);
     }
-    else
-      assert(false);    
-    p1 = temp1;
-    p2 = temp2; 
-    errs() << "[Branch] " << *pi << " - " << p1 << " / " << p2 << "\n";
-    Value *castI;
-    castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
-    std::string bbname = std::to_string(findBID(pi->getParent()));
-    Value *name = Builder.CreateGlobalStringPtr(bbname);
-    Value *name1= Builder.CreateGlobalStringPtr(p1);
-    Value *name2= Builder.CreateGlobalStringPtr(p2);
-    Value* args[] = {name, castI, name1, name2};
-    CallInst* cI = Builder.CreateCall(printBR, args);
+    else {
+      BasicBlock *bb = pi->getSuccessor(0);
+      std::string temp= std::to_string(findBID(bb));
+      StringRef p = temp;
+      std::string bbname = std::to_string(findBID(pi->getParent()));
+      Value *name = Builder.CreateGlobalStringPtr(bbname);
+      Value *name1= Builder.CreateGlobalStringPtr(p);
+      Value* args[] = {name, name1};
+      CallInst* cI = Builder.CreateCall(printuBR, args);
+    }
   }
   void printSwitch(SwitchInst *pi) {  
     IRBuilder<> Builder(pi);
@@ -166,8 +181,10 @@ struct recordDynamicInfo : public ModulePass {
         Instruction *inst = &(*iI);
         if (auto *bI = dyn_cast<BranchInst>(inst)) {
           if(bI->isConditional()) {
-            printBranch(bI);
+            printBranch(bI, 1);
           }
+          else
+            printBranch(bI, 0);
         }
         else if (auto *bI = dyn_cast<IndirectBrInst>(inst)) {
           assert(false);
@@ -179,6 +196,8 @@ struct recordDynamicInfo : public ModulePass {
           printMemory(inst);
         else if(auto *sI = dyn_cast<StoreInst>(inst))
           printMemory(inst);
+        else if(auto *tI = dyn_cast<TerminatorInst>(inst))
+          errs() << *inst <<"\n";
     }
   }
 };

@@ -65,20 +65,26 @@ public:
    }
    void readCF() {
       string line;
+      string last_line;
       ifstream cfile ("ctrl.txt");
       int last_bbid = -1;
       if (cfile.is_open()) {
        while (getline (cfile,line)) {
          vector<string> s = split(line, ',');
-         if(s.size() != 3)
+         if(s.size() != 3) {
             assert(false);
-         if(stoi(s.at(1)) != last_bbid && last_bbid != -1)
+         }
+         if(stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+            cout << last_bbid << " / " << s.at(1) << "\n";
+            cout << last_line << " / " << line << "\n";
             assert(false);
-         last_bbid = stoi(s.at(1));
+         }
+         last_bbid = stoi(s.at(2));
          cf.push_back(stoi(s.at(2)));
+         last_line = line;
        }
-     }
-     cfile.close();
+      }
+      cfile.close();
    }
 
    void readGraph()
