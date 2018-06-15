@@ -69,7 +69,7 @@ public:
    {
       string line;
       string last_line;
-      ifstream cfile ("ctrl.txt");
+      ifstream cfile ("input/ctrl.txt");
       int last_bbid = -1;
       if (cfile.is_open()) {
        while (getline (cfile,line)) {
@@ -92,11 +92,44 @@ public:
 
    void readGraph()
    {
-      int numBB = 1;
-      for (int i=0; i<numBB; i++)
-         g.addBasicBlock(i);
+      ifstream cfile ("input/graph.txt");
+      if (cfile.is_open()) {
+         string temp;
+         getline(cfile,temp);
+         int numBB = stoi(temp);
+         getline(cfile,temp);
+         int numNode = stoi(temp);
+         getline(cfile,temp);
+         int numEdge = stoi(temp);
+         string line;
+         for (int i=0; i<numBB; i++)
+            g.addBasicBlock(i);
+         for(int i=0; i<numNode; i++) {
+            getline(cfile,line);
+            vector<string> s = split(line, ',');
+            int id = stoi(s.at(0));
+            TInstr type = static_cast<TInstr>(stoi(s.at(1)));
+            int bbid = stoi(s.at(2));
+            string name = s.at(3);
+            for(int i=0; i<name.size(); i++)
+               cout << i <<" : " << name.at(i) << "\n";
+            name = s.at(3).substr(0, s.at(3).size()-1);
+            g.addNode(id, type, bbid, name);
+         }
+         for(int i=0; i<numEdge; i++) {
+            getline(cfile,line);
+            vector<string> s = split(line, ',');
+            TEdge type = static_cast<TEdge>(stoi(s.at(2)));
+            g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
+         }
+         if(getline(cfile,line))
+            assert(false);
+      }
+      else
+         assert(false);
+      cfile.close();
 
-      Node *nodes[10];  
+      /*Node *nodes[10];  
       int id = 1;
       nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
       nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
@@ -106,12 +139,12 @@ public:
       nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
 
       // add some dependents
-      nodes[1]->addDependent(nodes[2], /*type*/ data_dep);
-      nodes[1]->addDependent(nodes[3], /*type*/ data_dep);
-      nodes[1]->addDependent(nodes[4], /*type*/ data_dep);
-      nodes[2]->addDependent(nodes[5], /*type*/ data_dep);
-      nodes[2]->addDependent(nodes[6], /*type*/ data_dep);
-      nodes[6]->addDependent(nodes[4], /*type*/ data_dep);
+      nodes[1]->addDependent(nodes[2], data_dep);
+      nodes[1]->addDependent(nodes[3], data_dep);
+      nodes[1]->addDependent(nodes[4], data_dep);
+      nodes[2]->addDependent(nodes[5], data_dep);
+      nodes[2]->addDependent(nodes[6], data_dep);
+      nodes[6]->addDependent(nodes[4], data_dep);*/
       
       cout << g;
       createContext(0); // starting basic block id
