@@ -3,7 +3,7 @@
 //=======================================================================
 
 #include "sim-apollo.hpp"
-#include "dramsim2/DRAMSim.h"
+#include "DRAMSim.h"
 #include <iostream>
 #include <fstream>
 #include <sstream> 
