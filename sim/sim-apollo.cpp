@@ -246,7 +246,7 @@ public:
                   updateDependent(c, d);
                }
                else if (t == phi_dep  && (cf.at(c->id+1) == d->bbid)) {
-                  if(context_list.size() > c->id +1)
+                  if(context_list.size() > c->id +1) // context_list[c->id+1] exists
                      updateDependent(context_list.at(c->id+1),d);
                   else
                      updateFutureDependent(c->id+1, d);
