@@ -65,8 +65,12 @@ public:
       mem->setCPUClockSpeed(2000000000);  
    }
 
+
+ 
+  
    void readCF() 
    {
+
       string line;
       string last_line;
       ifstream cfile ("input/ctrl.txt");
@@ -90,7 +94,7 @@ public:
       cfile.close();
    }
 
-   void readGraph()
+  void readGraph() 
    {
       ifstream cfile ("input/graph.txt");
       if (cfile.is_open()) {
@@ -230,7 +234,21 @@ public:
             c->next_active_list.push_back(n);  
          }
          else if (remainig_cycles == 0) { // Execution Finished for node <n>
+
+	     std::cout << "Node [" << n->name << "]: Finished Execution \n";
+
+	    if ( n->type == TERMINATOR ) {
+	      cout << "Hit Terminator \n";
+	       int newcid = c->id+1;
+	       if ( cf.size() > newcid ){
+	          //create new context with next bbid in cf (bbid list)
+		  //note that context ids are incrementing starting from 0, so they correspond to cf indices
+		  createContext(cf.at(newcid));	     
+		  std::cout << "Created new context with BID: " << cf.at(newcid) << "\n";}	    
+	    }
+	    
             std::cout << "Node [" << n->name << "]: Finished Execution \n";
+	    
 
             c->remaining_cycles_map.erase(n);
             if ( n->type != NAI )
