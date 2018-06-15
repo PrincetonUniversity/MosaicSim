@@ -16,7 +16,7 @@
 namespace apollo {
 
 typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, TERMINATOR, PHI} TInstr;
-typedef enum {data_dep, bb_dep, always_mem_dep, maybe_mem_dep, cf_dep, phi_dep} TEdge;
+typedef enum {data_dep, bb_dep, cf_dep, phi_dep} TEdge;
 
 class Node {
 public:
@@ -31,6 +31,8 @@ public:
    Node(int id, TInstr type, int bbid, std::string name): 
                   id(id), type(type), bbid(bbid), name(name), n_parents(0)  {
       lat = getLatency(type);
+      if(type == PHI)
+         n_parents = 1;
    }            
    
    // Constructor for the BB's entry point
@@ -75,7 +77,8 @@ public:
 
    void addDependent(Node *dest, TEdge type) {
       dependents.insert(std::make_pair(dest,type));
-      dest->n_parents++; 
+      if(type != phi_dep)
+         dest->n_parents++; 
    }
 
    void eraseDependent(Node *dest, TEdge type) {
@@ -86,7 +89,8 @@ public:
          TEdge t = it->second;
          if (dest == d && type == t) {
             dependents.erase(*it);
-            dest->n_parents--;
+            if(t != phi_dep)
+               dest->n_parents--;
             count++;
          }
       }

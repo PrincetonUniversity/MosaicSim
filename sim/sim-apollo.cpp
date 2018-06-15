@@ -55,22 +55,19 @@ public:
    std::vector<Context*> context_list;
    std::vector<int> cf; // List of basic blocks in a program order 
    std::map<int, std::map<Node *, int> > future_contexts; // context id, list of nodes, processed inter-context dependency
+   std::map<int, std::vector<uint64_t> > memory;
    DRAMSim::MultiChannelMemorySystem *mem;
 
-   void initalize() {
+   void initialize() {
       DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
       DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
       mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
       mem->RegisterCallbacks(read_cb, write_cb, NULL);
       mem->setCPUClockSpeed(2000000000);  
    }
-
-
- 
   
    void readCF() 
    {
-
       string line;
       string last_line;
       ifstream cfile ("input/ctrl.txt");
@@ -94,7 +91,7 @@ public:
       cfile.close();
    }
 
-  void readGraph() 
+   void readGraph() 
    {
       ifstream cfile ("input/graph.txt");
       if (cfile.is_open()) {
@@ -152,6 +149,26 @@ public:
       
       cout << g;
       createContext(0); // starting basic block id
+   }
+   void readMemory() 
+   {
+      std::map<int, std::vector<uint64_t> > memory;
+      string line;
+      string last_line;
+      ifstream cfile ("input/memory.txt");
+      if (cfile.is_open()) {
+       while (getline (cfile,line)) {
+         vector<string> s = split(line, ',');
+         if (s.size() != 4) {
+            assert(false);
+         }
+         int id = stoi(s.at(1));
+         if(memory.find(id) == memory.end())
+            memory.insert(make_pair(id, vector<uint64_t>()));
+         memory.at(id).push_back(stoull(s.at(2)));
+       }
+      }
+      cfile.close();
    }
 
    Context* createContext(int bid)
@@ -322,8 +339,9 @@ int main(int argc, char const *argv[])
 {
    Simulator sim;
    sim.readGraph();
+   sim.readMemory();
    sim.readCF();
-   sim.initalize();
+   sim.initialize();
    sim.run();
    return 0;
 } 
