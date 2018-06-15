@@ -60,7 +60,7 @@ public:
    void initalize() {
       DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
       DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
-      mem = DRAMSim::getMemorySystemInstance("sim/dramsim2/ini/DDR3_micron_16M_8B_x8_sg15.ini", "sim/dramsys.ini", "..", "Apollo", 16384); 
+      mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
       mem->RegisterCallbacks(read_cb, write_cb, NULL);
       mem->setCPUClockSpeed(2000000000);  
    }
