@@ -134,7 +134,7 @@ public:
    vector<Context*> context_list;
    
    vector<int> cf; // List of basic blocks in a program order 
-   map<int, vector<uint64_t> > memory; // List of memory accesses per instruction in a program order
+   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
    
    /* Handling External Dependencies */
    map<Node*, pair<int, bool> > curr_owner; // Soruce of external dependency (Node), Context ID for the node (cid), Finished
@@ -172,7 +172,9 @@ public:
             cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
             /* Issue Memory Requests */
             if (n->type == LD || n->type == ST) {
-               uint64_t addr = n->id * 64; // TODO: Use Real Address
+               //uint64_t addr = n->id * 64; // Fake Address
+               uint64_t addr = memory.at(n->id).front();
+               memory.at(n->id).pop();
                cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
                assert(mem->willAcceptTransaction(addr));
                if (n->type == LD)

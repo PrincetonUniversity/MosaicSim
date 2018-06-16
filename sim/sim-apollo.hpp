@@ -241,7 +241,7 @@ void readCF(std::vector<int> &cf)
    cfile.close();
 }
 
-void readMemory(std::map<int, std::vector<uint64_t> > &memory)
+void readMemory(std::map<int, std::queue<uint64_t> > &memory)
 {
    string line;
    string last_line;
@@ -252,8 +252,8 @@ void readMemory(std::map<int, std::vector<uint64_t> > &memory)
       assert(s.size() == 4);
       int id = stoi(s.at(1));
       if(memory.find(id) == memory.end())
-         memory.insert(make_pair(id, vector<uint64_t>()));
-      memory.at(id).push_back(stoull(s.at(2)));
+         memory.insert(make_pair(id, queue<uint64_t>()));
+      memory.at(id).push(stoull(s.at(2)));
     }
    }
    cfile.close();
