@@ -14,29 +14,33 @@
 #include "assert.h"
 
 namespace apollo {
-
+class Node;
+typedef std::pair<Node*,int> DNode;
 typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {data_dep, bb_dep, cf_dep, phi_dep} TEdge;
 
 class Node {
 public:
    std::set< std::pair<Node*,TEdge> > dependents; // TODO: Make it map of sets (type, dst)
+   std::set< std::pair<Node*,TEdge> > external_parents;
    int id;
    int lat;
    TInstr type;
    int bbid;
    std::string name;
    int n_parents;
-   
+   int n_external_parents;
+   int n_external_edges;
+
    Node(int id, TInstr type, int bbid, std::string name): 
-                  id(id), type(type), bbid(bbid), name(name), n_parents(0)  {
+                  id(id), type(type), bbid(bbid), name(name), n_parents(0), n_external_parents(0), n_external_edges(0)  {
       lat = getLatency(type);
       if(type == PHI)
          n_parents = 1;
-   }            
+   }
    
    // Constructor for the BB's entry point
-   Node(int bbid) : id(-1), lat(0), type(NAI), bbid(bbid), name("BB-Entry"),  n_parents(0) {}
+   Node(int bbid) : id(-1), lat(0), type(NAI), bbid(bbid), name("BB-Entry"),  n_parents(0), n_external_parents(0), n_external_edges(0) {}
 
    // TODO: get latencies from a CONFIG file instead
    int getLatency(TInstr type) {    
@@ -77,8 +81,15 @@ public:
 
    void addDependent(Node *dest, TEdge type) {
       dependents.insert(std::make_pair(dest,type));
-      if(type != phi_dep)
-         dest->n_parents++; 
+      if(type == data_dep || type == bb_dep) {
+         if(dest->bbid == this->bbid)
+            dest->n_parents++;
+         else {
+            n_external_edges++;
+            dest->n_external_parents++;
+            dest->external_parents.insert(std::make_pair(this,type));
+         }
+      }
    }
 
    void eraseDependent(Node *dest, TEdge type) {
@@ -89,8 +100,15 @@ public:
          TEdge t = it->second;
          if (dest == d && type == t) {
             dependents.erase(*it);
-            if(t != phi_dep)
-               dest->n_parents--;
+            if(t == data_dep || t == bb_dep) {
+               if(dest->bbid == this->bbid)
+                  dest->n_parents--;
+               else {
+                  dest->external_parents.erase(std::make_pair(dest,type));
+                  dest->n_external_parents--;
+                  n_external_edges--;
+               }
+            }
             count++;
          }
       }
@@ -131,46 +149,6 @@ class BasicBlock {
          inst_count++;
       }
 };
-
-class Context {
-   public:
-      bool live;
-      int id;
-      int bbid;
-      int processed;
-      std::vector<Node*> active_list;
-      std::set<Node*> start_set;
-      std::set<Node*> next_start_set;
-      std::vector<Node *> next_active_list;
-      std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
-      std::map<Node*, int> pending_parents_map; // tracks the # of pending ancestors for each node
-
-      Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
-
-      void initialize(BasicBlock *bb) {
-         if (bbid != -1)
-            assert(false);
-         bbid = bb->id;
-         active_list.push_back(bb->entry);
-         remaining_cycles_map.insert( std::make_pair(bb->entry, 0) );
-
-         // for each node in the BB initialize the 
-         for ( int i=0; i<bb->inst.size(); i++ ) {
-            Node *n = bb->inst.at(i);
-            pending_parents_map.insert( std::make_pair(n, n->n_parents) );
-         }
-      }
-      void updateDependency(std::map<Node*, int> m) {
-         std::map<Node*, int>::iterator it;
-         for(it = m.begin(); it != m.end(); ++it) {
-            int c = pending_parents_map.at(it->first);
-            pending_parents_map.at(it->first) = c - it->second;
-            if(pending_parents_map.at(it->first) == 0)
-               assert(false); // Should never be the case since there should always be a dependency from artificial "entry" node
-         }
-      }
-};
-
 class Graph {
    public:
       std::map<int, Node *> nodes;
