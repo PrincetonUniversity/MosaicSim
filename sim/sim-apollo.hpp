@@ -22,7 +22,7 @@ namespace apollo {
 class Node;
 typedef std::pair<Node*,int> DNode;
 typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, TERMINATOR, PHI} TInstr;
-typedef enum {data_dep, bb_dep, phi_dep} TEdge;
+typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
 
 
 class Node {
@@ -85,7 +85,7 @@ public:
    }
 
    void addDependent(Node *dest, TEdge type) {
-      if(type == data_dep || type == bb_dep) {
+      if(type == DATA_DEP || type == BB_DEP) {
          if(dest->bbid == this->bbid) {
             dependents.insert(dest);
             dest->parents.insert(this);
@@ -95,14 +95,14 @@ public:
             dest->external_parents.insert(this);
          }
       }
-      else if(type == phi_dep) {
+      else if(type == PHI_DEP) {
          phi_dependents.insert(dest);
       }
    }
 
    void eraseDependent(Node *dest, TEdge type) {
       int count = 0;
-      if(type == data_dep || type == bb_dep) {
+      if(type == DATA_DEP || type == BB_DEP) {
          if(dest->bbid == this->bbid) {
             count += dependents.erase(dest);
             dest->parents.erase(dest);
@@ -112,7 +112,7 @@ public:
             dest->external_parents.erase(dest);
          }
       }
-      else if(type == phi_dep) {
+      else if(type == PHI_DEP) {
          count += phi_dependents.erase(dest);
       }
       assert(count == 1);
@@ -138,17 +138,17 @@ class BasicBlock {
       std::vector<Node*> inst;
       Node *entry;
 
-      BasicBlock(int id): id(id), inst_count(0) {
-         entry = new Node(id);
-      }
-
+      BasicBlock(int id): id(id), inst_count(0) { entry = new Node(id); }
+      ~BasicBlock() { delete entry; }
+      
       void addInst(Node* n) {
          assert(entry != NULL);
-         entry->addDependent(n, bb_dep);
+         entry->addDependent(n, BB_DEP);  // all instructions are made dependant of the "entry node"
          inst.push_back(n);
          inst_count++;
       }
 };
+
 class Graph {
    public:
       std::map<int, Node *> nodes;
@@ -208,118 +208,127 @@ class Graph {
 
    };
 
-vector<string> split(const string &s, char delim) {
-    stringstream ss(s);
-    string item;
-    vector<string> tokens;
-    while (getline(ss, item, delim)) {
-        tokens.push_back(item);
-    }
-    return tokens;
-}
-
-void readCF(std::vector<int> &cf)
-{
-   string line;
-   string last_line;
-   ifstream cfile ("input/ctrl.txt");
-   int last_bbid = -1;
-   if (cfile.is_open()) {
-    while (getline (cfile,line)) {
-      vector<string> s = split(line, ',');
-      assert(s.size() == 3);
-      if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
-         cout << last_bbid << " / " << s.at(1) << "\n";
-         cout << last_line << " / " << line << "\n";
-         assert(false);
-      }
-      last_bbid = stoi(s.at(2));
-      cf.push_back(stoi(s.at(2)));
-      last_line = line;
-    }
+   // 
+   vector<string> split(const string &s, char delim) {
+       stringstream ss(s);
+       string item;
+       vector<string> tokens;
+       while (getline(ss, item, delim)) {
+           tokens.push_back(item);
+       }
+       return tokens;
    }
-   cfile.close();
-}
 
-void readMemory(std::map<int, std::queue<uint64_t> > &memory)
-{
-   string line;
-   string last_line;
-   ifstream cfile ("input/memory.txt");
-   if (cfile.is_open()) {
-    while (getline (cfile,line)) {
-      vector<string> s = split(line, ',');
-      assert(s.size() == 4);
-      int id = stoi(s.at(1));
-      if(memory.find(id) == memory.end())
-         memory.insert(make_pair(id, queue<uint64_t>()));
-      memory.at(id).push(stoull(s.at(2)));
-    }
-   }
-   cfile.close();
-}
-void readToyGraph(Graph &g)
-{
-   Node *nodes[10];  
-   int id = 1;
-   nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
-   nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
-   nodes[3] = g.addNode(id++, LOGICAL, 0,"3-xor $1,$3,$4");
-   nodes[4] = g.addNode(id++, DIV, 0,"4-mult $1,$3,$4");
-   nodes[5] = g.addNode(id++, SUB, 0,"5-sub $1,$3,$4");
-   nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
-
-   // add some dependents
-   nodes[1]->addDependent(nodes[2], data_dep);
-   nodes[1]->addDependent(nodes[3], data_dep);
-   nodes[1]->addDependent(nodes[4], data_dep);
-   nodes[2]->addDependent(nodes[5], data_dep);
-   nodes[2]->addDependent(nodes[6], data_dep);
-   nodes[6]->addDependent(nodes[4], data_dep);
-   g.initialBlock = 0;
-   cout << g;
-}
-void readGraph(Graph &g)
-{
-   ifstream cfile ("input/graph.txt");
-   if (cfile.is_open()) {
-      string temp;
-      getline(cfile,temp);
-      g.initialBlock = stoi(temp);
-      getline(cfile,temp);
-      int numBB = stoi(temp);
-      getline(cfile,temp);
-      int numNode = stoi(temp);
-      getline(cfile,temp);
-      int numEdge = stoi(temp);
+   // Read Dynamic Control Flow data from profiling file (ctrl.txt)
+   // format of ctrl.txt:  
+   //      <string_bb_name>,<current_bb_id>,<next_bb_id>
+   // argument <cf> will contain the sequential list of executed BBs
+   void readProfCF(std::vector<int> &cf)
+   {
       string line;
-      for (int i=0; i<numBB; i++)
-         g.addBasicBlock(i);
-      for(int i=0; i<numNode; i++) {
-         getline(cfile,line);
+      string last_line;
+      ifstream cfile ("input/ctrl.txt");
+      int last_bbid = -1;
+      if (cfile.is_open()) {
+       while (getline (cfile,line)) {
          vector<string> s = split(line, ',');
-         int id = stoi(s.at(0));
-         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
-         int bbid = stoi(s.at(2));
-         string name = s.at(3);
-         name = s.at(3).substr(0, s.at(3).size()-1);
-         g.addNode(id, type, bbid, name);
+         assert(s.size() == 3);
+         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+            cout << last_bbid << " / " << s.at(1) << "\n";
+            cout << last_line << " / " << line << "\n";
+            assert(false);
+         }
+         last_bbid = stoi(s.at(2));
+         cf.push_back(last_bbid);
+         last_line = line;
+       }
       }
-      for(int i=0; i<numEdge; i++) {
-         getline(cfile,line);
-         vector<string> s = split(line, ',');
-         TEdge type = static_cast<TEdge>(stoi(s.at(2)));
-         g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
-      }
-      if(getline(cfile,line))
-         assert(false);
+      cfile.close();
    }
-   else
-      assert(false);
-   cfile.close();
-   g.initialBlock = 0;
-   cout << g;
-}
-}
 
+   // Read Dynamic Memory accesses from profiling file (memory.txt)
+   // argument <memory> will contain a map of { <instr_id>, <queue of addresses> }
+   void readProfMemory(std::map<int, std::queue<uint64_t> > &memory)
+   {
+      string line;
+      string last_line;
+      ifstream cfile ("input/memory.txt");
+      if (cfile.is_open()) {
+       while ( getline(cfile,line) ) {
+         vector<string> s = split(line, ',');
+         assert(s.size() == 4);
+         int id = stoi(s.at(1));
+         // if it's a NEW memory instruction, insert it into the <map>
+         if (memory.find(id) == memory.end()) 
+            memory.insert(make_pair(id, queue<uint64_t>()));
+         // insert the <address> into the memory instructions's <queue>
+         memory.at(id).push(stoull(s.at(2)));
+       }
+      }
+      cfile.close();
+   }
 
+   void readToyGraph(Graph &g)
+   {
+      Node *nodes[10];  
+      int id = 1;
+      nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
+      nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
+      nodes[3] = g.addNode(id++, LOGICAL, 0,"3-xor $1,$3,$4");
+      nodes[4] = g.addNode(id++, DIV, 0,"4-mult $1,$3,$4");
+      nodes[5] = g.addNode(id++, SUB, 0,"5-sub $1,$3,$4");
+      nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
+
+      // add some dependents
+      nodes[1]->addDependent(nodes[2], DATA_DEP);
+      nodes[1]->addDependent(nodes[3], DATA_DEP);
+      nodes[1]->addDependent(nodes[4], DATA_DEP);
+      nodes[2]->addDependent(nodes[5], DATA_DEP);
+      nodes[2]->addDependent(nodes[6], DATA_DEP);
+      nodes[6]->addDependent(nodes[4], DATA_DEP);
+      g.initialBlock = 0;
+      cout << g;
+   }
+
+   void readGraph(Graph &g)
+   {
+      ifstream cfile ("input/graph.txt");
+      if (cfile.is_open()) {
+         string temp;
+         getline(cfile,temp);
+         g.initialBlock = stoi(temp);
+         getline(cfile,temp);
+         int numBB = stoi(temp);
+         getline(cfile,temp);
+         int numNode = stoi(temp);
+         getline(cfile,temp);
+         int numEdge = stoi(temp);
+         string line;
+         for (int i=0; i<numBB; i++)
+            g.addBasicBlock(i);
+         for (int i=0; i<numNode; i++) {
+            getline(cfile,line);
+            vector<string> s = split(line, ',');
+            int id = stoi(s.at(0));
+            TInstr type = static_cast<TInstr>(stoi(s.at(1)));
+            int bbid = stoi(s.at(2));
+            string name = s.at(3);
+            name = s.at(3).substr(0, s.at(3).size()-1);
+            g.addNode(id, type, bbid, name);
+         }
+         for (int i=0; i<numEdge; i++) {
+            getline(cfile,line);
+            vector<string> s = split(line, ',');
+            TEdge type = static_cast<TEdge>(stoi(s.at(2)));
+            g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
+         }
+         if (getline(cfile,line))
+            assert(false);
+      }
+      else
+         assert(false);
+      cfile.close();
+      g.initialBlock = 0;
+      cout << g;
+   }
+}

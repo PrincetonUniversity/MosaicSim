@@ -20,7 +20,7 @@ public:
    std::vector<Node *> next_active_list;
 
    std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
-   std::map<Node*, int> pending_parents_map; // tracks the # of pending parents (intra BB)
+   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
    std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
    Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
@@ -30,6 +30,8 @@ public:
       bbid = bb->id;
       active_list.push_back(bb->entry);
       remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
+
+      // traverse all the BB's instructions and initialize the pending_parents map
       for ( int i=0; i<bb->inst.size(); i++ ) {
          Node *n = bb->inst.at(i);
          if(n->type == PHI)
@@ -38,6 +40,7 @@ public:
             pending_parents_map.insert(std::make_pair(n, n->parents.size()));
          pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
       }
+
       /* Handle Phi */
       if (handled_phi_deps.find(id) != handled_phi_deps.end()) {
          std::set<Node*>::iterator it;
@@ -46,10 +49,12 @@ public:
          }
          handled_phi_deps.erase(id);
       }
+
       /* Handle External Edges */
+      // traverse ALL the BB's instructions
       for (int i=0; i<bb->inst.size(); i++) {
          Node *n = bb->inst.at(i);
-         if(n->external_dependents.size() > 0) {
+         if (n->external_dependents.size() > 0) {
             if(curr_owner.find(n) == curr_owner.end())
                curr_owner.insert(make_pair(n, make_pair(id, false)));
             else {
@@ -57,7 +62,7 @@ public:
                curr_owner.at(n).second = false;
             }
          }
-         if(n->external_parents.size() > 0) {
+         if (n->external_parents.size() > 0) {
             std::set<Node*>::iterator it;
             for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
                Node *s = *it;
@@ -77,6 +82,7 @@ public:
       }
       // No need to call launchNode; entryBB will trigger them instead. 
    }
+
    bool launchNode(Node *n) {
       if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
          //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
@@ -98,29 +104,29 @@ public:
    // TODO: Handle 0-latency instructions correctly
    class DRAMSimCallBack {
       public: 
-         map<uint64_t, queue<pair<Node*, Context*> > > outstanding_access_map;
+         map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
          void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
-            assert(outstanding_access_map.find(addr) != outstanding_access_map.end());
-            queue<std::pair<Node*, Context*>> &q = outstanding_access_map.at(addr);
+            assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+            queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
             Node *n = q.front().first;
             Context *c = q.front().second;
             cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
-            if(c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
+            if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
                cout << *n << " / " << c->id << "\n";
-            c->remaining_cycles_map.at(n) = 0; // Load Finished
+            c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
             q.pop();
-            if(q.size() == 0)
-               outstanding_access_map.erase(addr);
+            if (q.size() == 0)
+               outstanding_accesses_map.erase(addr);
          }
          void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-            assert(outstanding_access_map.find(addr) != outstanding_access_map.end());
-            queue<std::pair<Node*, Context*>> &q = outstanding_access_map.at(addr);
+            assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+            queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
             Node *n = q.front().first;
             Context *c = q.front().second;
             cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
             q.pop();
             if(q.size() == 0)
-               outstanding_access_map.erase(addr);
+               outstanding_accesses_map.erase(addr);
          }
    };
 
@@ -137,7 +143,7 @@ public:
    map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
    
    /* Handling External Dependencies */
-   map<Node*, pair<int, bool> > curr_owner; // Soruce of external dependency (Node), Context ID for the node (cid), Finished
+   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
    map<DNode, vector<DNode> > deps; // Source of external depndency (Node,cid), Destinations for that source (Node, cid)
    /* Handling Phi Dependencies */
    map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
@@ -166,28 +172,29 @@ public:
 
    void process_context(Context *c)
    {
+      // traverse ALL the active instructions in the context
       for (int i=0; i < c->active_list.size(); i++) {
          Node *n = c->active_list.at(i);
          if (c->start_set.find(n) != c->start_set.end()) {
             cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
-            /* Issue Memory Requests */
+            /* check if it's a Memory Request -> enqueue in DRAMsim */
             if (n->type == LD || n->type == ST) {
-               //uint64_t addr = n->id * 64; // Fake Address
-               uint64_t addr = memory.at(n->id).front();
-               memory.at(n->id).pop();
+               uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
+               memory.at(n->id).pop(); // ...and take it out of the queue
                cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
                assert(mem->willAcceptTransaction(addr));
                if (n->type == LD)
                   mem->addTransaction(false, addr);
                else if (n->type == ST)
                   mem->addTransaction(true, addr);
-               if(cb.outstanding_access_map.find(addr) == cb.outstanding_access_map.end())
-                  cb.outstanding_access_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
-               cb.outstanding_access_map.at(addr).push(make_pair(n, c));
+               if(cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
+                  cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
+               cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
             }
          }
          //else 
          //   cout << "Node [" << n->name << " @ context " << c->id << "]: In Processing \n";
+
          // decrease the remaining # of cycles for current node <n>
          int remaining_cycles = c->remaining_cycles_map.at(n);
          if (remaining_cycles > 0)
@@ -199,30 +206,31 @@ public:
          }
          else if (remaining_cycles == 0) { // Execution Finished for node <n>
    	      cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
-      	   // Create new context with next bbid in cf (bbid list
+      	   // If node is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
             if (n->type == TERMINATOR) {
       	      if(cf.size() > c->id+1) {
                  assert(context_to_create == -1);
                  context_to_create = cf.at(c->id+1);  
                }
       	   }
-            c->remaining_cycles_map.erase(n);
+            c->remaining_cycles_map.erase(n);  
             if (n->type != NAI)
                c->processed++;
             
+            // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch dep.
             set<Node*>::iterator it;
-            // Update dependents
             for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
                Node *d = *it;
                c->pending_parents_map.at(d)--;
                c->launchNode(d);
             }
-            // Update external dependents
-            if(n->external_dependents.size() > 0) {
+
+            // The same for external dependents: decrease parent's count & try to launch 
+            if (n->external_dependents.size() > 0) {
                DNode src = make_pair(n, c->id);
-               if(deps.find(src) != deps.end()) {
+               if (deps.find(src) != deps.end()) {
                   vector<DNode> users = deps.at(src);
-                  for(int i=0; i<users.size(); i++) {
+                  for (int i=0; i<users.size(); i++) {
                      Node *d = users.at(i).first;
                      Context *cc = context_list.at(users.at(i).second);
                      cc->pending_external_parents_map.at(d)--;
@@ -232,12 +240,13 @@ public:
                }
                curr_owner.at(n).second = true;
             }
-            // Update Phi Dependents
+
+            // Same for Phi dependents
             for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
                int next_cid = c->id+1;
                Node *d = *it;
-               if((cf.size() > next_cid) && (cf.at(next_cid) == d->bbid)) {
-                  if(context_list.size() > next_cid) { 
+               if ((cf.size() > next_cid) && (cf.at(next_cid) == d->bbid)) {
+                  if (context_list.size() > next_cid) { 
                      Context *cc = context_list.at(next_cid);
                      cc->pending_parents_map.at(d)--;
                      cc->launchNode(d);
@@ -277,14 +286,16 @@ public:
       cycle_count++;
       bool simulate = false;
       assert(cycle_count < 2000);
+
+      // process ALL the contexts
       for (int i=0; i<context_list.size(); i++) {
-         if(context_list.at(i)->live)
-            process_context( context_list.at(i) );
-         if (context_list.at(i)->live)
+         if (context_list.at(i)->live){
             simulate = true;
+            process_context( context_list.at(i) );
+         }
       }
       process_memory();
-      if(context_to_create != -1) {
+      if (context_to_create != -1) {
          createContext(context_to_create);
          simulate = true;
          context_to_create = -1;
@@ -307,8 +318,8 @@ int main(int argc, char const *argv[])
 {
    Simulator sim;
    readGraph(sim.g);
-   readMemory(sim.memory);
-   readCF(sim.cf);
+   readProfMemory(sim.memory);
+   readProfCF(sim.cf);
    sim.initialize();
    sim.run();
    return 0;
