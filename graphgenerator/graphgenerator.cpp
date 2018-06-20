@@ -81,6 +81,7 @@ struct graphGen : public FunctionPass {
       dependenceCheck(F);
       memdepCheck(F);
       g.visualize();
+      g.exportToFile(F);
     }
     return false;
   }

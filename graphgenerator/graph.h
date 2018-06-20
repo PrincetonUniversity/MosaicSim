@@ -1,3 +1,8 @@
+#include <fstream>
+#include <map>
+#include "llvm/IR/Instruction.h"
+#include "llvm/IR/Instructions.h"
+#include "llvm/IR/Function.h"
 #include "llvm/Support/raw_ostream.h"
 
 using namespace llvm;
@@ -215,6 +220,100 @@ public:
     fout << "t3->t4 [style=invis];\n";
     fout << "}\n";
     fout << "}\n";
+  }
+
+  void exportToFile(Function &f) {
+   std::ofstream cfile ("input/graph.txt");
+   if (cfile.is_open()) {
+     // Initial basic block
+     cfile << "0\n";
+     // Number of basic blocks
+     std::vector<BasicBlock*> bbids;
+     std::vector<Instruction*> instids;
+     std::map<Instruction*,int> instToBB;
+     int bbIdx = 0;
+     int instIdx = 0;
+     for (auto &bb : f) {
+       bbids.push_back(&bb);
+       for (auto &inst : bb) {
+         instids.push_back(&inst);
+         instToBB[&inst] = bbIdx;
+         instIdx++;
+       }
+       bbIdx++;
+     }
+     cfile << bbIdx << "\n";
+     // Number of nodes
+     int numNodes = nodes.size();
+     cfile << numNodes << "\n";
+     // Number of edges
+     int numEdges = 0;
+     std::map<Node*,int> nodeMap;
+     int counter = 0;
+     for (auto &node : nodes) {
+       nodeMap[node] = counter;
+       numEdges += node->c_adjs.size();
+       numEdges += node->d_adjs.size();
+       numEdges += node->m_adjs.size();
+       numEdges += node->mm_adjs.size();
+       numEdges += node->p_adjs.size();
+       numEdges += node->lc_adjs.size();
+       numEdges += node->lcm_adjs.size();
+       counter++;
+     }
+     cfile << numEdges << "\n";
+     for (int id = 0; id < numNodes; id++) { 
+       int instType = -1;
+       Instruction* inst = instids[id];
+       if (isa<AddInst>(inst)) {
+         instType = 1;
+       } else if (isa<SubInst>(inst)) {
+         instType = 2;
+       } else if (isa<LogicalInst>(inst)) {
+         instType = 3;
+       } else if (isa<MultInst>(inst)) {
+         instType = 4;
+       } else if (isa<DivInst>(inst)) {
+         instType = 5;
+       } else if (isa<LoadInst>(inst)) {
+         instType = 6;
+       } else if (isa<StoreInst>(inst)) {
+         instType = 7;
+       } else if (isa<TerminatorInst>(inst)) {
+         instType = 8;
+       } else if (isa<PHIInst>(inst)) {
+         instType = 9;
+       } else {
+         instType = 0;
+       }
+       cfile << id << "," << instType << "," << instToBB[inst] << "," << "placeholder" << "\n";
+     }
+     for (auto &src : nodes) {
+       for (auto &dest : src->c_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "0" << "\n";
+       }
+       for (auto &dest : src->d_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "1" << "\n";
+       }
+       for (auto &dest : src->m_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "2" << "\n";
+       }
+       for (auto &dest : src->mm_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "3" << "\n";
+       }
+       for (auto &dest : src->p_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "4" << "\n";
+       }
+       for (auto &dest : src->lc_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "5" << "\n";
+       }
+       for (auto &dest : src->lcm_adjs) {
+         cfile << nodeMap[src] << "," << nodeMap[dest] << "6" << "\n";
+       }
+     }
+   } else {
+     cfile << "Unable to open file\n";
+   }
   }
 
 };
