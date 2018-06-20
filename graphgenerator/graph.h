@@ -223,7 +223,7 @@ public:
   }
 
   void exportToFile(Function &f) {
-   std::ofstream cfile ("input/graph.txt");
+   std::ofstream cfile ("../sim/input/graph.txt");
    if (cfile.is_open()) {
      // Initial basic block
      cfile << "0\n";
