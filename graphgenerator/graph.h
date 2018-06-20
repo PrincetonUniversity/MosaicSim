@@ -265,15 +265,17 @@ public:
      for (int id = 0; id < numNodes; id++) { 
        int instType = -1;
        Instruction* inst = instids[id];
-       if (isa<AddInst>(inst)) {
+       unsigned opcode = inst->getOpcode();
+
+       if (opcode == Instruction::Add) {
          instType = 1;
-       } else if (isa<SubInst>(inst)) {
+       } else if (opcode == Instruction::Sub) {
          instType = 2;
-       } else if (isa<LogicalInst>(inst)) {
+       } else if (opcode == Instruction::And || opcode == Instruction::Or || opcode == Instruction::Xor) {
          instType = 3;
-       } else if (isa<MultInst>(inst)) {
+       } else if (opcode == Instruction::Mul) {
          instType = 4;
-       } else if (isa<DivInst>(inst)) {
+       } else if (opcode == Instruction::SDiv || opcode == Instruction::UDiv) {
          instType = 5;
        } else if (isa<LoadInst>(inst)) {
          instType = 6;
@@ -281,11 +283,12 @@ public:
          instType = 7;
        } else if (isa<TerminatorInst>(inst)) {
          instType = 8;
-       } else if (isa<PHIInst>(inst)) {
+       } else if (isa<PHINode>(inst)) {
          instType = 9;
        } else {
          instType = 0;
        }
+
        cfile << id << "," << instType << "," << instToBB[inst] << "," << "placeholder" << "\n";
      }
      for (auto &src : nodes) {
