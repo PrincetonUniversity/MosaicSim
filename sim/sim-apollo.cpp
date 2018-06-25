@@ -208,7 +208,7 @@ public:
    	      cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
       	   // If node is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
             if (n->type == TERMINATOR) {
-      	      if(cf.size() > c->id+1) {
+      	      if(cf.size() > c->id+1) {  // if there are more pending contexts in the Graph
                  assert(context_to_create == -1);
                  context_to_create = cf.at(c->id+1);  
                }
@@ -287,7 +287,7 @@ public:
       bool simulate = false;
       assert(cycle_count < 2000);
 
-      // process ALL the contexts
+      // process ALL the LIVE contexts
       for (int i=0; i<context_list.size(); i++) {
          if (context_list.at(i)->live){
             simulate = true;
