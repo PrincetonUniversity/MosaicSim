@@ -241,8 +241,8 @@ public:
   struct {
 
     // simulator flags
-    bool CF_one_context_at_once = true;
-    bool CF_all_contexts_concurrently = false;
+    bool CF_one_context_at_once = false;
+    bool CF_all_contexts_concurrently = true;
 
     // resource limits
     int num_iadders  = 10;
@@ -347,7 +347,7 @@ public:
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
         if (cfg.CF_one_context_at_once && n->type == TERMINATOR) {
-          if ( cf_iterator < cf.size()-1 ) {  // if there are more pending contexts in the Graph
+          if ( cf_iterator < cf.size()-1 ) {  // if there are more pending contexts in the <cf> vector
             cf_iterator++;
             createContext( cf.at(cf_iterator) );
           }
