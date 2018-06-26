@@ -133,11 +133,11 @@ public:
    class DRAMSimCallBack {
       public:
 
-        map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
-        Simulator* sim;
-        DRAMSimCallBack(Simulator* sim):sim(sim){}
+         map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
+         Simulator* sim;
+         DRAMSimCallBack(Simulator* sim):sim(sim){}
      
-        void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
+         void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
             assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
             queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
             Node *n = q.front().first;
@@ -146,8 +146,8 @@ public:
             if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
                cout << *n << " / " << c->id << "\n";
        
-       c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
-       sim->update_memop_queue(sim->load_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in load queue to finished
+            c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
+            sim->update_memop_queue(sim->load_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in load queue to finished
             q.pop();
             if (q.size() == 0)
                outstanding_accesses_map.erase(addr);
@@ -158,16 +158,14 @@ public:
             Node *n = q.front().first;
             Context *c = q.front().second;
                     
-       c->remaining_cycles_map.at(n) = 0; //Luwa: just added this. don't know why we weren't marking stores as finished
-       sim->update_memop_queue(sim->store_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in store queue to finished
-       cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
+            c->remaining_cycles_map.at(n) = 0; //Luwa: just added this. don't know why we weren't marking stores as finished
+            sim->update_memop_queue(sim->store_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in store queue to finished
+            cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
             q.pop();
        
             if(q.size() == 0)
                outstanding_accesses_map.erase(addr);
          }
-
-    
    };
    
    Graph g;  
@@ -175,11 +173,10 @@ public:
    DRAMSim::MultiChannelMemorySystem *mem;
 
    int cycle_count = 0;
-   int curr_context_id = 0;
-   int context_to_create = -1;
    vector<Context*> context_list;
    
    vector<int> cf; // List of basic blocks in a program order 
+   int cf_iterator = 0;
    map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
    map<int, queue<uint64_t> >& memory_ref=memory;
    /* Handling External Dependencies */
@@ -193,13 +190,42 @@ public:
    map<uint64_t, deque<tuple<int,int,bool,bool>>>& store_queue_map = store_queue_obj; 
    map<uint64_t, deque<tuple<int,int,bool,bool>>>& load_queue_map = load_queue_obj; 
     
+   // **** simulator CONFIGURATION PARAMETERS
+   // TODO: read this from a file
+   // TODO: merge resourcewith latencies -> now there is a getLatency() in .hpp
+   struct {
+
+      // simulator flags
+      bool CF_one_context_at_once = false;
+      bool CF_all_contexts_concurrently = true;
+
+      // resource limits
+      int num_iadders  = 10;
+      int num_fpadders = 10;
+      int num_imults   = 10;
+      int num_fpmults  = 10;
+      int num_idivs    = 10;
+      int num_fpdivs   = 10;
+      int num_in_memports  = 10;
+      int num_out_memports = 10;
+      int num_outstanding_mem = 10;
+   } cfg;
+
    void initialize() {
       DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
       DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
       mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
       mem->RegisterCallbacks(read_cb, write_cb, NULL);
       mem->setCPUClockSpeed(2000000000);  
-      createContext(g.initialBlock);
+
+      // CHECK SIMULATOR CONFIG flags
+      if (cfg.CF_one_context_at_once) {
+         cf_iterator = 0;
+         createContext( cf.at(cf_iterator) );  // create just the very firt context from <cf>
+      }
+      else if (cfg.CF_all_contexts_concurrently)  // create ALL contexts to max parallelism
+         for ( cf_iterator=0; cf_iterator < cf.size(); cf_iterator++ )
+            createContext( cf.at(cf_iterator) );
    }
 
    void update_memop_queue(map<uint64_t,deque<tuple<int,int,bool,bool>>>& memop_queue_map, uint64_t addr, tuple<int,int,bool,bool> memop_queue_entry) {   
@@ -214,40 +240,41 @@ public:
          while (it!=addr_queue->end() && !((get<0>(*it)==get<0>(memop_queue_entry)) && (get<1>(*it)==get<1>(memop_queue_entry))) ) {
             ++it;
          }
-         assert(it!=addr_queue->end()); //there should have been an entry
+         assert( it!=addr_queue->end() ); //there should have been an entry
          *it=memop_queue_entry;
       }
    }
 
-   void createContext(int bid)
+   void createContext(int bbid)
    {
-      assert(g.bbs.size() > bid);
+      assert( bbid < g.bbs.size() );
       /* Create Context */
-      BasicBlock *bb = g.bbs.at(bid);
-      int cid = curr_context_id;
+      int cid = context_list.size();
       Context *c = new Context(cid);
-      
       context_list.push_back(c);
-      curr_context_id++;
-      context_list.at(cid)->initialize(bb, curr_owner, deps, handled_phi_deps, load_queue_map, store_queue_map, memory_ref);
-      cout << "Context [" << cid << "]: Created (BB=" << bid << ")\n";     
+      BasicBlock *bb = g.bbs.at(bbid);
+      c->initialize(bb, curr_owner, deps, handled_phi_deps, load_queue_map, store_queue_map, memory_ref);
+      cout << "Context [" << cid << "]: Created (BB=" << bbid << ")\n";     
    }
 
-   bool memop_older(tuple<int,int,bool, bool> memop_1,tuple<int,int,bool, bool> memop_2){
-            //  mem_1 is at an earlier context OR same context but mem1 node id is lower
-      return (get<0>(memop_1) < get<0>(memop_2)) || ((get<0>(memop_1) == get<0>(memop_2)) && (get<1>(memop_1) < get<1>(memop_2)));}
+   bool memop_older(tuple<int,int,bool, bool> memop_1,tuple<int,int,bool, bool> memop_2) {
+      //  mem_1 is at an earlier context OR same context but mem1 node id is lower
+      return (get<0>(memop_1) < get<0>(memop_2)) || ((get<0>(memop_1) == get<0>(memop_2)) && (get<1>(memop_1) < get<1>(memop_2)));
+   }
 
-   bool memop_completed(tuple<int,int,bool, bool> memop){
-      return get<3>(memop);} 
+   bool memop_completed(tuple<int,int,bool, bool> memop) {
+      return get<3>(memop);
+   } 
 
-   bool memop_started(tuple<int,int,bool, bool> memop){
-      return get<2>(memop);}
+   bool memop_started(tuple<int,int,bool, bool> memop) {
+      return get<2>(memop);
+   }
 
    //return pointer to preceeding store if curr_memop is load and vice versa  
-   deque<tuple<int,int,bool,bool>>::iterator most_recent_memop  (deque<tuple<int,int,bool,bool>> memop_queue, tuple<int,int,bool,bool> curr_memop, uint64_t addr) {
+   deque<tuple<int,int,bool,bool>>::iterator most_recent_memop (deque<tuple<int,int,bool,bool>> memop_queue, tuple<int,int,bool,bool> curr_memop, uint64_t addr) {
       bool older_memop_exists=false;
       std::deque<tuple<int,int,bool,bool>>::iterator it=memop_queue.begin();
-      while(it!=memop_queue.end() && memop_older(*it,curr_memop)) { //continue looping until you reach 1st instruction younger than curr_memop
+      while (it!=memop_queue.end() && memop_older(*it,curr_memop)) { //continue looping until you reach 1st instruction younger than curr_memop
          ++it;
          older_memop_exists=true;
       }
@@ -273,7 +300,6 @@ public:
                bool can_receive_forward=false;
                bool must_stall=false;
                tuple<int,int,bool,bool> curr_memop=make_tuple(c->id,n->id,false,false);
-              
              
                if (store_queue_map.find(addr)!=store_queue_map.end()) { //store queue for addr exists, otherwise no forwarding or stalling necessary, just access memory as usual 
                   deque<tuple<int,int,bool,bool>>::iterator recent_store_ptr = most_recent_memop(store_queue_map.at(addr),curr_memop, addr);       
@@ -338,18 +364,19 @@ public:
          else if (remaining_cycles == 0) { // Execution Finished for node <n>
             cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
       
-            // If node is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
-            if (n->type == TERMINATOR) {
-               if(cf.size() > c->id+1) {  // if there are more pending contexts in the Graph
-                 assert(context_to_create == -1);
-                 context_to_create = cf.at(c->id+1);  
+            // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
+            //     iff <simulation mode> is "CF_one_context_at_once"
+            if (cfg.CF_one_context_at_once && n->type == TERMINATOR) {
+               if ( cf_iterator < cf.size()-1 ) {  // if there are more pending contexts in the Graph
+                  cf_iterator++;
+                  createContext( cf.at(cf_iterator) );
                }
             }
-            c->remaining_cycles_map.erase(n);  
+            c->remaining_cycles_map.erase(n);
             if (n->type != NAI)
                c->processed++;
             
-            // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch dep.
+            // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
             set<Node*>::iterator it;
             for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
                Node *d = *it;
@@ -357,7 +384,7 @@ public:
                c->launchNode(d);
             }
 
-            // The same for external dependents: decrease parent's count & try to launch 
+            // The same for external dependents: decrease parent's count & try to launch them
             if (n->external_dependents.size() > 0) {
                DNode src = make_pair(n, c->id);
                if (deps.find(src) != deps.end()) {
@@ -368,7 +395,7 @@ public:
                      cc->pending_external_parents_map.at(d)--;
                      cc->launchNode(d);
                   }
-                  deps.erase(src); 
+                  deps.erase(src);
                }
                curr_owner.at(n).second = true;
             }
@@ -378,7 +405,7 @@ public:
                int next_cid = c->id+1;
                Node *d = *it;
                if ((cf.size() > next_cid) && (cf.at(next_cid) == d->bbid)) {
-                  if (context_list.size() > next_cid) { 
+                  if (context_list.size() > next_cid) {
                      Context *cc = context_list.at(next_cid);
                      cc->pending_parents_map.at(d)--;
                      cc->launchNode(d);
@@ -404,6 +431,7 @@ public:
       if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
          cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
          c->live = false;
+         // TODO: call the Context destructor to free memory ??
       }
    }
 
@@ -427,12 +455,6 @@ public:
          }
       }
       process_memory();
-      if (context_to_create != -1) {
-         createContext(context_to_create);
-         simulate = true;
-         context_to_create = -1;
-      }
-
       return simulate;
    }
 

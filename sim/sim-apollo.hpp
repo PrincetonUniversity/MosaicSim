@@ -153,8 +153,6 @@ class Graph {
    public:
       std::map<int, Node *> nodes;
       std::map<int, BasicBlock*> bbs;
-      int initialBlock;
-      Graph() : initialBlock(0) { }
       ~Graph() { eraseAllNodes(); } 
 
       void addBasicBlock(int id) {
@@ -230,18 +228,18 @@ class Graph {
       ifstream cfile ("input/ctrl.txt");
       int last_bbid = -1;
       if (cfile.is_open()) {
-       while (getline (cfile,line)) {
-         vector<string> s = split(line, ',');
-         assert(s.size() == 3);
-         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
-            cout << last_bbid << " / " << s.at(1) << "\n";
-            cout << last_line << " / " << line << "\n";
-            assert(false);
+         while (getline (cfile,line)) {
+            vector<string> s = split(line, ',');
+            assert(s.size() == 3);
+            if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+               cout << last_bbid << " / " << s.at(1) << "\n";
+               cout << last_line << " / " << line << "\n";
+               assert(false);
+            }
+            last_bbid = stoi(s.at(2));
+            cf.push_back(last_bbid);
+            last_line = line;
          }
-         last_bbid = stoi(s.at(2));
-         cf.push_back(last_bbid);
-         last_line = line;
-       }
       }
       cfile.close();
    }
@@ -254,16 +252,16 @@ class Graph {
       string last_line;
       ifstream cfile ("input/memory.txt");
       if (cfile.is_open()) {
-       while ( getline(cfile,line) ) {
-         vector<string> s = split(line, ',');
-         assert(s.size() == 4);
-         int id = stoi(s.at(1));
-         // if it's a NEW memory instruction, insert it into the <map>
-         if (memory.find(id) == memory.end()) 
-            memory.insert(make_pair(id, queue<uint64_t>()));
-         // insert the <address> into the memory instructions's <queue>
-         memory.at(id).push(stoull(s.at(2)));
-       }
+         while ( getline(cfile,line) ) {
+            vector<string> s = split(line, ',');
+            assert(s.size() == 4);
+            int id = stoi(s.at(1));
+            // if it's a NEW memory instruction, insert it into the <map>
+            if (memory.find(id) == memory.end()) 
+               memory.insert(make_pair(id, queue<uint64_t>()));
+            // insert the <address> into the memory instructions's <queue>
+            memory.at(id).push(stoull(s.at(2)));
+         }
       }
       cfile.close();
    }
@@ -286,7 +284,6 @@ class Graph {
       nodes[2]->addDependent(nodes[5], DATA_DEP);
       nodes[2]->addDependent(nodes[6], DATA_DEP);
       nodes[6]->addDependent(nodes[4], DATA_DEP);
-      g.initialBlock = 0;
       cout << g;
    }
 
@@ -295,8 +292,6 @@ class Graph {
       ifstream cfile ("input/graph.txt");
       if (cfile.is_open()) {
          string temp;
-         getline(cfile,temp);
-         g.initialBlock = stoi(temp);
          getline(cfile,temp);
          int numBB = stoi(temp);
          getline(cfile,temp);
@@ -328,7 +323,6 @@ class Graph {
       else
          assert(false);
       cfile.close();
-      g.initialBlock = 0;
       cout << g;
    }
 }
