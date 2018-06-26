@@ -25,7 +25,65 @@ public:
 
    Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
 
-   void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, map<uint64_t,deque<tuple<int,int,bool,bool>>>& load_queue_map, map<uint64_t,deque<tuple<int,int,bool,bool>>>& store_queue_map, map<int, queue<uint64_t> >& memory) {
+    class Memop {
+  public:
+    uint64_t addr;
+    Node* node;
+    Context* context;
+    bool started=false;
+    bool completed=false;
+    
+    Memop(uint64_t addr,Node* node,Context* context):
+      addr(addr),node(node),context(context){}
+    bool operator==(Memop other_memop){
+      return (addr==other_memop.addr) && (node->id==other_memop.node->id) && (context->id==other_memop.context->id);
+    }
+    bool operator!=(Memop other_memop){
+      return !(*this==other_memop);
+    }
+    
+    bool operator<(Memop other_memop){
+      //  mem_1 is at an earlier context OR same context but mem1 node id is lower
+      return (context->id < other_memop.context->id) || (((context->id == other_memop.context->id)) && (node->id < other_memop.node->id));
+    }
+    
+    bool exists_unresolved_memop (deque<Memop>* memop_q, TInstr op_type) {    
+      for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
+	if(*it==*this || *this<*it)
+	  return false;
+	if(!(it->started) && it->node->type==op_type)
+	  return true;
+      }
+      return false;
+    }
+    
+    bool exists_conflicting_alias (deque<Memop>* memop_q, TInstr op_type) {    
+      for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
+	if(*it==*this || *this<*it)
+	  return false;
+	if(!(it->completed) && it->node->type==op_type && addr==it->addr)
+	  return true;
+      }
+      return false;
+    }
+    
+    
+    void update_in(deque<Memop>* memop_q) {
+      deque<Memop>::iterator it = memop_q->begin();
+      while (it!=memop_q->end() && *it!=*this) {
+	++it;     
+      }
+      if (it==memop_q->end()) {
+	memop_q->push_back(*this);
+      }
+      else {
+	*it=*this;
+      }      
+    }
+  };
+  
+  void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, deque<Memop>* lsq, map<int, queue<uint64_t> >& memory) {
+ 
       assert(bbid == -1);
       bbid = bb->id;
       active_list.push_back(bb->entry);
@@ -35,35 +93,20 @@ public:
       for ( int i=0; i<bb->inst.size(); i++ ) {
          Node *n = bb->inst.at(i);
 
-      if (n->type == ST){
-           //Luwa: add to store queue as soon as context is created. this way, there's a serialized ordering of stores in store queue
+	 if (n->type == ST || n->type == LD){
+           //add to store queue as soon as context is created. this way, there's a serialized ordering of stores in lsq
+
+	   uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n
+	   Memop memop = *(new Memop(addr,n,this));
+	   memop.update_in(lsq); //add new entry to lsq
+
+	 }
            
-         deque<tuple<int, int, bool, bool>> addr_queue;
-         uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n 
-         if (store_queue_map.find(addr)!=store_queue_map.end())
-           {addr_queue=store_queue_map.at(addr);}
-         //luwa working here
-         addr_queue.push_back(make_tuple(id, n->id, false, false));
-         store_queue_map[addr]=addr_queue;
-      }
-       
-      if (n->type == LD){
-         //Luwa: add to load queue as soon as context is created. this way, there's a serialized ordering of loads in load queue
-           
-         deque<tuple<int, int, bool, bool>> addr_queue;
-         uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only load to be done by node n 
-         if (load_queue_map.find(addr)!=load_queue_map.end())
-           {addr_queue=load_queue_map.at(addr);}
-         //luwa working here
-         addr_queue.push_back(make_tuple(id, n->id, false, false));
-         load_queue_map[addr]=addr_queue;
-      }
-    
-      if(n->type == PHI)
-            pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
+	 if(n->type == PHI)
+	   pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
          
          else
-            pending_parents_map.insert(std::make_pair(n, n->parents.size()));
+	   pending_parents_map.insert(std::make_pair(n, n->parents.size()));
          pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
       }
 
@@ -129,7 +172,6 @@ public:
    // TODO: Memory address overlap across contexts
    // TODO: Handle 0-latency instructions correctly
   
-  
    class DRAMSimCallBack {
       public:
 
@@ -142,12 +184,14 @@ public:
             queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
             Node *n = q.front().first;
             Context *c = q.front().second;
+	         Context::Memop memop = *(new Context::Memop(addr,n,c));
+	         memop.completed=true;
+	         memop.update_in(sim->lsq);
             cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
             if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
                cout << *n << " / " << c->id << "\n";
-       
             c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
-            sim->update_memop_queue(sim->load_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in load queue to finished
+
             q.pop();
             if (q.size() == 0)
                outstanding_accesses_map.erase(addr);
@@ -157,21 +201,25 @@ public:
             queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
             Node *n = q.front().first;
             Context *c = q.front().second;
-                    
-            c->remaining_cycles_map.at(n) = 0; //Luwa: just added this. don't know why we weren't marking stores as finished
-            sim->update_memop_queue(sim->store_queue_map,addr,make_tuple(c->id,n->id,true,true)); //set entry in store queue to finished
-            cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
+	    
+      	   Context::Memop memop = *(new Context::Memop(addr,n,c));
+      	   memop.completed=true;
+      	   memop.update_in(sim->lsq);
+      	   c->remaining_cycles_map.at(n) = 0; //Luwa: just added this. don't know why we weren't marking stores as finished
+      	    
+      	   cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
             q.pop();
        
             if(q.size() == 0)
                outstanding_accesses_map.erase(addr);
          }
    };
-   
+
+  
    Graph g;  
    DRAMSimCallBack cb=DRAMSimCallBack(this); 
    DRAMSim::MultiChannelMemorySystem *mem;
-
+   
    int cycle_count = 0;
    vector<Context*> context_list;
    
@@ -184,11 +232,8 @@ public:
    map<DNode, vector<DNode> > deps; // Source of external depndency (Node,cid), Destinations for that source (Node, cid)
    /* Handling Phi Dependencies */
    map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
-   
-   map<uint64_t, deque<tuple<int,int,bool,bool>>>store_queue_obj;
-   map<uint64_t, deque<tuple<int,int,bool,bool>>>load_queue_obj;
-   map<uint64_t, deque<tuple<int,int,bool,bool>>>& store_queue_map = store_queue_obj; 
-   map<uint64_t, deque<tuple<int,int,bool,bool>>>& load_queue_map = load_queue_obj; 
+
+   deque<Context::Memop>* lsq= new deque<Context::Memop>();   
     
    // **** simulator CONFIGURATION PARAMETERS
    // TODO: read this from a file
@@ -196,8 +241,8 @@ public:
    struct {
 
       // simulator flags
-      bool CF_one_context_at_once = false;
-      bool CF_all_contexts_concurrently = true;
+      bool CF_one_context_at_once = true;
+      bool CF_all_contexts_concurrently = false;
 
       // resource limits
       int num_iadders  = 10;
@@ -228,23 +273,6 @@ public:
             createContext( cf.at(cf_iterator) );
    }
 
-   void update_memop_queue(map<uint64_t,deque<tuple<int,int,bool,bool>>>& memop_queue_map, uint64_t addr, tuple<int,int,bool,bool> memop_queue_entry) {   
-      deque<tuple<int, int, bool, bool>>* addr_queue;
-      if(memop_queue_map.find(addr)==memop_queue_map.end()) { //there's no memop_queue for addr
-         addr_queue->push_back(memop_queue_entry);
-         memop_queue_map[addr]=*addr_queue;
-      }
-      else{   
-         deque<tuple<int,int,bool,bool>>* addr_queue = &memop_queue_map.at(addr);
-         deque<tuple<int,int,bool,bool>>::iterator it = addr_queue->begin();   
-         while (it!=addr_queue->end() && !((get<0>(*it)==get<0>(memop_queue_entry)) && (get<1>(*it)==get<1>(memop_queue_entry))) ) {
-            ++it;
-         }
-         assert( it!=addr_queue->end() ); //there should have been an entry
-         *it=memop_queue_entry;
-      }
-   }
-
    void createContext(int bbid)
    {
       assert( bbid < g.bbs.size() );
@@ -253,35 +281,8 @@ public:
       Context *c = new Context(cid);
       context_list.push_back(c);
       BasicBlock *bb = g.bbs.at(bbid);
-      c->initialize(bb, curr_owner, deps, handled_phi_deps, load_queue_map, store_queue_map, memory_ref);
+      c->initialize(bb, curr_owner, deps, handled_phi_deps, lsq, memory_ref);
       cout << "Context [" << cid << "]: Created (BB=" << bbid << ")\n";     
-   }
-
-   bool memop_older(tuple<int,int,bool, bool> memop_1,tuple<int,int,bool, bool> memop_2) {
-      //  mem_1 is at an earlier context OR same context but mem1 node id is lower
-      return (get<0>(memop_1) < get<0>(memop_2)) || ((get<0>(memop_1) == get<0>(memop_2)) && (get<1>(memop_1) < get<1>(memop_2)));
-   }
-
-   bool memop_completed(tuple<int,int,bool, bool> memop) {
-      return get<3>(memop);
-   } 
-
-   bool memop_started(tuple<int,int,bool, bool> memop) {
-      return get<2>(memop);
-   }
-
-   //return pointer to preceeding store if curr_memop is load and vice versa  
-   deque<tuple<int,int,bool,bool>>::iterator most_recent_memop (deque<tuple<int,int,bool,bool>> memop_queue, tuple<int,int,bool,bool> curr_memop, uint64_t addr) {
-      bool older_memop_exists=false;
-      std::deque<tuple<int,int,bool,bool>>::iterator it=memop_queue.begin();
-      while (it!=memop_queue.end() && memop_older(*it,curr_memop)) { //continue looping until you reach 1st instruction younger than curr_memop
-         ++it;
-         older_memop_exists=true;
-      }
-
-      if (it==memop_queue.end() && !older_memop_exists)
-         return it;
-      return --it; //return most recent preceeding memop
    }
 
    void process_context(Context *c)
@@ -295,54 +296,36 @@ public:
             if (n->type == LD || n->type == ST) {
             
                uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
-      
-               //Luwa: we just move to the next active node and check again in next cycle if mem dependency is resolved
-               bool can_receive_forward=false;
-               bool must_stall=false;
-               tuple<int,int,bool,bool> curr_memop=make_tuple(c->id,n->id,false,false);
-             
-               if (store_queue_map.find(addr)!=store_queue_map.end()) { //store queue for addr exists, otherwise no forwarding or stalling necessary, just access memory as usual 
-                  deque<tuple<int,int,bool,bool>>::iterator recent_store_ptr = most_recent_memop(store_queue_map.at(addr),curr_memop, addr);       
-                  if (n->type==LD && most_recent_memop(store_queue_map.at(addr),curr_memop, addr)!=store_queue_map.at(addr).end()) { //meaning we found an older store        
-                     if (!memop_started(*recent_store_ptr)) { 
-                        c->next_active_list.push_back(n);
-                        c->next_start_set.insert(n);
-                        continue;
-                     }         
-                     else { //here, no need to stall AND we can receive load from prev store
-                        memory.at(n->id).pop();
-                        c->next_active_list.push_back(n);    
-                        cout << "Node [" << n->name << " @ context " << c->id << "]: Receiving Store-Load Forwarding for Address "<< addr << "\n";
-                        update_memop_queue(load_queue_map,addr,make_tuple(c->id,n->id,true,false)); //set entry in load queue to started
-                        c->remaining_cycles_map.at(n)=0; //single cycle access to store queue       
-                        continue;
-                     }
-                  }
-                   
-                  if (n->type==ST && recent_store_ptr!=store_queue_map.at(addr).end()) { //there's actually an older stor
-                     update_memop_queue(store_queue_map,addr,make_tuple(c->id,n->id,true,false)); 
-                     if (!memop_completed(*recent_store_ptr)) {
-                        //add to store queue, mark as started (so we can forward to loads), but can't push to DRAM yet
-                        c->next_active_list.push_back(n);
-                        c->next_start_set.insert(n);
-                        continue;
-                     } //stores must commit (into DRAMSim) in order      
-                  }
-               }
-               else {
-                  cout << "Node [" << n->type << " @ context " << c->id << "]: NOT Receiving Store-Load Forwarding for Address "<< addr << "\n";
-               }
-          
+
+     	       bool must_stall=false;
+     	       Context::Memop memop=*(new Context::Memop(addr,n,c));
+     	       memop.started=true;
+     	       memop.update_in(lsq);
+
+	       //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
+	       //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
+	       if (n->type==ST)
+		 must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
+	       else if (n->type==LD)
+		 must_stall=memop.exists_unresolved_memop(lsq,ST) ||  memop.exists_conflicting_alias(lsq,ST);		   
+		   
+	       if(must_stall) {
+		 c->next_active_list.push_back(n);
+		 c->next_start_set.insert(n);
+		 continue;
+	       }
+	       
+	  
+
                memory.at(n->id).pop(); // ...and take it out of the queue
                cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
                assert(mem->willAcceptTransaction(addr));
                if (n->type == LD){ 
-                  mem->addTransaction(false, addr);        
-                  update_memop_queue(load_queue_map,addr,make_tuple(c->id,n->id,true,false)); //set entry in load queue to started
+		 mem->addTransaction(false, addr);
+		
                }
                else if (n->type == ST) {
                   mem->addTransaction(true, addr);
-                  update_memop_queue(store_queue_map,addr,make_tuple(c->id,n->id,true,false)); //set entry in store queue to started
                }
                if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
                   cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
@@ -454,6 +437,7 @@ public:
             process_context( context_list.at(i) );
          }
       }
+
       process_memory();
       return simulate;
    }
