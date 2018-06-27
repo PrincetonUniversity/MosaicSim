@@ -177,8 +177,8 @@ public:
       Node *n = bb->inst.at(i);
 
       if (n->typeInstr == ST || n->typeInstr == LD) {
-        //add to store queue as soon as context is created. this way, there's a serialized ordering of stores in lsq
-        uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n
+        // add entries to LSQ
+        uint64_t addr = memory.at(n->id).front();
         lsq.insert(addr, make_pair(n, id));
         memory.at(n->id).pop();
         //Memop memop = *(new Memop(addr,n,this));
@@ -253,12 +253,10 @@ public:
 class Simulator
 { 
 public:
-  // TODO: Memory address overlap across contexts
   // TODO: Handle 0-latency instructions correctly
   
   class DRAMSimCallBack {
     public:
-
       map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
       Simulator* sim;
       DRAMSimCallBack(Simulator* sim):sim(sim){}
@@ -301,7 +299,7 @@ public:
   };
 
   Graph g;  
-  DRAMSimCallBack cb=DRAMSimCallBack(this); 
+  DRAMSimCallBack cb = DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
   int cycle_count = 0;
