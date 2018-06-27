@@ -124,14 +124,12 @@ public:
         uint64_t addr = memory.at(n->id).front();
         lsq.insert(addr, make_pair(n, id));
         memory.at(n->id).pop();
-
       }
           
       if(n->typeInstr == PHI)
         pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
       else
         pending_parents_map.insert(std::make_pair(n, n->parents.size()));
-
       pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
     }
 
@@ -145,7 +143,6 @@ public:
     }
 
     /* Handle External Edges */
-    // traverse ALL the BB's instructions
     for (int i=0; i<bb->inst.size(); i++) {
       Node *n = bb->inst.at(i);
       if (n->external_dependents.size() > 0) {
@@ -179,22 +176,19 @@ public:
 
   bool launchNode(Node *n, Resources &res) {
     // check if node <n> can be launched
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0)
       return false;
-    }
     // check resource (FU) availability ; PHI and BB_ENTRY nodes can continue
     if ( n->typeFU != FU_NULL ) {
       if ( res.FUs.at(n->typeFU).free == 0 ) {
-        cout << "Node [" << n->name << "]: CANNOT START start due to lack of FUs!!!!!!\n";
+        cout << "Node [" << n->name << "]: cannot start due to lack of FUs!!!!!!\n";
         return false;
       }
       else {
         res.FUs.at(n->typeFU).free--;
-        cout << "Node [" << n->name << "]: acquired FU, new free FU: " << res.FUs.at(n->typeFU).free << endl;
+        cout << "Node [" << n->name << "]: acquired FU (new free FU: " << res.FUs.at(n->typeFU).free << ")\n";
       }
     }
-
     next_active_list.push_back(n);
     next_start_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Ready to Execute\n";
@@ -224,8 +218,7 @@ public:
         cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
         if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
           cout << *n << " / " << c->id << "\n";
-        c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
-
+        c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished
         q.pop();
         if (q.size() == 0)
           outstanding_accesses_map.erase(addr);
@@ -256,7 +249,6 @@ public:
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
-  //map<int, queue<uint64_t> >& memory_ref=memory;
   /* Handling External Dependencies */
   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
   map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
@@ -264,16 +256,13 @@ public:
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   LoadStoreQ lsq;
    
-  // **** simulator CONFIGURATION parameters
+  /* Config */
   struct {
-
     // some simulator flags
     bool CF_one_context_at_once = true;
     bool CF_all_contexts_concurrently = false;
-
     // other resource limits
     int lsq_size = 512;
-
   } cfg;
 
   void initialize() {
@@ -316,8 +305,6 @@ public:
         /* check if it's a Memory Request -> enqueue in DRAMsim */
         if (n->typeInstr == LD || n->typeInstr == ST) {
         
-          //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
-
           bool must_stall=false;
           DNode d = make_pair(n,c->id);
           lsq.tracker.at(d)->started = true;
@@ -325,7 +312,7 @@ public:
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
 
-          if (n->typeInstr == ST)
+          if (n->typeInstr ==ST)
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
           else if (n->typeInstr == LD)
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
@@ -336,8 +323,6 @@ public:
             continue;
           }
           uint64_t addr = lsq.tracker.at(d)->addr;
-       
-          //memory.at(n->id).pop(); // ...and take it out of the queue
           cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
           assert(mem->willAcceptTransaction(addr));
           if (n->typeInstr == LD) { 
@@ -438,7 +423,6 @@ public:
     if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
-      // TODO: call the Context "destructor" to free memory !!
     }
   }
 
@@ -454,7 +438,7 @@ public:
     bool simulate = false;
     assert(cycle_count < 2000);
 
-    // process ALL LIVE contexts
+    // process all live contexts
     for (int i=0; i<context_list.size(); i++) {
       if (context_list.at(i)->live) {
         simulate = true;
