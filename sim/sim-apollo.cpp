@@ -479,7 +479,7 @@ int main(int argc, char const *argv[])
 {
   Simulator sim;
   sim.resources.initialize("config.txt");
-  readGraph("input/graph.txt", sim.g, sim.resources);
+  readGraph("input/graph2.txt", sim.g, sim.resources);
   readProfMemory("input/memory.txt", sim.memory);
   readProfCF("input/ctrl.txt", sim.cf);
   sim.initialize();
