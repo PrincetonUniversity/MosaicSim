@@ -39,7 +39,7 @@ TypeofFU getFUtype(TInstr typeInstr) {
     case FP_MULT: return FU_FP_MULT; 
     case I_DIV:   return FU_I_DIV; 
     case FP_DIV:  return FU_FP_DIV; 
-    case TERMINATOR: return FU_BRU;  // BRanch Unit
+    case TERMINATOR: return FU_BRU;  // Branch Unit
     case LD: return FU_IN_MEMPORT;
     case ST: return FU_OUT_MEMPORT;
     default:

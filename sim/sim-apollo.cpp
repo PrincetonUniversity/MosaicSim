@@ -8,6 +8,81 @@
 using namespace apollo;
 using namespace std;
 
+class MemOp {
+public:
+  uint64_t addr;
+  DNode d;
+  bool started=false;
+  bool completed=false;
+  MemOp(uint64_t addr, DNode d) : addr(addr), d(d){}
+};
+
+class LoadStoreQ {
+public:
+  map<DNode, MemOp*> tracker;
+  deque<MemOp> q;
+  bool initialized = false;
+  int size;
+  void initialize(int s) { 
+    size = s;
+    initialized = true;
+  }
+  bool checkSize(int requested_space) {
+    if(q.size() <= size - requested_space) {
+      return true;
+    }
+    
+    else {
+      int ct = 0;
+      for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
+        if(it->completed)
+          ct++;
+        else
+          break;
+      }
+      if(ct > requested_space) {
+        for(int i=0; i<requested_space; i++)
+          q.pop_front();
+        return true;
+      }
+      return false;
+    }
+  }
+  void insert(uint64_t addr, DNode d) {
+    assert(initialized);
+    MemOp *temp = new MemOp(addr, d);
+    q.push_back(*temp);
+    tracker.insert(make_pair(d, temp));
+  }
+  bool exists_unresolved_memop (DNode in, TInstr op_type) {    
+    for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
+      Node *n = it->d.first;
+      int cid = it->d.second;
+      if(it->d == in)
+        return false;
+      else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
+        return false;
+      if(!(it->started) && n->typeInstr == op_type)
+        return true;
+    }
+    return false;
+  }
+  bool exists_conflicting_memop (DNode in, TInstr op_type) {
+    uint64_t addr = tracker.at(in)->addr;
+    for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
+      Node *n = it->d.first;
+      int cid = it->d.second;
+      if(it->d == in)
+        return false;
+      else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
+        return false;
+      if(it->started && !(it->completed) && n->typeInstr == op_type && it->addr == addr)
+        return true;
+    }
+    return false;
+  }
+};
+
 class Context {
 public:
   bool live;
@@ -24,81 +99,32 @@ public:
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
   Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
-
-  class Memop {
-    public:
-    uint64_t addr;
-    Node* node;
-    Context* context;
-    bool started=false;
-    bool completed=false;
-   
-    Memop(uint64_t addr,Node* node,Context* context) :
-      addr(addr),node(node),context(context){}
-   
-    bool operator==(Memop other_memop) {
-      return (addr==other_memop.addr) && (node->id==other_memop.node->id) && (context->id==other_memop.context->id);
-    }
-    bool operator!=(Memop other_memop) {
-      return !(*this==other_memop);
-    }
-   
-    bool operator<(Memop other_memop) {
-      //  mem_1 is at an earlier context OR same context but mem1 node id is lower
-      return (context->id < other_memop.context->id) || (((context->id == other_memop.context->id)) && (node->id < other_memop.node->id));
-    }
-   
-    bool exists_unresolved_memop (deque<Memop>* memop_q, TInstr op_type) {    
-      for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
-        if(*it==*this || *this<*it)
-        return false;
-        if(!(it->started) && it->node->typeInstr==op_type)
-          return true;
-      }
-      return false;
-    }
-
-    bool exists_conflicting_alias (deque<Memop>* memop_q, TInstr op_type) {    
-      for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
-        if(*it==*this || *this<*it)
-          return false;
-        if(!(it->completed) && it->node->typeInstr==op_type && addr==it->addr)
-          return true;
-      }
-      return false;
-    }
-
-    void update_in(deque<Memop>* memop_q) {
-      deque<Memop>::iterator it = memop_q->begin();
-      while (it!=memop_q->end() && *it!=*this) {
-        ++it;     
-      }
-      if (it==memop_q->end()) {
-        memop_q->push_back(*this);
-      }
-      else {
-        *it=*this;
-      }      
-    }
-  };
   
-  void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, deque<Memop>* lsq, map<int, queue<uint64_t> >& memory) {
+  void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, LoadStoreQ &lsq, map<int, queue<uint64_t> >& memory) {
  
     assert(bbid == -1);
     bbid = bb->id;
+    int mem_count = 0;
+    for ( int i=0; i<bb->inst.size(); i++ ) {
+      Node *n = bb->inst.at(i);
+      if (n->typeInstr == ST || n->typeInstr == LD)
+        mem_count++;
+    }
+    if(!lsq.checkSize(mem_count))
+      assert(false); // Context creation failed due to limited LSQ size
     active_list.push_back(bb->entry);
     remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
-
+    
     // traverse all the BB's instructions and initialize the pending_parents map
     for ( int i=0; i<bb->inst.size(); i++ ) {
       Node *n = bb->inst.at(i);
 
       if (n->typeInstr == ST || n->typeInstr == LD) {
-        //add to store queue as soon as context is created. this way, there's a serialized ordering of stores in lsq
+        // add entries to LSQ
+        uint64_t addr = memory.at(n->id).front();
+        lsq.insert(addr, make_pair(n, id));
+        memory.at(n->id).pop();
 
-        uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n
-        Memop memop = *(new Memop(addr,n,this));
-        memop.update_in(lsq); //add new entry to lsq
       }
           
       if(n->typeInstr == PHI)
@@ -180,12 +206,10 @@ public:
 class Simulator
 { 
 public:
-  // TODO: Memory address overlap across contexts
   // TODO: Handle 0-latency instructions correctly
   
   class DRAMSimCallBack {
     public:
-
       map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
       Simulator* sim;
       DRAMSimCallBack(Simulator* sim):sim(sim){}
@@ -195,9 +219,7 @@ public:
         queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
         Node *n = q.front().first;
         Context *c = q.front().second;
-        Context::Memop memop = *(new Context::Memop(addr,n,c));
-        memop.completed=true;
-        memop.update_in(sim->lsq);
+        sim->lsq.tracker.at(make_pair(n,c->id))->completed = true;
         cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
         if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
           cout << *n << " / " << c->id << "\n";
@@ -212,11 +234,7 @@ public:
         queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
         Node *n = q.front().first;
         Context *c = q.front().second;
-     
-        Context::Memop memop = *(new Context::Memop(addr,n,c));
-        memop.completed=true;
-        memop.update_in(sim->lsq);
-        c->remaining_cycles_map.at(n) = 0; //Luwa: just added this. don't know why we weren't marking stores as finished
+        sim->lsq.tracker.at(make_pair(n,c->id))->completed=true;
          
         cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
         q.pop();
@@ -237,20 +255,24 @@ public:
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
-  map<int, queue<uint64_t> >& memory_ref=memory;
+  //map<int, queue<uint64_t> >& memory_ref=memory;
   /* Handling External Dependencies */
   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
   map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
   /* Handling Phi Dependencies */
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
-
-  deque<Context::Memop>* lsq= new deque<Context::Memop>();   
+  LoadStoreQ lsq;
    
   // **** simulator CONFIGURATION parameters
   struct {
+
     // some simulator flags
     bool CF_one_context_at_once = true;
     bool CF_all_contexts_concurrently = false;
+
+    // other resource limits
+    int lsq_size = 512;
+
   } cfg;
 
   void initialize() {
@@ -259,8 +281,7 @@ public:
     mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);  
-
-    // Create a number of contexts according to SIMULATOR CONFIG flags
+    lsq.initialize(cfg.lsq_size);
     if (cfg.CF_one_context_at_once) {
       cf_iterator = 0;
       createContext( cf.at(cf_iterator) );  // create just the very firt context from <cf>
@@ -278,7 +299,7 @@ public:
     Context *c = new Context(cid);
     context_list.push_back(c);
     BasicBlock *bb = g.bbs.at(bbid);
-    c->initialize(bb, curr_owner, deps, handled_phi_deps, lsq, memory_ref);
+    c->initialize(bb, curr_owner, deps, handled_phi_deps, lsq, memory);
     cout << "Context [" << cid << "]: Created (BB=" << bbid << ")\n";     
   }
 
@@ -294,27 +315,28 @@ public:
         /* check if it's a Memory Request -> enqueue in DRAMsim */
         if (n->typeInstr == LD || n->typeInstr == ST) {
         
-          uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
+          //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
 
           bool must_stall=false;
-          Context::Memop memop=*(new Context::Memop(addr,n,c));
-          memop.started=true;
-          memop.update_in(lsq);
+          DNode d = make_pair(n,c->id);
+          lsq.tracker.at(d)->started = true;
 
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
-          if (n->typeInstr==ST)
-            must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
-          else if (n->typeInstr==LD)
-            must_stall=memop.exists_unresolved_memop(lsq,ST) ||  memop.exists_conflicting_alias(lsq,ST);         
+
+          if (n->typeInstr == ST)
+            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
+          else if (n->typeInstr == LD)
+            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
       
           if(must_stall) {
             c->next_active_list.push_back(n);
             c->next_start_set.insert(n);
             continue;
           }
+          uint64_t addr = lsq.tracker.at(d)->addr;
        
-          memory.at(n->id).pop(); // ...and take it out of the queue
+          //memory.at(n->id).pop(); // ...and take it out of the queue
           cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
           assert(mem->willAcceptTransaction(addr));
           if (n->typeInstr == LD) { 
@@ -457,7 +479,7 @@ int main(int argc, char const *argv[])
 {
   Simulator sim;
   sim.resources.initialize("config.txt");
-  readGraph("input/graph2.txt", sim.g, sim.resources);
+  readGraph("input/graph.txt", sim.g, sim.resources);
   readProfMemory("input/memory.txt", sim.memory);
   readProfCF("input/ctrl.txt", sim.cf);
   sim.initialize();
