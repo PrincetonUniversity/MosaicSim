@@ -68,7 +68,6 @@ public:
       return false;
     }
 
-   
     void update_in(deque<Memop>* memop_q) {
       deque<Memop>::iterator it = memop_q->begin();
       while (it!=memop_q->end() && *it!=*this) {
@@ -215,46 +214,61 @@ public:
       }
   };
 
-  
   Graph g;  
   DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
   int cycle_count = 0;
   vector<Context*> context_list;
-  
-  vector<int> cf; // List of basic blocks in a program order 
+
+  vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   map<int, queue<uint64_t> >& memory_ref=memory;
   /* Handling External Dependencies */
   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
-  map<DNode, vector<DNode> > deps; // Source of external depndency (Node,cid), Destinations for that source (Node, cid)
+  map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
   /* Handling Phi Dependencies */
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
 
   deque<Context::Memop>* lsq= new deque<Context::Memop>();   
    
   // **** simulator CONFIGURATION PARAMETERS
-  // TODO: read this from a file
-  // TODO: merge resourcewith latencies -> now there is a getLatency() in .hpp
   struct {
 
-    // simulator flags
-    bool CF_one_context_at_once = false;
-    bool CF_all_contexts_concurrently = true;
+    // some simulator flags
+    bool CF_one_context_at_once = true;
+    bool CF_all_contexts_concurrently = false;
 
-    // resource limits
-    int num_iadders  = 10;
-    int num_fpadders = 10;
-    int num_imults   = 10;
-    int num_fpmults  = 10;
-    int num_idivs    = 10;
-    int num_fpdivs   = 10;
-    int num_in_memports  = 10;
-    int num_out_memports = 10;
-    int num_outstanding_mem = 10;
+    // define an array of FUs
+    TFU FUs_array[MAX_FU_types];
+
   } cfg;
+
+  map<TypeofFU, int> remaining_resources_map;  // tracks remaining resources for each type of FU
+
+  // define some helper functions to manage FUs
+  void initFU(TypeofFU type, int lat, int max) {
+    cfg.FUs_array[type].lat = lat;
+    cfg.FUs_array[type].max = max;
+    remaining_resources_map.insert( std::make_pair(type, max) );
+  }
+  // **** end of configuration parameters stuff **
+
+  void initResources() {
+    // Init FUs 
+    // TODO: read FU parameters from a config file
+    initFU(FU_I_ALU,    1, 10);  // FU_type, latency, max_units
+    initFU(FU_FP_ALU,   1, 10);
+    initFU(FU_I_MULT,   3, 10);
+    initFU(FU_FP_MULT,  3, 10);
+    initFU(FU_I_DIV,    9, 10);
+    initFU(FU_FP_DIV,   9, 10);
+    initFU(FU_BRU,      1, 10);    
+    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT does not have a latency
+    initFU(FU_OUT_MEMPORT, -1, 10);      // OUT_MEMPORT does not have a latency
+    initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
+  }
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
@@ -263,7 +277,7 @@ public:
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);  
 
-    // CHECK SIMULATOR CONFIG flags
+    // Create a number of contexts according to SIMULATOR CONFIG flags
     if (cfg.CF_one_context_at_once) {
       cf_iterator = 0;
       createContext( cf.at(cf_iterator) );  // create just the very firt context from <cf>
@@ -353,7 +367,7 @@ public:
           }
         }
         c->remaining_cycles_map.erase(n);
-        if (n->type != NAI)
+        if (n->type != ENTRY)
           c->processed++;
         
         // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
@@ -411,7 +425,7 @@ public:
     if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
-      // TODO: call the Context destructor to free memory ??
+      // TODO: call the Context "destructor" to free memory !!
     }
   }
 
@@ -429,7 +443,7 @@ public:
 
     // process ALL the LIVE contexts
     for (int i=0; i<context_list.size(); i++) {
-      if (context_list.at(i)->live){
+      if (context_list.at(i)->live) {
         simulate = true;
         process_context( context_list.at(i) );
       }
@@ -452,7 +466,8 @@ public:
 int main(int argc, char const *argv[])
 {
   Simulator sim;
-  readGraph(sim.g);
+  sim.initResources();
+  readGraph(sim.g, sim.cfg.FUs_array);
   readProfMemory(sim.memory);
   readProfCF(sim.cf);
   sim.initialize();
