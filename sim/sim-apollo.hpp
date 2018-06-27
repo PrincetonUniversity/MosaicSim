@@ -20,10 +20,43 @@
 using namespace std;
 namespace apollo {
 class Node;
-typedef std::pair<Node*,int> DNode;
-typedef enum {NAI, ADD, SUB, LOGICAL, MULT, DIV, LD, ST, TERMINATOR, PHI} TInstr;
+typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
+typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, ENTRY, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
 
+// these are for configuration of FUs
+typedef enum { FU_I_ALU, FU_FP_ALU, FU_I_MULT, FU_FP_MULT, FU_I_DIV, FU_FP_DIV, FU_BRU,
+               FU_IN_MEMPORT, FU_OUT_MEMPORT, FU_OUTSTANDING_MEM, FU_NULL } TypeofFU;
+#define MAX_FU_types 15
+typedef struct {
+  int max, lat;
+} TFU;
+
+// given an "instruction" type returns the type of FU it uses
+TypeofFU getFUtype(TInstr typeInstr) {
+  switch(typeInstr) {
+    case I_ADD:
+    case I_SUB:
+    case LOGICAL: return FU_I_ALU;
+    case I_MULT:  return FU_I_MULT;
+    case FP_MULT: return FU_FP_MULT; 
+    case I_DIV:   return FU_I_DIV; 
+    case FP_DIV:  return FU_FP_DIV; 
+    case TERMINATOR: return FU_BRU;  // Branch Unit
+    case LD: return FU_IN_MEMPORT;
+    case ST: return FU_OUT_MEMPORT;
+    default:
+      return FU_NULL;
+  }
+}
+
+int getInstrLatency(TInstr typeInstr, TFU *FUs_array) {
+  TypeofFU  t = getFUtype(typeInstr);
+  if (t == FU_NULL)
+    return 0;
+  else
+    return FUs_array[t].lat;
+}
 
 class Node {
 public:
@@ -35,54 +68,18 @@ public:
 
   int id;
   int lat;
-  TInstr type;
+  TInstr typeInstr;
+  TypeofFU typeFU;
   int bbid;
   std::string name;
 
-  Node(int id, TInstr type, int bbid, std::string name): 
-            id(id), type(type), bbid(bbid), name(name) {
-    lat = getLatency(type);
-  }
+  Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
+            id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
+    typeFU = getFUtype(typeInstr);
+  } 
   
   // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), type(NAI), bbid(bbid), name("BB-Entry") {}
-
-  // TODO: get latencies from a CONFIG file instead
-  int getLatency(TInstr type) {    
-    int lat = -1;
-    switch(type) {
-      case ADD:
-      case SUB:
-      case LOGICAL:
-        lat = 1;
-        break;
-      case MULT:
-        lat = 3;
-        break;
-      case DIV:
-        lat = 9;
-        break;
-      case LD:
-        lat = -1;
-        break;
-      case ST:
-        lat = 3;
-        break;
-      case TERMINATOR:
-        lat = 1;
-        break;
-      case PHI:
-        lat = 0;
-        break;
-      case NAI:
-        lat = 0;
-        break;
-      default:
-        assert(false);
-        break;
-    }
-    return lat;
-  }
+  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry"), typeFU(FU_NULL) {}
 
   void addDependent(Node *dest, TEdge type) {
     if(type == DATA_DEP || type == BB_DEP) {
@@ -121,14 +118,13 @@ public:
   // Print Node
   friend std::ostream& operator<<(std::ostream &os, Node &n) {
     os << n.name;
-    //os << "I[" << n.name << "], lat=" << n.lat << ", Deps = {";
-    //std::set< std::pair<Node*,TEdge> >::iterator it;
-    //for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
-    //   std::cout << "[" << it->first->name << "], ";
-    //std::cout << "}";
+    os << "I[" << n.name << "], lat=" << n.lat << ", Deps = {";
+    std::set< std::pair<Node*,TEdge> >::iterator it;
+//    for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
+//       std::cout << "[" << it->first->name << "], ";
+    std::cout << "}";
     return os;
   }
-
 };
 
 class BasicBlock {
@@ -159,8 +155,8 @@ class Graph {
       bbs.insert( std::make_pair(id, new BasicBlock(id)) );
     }
 
-    Node *addNode(int id, TInstr type, int bbid, std::string name) {
-      Node *n = new Node(id, type, bbid, name);
+    Node *addNode(int id, TInstr type, int bbid, std::string name, int lat) {
+      Node *n = new Node(id, type, bbid, name, lat);
       nodes.insert(std::make_pair(n->id, n));
       assert(bbs.find(bbid)!= bbs.end());
       bbs.at(bbid)->addInst(n);
@@ -206,7 +202,7 @@ class Graph {
 
   };
 
-  // 
+  // helper function for reading text files
   vector<string> split(const string &s, char delim) {
      stringstream ss(s);
      string item;
@@ -221,8 +217,7 @@ class Graph {
   // format of ctrl.txt:  
   //      <string_bb_name>,<current_bb_id>,<next_bb_id>
   // argument <cf> will contain the sequential list of executed BBs
-  void readProfCF(std::vector<int> &cf)
-  {
+  void readProfCF(std::vector<int> &cf) {
     string line;
     string last_line;
     ifstream cfile ("input/ctrl.txt");
@@ -246,8 +241,7 @@ class Graph {
 
   // Read Dynamic Memory accesses from profiling file (memory.txt)
   // argument <memory> will contain a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::map<int, std::queue<uint64_t> > &memory)
-  {
+  void readProfMemory(std::map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
     ifstream cfile ("input/memory.txt");
@@ -266,29 +260,7 @@ class Graph {
     cfile.close();
   }
 
-  void readToyGraph(Graph &g)
-  {
-    Node *nodes[10];  
-    int id = 1;
-    nodes[1] = g.addNode(id++, ADD, 0, "1-add $1,$3,$4");
-    nodes[2] = g.addNode(id++, LD, 0,"2-LD $1,$3,$4");
-    nodes[3] = g.addNode(id++, LOGICAL, 0,"3-xor $1,$3,$4");
-    nodes[4] = g.addNode(id++, DIV, 0,"4-mult $1,$3,$4");
-    nodes[5] = g.addNode(id++, SUB, 0,"5-sub $1,$3,$4");
-    nodes[6] = g.addNode(id++, LOGICAL, 0,"6-xor $1,$3,$4");
-
-    // add some dependents
-    nodes[1]->addDependent(nodes[2], DATA_DEP);
-    nodes[1]->addDependent(nodes[3], DATA_DEP);
-    nodes[1]->addDependent(nodes[4], DATA_DEP);
-    nodes[2]->addDependent(nodes[5], DATA_DEP);
-    nodes[2]->addDependent(nodes[6], DATA_DEP);
-    nodes[6]->addDependent(nodes[4], DATA_DEP);
-    cout << g;
-  }
-
-  void readGraph(Graph &g)
-  {
+  void readGraph(Graph &g, TFU *FUs_array) {
     ifstream cfile ("input/graph.txt");
     if (cfile.is_open()) {
       string temp;
@@ -309,7 +281,7 @@ class Graph {
         int bbid = stoi(s.at(2));
         string name = s.at(3);
         name = s.at(3).substr(0, s.at(3).size()-1);
-        g.addNode(id, type, bbid, name);
+        g.addNode( id, type, bbid, name, getInstrLatency(type, FUs_array) );
       }
       for (int i=0; i<numEdge; i++) {
         getline(cfile,line);

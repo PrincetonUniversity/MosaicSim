@@ -8,20 +8,20 @@
 using namespace apollo;
 using namespace std;
 /*
+
 class Memop {
-public:
+  public:
   uint64_t addr;
   Node* node;
-  int context;
+  Context* context;
   bool started=false;
   bool completed=false;
  
-  Memop(uint64_t addr, Node *n, int cid) :
-    addr(addr),node(node),context(cid){}
+  Memop(uint64_t addr,Node* node,Context* context) :
+    addr(addr),node(node),context(context){}
  
   bool operator==(Memop other_memop) {
-    return (node->id==other_memop.node->id) && (context==other_memop.context);
-    //(addr==other_memop.addr) && (node->id==other_memop.node->id) && (context->id==other_memop.context->id);
+    return (addr==other_memop.addr) && (node->id==other_memop.node->id) && (context->id==other_memop.context->id);
   }
   bool operator!=(Memop other_memop) {
     return !(*this==other_memop);
@@ -29,27 +29,29 @@ public:
  
   bool operator<(Memop other_memop) {
     //  mem_1 is at an earlier context OR same context but mem1 node id is lower
-    return (context < other_memop.context) || (((context == other_memop.context)) && (node->id < other_memop.node->id));
+    return (context->id < other_memop.context->id) || (((context->id == other_memop.context->id)) && (node->id < other_memop.node->id));
   }
  
   bool exists_unresolved_memop (deque<Memop>* memop_q, TInstr op_type) {    
     for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
       if(*it==*this || *this<*it)
-        return false;
-      if(!(it->started) && it->node->type==op_type)
+      return false;
+      if(!(it->started) && it->node->typeInstr==op_type)
         return true;
     }
     return false;
   }
+
   bool exists_conflicting_alias (deque<Memop>* memop_q, TInstr op_type) {    
     for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
       if(*it==*this || *this<*it)
         return false;
-      if(!(it->completed) && it->node->type==op_type && addr ==it->addr)
+      if(!(it->completed) && it->node->typeInstr==op_type && addr==it->addr)
         return true;
     }
     return false;
   }
+
   void update_in(deque<Memop>* memop_q) {
     deque<Memop>::iterator it = memop_q->begin();
     while (it!=memop_q->end() && *it!=*this) {
@@ -174,7 +176,7 @@ public:
     for ( int i=0; i<bb->inst.size(); i++ ) {
       Node *n = bb->inst.at(i);
 
-      if (n->type == ST || n->type == LD) {
+      if (n->typeInstr == ST || n->typeInstr == LD) {
         //add to store queue as soon as context is created. this way, there's a serialized ordering of stores in lsq
         uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n
         lsq.insert(addr, make_pair(n, id));
@@ -184,7 +186,7 @@ public:
         //memop.update_in(lsq); //add new entry to lsq
       }
           
-      if(n->type == PHI)
+      if(n->typeInstr == PHI)
         pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
       else
         pending_parents_map.insert(std::make_pair(n, n->parents.size()));
@@ -298,46 +300,58 @@ public:
       }
   };
 
-  
   Graph g;  
   DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
   int cycle_count = 0;
   vector<Context*> context_list;
-  
-  vector<int> cf; // List of basic blocks in a program order 
+
+  vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   //map<int, queue<uint64_t> >& memory_ref=memory;
   /* Handling External Dependencies */
   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
-  map<DNode, vector<DNode> > deps; // Source of external depndency (Node,cid), Destinations for that source (Node, cid)
+  map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
   /* Handling Phi Dependencies */
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   LoadStoreQ lsq;
    
-  // **** simulator CONFIGURATION PARAMETERS
-  // TODO: read this from a file
-  // TODO: merge resourcewith latencies -> now there is a getLatency() in .hpp
+  // **** simulator CONFIGURATION parameters
   struct {
 
-    // simulator flags
-    bool CF_one_context_at_once = false;
-    bool CF_all_contexts_concurrently = true;
-
-    // resource limits
-    int num_iadders  = 10;
-    int num_fpadders = 10;
-    int num_imults   = 10;
-    int num_fpmults  = 10;
-    int num_idivs    = 10;
-    int num_fpdivs   = 10;
-    int num_in_memports  = 10;
-    int num_out_memports = 10;
-    int num_outstanding_mem = 10;
     int lsq_size = 512;
+    bool CF_one_context_at_once = true;
+    bool CF_all_contexts_concurrently = false;
+
+    // define an array of FUs
+    TFU resource_array[MAX_FU_types];
+
   } cfg;
+
+  map<TypeofFU, int> remaining_resources_map;  // tracks remaining resources for each type of FU
+
+  void initFU(TypeofFU type, int lat, int max) {
+    cfg.resource_array[type].lat = lat;
+    cfg.resource_array[type].max = max;
+    remaining_resources_map.insert( std::make_pair(type, max) );
+  }
+
+  void initResources() {
+    // TODO: read FU parameters from a config file
+    initFU(FU_I_ALU,    1, 10);  // format: FU_type, latency, max_units
+    initFU(FU_FP_ALU,   1, 10);
+    initFU(FU_I_MULT,   3, 10);
+    initFU(FU_FP_MULT,  3, 10);
+    initFU(FU_I_DIV,    9, 10);
+    initFU(FU_FP_DIV,   9, 10);
+    initFU(FU_BRU,      1, 10);    
+    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT (loads) does not have a pre-defined latency (the memory hierarchy gives) 
+    initFU(FU_OUT_MEMPORT, 3, 10);       // OUT_MEMPORT (stores) 
+    initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
+  }
+  // **** end of configuration parameters stuff **
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
@@ -346,7 +360,6 @@ public:
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);  
     lsq.initialize(cfg.lsq_size);
-    // CHECK SIMULATOR CONFIG flags
     if (cfg.CF_one_context_at_once) {
       cf_iterator = 0;
       createContext( cf.at(cf_iterator) );  // create just the very firt context from <cf>
@@ -374,9 +387,14 @@ public:
     for (int i=0; i < c->active_list.size(); i++) {
       Node *n = c->active_list.at(i);
       if (c->start_set.find(n) != c->start_set.end()) {
+        
+        // check resource availability before continuing
+        // if ( remaining_resources_map
+
+
         cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
         /* check if it's a Memory Request -> enqueue in DRAMsim */
-        if (n->type == LD || n->type == ST) {
+        if (n->typeInstr == LD || n->typeInstr == ST) {
         
           //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
 
@@ -389,6 +407,7 @@ public:
 
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
+
           if (n->type == ST)
             //must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
@@ -406,10 +425,10 @@ public:
           //memory.at(n->id).pop(); // ...and take it out of the queue
           cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
           assert(mem->willAcceptTransaction(addr));
-          if (n->type == LD) { 
+          if (n->typeInstr == LD) { 
             mem->addTransaction(false, addr);
           }
-          else if (n->type == ST) {
+          else if (n->typeInstr == ST) {
             mem->addTransaction(true, addr);
           }
           if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
@@ -434,14 +453,14 @@ public:
     
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
-        if (cfg.CF_one_context_at_once && n->type == TERMINATOR) {
+        if (cfg.CF_one_context_at_once && n->typeInstr == TERMINATOR) {
           if ( cf_iterator < cf.size()-1 ) {  // if there are more pending contexts in the <cf> vector
             cf_iterator++;
             createContext( cf.at(cf_iterator) );
           }
         }
         c->remaining_cycles_map.erase(n);
-        if (n->type != NAI)
+        if (n->typeInstr != ENTRY)
           c->processed++;
         
         // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
@@ -499,7 +518,7 @@ public:
     if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
-      // TODO: call the Context destructor to free memory ??
+      // TODO: call the Context "destructor" to free memory !!
     }
   }
 
@@ -515,9 +534,9 @@ public:
     bool simulate = false;
     assert(cycle_count < 2000);
 
-    // process ALL the LIVE contexts
+    // process ALL LIVE contexts
     for (int i=0; i<context_list.size(); i++) {
-      if (context_list.at(i)->live){
+      if (context_list.at(i)->live) {
         simulate = true;
         process_context( context_list.at(i) );
       }
@@ -540,7 +559,8 @@ public:
 int main(int argc, char const *argv[])
 {
   Simulator sim;
-  readGraph(sim.g);
+  sim.initResources();
+  readGraph(sim.g, sim.cfg.resource_array);
   readProfMemory(sim.memory);
   readProfCF(sim.cf);
   sim.initialize();
