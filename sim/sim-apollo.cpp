@@ -134,7 +134,7 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(!(it->completed) && n->typeInstr == op_type && it->addr == addr)
+      if(it->started && !(it->completed) && n->typeInstr == op_type && it->addr == addr)
         return true;
     }
     return false;
