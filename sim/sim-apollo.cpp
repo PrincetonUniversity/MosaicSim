@@ -7,65 +7,6 @@
 
 using namespace apollo;
 using namespace std;
-/*
-
-class Memop {
-  public:
-  uint64_t addr;
-  Node* node;
-  Context* context;
-  bool started=false;
-  bool completed=false;
- 
-  Memop(uint64_t addr,Node* node,Context* context) :
-    addr(addr),node(node),context(context){}
- 
-  bool operator==(Memop other_memop) {
-    return (addr==other_memop.addr) && (node->id==other_memop.node->id) && (context->id==other_memop.context->id);
-  }
-  bool operator!=(Memop other_memop) {
-    return !(*this==other_memop);
-  }
- 
-  bool operator<(Memop other_memop) {
-    //  mem_1 is at an earlier context OR same context but mem1 node id is lower
-    return (context->id < other_memop.context->id) || (((context->id == other_memop.context->id)) && (node->id < other_memop.node->id));
-  }
- 
-  bool exists_unresolved_memop (deque<Memop>* memop_q, TInstr op_type) {    
-    for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
-      if(*it==*this || *this<*it)
-      return false;
-      if(!(it->started) && it->node->typeInstr==op_type)
-        return true;
-    }
-    return false;
-  }
-
-  bool exists_conflicting_alias (deque<Memop>* memop_q, TInstr op_type) {    
-    for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
-      if(*it==*this || *this<*it)
-        return false;
-      if(!(it->completed) && it->node->typeInstr==op_type && addr==it->addr)
-        return true;
-    }
-    return false;
-  }
-
-  void update_in(deque<Memop>* memop_q) {
-    deque<Memop>::iterator it = memop_q->begin();
-    while (it!=memop_q->end() && *it!=*this) {
-      ++it;     
-    }
-    if (it==memop_q->end()) {
-      memop_q->push_back(*this);
-    }
-    else {
-      *it=*this;
-    }      
-  }
-};
-*/
 
 class MemOp {
 public:
@@ -90,6 +31,7 @@ public:
     if(q.size() <= size - requested_space) {
       return true;
     }
+    
     else {
       int ct = 0;
       for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
@@ -181,9 +123,7 @@ public:
         uint64_t addr = memory.at(n->id).front();
         lsq.insert(addr, make_pair(n, id));
         memory.at(n->id).pop();
-        //Memop memop = *(new Memop(addr,n,this));
-        //lsq->push_back(memop);
-        //memop.update_in(lsq); //add new entry to lsq
+
       }
           
       if(n->typeInstr == PHI)
@@ -267,9 +207,6 @@ public:
         Node *n = q.front().first;
         Context *c = q.front().second;
         sim->lsq.tracker.at(make_pair(n,c->id))->completed = true;
-        //Context::Memop memop = *(new Context::Memop(addr,n,c));
-        //memop.completed=true;
-        //memop.update_in(sim->lsq);
         cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
         if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
           cout << *n << " / " << c->id << "\n";
@@ -285,10 +222,6 @@ public:
         Node *n = q.front().first;
         Context *c = q.front().second;
         sim->lsq.tracker.at(make_pair(n,c->id))->completed=true;
-        //Context::Memop memop = *(new Context::Memop(addr,n,c));
-        //memop.completed=true;
-        //memop.update_in(sim->lsq);
-        //c->remaining_cycles_map.at(n) = 0; //TJH: Stores are finished after they write to store buffer so we don't update latency
          
         cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
         q.pop();
@@ -397,9 +330,6 @@ public:
           //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
 
           bool must_stall=false;
-          //Context::Memop memop=*(new Context::Memop(addr,n,c));
-          //memop.started=true;
-          //memop.update_in(lsq);
           DNode d = make_pair(n,c->id);
           lsq.tracker.at(d)->started = true;
 
@@ -407,11 +337,9 @@ public:
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
 
           if (n->typeInstr == ST)
-            //must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
           else if (n->typeInstr == LD)
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
-            //must_stall=memop.exists_unresolved_memop(lsq,ST) ||  memop.exists_conflicting_alias(lsq,ST);         
       
           if(must_stall) {
             c->next_active_list.push_back(n);
