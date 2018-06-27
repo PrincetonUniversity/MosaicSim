@@ -184,15 +184,16 @@ public:
       return false;
     }
     // check resource (FU) availability ; PHI and BB_ENTRY nodes can continue
-    if ( n->typeFU != FU_NULL )
+    if ( n->typeFU != FU_NULL ) {
       if ( res.FUs.at(n->typeFU).free == 0 ) {
         cout << "Node [" << n->name << "]: CANNOT START start due to lack of FUs!!!!!!\n";
         return false;
       }
       else {
         res.FUs.at(n->typeFU).free--;
-        cout << "Node [" << n->name << "]: adquired FU, new free FU: " << res.FUs.at(n->typeFU).free << endl;
+        cout << "Node [" << n->name << "]: acquired FU, new free FU: " << res.FUs.at(n->typeFU).free << endl;
       }
+    }
 
     next_active_list.push_back(n);
     next_start_set.insert(n);
