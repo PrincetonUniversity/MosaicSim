@@ -26,11 +26,37 @@ typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
 
 // these are for configuration of FUs
 typedef enum { FU_I_ALU, FU_FP_ALU, FU_I_MULT, FU_FP_MULT, FU_I_DIV, FU_FP_DIV, FU_BRU,
-               FU_IN_MEMPORT, FU_OUT_MEMPORT, FU_OUTSTANDING_MEM } TypeofFU;
+               FU_IN_MEMPORT, FU_OUT_MEMPORT, FU_OUTSTANDING_MEM, FU_NULL } TypeofFU;
 #define MAX_FU_types 15
 typedef struct {
   int max, lat;
 } TFU;
+
+// given an "instruction" type returns the type of FU it uses
+TypeofFU getFUtype(TInstr typeInstr) {
+  switch(typeInstr) {
+    case I_ADD:
+    case I_SUB:
+    case LOGICAL: return FU_I_ALU;
+    case I_MULT:  return FU_I_MULT;
+    case FP_MULT: return FU_FP_MULT; 
+    case I_DIV:   return FU_I_DIV; 
+    case FP_DIV:  return FU_FP_DIV; 
+    case TERMINATOR: return FU_BRU;  // BRanch Unit
+    case LD: return FU_IN_MEMPORT;
+    case ST: return FU_OUT_MEMPORT;
+    default:
+      return FU_NULL;
+  }
+}
+
+int getInstrLatency(TInstr typeInstr, TFU *FUs_array) {
+  TypeofFU  t = getFUtype(typeInstr);
+  if (t == FU_NULL)
+    return 0;
+  else
+    return FUs_array[t].lat;
+}
 
 class Node {
 public:
@@ -42,15 +68,18 @@ public:
 
   int id;
   int lat;
-  TInstr type;
+  TInstr typeInstr;
+  TypeofFU typeFU;
   int bbid;
   std::string name;
 
-  Node(int id, TInstr type, int bbid, std::string name, int lat): 
-            id(id), type(type), bbid(bbid), name(name), lat (lat) {} 
+  Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
+            id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
+    typeFU = getFUtype(typeInstr);
+  } 
   
   // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), type(ENTRY), bbid(bbid), name("BB-Entry") {}
+  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry"), typeFU(FU_NULL) {}
 
   void addDependent(Node *dest, TEdge type) {
     if(type == DATA_DEP || type == BB_DEP) {
@@ -229,39 +258,6 @@ class Graph {
       }
     }
     cfile.close();
-  }
-
-  // map from FU's latency to "instruction" latency: needed for creating a node
-  int getInstrLatency(TInstr type, TFU *FUs_array) {
-    int lat = -1;
-    switch(type) {
-      case I_ADD:
-      case I_SUB:
-      case LOGICAL: lat = FUs_array[FU_I_ALU].lat;
-        break;
-      case I_MULT:  lat = FUs_array[FU_I_MULT].lat;
-        break;
-      case FP_MULT: lat = FUs_array[FU_FP_MULT].lat; 
-        break;
-      case I_DIV:   lat = FUs_array[FU_I_DIV].lat; 
-        break;
-      case FP_DIV:  lat = FUs_array[FU_FP_DIV].lat; 
-        break;
-      case TERMINATOR: lat = FUs_array[FU_BRU].lat;  // latency of the BRanch Unit
-        break;
-      case LD:
-        lat = -1;  // TODO: now it is suppossed that DRAMsim will return the correct latency -> FIX this when a cache is added
-        break;
-      case ST:
-        lat = 3;
-        break;
-      case PHI:
-        lat = 0;
-        break;
-      default:
-        assert(false);
-    }
-    return lat;
   }
 
   void readGraph(Graph &g, TFU *FUs_array) {

@@ -52,7 +52,7 @@ public:
       for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
         if(*it==*this || *this<*it)
         return false;
-        if(!(it->started) && it->node->type==op_type)
+        if(!(it->started) && it->node->typeInstr==op_type)
           return true;
       }
       return false;
@@ -62,7 +62,7 @@ public:
       for (deque<Memop>::iterator it = memop_q->begin(); it!=memop_q->end() ; ++it) {
         if(*it==*this || *this<*it)
           return false;
-        if(!(it->completed) && it->node->type==op_type && addr==it->addr)
+        if(!(it->completed) && it->node->typeInstr==op_type && addr==it->addr)
           return true;
       }
       return false;
@@ -93,7 +93,7 @@ public:
     for ( int i=0; i<bb->inst.size(); i++ ) {
       Node *n = bb->inst.at(i);
 
-      if (n->type == ST || n->type == LD) {
+      if (n->typeInstr == ST || n->typeInstr == LD) {
         //add to store queue as soon as context is created. this way, there's a serialized ordering of stores in lsq
 
         uint64_t addr = memory.at(n->id).front(); //in this context, this is always the only store to be done by node n
@@ -101,7 +101,7 @@ public:
         memop.update_in(lsq); //add new entry to lsq
       }
           
-      if(n->type == PHI)
+      if(n->typeInstr == PHI)
         pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
       else
         pending_parents_map.insert(std::make_pair(n, n->parents.size()));
@@ -262,8 +262,8 @@ public:
     initFU(FU_I_DIV,    9, 10);
     initFU(FU_FP_DIV,   9, 10);
     initFU(FU_BRU,      1, 10);    
-    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT does not have a latency
-    initFU(FU_OUT_MEMPORT, -1, 10);      // OUT_MEMPORT does not have a latency
+    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT (loads) does not have a pre-defined latency (the memory hierarchy gives) 
+    initFU(FU_OUT_MEMPORT, 3, 10);       // OUT_MEMPORT (stores) 
     initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
   }
   // **** end of configuration parameters stuff **
@@ -303,9 +303,14 @@ public:
     for (int i=0; i < c->active_list.size(); i++) {
       Node *n = c->active_list.at(i);
       if (c->start_set.find(n) != c->start_set.end()) {
+        
+        // check resource availability before continuing
+        // if ( remaining_resources_map
+
+
         cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
         /* check if it's a Memory Request -> enqueue in DRAMsim */
-        if (n->type == LD || n->type == ST) {
+        if (n->typeInstr == LD || n->typeInstr == ST) {
         
           uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
 
@@ -316,9 +321,9 @@ public:
 
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
-          if (n->type==ST)
+          if (n->typeInstr==ST)
             must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
-          else if (n->type==LD)
+          else if (n->typeInstr==LD)
             must_stall=memop.exists_unresolved_memop(lsq,ST) ||  memop.exists_conflicting_alias(lsq,ST);         
       
           if(must_stall) {
@@ -330,10 +335,10 @@ public:
           memory.at(n->id).pop(); // ...and take it out of the queue
           cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
           assert(mem->willAcceptTransaction(addr));
-          if (n->type == LD) { 
+          if (n->typeInstr == LD) { 
             mem->addTransaction(false, addr);
           }
-          else if (n->type == ST) {
+          else if (n->typeInstr == ST) {
             mem->addTransaction(true, addr);
           }
           if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
@@ -358,14 +363,14 @@ public:
     
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
-        if (cfg.CF_one_context_at_once && n->type == TERMINATOR) {
+        if (cfg.CF_one_context_at_once && n->typeInstr == TERMINATOR) {
           if ( cf_iterator < cf.size()-1 ) {  // if there are more pending contexts in the <cf> vector
             cf_iterator++;
             createContext( cf.at(cf_iterator) );
           }
         }
         c->remaining_cycles_map.erase(n);
-        if (n->type != ENTRY)
+        if (n->typeInstr != ENTRY)
           c->processed++;
         
         // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
@@ -439,7 +444,7 @@ public:
     bool simulate = false;
     assert(cycle_count < 2000);
 
-    // process ALL the LIVE contexts
+    // process ALL LIVE contexts
     for (int i=0; i<context_list.size(); i++) {
       if (context_list.at(i)->live) {
         simulate = true;
