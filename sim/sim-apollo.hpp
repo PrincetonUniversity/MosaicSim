@@ -19,6 +19,7 @@
 
 using namespace std;
 namespace apollo {
+
 class Node;
 typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
 typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, ENTRY, TERMINATOR, PHI} TInstr;
@@ -27,12 +28,8 @@ typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
 // these are for configuration of FUs
 typedef enum { FU_I_ALU, FU_FP_ALU, FU_I_MULT, FU_FP_MULT, FU_I_DIV, FU_FP_DIV, FU_BRU,
                FU_IN_MEMPORT, FU_OUT_MEMPORT, FU_OUTSTANDING_MEM, FU_NULL } TypeofFU;
-#define MAX_FU_types 15
-typedef struct {
-  int max, lat;
-} TFU;
 
-// given an "instruction" type returns the type of FU it uses
+// helper function: given an "instruction" type it returns the type of FU used
 TypeofFU getFUtype(TInstr typeInstr) {
   switch(typeInstr) {
     case I_ADD:
@@ -50,13 +47,44 @@ TypeofFU getFUtype(TInstr typeInstr) {
   }
 }
 
-int getInstrLatency(TInstr typeInstr, TFU *FUs_array) {
-  TypeofFU  t = getFUtype(typeInstr);
-  if (t == FU_NULL)
-    return 0;
-  else
-    return FUs_array[t].lat;
-}
+class Resources {
+public:
+
+  struct TFU {
+    int lat, max, free;
+  };
+  std::map<TypeofFU, TFU> FUs;
+  
+  void addFUtype(TypeofFU type, int lat, int max) {
+    TFU fu;
+    fu.lat  = lat;
+    fu.max  = max;
+    fu.free = max;
+    FUs.insert( std::make_pair(type, fu) );
+  }
+
+  void initialize(std::string file) {
+    ifstream cfile(file); // TODO: read FU parameters from <file>
+    addFUtype(FU_I_ALU,    1, 1);  // format: FU_type, latency, max_units
+    addFUtype(FU_FP_ALU,   1, 1);
+    addFUtype(FU_I_MULT,   3, 2);
+    addFUtype(FU_FP_MULT,  3, 2);
+    addFUtype(FU_I_DIV,    9, 2);
+    addFUtype(FU_FP_DIV,   9, 2);
+    addFUtype(FU_BRU,      1, 2);    
+    addFUtype(FU_IN_MEMPORT,  -1, 10);     // IN_MEMPORT (loads) does not have a pre-defined latency (the memory hierarchy gives) 
+    addFUtype(FU_OUT_MEMPORT, 3, 10);      // OUT_MEMPORT (stores) 
+    addFUtype(FU_OUTSTANDING_MEM, -1, 10); // OUTSTANDING_MEM does not have a latency
+  }
+
+  int getInstrLatency(TInstr typeInstr) {
+    TypeofFU  t = getFUtype(typeInstr);
+    if (t == FU_NULL)
+      return 0;
+    else
+      return FUs.at(t).lat;
+  }
+};
 
 class Node {
 public:
@@ -117,7 +145,6 @@ public:
 
   // Print Node
   friend std::ostream& operator<<(std::ostream &os, Node &n) {
-    os << n.name;
     os << "I[" << n.name << "], lat=" << n.lat << ", Deps = {";
     std::set< std::pair<Node*,TEdge> >::iterator it;
 //    for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
@@ -217,10 +244,10 @@ class Graph {
   // format of ctrl.txt:  
   //      <string_bb_name>,<current_bb_id>,<next_bb_id>
   // argument <cf> will contain the sequential list of executed BBs
-  void readProfCF(std::vector<int> &cf) {
+  void readProfCF(std::string name, std::vector<int> &cf) {
     string line;
     string last_line;
-    ifstream cfile ("input/ctrl.txt");
+    ifstream cfile(name);
     int last_bbid = -1;
     if (cfile.is_open()) {
       while (getline (cfile,line)) {
@@ -241,10 +268,10 @@ class Graph {
 
   // Read Dynamic Memory accesses from profiling file (memory.txt)
   // argument <memory> will contain a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::map<int, std::queue<uint64_t> > &memory) {
+  void readProfMemory(std::string name, std::map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
-    ifstream cfile ("input/memory.txt");
+    ifstream cfile(name);
     if (cfile.is_open()) {
       while ( getline(cfile,line) ) {
         vector<string> s = split(line, ',');
@@ -260,8 +287,8 @@ class Graph {
     cfile.close();
   }
 
-  void readGraph(Graph &g, TFU *FUs_array) {
-    ifstream cfile ("input/graph.txt");
+  void readGraph(std::string name, Graph &g, Resources &res) {
+    ifstream cfile(name);
     if (cfile.is_open()) {
       string temp;
       getline(cfile,temp);
@@ -281,7 +308,7 @@ class Graph {
         int bbid = stoi(s.at(2));
         string name = s.at(3);
         name = s.at(3).substr(0, s.at(3).size()-1);
-        g.addNode( id, type, bbid, name, getInstrLatency(type, FUs_array) );
+        g.addNode( id, type, bbid, name, res.getInstrLatency(type) );
       }
       for (int i=0; i<numEdge; i++) {
         getline(cfile,line);

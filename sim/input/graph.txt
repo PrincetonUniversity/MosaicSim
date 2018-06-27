@@ -1,8 +1,8 @@
 2
 7
 9
-0,0,0,addInst
-1,7,0,divInst
+0,0,0,addInst1
+1,7,0,divInst1
 2,12,0,TerminatorInst1
 3,13,1,PhiNode2
 4,0,1,addInst2

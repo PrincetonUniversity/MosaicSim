@@ -151,11 +151,23 @@ public:
     // No need to call launchNode; entryBB will trigger them instead. 
   }
 
-  bool launchNode(Node *n) {
+  bool launchNode(Node *n, Resources &res) {
+    // check if node <n> can be launched
     if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
       //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
       return false;
     }
+    // check resource (FU) availability ; PHI and BB_ENTRY nodes can continue
+    if ( n->typeFU != FU_NULL )
+      if ( res.FUs.at(n->typeFU).free == 0 ) {
+        cout << "Node [" << n->name << "]: CANNOT START start due to lack of FUs!!!!!!\n";
+        return false;
+      }
+      else {
+        res.FUs.at(n->typeFU).free--;
+        cout << "Node [" << n->name << "]: adquired FU, new free FU: " << res.FUs.at(n->typeFU).free << endl;
+      }
+
     next_active_list.push_back(n);
     next_start_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Ready to Execute\n";
@@ -214,7 +226,8 @@ public:
       }
   };
 
-  Graph g;  
+  Graph g;
+  Resources resources;
   DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
@@ -235,38 +248,10 @@ public:
    
   // **** simulator CONFIGURATION parameters
   struct {
-
     // some simulator flags
     bool CF_one_context_at_once = true;
     bool CF_all_contexts_concurrently = false;
-
-    // define an array of FUs
-    TFU FUs_array[MAX_FU_types];
-
   } cfg;
-
-  map<TypeofFU, int> remaining_resources_map;  // tracks remaining resources for each type of FU
-
-  void initFU(TypeofFU type, int lat, int max) {
-    cfg.FUs_array[type].lat = lat;
-    cfg.FUs_array[type].max = max;
-    remaining_resources_map.insert( std::make_pair(type, max) );
-  }
-
-  void initResources() {
-    // TODO: read FU parameters from a config file
-    initFU(FU_I_ALU,    1, 10);  // format: FU_type, latency, max_units
-    initFU(FU_FP_ALU,   1, 10);
-    initFU(FU_I_MULT,   3, 10);
-    initFU(FU_FP_MULT,  3, 10);
-    initFU(FU_I_DIV,    9, 10);
-    initFU(FU_FP_DIV,   9, 10);
-    initFU(FU_BRU,      1, 10);    
-    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT (loads) does not have a pre-defined latency (the memory hierarchy gives) 
-    initFU(FU_OUT_MEMPORT, 3, 10);       // OUT_MEMPORT (stores) 
-    initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
-  }
-  // **** end of configuration parameters stuff **
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
@@ -304,11 +289,8 @@ public:
       Node *n = c->active_list.at(i);
       if (c->start_set.find(n) != c->start_set.end()) {
         
-        // check resource availability before continuing
-        // if ( remaining_resources_map
-
-
         cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
+        
         /* check if it's a Memory Request -> enqueue in DRAMsim */
         if (n->typeInstr == LD || n->typeInstr == ST) {
         
@@ -346,8 +328,6 @@ public:
           cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
         }
       }
-      //else 
-      //   cout << "Node [" << n->name << " @ context " << c->id << "]: In Processing \n";
 
       // decrease the remaining # of cycles for current node <n>
       int remaining_cycles = c->remaining_cycles_map.at(n);
@@ -360,7 +340,14 @@ public:
       }
       else if (remaining_cycles == 0) { // Execution Finished for node <n>
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
-    
+
+        // free the resource/FU
+        if ( n->typeFU != FU_NULL )
+          if ( resources.FUs.at(n->typeFU).free < resources.FUs.at(n->typeFU).max ) {
+            resources.FUs.at(n->typeFU).free++;
+            cout << "Node [" << n->name << "]: released FU, new free FU: " << resources.FUs.at(n->typeFU).free << endl;
+          }
+
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
         if (cfg.CF_one_context_at_once && n->typeInstr == TERMINATOR) {
@@ -378,7 +365,7 @@ public:
         for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
           Node *d = *it;
           c->pending_parents_map.at(d)--;
-          c->launchNode(d);
+          c->launchNode(d, resources);
         }
 
         // The same for external dependents: decrease parent's count & try to launch them
@@ -390,7 +377,7 @@ public:
               Node *d = users.at(i).first;
               Context *cc = context_list.at(users.at(i).second);
               cc->pending_external_parents_map.at(d)--;
-              cc->launchNode(d);
+              cc->launchNode(d, resources);
             }
             deps.erase(src);
           }
@@ -405,7 +392,7 @@ public:
             if (context_list.size() > next_cid) {
               Context *cc = context_list.at(next_cid);
               cc->pending_parents_map.at(d)--;
-              cc->launchNode(d);
+              cc->launchNode(d, resources);
             }
             else {
               if (handled_phi_deps.find(next_cid) == handled_phi_deps.end()) {
@@ -469,10 +456,10 @@ public:
 int main(int argc, char const *argv[])
 {
   Simulator sim;
-  sim.initResources();
-  readGraph(sim.g, sim.cfg.FUs_array);
-  readProfMemory(sim.memory);
-  readProfCF(sim.cf);
+  sim.resources.initialize("config.txt");
+  readGraph("input/graph2.txt", sim.g, sim.resources);
+  readProfMemory("input/memory.txt", sim.memory);
+  readProfCF("input/ctrl.txt", sim.cf);
   sim.initialize();
   sim.run();
   return 0;
