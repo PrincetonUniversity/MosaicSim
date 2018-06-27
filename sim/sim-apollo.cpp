@@ -120,7 +120,7 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(!(it->started) && n->type == op_type)
+      if(!(it->started) && n->typeInstr == op_type)
         return true;
     }
     return false;
@@ -134,7 +134,7 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(!(it->completed) && n->type == op_type && it->addr == addr)
+      if(!(it->completed) && n->typeInstr == op_type && it->addr == addr)
         return true;
     }
     return false;
@@ -164,7 +164,7 @@ public:
     int mem_count = 0;
     for ( int i=0; i<bb->inst.size(); i++ ) {
       Node *n = bb->inst.at(i);
-      if (n->type == ST || n->type == LD)
+      if (n->typeInstr == ST || n->typeInstr == LD)
         mem_count++;
     }
     if(!lsq.checkSize(mem_count))
@@ -408,11 +408,11 @@ public:
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
           //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
 
-          if (n->type == ST)
+          if (n->typeInstr == ST)
             //must_stall=memop.exists_unresolved_memop(lsq,ST) || memop.exists_unresolved_memop(lsq,LD) || memop.exists_conflicting_alias(lsq,ST) || memop.exists_conflicting_alias(lsq,LD);
             must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
-          else if (n->type == LD)
-            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_alias(d, ST);
+          else if (n->typeInstr == LD)
+            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
             //must_stall=memop.exists_unresolved_memop(lsq,ST) ||  memop.exists_conflicting_alias(lsq,ST);         
       
           if(must_stall) {
