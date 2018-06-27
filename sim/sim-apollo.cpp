@@ -233,7 +233,7 @@ public:
 
   deque<Context::Memop>* lsq= new deque<Context::Memop>();   
    
-  // **** simulator CONFIGURATION PARAMETERS
+  // **** simulator CONFIGURATION parameters
   struct {
 
     // some simulator flags
@@ -247,18 +247,15 @@ public:
 
   map<TypeofFU, int> remaining_resources_map;  // tracks remaining resources for each type of FU
 
-  // define some helper functions to manage FUs
   void initFU(TypeofFU type, int lat, int max) {
     cfg.FUs_array[type].lat = lat;
     cfg.FUs_array[type].max = max;
     remaining_resources_map.insert( std::make_pair(type, max) );
   }
-  // **** end of configuration parameters stuff **
 
   void initResources() {
-    // Init FUs 
     // TODO: read FU parameters from a config file
-    initFU(FU_I_ALU,    1, 10);  // FU_type, latency, max_units
+    initFU(FU_I_ALU,    1, 10);  // format: FU_type, latency, max_units
     initFU(FU_FP_ALU,   1, 10);
     initFU(FU_I_MULT,   3, 10);
     initFU(FU_FP_MULT,  3, 10);
@@ -269,6 +266,7 @@ public:
     initFU(FU_OUT_MEMPORT, -1, 10);      // OUT_MEMPORT does not have a latency
     initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
   }
+  // **** end of configuration parameters stuff **
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
