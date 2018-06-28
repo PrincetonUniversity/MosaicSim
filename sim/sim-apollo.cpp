@@ -11,7 +11,7 @@ using namespace std;
 // TODO: Handle 0-latency instructions correctly
 // TODO: Handle 0-cycle context creation in a more general way
 // TODO: MSHR request merge
-
+// TODO: Two phase cycle (i.e., make sure resource free and take happen at the same cycle)
 
 class MemOp {
 public:
