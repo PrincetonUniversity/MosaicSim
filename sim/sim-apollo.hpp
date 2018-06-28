@@ -19,44 +19,34 @@
 
 using namespace std;
 namespace apollo {
+
+#define NUM_INST_TYPES 14
 class Node;
 typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
 typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, ENTRY, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
 
-// these are for configuration of FUs
-typedef enum { FU_I_ALU, FU_FP_ALU, FU_I_MULT, FU_FP_MULT, FU_I_DIV, FU_FP_DIV, FU_BRU,
-               FU_IN_MEMPORT, FU_OUT_MEMPORT, FU_OUTSTANDING_MEM, FU_NULL } TypeofFU;
-#define MAX_FU_types 15
-typedef struct {
-  int max, lat;
-} TFU;
+// TJH: For now, we can assume that one instruction type corresponds to one functional unit 
+// since accelerators do not really use one functional unit to do multiple types of operations
+// Also, let's assume only mult and div units are shared (others are replicated and thus there's no limit)
 
-// given an "instruction" type returns the type of FU it uses
-TypeofFU getFUtype(TInstr typeInstr) {
-  switch(typeInstr) {
-    case I_ADD:
-    case I_SUB:
-    case LOGICAL: return FU_I_ALU;
-    case I_MULT:  return FU_I_MULT;
-    case FP_MULT: return FU_FP_MULT; 
-    case I_DIV:   return FU_I_DIV; 
-    case FP_DIV:  return FU_FP_DIV; 
-    case TERMINATOR: return FU_BRU;  // Branch Unit
-    case LD: return FU_IN_MEMPORT;
-    case ST: return FU_OUT_MEMPORT;
-    default:
-      return FU_NULL;
-  }
-}
+class Config {
+public:
+   // Config
+  bool CF_one_context_at_once;
+  bool CF_all_contexts_concurrently;
+  // Resource
+  int lsq_size;
+  // Latency
+  int instr_latency[NUM_INST_TYPES];
+  int num_units[NUM_INST_TYPES];
+  int load_ports;
+  int store_ports;
+  int outstanding_load_requests;
+  int outstanding_store_requests;
+  // TODO: handle 0 latency (currently we can't handle zero latency correctly)
+};
 
-int getInstrLatency(TInstr typeInstr, TFU *FUs_array) {
-  TypeofFU  t = getFUtype(typeInstr);
-  if (t == FU_NULL)
-    return 0;
-  else
-    return FUs_array[t].lat;
-}
 
 class Node {
 public:
@@ -69,17 +59,15 @@ public:
   int id;
   int lat;
   TInstr typeInstr;
-  TypeofFU typeFU;
   int bbid;
   std::string name;
 
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
-    typeFU = getFUtype(typeInstr);
   } 
   
   // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry"), typeFU(FU_NULL) {}
+  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {}
 
   void addDependent(Node *dest, TEdge type) {
     if(type == DATA_DEP || type == BB_DEP) {
@@ -117,92 +105,95 @@ public:
 
   // Print Node
   friend std::ostream& operator<<(std::ostream &os, Node &n) {
-    os << n.name;
-    os << "I[" << n.name << "], lat=" << n.lat << ", Deps = {";
-    std::set< std::pair<Node*,TEdge> >::iterator it;
-//    for (  it = n.dependents.begin(); it != n.dependents.end(); ++it )
-//       std::cout << "[" << it->first->name << "], ";
-    std::cout << "}";
+    os << "I[" << n.name << "], lat=" << n.lat << "\n";
     return os;
   }
 };
 
 class BasicBlock {
-  public:
-    int id;
-    int inst_count;
-    std::vector<Node*> inst;
-    Node *entry;
+public:
+  int id;
+  int inst_count;
+  std::vector<Node*> inst;
+  Node *entry;
 
-    BasicBlock(int id): id(id), inst_count(0) { entry = new Node(id); }
-    ~BasicBlock() { delete entry; }
-    
-    void addInst(Node* n) {
-      assert(entry != NULL);
-      entry->addDependent(n, BB_DEP);  // all instructions are made dependant of the "entry node"
-      inst.push_back(n);
-      inst_count++;
-    }
+  BasicBlock(int id): id(id), inst_count(0) { entry = new Node(id); }
+  ~BasicBlock() { delete entry; }
+  
+  void addInst(Node* n) {
+    assert(entry != NULL);
+    entry->addDependent(n, BB_DEP);
+    inst.push_back(n);
+    inst_count++;
+  }
 };
 
 class Graph {
-  public:
-    std::map<int, Node *> nodes;
-    std::map<int, BasicBlock*> bbs;
-    ~Graph() { eraseAllNodes(); } 
+public:
+  std::map<int, Node *> nodes;
+  std::map<int, BasicBlock*> bbs;
+  ~Graph() { eraseAllNodes(); } 
 
-    void addBasicBlock(int id) {
-      bbs.insert( std::make_pair(id, new BasicBlock(id)) );
+  void addBasicBlock(int id) {
+    bbs.insert( std::make_pair(id, new BasicBlock(id)) );
+  }
+
+  Node *addNode(int id, TInstr type, int bbid, std::string name, int lat) {
+    Node *n = new Node(id, type, bbid, name, lat);
+    nodes.insert(std::make_pair(n->id, n));
+    assert(bbs.find(bbid)!= bbs.end());
+    bbs.at(bbid)->addInst(n);
+    return n;
+  }
+
+  // Return an exsisting node given an instruction <id> 
+  Node *getNode(int id) {
+    if ( nodes.find(id) != nodes.end() )
+      return nodes.at(id);
+    else
+      return NULL;
+  }
+
+  void eraseNode(Node *n) { 
+    if (n) {
+      nodes.erase(n->id); 
+      delete n;
     }
+  }
 
-    Node *addNode(int id, TInstr type, int bbid, std::string name, int lat) {
-      Node *n = new Node(id, type, bbid, name, lat);
-      nodes.insert(std::make_pair(n->id, n));
-      assert(bbs.find(bbid)!= bbs.end());
-      bbs.at(bbid)->addInst(n);
-      return n;
-    }
+  void eraseAllNodes() { 
+    for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+      eraseNode(it->second);
+  }
 
-    // Return an exsisting node given an instruction <id> 
-    Node *getNode(int id) {
-      if ( nodes.find(id) != nodes.end() )
-        return nodes.at(id);
-      else
-        return NULL;
-    }
+  void addDependent(Node *src, Node *dest, TEdge type) {
+    src->addDependent(dest, type);
+  }
 
-    void eraseNode(Node *n) { 
-      if (n) {
-        nodes.erase(n->id); 
-        delete n;
-      }
-    }
+  void eraseDependent(Node *src, Node *dest, TEdge type) {
+    src->eraseDependent(dest, type);
+  }
 
-    void eraseAllNodes() { 
-      for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
-        eraseNode(it->second);
-    }
+  // Print Graph
+  friend std::ostream &operator<<(std::ostream &os, Graph &g) {
+    os << "Graph: Total_nodes=" << g.nodes.size() << std::endl;
+    for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
+      std::cout << it->first << ":" << *it->second;
+    std::cout << "";
+    return os;
+  }
 
-    void addDependent(Node *src, Node *dest, TEdge type) {
-      src->addDependent(dest, type);
-    }
+};
 
-    void eraseDependent(Node *src, Node *dest, TEdge type) {
-      src->eraseDependent(dest, type);
-    }
-
-    // Print Graph
-    friend std::ostream &operator<<(std::ostream &os, Graph &g) {
-      os << "Graph: Total_nodes=" << g.nodes.size() << std::endl;
-      for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
-        std::cout << it->first << ":" << *it->second << std::endl;
-      std::cout << "";
-      return os;
-    }
-
-  };
-
-  // helper function for reading text files
+class Reader {
+public:
+  /*void read(Simulator &sim) {
+    readCfg("input/config.txt", sim.cfg);
+    readGraph("input/graph2.txt", sim.g, sim.cfg);
+    readProfMemory("input/memory.txt", sim.memory);
+    readProfCF("input/ctrl.txt", sim.cf);
+  }*/
+  // helper function: split a string [with delimiter] into a vector
   vector<string> split(const string &s, char delim) {
      stringstream ss(s);
      string item;
@@ -212,15 +203,51 @@ class Graph {
      }
      return tokens;
   }
-
-  // Read Dynamic Control Flow data from profiling file (ctrl.txt)
-  // format of ctrl.txt:  
-  //      <string_bb_name>,<current_bb_id>,<next_bb_id>
-  // argument <cf> will contain the sequential list of executed BBs
-  void readProfCF(std::vector<int> &cf) {
+  void readCfg(std::string name, Config &cfg) {
+    // TODO: Read Config From the File
+    cfg.lsq_size = 512;
+    cfg.CF_one_context_at_once = true;
+    cfg.CF_all_contexts_concurrently = false;
+    cfg.instr_latency[I_ADD] = 5;
+    cfg.instr_latency[FP_ADD] = 1;
+    cfg.instr_latency[I_SUB] = 1;
+    cfg.instr_latency[FP_SUB] = 1;
+    cfg.instr_latency[LOGICAL] = 1;
+    cfg.instr_latency[I_MULT] = 3;
+    cfg.instr_latency[FP_MULT] = 3;
+    cfg.instr_latency[I_DIV] = 9;
+    cfg.instr_latency[FP_DIV] = 9;
+    cfg.instr_latency[LD] = -1;
+    cfg.instr_latency[ST] = 1;
+    cfg.instr_latency[ENTRY] = 1;
+    cfg.instr_latency[TERMINATOR] = 1;
+    cfg.instr_latency[PHI] = 1;
+    cfg.num_units[I_ADD] = 1;
+    cfg.num_units[FP_ADD] = -1;
+    cfg.num_units[I_SUB] = -1;
+    cfg.num_units[FP_SUB] = -1;
+    cfg.num_units[LOGICAL] = -1;
+    cfg.num_units[I_MULT] = 1;
+    cfg.num_units[FP_MULT] = 1;
+    cfg.num_units[I_DIV] = 1;
+    cfg.num_units[FP_DIV] = 1;
+    cfg.num_units[LD] = -1;
+    cfg.num_units[ST] = -1;
+    cfg.num_units[ENTRY] = -1;
+    cfg.num_units[TERMINATOR] = -1;
+    cfg.num_units[PHI] = -1;
+    cfg.load_ports = 4;
+    cfg.store_ports = 4;
+    cfg.outstanding_load_requests = 128;
+    cfg.outstanding_store_requests = 128;
+  }
+  // Read Dynamic Control Flow data from profiling file. 
+  // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
+  // vector <cf> will be the sequential list of executed BBs
+  void readProfCF(std::string name, std::vector<int> &cf) {
     string line;
     string last_line;
-    ifstream cfile ("input/ctrl.txt");
+    ifstream cfile(name);
     int last_bbid = -1;
     if (cfile.is_open()) {
       while (getline (cfile,line)) {
@@ -238,13 +265,12 @@ class Graph {
     }
     cfile.close();
   }
-
-  // Read Dynamic Memory accesses from profiling file (memory.txt)
-  // argument <memory> will contain a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::map<int, std::queue<uint64_t> > &memory) {
+  // Read Dynamic Memory accesses from profiling file.
+  // <memory> will be a map of { <instr_id>, <queue of addresses> }
+  void readProfMemory(std::string name, std::map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
-    ifstream cfile ("input/memory.txt");
+    ifstream cfile(name);
     if (cfile.is_open()) {
       while ( getline(cfile,line) ) {
         vector<string> s = split(line, ',');
@@ -259,9 +285,8 @@ class Graph {
     }
     cfile.close();
   }
-
-  void readGraph(Graph &g, TFU *FUs_array) {
-    ifstream cfile ("input/graph.txt");
+  void readGraph(std::string name, Graph &g, Config &cfg) {
+    ifstream cfile(name);
     if (cfile.is_open()) {
       string temp;
       getline(cfile,temp);
@@ -281,7 +306,7 @@ class Graph {
         int bbid = stoi(s.at(2));
         string name = s.at(3);
         name = s.at(3).substr(0, s.at(3).size()-1);
-        g.addNode( id, type, bbid, name, getInstrLatency(type, FUs_array) );
+        g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
       }
       for (int i=0; i<numEdge; i++) {
         getline(cfile,line);
@@ -297,4 +322,6 @@ class Graph {
     cfile.close();
     cout << g;
   }
+};
+
 }

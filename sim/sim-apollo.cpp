@@ -8,11 +8,16 @@
 using namespace apollo;
 using namespace std;
 
+// TODO: Handle 0-latency instructions correctly
+// TODO: Handle 0-cycle context creation in a more general way
+// TODO: MSHR request merge
+
+
 class MemOp {
 public:
   uint64_t addr;
   DNode d;
-  bool started=false;
+  bool addr_resolved=false;
   bool completed=false;
   bool spec_started=false;
   bool spec_failed=false;
@@ -33,7 +38,6 @@ public:
     if(q.size() <= size - requested_space) {
       return true;
     }
-    
     else {
       int ct = 0;
       for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
@@ -66,14 +70,14 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(!(it->started) && n->typeInstr == op_type) {
+      if(!(it->addr_resolved) && n->typeInstr == op_type) {
         return true;
       }     
     }
     return false;
   }
-  //there's at least one started, uncompleted older memop with same address
-  //negation says all started, uncompleted older memops don't match address
+  //there's at least one addr_resolved, uncompleted older memop with same address
+  //negation says for all memops with addr_resolved, uncompleted older memops don't match address
   bool exists_conflicting_memop (DNode in, TInstr op_type) {
     uint64_t addr = tracker.at(in)->addr;
     for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
@@ -83,7 +87,7 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(it->started && !(it->completed) && n->typeInstr == op_type && it->addr == addr)
+      if(it->addr_resolved && !(it->completed) && n->typeInstr == op_type && it->addr == addr)
         return true;
     }
     return false;
@@ -115,6 +119,7 @@ public:
   std::set<Node*> start_set;
   std::set<Node*> next_start_set;
   std::vector<Node *> next_active_list;
+  std::vector<Node *> resource_limited_list;
 
   std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
@@ -152,7 +157,6 @@ public:
         pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
       else
         pending_parents_map.insert(std::make_pair(n, n->parents.size()));
-
       pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
     }
 
@@ -166,7 +170,6 @@ public:
     }
 
     /* Handle External Edges */
-    // traverse ALL the BB's instructions
     for (int i=0; i<bb->inst.size(); i++) {
       Node *n = bb->inst.at(i);
       if (n->external_dependents.size() > 0) {
@@ -198,25 +201,21 @@ public:
     // No need to call launchNode; entryBB will trigger them instead. 
   }
 
-  bool launchNode(Node *n) {
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
-      return false;
-    }
+  void launchNode(Node *n) {
+    // check if node <n> can be launched
+    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0)
+      return;
     next_active_list.push_back(n);
     next_start_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Ready to Execute\n";
     remaining_cycles_map.insert(std::make_pair(n, n->lat));
-    return true;
   }
 };
 
 
 class Simulator
 { 
-public:
-  // TODO: Handle 0-latency instructions correctly
-  
+public:  
   class DRAMSimCallBack {
     public:
       map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
@@ -232,8 +231,7 @@ public:
         cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
         if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
           cout << *n << " / " << c->id << "\n";
-        c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished for sim-apollo
-
+        c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished
         q.pop();
         if (q.size() == 0)
           outstanding_accesses_map.erase(addr);
@@ -243,68 +241,35 @@ public:
         queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
         Node *n = q.front().first;
         Context *c = q.front().second;
-                
         cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
         q.pop();
-     
         if(q.size() == 0)
           outstanding_accesses_map.erase(addr);
       }
   };
 
-  Graph g;  
-  DRAMSimCallBack cb = DRAMSimCallBack(this); 
+  Graph g;
+  Config cfg;
+  DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
   int cycle_count = 0;
   vector<Context*> context_list;
+  /* Resources */
+  map<TInstr, int> FUs;
+  int ports[2]; // ports[0] = loads; ports[1] = stores;
 
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
-  //map<int, queue<uint64_t> >& memory_ref=memory;
   /* Handling External Dependencies */
   map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
   map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
   /* Handling Phi Dependencies */
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   LoadStoreQ lsq;
+
   bool mem_spec_mode=false;
-   
-  // **** simulator CONFIGURATION parameters
-  struct {
-
-    int lsq_size = 512;
-    bool CF_one_context_at_once = true;
-    bool CF_all_contexts_concurrently = false;
-
-    // define an array of FUs
-    TFU resource_array[MAX_FU_types];
-
-  } cfg;
-
-  map<TypeofFU, int> remaining_resources_map;  // tracks remaining resources for each type of FU
-
-  void initFU(TypeofFU type, int lat, int max) {
-    cfg.resource_array[type].lat = lat;
-    cfg.resource_array[type].max = max;
-    remaining_resources_map.insert( std::make_pair(type, max) );
-  }
-
-  void initResources() {
-    // TODO: read FU parameters from a config file
-    initFU(FU_I_ALU,    1, 10);  // format: FU_type, latency, max_units
-    initFU(FU_FP_ALU,   1, 10);
-    initFU(FU_I_MULT,   3, 10);
-    initFU(FU_FP_MULT,  3, 10);
-    initFU(FU_I_DIV,    9, 10);
-    initFU(FU_FP_DIV,   9, 10);
-    initFU(FU_BRU,      1, 10);    
-    initFU(FU_IN_MEMPORT,  -1, 10);      // IN_MEMPORT (loads) does not have a pre-defined latency (the memory hierarchy gives) 
-    initFU(FU_OUT_MEMPORT, 3, 10);       // OUT_MEMPORT (stores) 
-    initFU(FU_OUTSTANDING_MEM, -1, 10);  // OUTSTANDING_MEM does not have a latency
-  }
-  // **** end of configuration parameters stuff **
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
@@ -313,18 +278,22 @@ public:
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);  
     lsq.initialize(cfg.lsq_size);
+    for(int i=0; i<NUM_INST_TYPES; i++) {
+      FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
+    }
     if (cfg.CF_one_context_at_once) {
       cf_iterator = 0;
       createContext( cf.at(cf_iterator) );  // create just the very firt context from <cf>
     }
-    else if (cfg.CF_all_contexts_concurrently)  // create ALL contexts to max parallelism
+    else if (cfg.CF_all_contexts_concurrently)  { // create ALL contexts to max parallelism
       for ( cf_iterator=0; cf_iterator < cf.size(); cf_iterator++ )
         createContext( cf.at(cf_iterator) );
+    }
   }
 
   void createContext(int bbid)
   {
-    assert( bbid < g.bbs.size() );
+    assert(bbid < g.bbs.size());
     /* Create Context */
     int cid = context_list.size();
     Context *c = new Context(cid);
@@ -340,71 +309,81 @@ public:
     for (int i=0; i < c->active_list.size(); i++) {
       Node *n = c->active_list.at(i);
       if (c->start_set.find(n) != c->start_set.end()) {
-        
-        // check resource availability before continuing
-        // if ( remaining_resources_map
-
-
-        cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
-        /* check if it's a Memory Request -> enqueue in DRAMsim */
+        bool canExecute = true;
+        bool will_speculate = false;
+        // check resource (FU) availability
+        if (FUs.at(n->typeInstr) != -1) {
+          if (FUs.at(n->typeInstr) == 0) {
+            cout << "Node [" << n->name << "]: cannot start due to lack of FUs \n";
+            canExecute = false;
+          }
+        }
+        // Memory Ports
+        if (n->typeInstr == LD && ports[0] == 0)
+          canExecute = false;
+        if (n->typeInstr == ST && ports[1] == 0)
+          canExecute = false;
+        // Memory dependency
         if (n->typeInstr == LD || n->typeInstr == ST) {
-        
-          //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
-
           DNode d = make_pair(n,c->id);
-          lsq.tracker.at(d)->started = true;
-
-          bool must_stall=false;
+          bool stallCondition = false;
           bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
           bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
-          bool will_speculate = false;
-          //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
-          //you also have to stall if any older loads or stores know their address and haven't completed 
+          lsq.tracker.at(d)->addr_resolved = true; 
           if (n->typeInstr == ST)
-            must_stall = exists_unresolved_ST || exists_conflicting_ST || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, LD);
-          else if (n->typeInstr == LD) {           
-            must_stall = (exists_unresolved_ST && !mem_spec_mode) || exists_conflicting_ST;
+            stallCondition = exists_unresolved_ST || exists_conflicting_ST || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, LD);
+          else if (n->typeInstr == LD) {
+            stallCondition = (exists_unresolved_ST && !mem_spec_mode) || exists_conflicting_ST;
             will_speculate = mem_spec_mode && exists_unresolved_ST && !exists_conflicting_ST;
           }
-          if(must_stall) {
-            c->next_active_list.push_back(n);
-            c->next_start_set.insert(n);
-            continue;
-          }
-          if (will_speculate) 
-            lsq.tracker.at(d)->spec_started = true;
-          
+          canExecute &= !stallCondition;
           uint64_t addr = lsq.tracker.at(d)->addr;
-          //memory.at(n->id).pop(); // ...and take it out of the queue
-          cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
-          assert(mem->willAcceptTransaction(addr));
-          if (n->typeInstr == LD) { 
-            mem->addTransaction(false, addr);
+          canExecute &= mem->willAcceptTransaction(addr);
+        }
+        // Execution (if possible)
+        if(canExecute) {
+          
+          cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
+          if (FUs.at(n->typeInstr) != -1) {
+            FUs.at(n->typeInstr)--;
+            cout << "Node [" << n->name << "]: acquired FU (new free FUs: " << FUs.at(n->typeInstr) << ")\n";
           }
-          else if (n->typeInstr == ST) {
-            mem->addTransaction(true, addr);
+          if (n->typeInstr == LD || n->typeInstr == ST) {
+            DNode d = make_pair(n,c->id);
+            uint64_t addr = lsq.tracker.at(d)->addr;
+            lsq.tracker.at(d)->spec_started = will_speculate;
+            cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
+            if (n->typeInstr == LD) {
+              ports[0]--;
+              mem->addTransaction(false, addr);
+            }
+            else if (n->typeInstr == ST) {
+              ports[1]--;
+              mem->addTransaction(true, addr);
+            }
+            if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
+              cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
+            cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
           }
-          if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
-            cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
-          cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
+        }
+        else {   // if cannot execute delay <node> until next cycle
+          c->next_active_list.push_back(n);
+          c->next_start_set.insert(n);
+          continue;
         }
       }
-      //else 
-      //   cout << "Node [" << n->name << " @ context " << c->id << "]: In Processing \n";
-
       // decrease the remaining # of cycles for current node <n>
       int remaining_cycles = c->remaining_cycles_map.at(n);
       if (remaining_cycles > 0)
         remaining_cycles--;
-      if ( remaining_cycles > 0 || remaining_cycles == -1 ) {  // Node <n> will continue execution in next cycle 
+      if ( remaining_cycles > 0 || remaining_cycles == -1 ) {  // Node <n> will continue execution in next cycle
         // A remaining_cycles == -1 represents a outstanding memory request being processed currently by DRAMsim
         c->remaining_cycles_map.at(n) = remaining_cycles;
-        c->next_active_list.push_back(n);  
+        c->next_active_list.push_back(n);
       }
       else if (remaining_cycles == 0) { // Execution Finished for node <n>
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
 
-        
         if (n->typeInstr==LD || n->typeInstr==ST) {
           DNode d = make_pair(n,c->id);
           uint64_t addr = lsq.tracker.at(d)->addr;
@@ -452,10 +431,16 @@ public:
           
           if (n->typeInstr==ST && mem_spec_mode) {
             lsq.flag_misspec(d); //this store will flag every prior speculatively executed load with same address as failed          
-          }
-          
+          }         
           lsq.tracker.at(d)->completed = true;
         }
+        
+        // Handle Resource
+        if ( FUs.at(n->typeInstr) != -1 ) { // FU limited operation
+          FUs.at(n->typeInstr)++; // release FU
+          cout << "Node [" << n->name << "]: released FU, new free FU: " << FUs.at(n->typeInstr) << endl;
+        }
+
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
         if (cfg.CF_one_context_at_once && n->typeInstr == TERMINATOR) {
@@ -467,7 +452,7 @@ public:
         c->remaining_cycles_map.erase(n);
         if (n->typeInstr != ENTRY)
           c->processed++;
-        
+
         // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
         set<Node*>::iterator it;
         for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
@@ -513,7 +498,8 @@ public:
       }
       else
         assert(false);
-    }
+    } //end for
+
     // Continue with following active instructions
     c->start_set = c->next_start_set;
     c->active_list = c->next_active_list;
@@ -523,9 +509,9 @@ public:
     if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
       cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
       c->live = false;
-      // TODO: call the Context "destructor" to free memory !!
     }
   }
+  
 
   void process_memory()
   {
@@ -538,12 +524,13 @@ public:
     cycle_count++;
     bool simulate = false;
     assert(cycle_count < 2000);
-
-    // process ALL LIVE contexts
+    ports[0] = cfg.load_ports;
+    ports[1] = cfg.store_ports;
+    // process all live contexts
     for (int i=0; i<context_list.size(); i++) {
       if (context_list.at(i)->live) {
         simulate = true;
-        process_context( context_list.at(i) );
+        process_context(context_list.at(i));
       }
     }
 
@@ -565,10 +552,12 @@ int main(int argc, char const *argv[])
 {
   Simulator sim;
   sim.mem_spec_mode=true;
-  sim.initResources();
-  readGraph(sim.g, sim.cfg.resource_array);
-  readProfMemory(sim.memory);
-  readProfCF(sim.cf);
+  Reader r;
+  r.readCfg("input/config.txt", sim.cfg);
+  r.readGraph("input/graph2.txt", sim.g, sim.cfg);
+  r.readProfMemory("input/memory.txt", sim.memory);
+  r.readProfCF("input/ctrl.txt", sim.cf);
+  //r.read(sim);
   sim.initialize();
   sim.run();
   return 0;
