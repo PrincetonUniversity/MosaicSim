@@ -40,6 +40,10 @@ public:
   // Latency
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
+  int load_ports;
+  int store_ports;
+  int outstanding_load_requests;
+  int outstanding_store_requests;
   // TODO: handle 0 latency (currently we can't handle zero latency correctly)
 };
 
@@ -232,6 +236,10 @@ public:
     cfg.num_units[11] = -1;
     cfg.num_units[12] = -1;
     cfg.num_units[13] = -1;
+    cfg.load_ports = 4;
+    cfg.store_ports = 4;
+    cfg.outstanding_load_requests = 128;
+    cfg.outstanding_store_requests = 128;
   }
   // Read Dynamic Control Flow data from profiling file (ctrl.txt)
   // format of ctrl.txt:  

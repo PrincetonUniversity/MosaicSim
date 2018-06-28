@@ -8,6 +8,11 @@
 using namespace apollo;
 using namespace std;
 
+// TODO: Handle 0-latency instructions correctly
+// TODO: Handle 0-cycle context creation in a more general way
+// TODO: MSHR request merge
+
+
 class MemOp {
 public:
   uint64_t addr;
@@ -31,7 +36,6 @@ public:
     if(q.size() <= size - requested_space) {
       return true;
     }
-    
     else {
       int ct = 0;
       for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
@@ -189,9 +193,7 @@ public:
 
 class Simulator
 { 
-public:
-  // TODO: Handle 0-latency instructions correctly
-  
+public:  
   class DRAMSimCallBack {
     public:
       map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
@@ -218,10 +220,8 @@ public:
         Node *n = q.front().first;
         Context *c = q.front().second;
         sim->lsq.tracker.at(make_pair(n,c->id))->completed=true;
-         
         cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
         q.pop();
-     
         if(q.size() == 0)
           outstanding_accesses_map.erase(addr);
       }
@@ -236,6 +236,7 @@ public:
   vector<Context*> context_list;
   /* Resources */
   map<TInstr, int> FUs;
+  int ports[2]; // ports[0] = loads; ports[1] = stores;
 
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
@@ -293,6 +294,11 @@ public:
             canExecute = false;
           }
         }
+        // Memory Ports 
+        if (n->typeInstr == LD && ports[0] == 0)
+          canExecute = false;
+        if (n->typeInstr == ST && ports[1] == 0)
+          canExecute = false;
         // Memory dependency
         if (n->typeInstr == LD || n->typeInstr == ST) {
           DNode d = make_pair(n,c->id);
@@ -301,7 +307,7 @@ public:
             stallCondition = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
           else if (n->typeInstr == LD)
             stallCondition = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
-          canExecute = !stallCondition;
+          canExecute &= !stallCondition;
           uint64_t addr = lsq.tracker.at(d)->addr;
           canExecute &= mem->willAcceptTransaction(addr);
         }
@@ -318,9 +324,11 @@ public:
             lsq.tracker.at(d)->started = true;
             cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
             if (n->typeInstr == LD) { 
+              ports[0]--;
               mem->addTransaction(false, addr);
             }
             else if (n->typeInstr == ST) {
+              ports[1]--;
               mem->addTransaction(true, addr);
             }
             if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
@@ -433,12 +441,13 @@ public:
     cycle_count++;
     bool simulate = false;
     assert(cycle_count < 2000);
-
+    ports[0] = cfg.load_ports;
+    ports[1] = cfg.store_ports;
     // process all live contexts
     for (int i=0; i<context_list.size(); i++) {
       if (context_list.at(i)->live) {
         simulate = true;
-        process_context( context_list.at(i) );
+        process_context(context_list.at(i));
       }
     }
 
