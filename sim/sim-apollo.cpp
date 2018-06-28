@@ -97,7 +97,6 @@ public:
   std::set<Node*> start_set;
   std::set<Node*> next_start_set;
   std::vector<Node *> next_active_list;
-  std::vector<Node *> resource_limited_list;
 
   std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
