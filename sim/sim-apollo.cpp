@@ -105,7 +105,6 @@ public:
       if(it->spec_started && !(it->completed) && n->typeInstr == LD && it->addr == addr)
         it->spec_failed=true;
     }
-    
   }  
 };
 
@@ -392,43 +391,62 @@ public:
           if (n->typeInstr==LD && mem_spec_mode && lsq.tracker.at(d)->spec_started) {
             bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
             bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
-    
+
+            //TJH: (Speculatively) changing Luwa's code to a simpler version; check if it is correct
             //note: once started (address known), every store will update spec failed for all younger speculative stores with matching address
             if (lsq.tracker.at(d)->spec_failed) {
-              c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
+              // Handle Speculation Failure 
+              lsq.tracker.at(d)->spec_failed = false;
+              lsq.tracker.at(d)->spec_started = false;
+              c->remaining_cycles_map.at(n) = -1; 
               c->next_active_list.push_back(n);
-              if (exists_conflicting_ST) { // here, perhaps the flagging stores haven't completed. you have to stall, have it processed like a new load
-                lsq.tracker.at(d)->spec_failed = false;
-                lsq.tracker.at(d)->spec_started = false;                              
-                c->next_start_set.insert(n);
-                continue;
-              }
-              else if (exists_unresolved_ST) //you have to speculatively re-issue load
-                lsq.tracker.at(d)->spec_failed = false;               
-              else { //no speculation, re-issue actual load
-                lsq.tracker.at(d)->spec_failed = false;
-                lsq.tracker.at(d)->spec_started = false;               
-              }
-                   
-              cout << "Node [" << n->name << " @ context " << c->id << "]: Reissued Load after Speculation Fail for Address "<< addr << "\n";
-              assert(mem->willAcceptTransaction(addr)); 
-              c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
-              mem->addTransaction(false, addr);
-              if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
-                cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
-              cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
+              c->next_start_set.insert(n);
               continue;
             }
             //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
             //no need to reissue load, but you must check again
             else if (exists_unresolved_ST) { 
-              c->remaining_cycles_map.at(n) = 0;
-              c->next_active_list.push_back(n); 
+              c->next_active_list.push_back(n);
               continue;
             }
+            else if(exists_conflicting_ST) {
+              assert(false);
+            }
+            // //note: once started (address known), every store will update spec failed for all younger speculative stores with matching address
+            // if (lsq.tracker.at(d)->spec_failed) {
+            //   c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
+            //   c->next_active_list.push_back(n);
+            //   if (exists_conflicting_ST) { // here, perhaps the flagging stores haven't completed. you have to stall, have it processed like a new load
+            //     lsq.tracker.at(d)->spec_failed = false;
+            //     lsq.tracker.at(d)->spec_started = false;                              
+            //     c->next_start_set.insert(n);
+            //     continue;
+            //   }
+            //   else if (exists_unresolved_ST) //you have to speculatively re-issue load
+            //     lsq.tracker.at(d)->spec_failed = false;               
+            //   else { //no speculation, re-issue actual load
+            //     lsq.tracker.at(d)->spec_failed = false;
+            //     lsq.tracker.at(d)->spec_started = false;               
+            //   }
+                   
+            //   cout << "Node [" << n->name << " @ context " << c->id << "]: Reissued Load after Speculation Fail for Address "<< addr << "\n";
+            //   assert(mem->willAcceptTransaction(addr)); 
+            //   c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
+            //   mem->addTransaction(false, addr);
+            //   if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
+            //     cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
+            //   cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
+            //   continue;
+            // }
+            // //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
+            // //no need to reissue load, but you must check again
+            // else if (exists_unresolved_ST) { 
+            //   c->remaining_cycles_map.at(n) = 0;
+            //   c->next_active_list.push_back(n); 
+            //   continue;
+            // }
             //otherwise, nothing unresolved, nothing flagged as a conflict, so just complete the instruction
           }
-          
           if (n->typeInstr==ST && mem_spec_mode) {
             lsq.flag_misspec(d); //this store will flag every prior speculatively executed load with same address as failed          
           }         
