@@ -237,7 +237,7 @@ public:
   /* Resources */
   map<TInstr, int> FUs;
   int ports[2]; // ports[0] = loads; ports[1] = stores;
-
+  /* Cfg */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
