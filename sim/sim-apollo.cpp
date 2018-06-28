@@ -336,7 +336,7 @@ public:
             cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
           }
         }
-        else {
+        else {   // if cannot execute delay <node> until next cycle
           c->next_active_list.push_back(n);
           c->next_start_set.insert(n);
           continue;
@@ -355,8 +355,8 @@ public:
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
 
         // Handle Resource
-        if(FUs.at(n->typeInstr) != -1) { // FU limited operation
-          FUs.at(n->typeInstr)++;
+        if ( FUs.at(n->typeInstr) != -1 ) { // FU limited operation
+          FUs.at(n->typeInstr)++; // release FU
           cout << "Node [" << n->name << "]: released FU, new free FU: " << FUs.at(n->typeInstr) << endl;
         }
 
@@ -417,7 +417,8 @@ public:
       }
       else
         assert(false);
-    }
+    } //end for
+
     // Continue with following active instructions
     c->start_set = c->next_start_set;
     c->active_list = c->next_active_list;
