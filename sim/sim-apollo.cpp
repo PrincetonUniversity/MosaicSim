@@ -287,7 +287,7 @@ public:
       Node *n = c->active_list.at(i);
       if (c->start_set.find(n) != c->start_set.end()) {
         bool canExecute = true;
-        // Resource (FU) availability 
+        // check resource (FU) availability 
         if (FUs.at(n->typeInstr) != -1) {
           if (FUs.at(n->typeInstr) == 0) {
             cout << "Node [" << n->name << "]: cannot start due to lack of FUs \n";
@@ -315,8 +315,8 @@ public:
         if(canExecute) {
           cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
           if (FUs.at(n->typeInstr) != -1) {
-            cout << "Node [" << n->name << "]: acquired FU (new free FU: " << FUs.at(n->typeInstr) << ")\n";
             FUs.at(n->typeInstr)--;
+            cout << "Node [" << n->name << "]: acquired FU (new free FUs: " << FUs.at(n->typeInstr) << ")\n";
           }
           if (n->typeInstr == LD || n->typeInstr == ST) {
             DNode d = make_pair(n,c->id);

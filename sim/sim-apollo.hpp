@@ -178,7 +178,7 @@ public:
   friend std::ostream &operator<<(std::ostream &os, Graph &g) {
     os << "Graph: Total_nodes=" << g.nodes.size() << std::endl;
     for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
-      std::cout << it->first << ":" << *it->second << std::endl;
+      std::cout << it->first << ":" << *it->second;
     std::cout << "";
     return os;
   }
@@ -193,7 +193,7 @@ public:
     readProfMemory("input/memory.txt", sim.memory);
     readProfCF("input/ctrl.txt", sim.cf);
   }*/
-  // helper function for reading text files
+  // helper function: split a string [with delimiter] into a vector
   vector<string> split(const string &s, char delim) {
      stringstream ss(s);
      string item;
@@ -208,43 +208,42 @@ public:
     cfg.lsq_size = 512;
     cfg.CF_one_context_at_once = true;
     cfg.CF_all_contexts_concurrently = false;
-    cfg.instr_latency[0] = 1;
-    cfg.instr_latency[1] = 1;
-    cfg.instr_latency[2] = 1;
-    cfg.instr_latency[3] = 1;
-    cfg.instr_latency[4] = 1;
-    cfg.instr_latency[5] = 3;
-    cfg.instr_latency[6] = 3;
-    cfg.instr_latency[7] = 9;
-    cfg.instr_latency[8] = 9;
-    cfg.instr_latency[9] = -1;
-    cfg.instr_latency[10] = 1;
-    cfg.instr_latency[11] = 1;
-    cfg.instr_latency[12] = 1;
-    cfg.instr_latency[13] = 1;
-    cfg.num_units[0] = -1;
-    cfg.num_units[1] = -1;
-    cfg.num_units[2] = -1;
-    cfg.num_units[3] = -1;
-    cfg.num_units[4] = -1;
-    cfg.num_units[5] = 1;
-    cfg.num_units[6] = 1;
-    cfg.num_units[7] = 1;
-    cfg.num_units[8] = 1;
-    cfg.num_units[9] = -1;
-    cfg.num_units[10] = -1;
-    cfg.num_units[11] = -1;
-    cfg.num_units[12] = -1;
-    cfg.num_units[13] = -1;
+    cfg.instr_latency[I_ADD] = 5;
+    cfg.instr_latency[FP_ADD] = 1;
+    cfg.instr_latency[I_SUB] = 1;
+    cfg.instr_latency[FP_SUB] = 1;
+    cfg.instr_latency[LOGICAL] = 1;
+    cfg.instr_latency[I_MULT] = 3;
+    cfg.instr_latency[FP_MULT] = 3;
+    cfg.instr_latency[I_DIV] = 9;
+    cfg.instr_latency[FP_DIV] = 9;
+    cfg.instr_latency[LD] = -1;
+    cfg.instr_latency[ST] = 1;
+    cfg.instr_latency[ENTRY] = 1;
+    cfg.instr_latency[TERMINATOR] = 1;
+    cfg.instr_latency[PHI] = 1;
+    cfg.num_units[I_ADD] = 1;
+    cfg.num_units[FP_ADD] = -1;
+    cfg.num_units[I_SUB] = -1;
+    cfg.num_units[FP_SUB] = -1;
+    cfg.num_units[LOGICAL] = -1;
+    cfg.num_units[I_MULT] = 1;
+    cfg.num_units[FP_MULT] = 1;
+    cfg.num_units[I_DIV] = 1;
+    cfg.num_units[FP_DIV] = 1;
+    cfg.num_units[LD] = -1;
+    cfg.num_units[ST] = -1;
+    cfg.num_units[ENTRY] = -1;
+    cfg.num_units[TERMINATOR] = -1;
+    cfg.num_units[PHI] = -1;
     cfg.load_ports = 4;
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
   }
-  // Read Dynamic Control Flow data from profiling file (ctrl.txt)
-  // format of ctrl.txt:  
-  //      <string_bb_name>,<current_bb_id>,<next_bb_id>
-  // argument <cf> will contain the sequential list of executed BBs
+  // Read Dynamic Control Flow data from profiling file. 
+  // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
+  // vector <cf> will be the sequential list of executed BBs
   void readProfCF(std::string name, std::vector<int> &cf) {
     string line;
     string last_line;
@@ -266,9 +265,8 @@ public:
     }
     cfile.close();
   }
-
-  // Read Dynamic Memory accesses from profiling file (memory.txt)
-  // argument <memory> will contain a map of { <instr_id>, <queue of addresses> }
+  // Read Dynamic Memory accesses from profiling file.
+  // <memory> will be a map of { <instr_id>, <queue of addresses> }
   void readProfMemory(std::string name, std::map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
