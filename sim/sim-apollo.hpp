@@ -44,6 +44,7 @@ public:
   int store_ports;
   int outstanding_load_requests;
   int outstanding_store_requests;
+  // TODO: handle 0 latency (currently we can't handle zero latency correctly)
 };
 
 
