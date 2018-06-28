@@ -14,6 +14,8 @@ public:
   DNode d;
   bool started=false;
   bool completed=false;
+  bool spec_started=false;
+  bool spec_failed=false;
   MemOp(uint64_t addr, DNode d) : addr(addr), d(d){}
 };
 
@@ -54,7 +56,9 @@ public:
     q.push_back(*temp);
     tracker.insert(make_pair(d, temp));
   }
-  bool exists_unresolved_memop (DNode in, TInstr op_type) {    
+  //there's at least one unstarted (unknown address) older memop
+  //negation: every older memop has at least started (knows address)
+  bool exists_unresolved_memop (DNode in, TInstr op_type) {
     for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
       Node *n = it->d.first;
       int cid = it->d.second;
@@ -62,11 +66,14 @@ public:
         return false;
       else if(cid > in.second || ((cid == in.second) && (n->id > in.first->id)))
         return false;
-      if(!(it->started) && n->typeInstr == op_type)
+      if(!(it->started) && n->typeInstr == op_type) {
         return true;
+      }     
     }
     return false;
   }
+  //there's at least one started, uncompleted older memop with same address
+  //negation says all started, uncompleted older memops don't match address
   bool exists_conflicting_memop (DNode in, TInstr op_type) {
     uint64_t addr = tracker.at(in)->addr;
     for(deque<MemOp>::iterator it = q.begin(); it!= q.end(); ++it) {
@@ -81,7 +88,23 @@ public:
     }
     return false;
   }
+
+  void flag_misspec (DNode in) {
+    uint64_t addr = tracker.at(in)->addr;
+    for(deque<MemOp>::iterator it = q.end(); it!= q.begin(); --it) {
+      Node *n = it->d.first;
+      int cid = it->d.second;
+      if(it->d == in)
+        break;
+      else if(cid < in.second || ((cid == in.second) && (n->id < in.first->id)))
+        break;
+      if(it->spec_started && !(it->completed) && n->typeInstr == LD && it->addr == addr)
+        it->spec_failed=true;
+    }
+    
+  }  
 };
+
 class Context {
 public:
   bool live;
@@ -123,7 +146,6 @@ public:
         uint64_t addr = memory.at(n->id).front();
         lsq.insert(addr, make_pair(n, id));
         memory.at(n->id).pop();
-
       }
           
       if(n->typeInstr == PHI)
@@ -206,7 +228,7 @@ public:
         queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
         Node *n = q.front().first;
         Context *c = q.front().second;
-        sim->lsq.tracker.at(make_pair(n,c->id))->completed = true;
+     
         cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
         if (c->remaining_cycles_map.find(n) == c->remaining_cycles_map.end())
           cout << *n << " / " << c->id << "\n";
@@ -221,8 +243,7 @@ public:
         queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
         Node *n = q.front().first;
         Context *c = q.front().second;
-        sim->lsq.tracker.at(make_pair(n,c->id))->completed=true;
-         
+                
         cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
         q.pop();
      
@@ -248,6 +269,7 @@ public:
   /* Handling Phi Dependencies */
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   LoadStoreQ lsq;
+  bool mem_spec_mode=false;
    
   // **** simulator CONFIGURATION parameters
   struct {
@@ -329,25 +351,30 @@ public:
         
           //uint64_t addr = memory.at(n->id).front();  // get the 1st (oldest) memory access for this <id>
 
-          bool must_stall=false;
           DNode d = make_pair(n,c->id);
           lsq.tracker.at(d)->started = true;
 
+          bool must_stall=false;
+          bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
+          bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
+          bool will_speculate = false;
           //you have to stall if any older loads or stores haven't started (i.e., don't know their address yet)
-          //you also have to stall if all the older loads or stores know their address, but one hasn't completed 
-
+          //you also have to stall if any older loads or stores know their address and haven't completed 
           if (n->typeInstr == ST)
-            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, ST) || lsq.exists_conflicting_memop(d, LD);
-          else if (n->typeInstr == LD)
-            must_stall = lsq.exists_unresolved_memop(d, ST) || lsq.exists_conflicting_memop(d, ST);
-      
+            must_stall = exists_unresolved_ST || exists_conflicting_ST || lsq.exists_unresolved_memop(d, LD) || lsq.exists_conflicting_memop(d, LD);
+          else if (n->typeInstr == LD) {           
+            must_stall = (exists_unresolved_ST && !mem_spec_mode) || exists_conflicting_ST;
+            will_speculate = mem_spec_mode && exists_unresolved_ST && !exists_conflicting_ST;
+          }
           if(must_stall) {
             c->next_active_list.push_back(n);
             c->next_start_set.insert(n);
             continue;
           }
+          if (will_speculate) 
+            lsq.tracker.at(d)->spec_started = true;
+          
           uint64_t addr = lsq.tracker.at(d)->addr;
-       
           //memory.at(n->id).pop(); // ...and take it out of the queue
           cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
           assert(mem->willAcceptTransaction(addr));
@@ -376,7 +403,59 @@ public:
       }
       else if (remaining_cycles == 0) { // Execution Finished for node <n>
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
+
+        
+        if (n->typeInstr==LD || n->typeInstr==ST) {
+          DNode d = make_pair(n,c->id);
+          uint64_t addr = lsq.tracker.at(d)->addr;
+          
+          //adding support for speculation
+          if (n->typeInstr==LD && mem_spec_mode && lsq.tracker.at(d)->spec_started) {
+            bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
+            bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
     
+            //note: once started (address known), every store will update spec failed for all younger speculative stores with matching address
+            if (lsq.tracker.at(d)->spec_failed) {
+              c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
+              c->next_active_list.push_back(n);
+              if (exists_conflicting_ST) { // here, perhaps the flagging stores haven't completed. you have to stall, have it processed like a new load
+                lsq.tracker.at(d)->spec_failed = false;
+                lsq.tracker.at(d)->spec_started = false;                              
+                c->next_start_set.insert(n);
+                continue;
+              }
+              else if (exists_unresolved_ST) //you have to speculatively re-issue load
+                lsq.tracker.at(d)->spec_failed = false;               
+              else { //no speculation, re-issue actual load
+                lsq.tracker.at(d)->spec_failed = false;
+                lsq.tracker.at(d)->spec_started = false;               
+              }
+                   
+              cout << "Node [" << n->name << " @ context " << c->id << "]: Reissued Load after Speculation Fail for Address "<< addr << "\n";
+              assert(mem->willAcceptTransaction(addr)); 
+              c->remaining_cycles_map.at(n) = -1; //this got set to 0 by read_complete
+              mem->addTransaction(false, addr);
+              if (cb.outstanding_accesses_map.find(addr) == cb.outstanding_accesses_map.end())
+                cb.outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, Context*>>()));
+              cb.outstanding_accesses_map.at(addr).push(make_pair(n, c));
+              continue;
+            }
+            //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
+            //no need to reissue load, but you must check again
+            else if (exists_unresolved_ST) { 
+              c->remaining_cycles_map.at(n) = 0;
+              c->next_active_list.push_back(n); 
+              continue;
+            }
+            //otherwise, nothing unresolved, nothing flagged as a conflict, so just complete the instruction
+          }
+          
+          if (n->typeInstr==ST && mem_spec_mode) {
+            lsq.flag_misspec(d); //this store will flag every prior speculatively executed load with same address as failed          
+          }
+          
+          lsq.tracker.at(d)->completed = true;
+        }
         // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
         //     iff <simulation mode> is "CF_one_context_at_once"
         if (cfg.CF_one_context_at_once && n->typeInstr == TERMINATOR) {
@@ -485,6 +564,7 @@ public:
 int main(int argc, char const *argv[])
 {
   Simulator sim;
+  sim.mem_spec_mode=true;
   sim.initResources();
   readGraph(sim.g, sim.cfg.resource_array);
   readProfMemory(sim.memory);
