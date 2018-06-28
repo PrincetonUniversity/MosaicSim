@@ -11,7 +11,7 @@ using namespace std;
 // TODO: Handle 0-latency instructions correctly
 // TODO: Handle 0-cycle context creation in a more general way
 // TODO: MSHR request merge
-
+// TODO: Two phase cycle (i.e., make sure resource free and take happen at the same cycle)
 
 class MemOp {
 public:
@@ -97,7 +97,6 @@ public:
   std::set<Node*> start_set;
   std::set<Node*> next_start_set;
   std::vector<Node *> next_active_list;
-  std::vector<Node *> resource_limited_list;
 
   std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
@@ -237,7 +236,7 @@ public:
   /* Resources */
   map<TInstr, int> FUs;
   int ports[2]; // ports[0] = loads; ports[1] = stores;
-
+  /* Cfg */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   int cf_iterator = 0;
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
