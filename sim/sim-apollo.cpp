@@ -383,7 +383,7 @@ public:
       else if (remaining_cycles == 0) { // Execution Finished for node <n>
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
 
-        if (n->typeInstr==LD || n->typeInstr==ST) {
+        if (n->typeInstr == LD || n->typeInstr == ST) {
           DNode d = make_pair(n,c->id);
           uint64_t addr = lsq.tracker.at(d)->addr;
           
