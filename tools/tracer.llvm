@@ -45,12 +45,11 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.6 = private unnamed_addr constant [6 x i8] c"false\00", align 1
 @.str.7 = private unnamed_addr constant [10 x i8] c"tracer.cc\00", align 1
 @__PRETTY_FUNCTION__._Z12printuBranchPcS_ = private unnamed_addr constant [34 x i8] c"void printuBranch(char *, char *)\00", align 1
-@.str.8 = private unnamed_addr constant [7 x i8] c"Test \0A\00", align 1
-@.str.9 = private unnamed_addr constant [3 x i8] c"U,\00", align 1
-@.str.10 = private unnamed_addr constant [15 x i8] c"output/mem.txt\00", align 1
-@.str.11 = private unnamed_addr constant [3 x i8] c"L,\00", align 1
-@.str.12 = private unnamed_addr constant [3 x i8] c"S,\00", align 1
-@.str.14 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
+@.str.8 = private unnamed_addr constant [3 x i8] c"U,\00", align 1
+@.str.9 = private unnamed_addr constant [15 x i8] c"output/mem.txt\00", align 1
+@.str.10 = private unnamed_addr constant [3 x i8] c"L,\00", align 1
+@.str.11 = private unnamed_addr constant [3 x i8] c"S,\00", align 1
+@.str.13 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
 @llvm.global_ctors = appending global [1 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 65535, void ()* @_GLOBAL__sub_I_tracer.cc, i8* null }]
 
 declare dso_local void @_ZNSt8ios_base4InitC1Ev(%"class.std::ios_base::Init"*) unnamed_addr #0
@@ -187,63 +186,62 @@ if.else.i:                                        ; preds = %if.then
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
-  %call.i.i12 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
-  br i1 %call.i.i12, label %if.end4, label %if.then3
+  %call.i.i11 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
+  br i1 %call.i.i11, label %if.end4, label %if.then3
 
 if.then3:                                         ; preds = %if.end
   tail call void @__assert_fail(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.6, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.7, i64 0, i64 0), i32 27, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__PRETTY_FUNCTION__._Z12printuBranchPcS_, i64 0, i64 0)) #14
   unreachable
 
 if.end4:                                          ; preds = %if.end
-  %call1.i14 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([7 x i8], [7 x i8]* @.str.8, i64 0, i64 0), i64 6)
-  %call1.i17 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.9, i64 0, i64 0), i64 2)
-  %tobool.i19 = icmp eq i8* %name, null
-  br i1 %tobool.i19, label %if.then.i22, label %if.else.i25
+  %call1.i13 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.8, i64 0, i64 0), i64 2)
+  %tobool.i15 = icmp eq i8* %name, null
+  br i1 %tobool.i15, label %if.then.i18, label %if.else.i21
 
-if.then.i22:                                      ; preds = %if.end4
+if.then.i18:                                      ; preds = %if.end4
   %vtable.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
   %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
   %4 = bitcast i8* %vbase.offset.ptr.i to i64*
   %vbase.offset.i = load i64, i64* %4, align 8
   %add.ptr.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i
   %5 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i20 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
-  %6 = bitcast i8* %_M_streambuf_state.i.i.i20 to i32*
+  %_M_streambuf_state.i.i.i16 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
+  %6 = bitcast i8* %_M_streambuf_state.i.i.i16 to i32*
   %7 = load i32, i32* %6, align 8, !tbaa !5
-  %or.i.i.i21 = or i32 %7, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %5, i32 %or.i.i.i21)
+  %or.i.i.i17 = or i32 %7, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %5, i32 %or.i.i.i17)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-if.else.i25:                                      ; preds = %if.end4
-  %call.i.i23 = tail call i64 @strlen(i8* nonnull %name) #2
-  %call1.i24 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i23)
+if.else.i21:                                      ; preds = %if.end4
+  %call.i.i19 = tail call i64 @strlen(i8* nonnull %name) #2
+  %call1.i20 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i19)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i22, %if.else.i25
-  %call1.i27 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %tobool.i29 = icmp eq i8* %n1, null
-  br i1 %tobool.i29, label %if.then.i36, label %if.else.i39
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i18, %if.else.i21
+  %call1.i23 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
+  %tobool.i25 = icmp eq i8* %n1, null
+  br i1 %tobool.i25, label %if.then.i32, label %if.else.i35
 
-if.then.i36:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %vtable.i30 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
-  %vbase.offset.ptr.i31 = getelementptr i8, i8* %vtable.i30, i64 -24
-  %8 = bitcast i8* %vbase.offset.ptr.i31 to i64*
-  %vbase.offset.i32 = load i64, i64* %8, align 8
-  %add.ptr.i33 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i32
-  %9 = bitcast i8* %add.ptr.i33 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i34 = getelementptr inbounds i8, i8* %add.ptr.i33, i64 32
-  %10 = bitcast i8* %_M_streambuf_state.i.i.i34 to i32*
+if.then.i32:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %vtable.i26 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+  %vbase.offset.ptr.i27 = getelementptr i8, i8* %vtable.i26, i64 -24
+  %8 = bitcast i8* %vbase.offset.ptr.i27 to i64*
+  %vbase.offset.i28 = load i64, i64* %8, align 8
+  %add.ptr.i29 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i28
+  %9 = bitcast i8* %add.ptr.i29 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i30 = getelementptr inbounds i8, i8* %add.ptr.i29, i64 32
+  %10 = bitcast i8* %_M_streambuf_state.i.i.i30 to i32*
   %11 = load i32, i32* %10, align 8, !tbaa !5
-  %or.i.i.i35 = or i32 %11, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %9, i32 %or.i.i.i35)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit40
+  %or.i.i.i31 = or i32 %11, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %9, i32 %or.i.i.i31)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36
 
-if.else.i39:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %call.i.i37 = tail call i64 @strlen(i8* nonnull %n1) #2
-  %call1.i38 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %n1, i64 %call.i.i37)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit40
+if.else.i35:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %call.i.i33 = tail call i64 @strlen(i8* nonnull %n1) #2
+  %call1.i34 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %n1, i64 %call.i.i33)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit40: ; preds = %if.then.i36, %if.else.i39
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36: ; preds = %if.then.i32, %if.else.i35
   %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
   ret void
 }
@@ -258,7 +256,7 @@ entry:
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
-  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1), i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.10, i64 0, i64 0), i32 48)
+  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1), i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.9, i64 0, i64 0), i32 48)
   %tobool.i = icmp eq %"class.std::basic_filebuf"* %call2.i, null
   %vtable3.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f2 to i8**), align 8, !tbaa !2
   %vbase.offset.ptr4.i = getelementptr i8, i8* %vtable3.i, i64 -24
@@ -284,7 +282,7 @@ if.end:                                           ; preds = %if.else.i, %if.then
   br i1 %type, label %if.then13, label %if.then2
 
 if.then2:                                         ; preds = %if.end
-  %call1.i29 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
+  %call1.i29 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.10, i64 0, i64 0), i64 2)
   %tobool.i31 = icmp eq i8* %name, null
   br i1 %tobool.i31, label %if.then.i34, label %if.else.i37
 
@@ -316,7 +314,7 @@ _ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then
   br label %if.end22
 
 if.then13:                                        ; preds = %if.end
-  %call1.i48 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.12, i64 0, i64 0), i64 2)
+  %call1.i48 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
   %tobool.i50 = icmp eq i8* %name, null
   br i1 %tobool.i50, label %if.then.i57, label %if.else.i60
 
@@ -654,7 +652,7 @@ if.then30:                                        ; preds = %invoke.cont27
   br i1 %cmp.i.i123, label %35, label %if.then.i.i124
 
 if.then.i.i124:                                   ; preds = %if.then30
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.14, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i122) #15
+  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.13, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i122) #15
           to label %.noexc126 unwind label %lpad26
 
 .noexc126:                                        ; preds = %if.then.i.i124
@@ -673,7 +671,7 @@ lpad26:                                           ; preds = %if.then.i.i124
 
 cleanup:                                          ; preds = %for.cond20, %for.cond.cleanup, %35
   %38 = phi i8* [ %37, %35 ], [ %def, %for.cond.cleanup ], [ %def, %for.cond20 ]
-  %call1.i129 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.12, i64 0, i64 0), i64 2)
+  %call1.i129 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
           to label %invoke.cont41 unwind label %lpad40
 
 invoke.cont41:                                    ; preds = %cleanup
