@@ -219,9 +219,9 @@ public:
     cfg.instr_latency[FP_DIV] = 9;
     cfg.instr_latency[LD] = -1;
     cfg.instr_latency[ST] = 1;
-    cfg.instr_latency[ENTRY] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;
+    cfg.instr_latency[ENTRY] = 1;
     cfg.num_units[I_ADD] = 1;
     cfg.num_units[FP_ADD] = -1;
     cfg.num_units[I_SUB] = -1;
