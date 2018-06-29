@@ -1,0 +1,51 @@
+# System files.
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE-specific metadata.
+*.idea
+
+# Pre-compiler generated directories.
+build/
+cmake-build-*/
+CMakeScripts/
+CMakeFiles/
+Testing/
+
+# Pre-compiler generated files.
+CMakeCache.txt
+*.cmake
+*.ninja*
+
+# Compiler-generated directories.
+lib/
+bin/
+
+# Compiler-generated prerequisites/dependencies.
+*.d
+
+# Compiler-generated static libraries.
+*.a
+*.lib
+
+# Compiler-generated dynamic libraries.
+*.so
+!libdramsim.so
+*.dll
+*.dylib
+
+# Compiler-generated assembly and IR files.
+*.s
+*.bc
+*.ll
+
+# Compiler-generated object files.
+*.o
+*.obj
+
+# Run-time generated directories.
+
+# Run-time generated files.
+*.dot
+*.png
