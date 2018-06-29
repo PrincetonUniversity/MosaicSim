@@ -19,6 +19,7 @@
 
 using namespace std;
 namespace apollo {
+//TODO : FIX ReadGraph Name (with comma)
 
 #define NUM_INST_TYPES 16
 class Node;
@@ -198,6 +199,7 @@ public:
      stringstream ss(s);
      string item;
      vector<string> tokens;
+     int ct = 0;
      while (getline(ss, item, delim)) {
         tokens.push_back(item);
      }
@@ -321,14 +323,20 @@ public:
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
         int bbid = stoi(s.at(2));
         string name = s.at(3);
-        name = s.at(3).substr(0, s.at(3).size()-1);
+        name = s.at(3).substr(0, s.at(3).size());
         g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
       }
       for (int i=0; i<numEdge; i++) {
         getline(cfile,line);
         vector<string> s = split(line, ',');
-        TEdge type = static_cast<TEdge>(stoi(s.at(2)));
-        g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
+        int edgeT = stoi(s.at(2));
+        if(edgeT != -1) {
+          TEdge type = static_cast<TEdge>(stoi(s.at(2)));
+          g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
+        }
+        else {
+          g.addDependent(g.bbs.at(stoi(s.at(0)))->entry, g.getNode(stoi(s.at(1))), PHI_DEP);     
+        }
       }
       if (getline(cfile,line))
         assert(false);

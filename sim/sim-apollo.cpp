@@ -206,8 +206,10 @@ public:
 
   void launchNode(Node *n) {
     // check if node <n> can be launched
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0)
+    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
+      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
       return;
+    }
     next_active_list.push_back(n);
     next_start_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Ready to Execute\n";
@@ -573,24 +575,23 @@ public:
 int main(int argc, char const *argv[])
 {
   Simulator sim;
-  sim.mem_spec_mode=true;
+  sim.mem_spec_mode= true;
   Reader r;
-  //if(argc != 2)
-  //  assert(false);
-  //cout << "Path: " << argv[1] << "\n";
-  //string s(argv[1]);
-  string s = "";
+  r.readCfg("sim/config/config.txt", sim.cfg);
+  /* Workload 
+  if(argc != 2)
+    assert(false);
+  cout << "Path: " << argv[1] << "\n";
+  string s(argv[1]);
   string gname = s + "/output/graphOutput.txt";
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
-  r.readCfg("sim/config/config.txt", sim.cfg);
-  //r.readGraph(gname, sim.g, sim.cfg);
-  //r.readProfMemory(mname , sim.memory);
-  //r.readProfCF(cname, sim.cf);
+  r.readGraph(gname, sim.g, sim.cfg);
+  r.readProfMemory(mname , sim.memory);
+  r.readProfCF(cname, sim.cf); */
   r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
   r.readProfCF("../workloads/toy/toycf.txt", sim.cf);
-  //r.read(sim);
   sim.initialize();
   sim.run();
   return 0;

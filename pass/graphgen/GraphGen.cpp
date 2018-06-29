@@ -8,7 +8,8 @@ public:
   static char ID;
   Graph depGraph;
   std::map<Value*,Node*> nodeMap;
-
+  //TODO: Handle BB to Phi Dependency better
+  std::vector<std::pair<int,int>> bb_to_phi_edges;
   GraphGen(): FunctionPass(ID) { }
   virtual bool runOnFunction(Function &func) override;
   virtual StringRef getPassName() const override;
@@ -109,6 +110,10 @@ void GraphGen::addPhiEdges(Function &func) {
         if(isa<Instruction>(v)) {
           auto phisrc =  nodeMap.at(v);
           depGraph.addEdge(phisrc, phidst, Edge_Phi);
+        }
+        else {
+          BasicBlock *srcb = phiNode.getIncomingBlock(i);
+          bb_to_phi_edges.push_back(std::make_pair(nodeMap.at(srcb)->bb_id, phidst->id));
         }
       }
     }
@@ -220,7 +225,7 @@ void GraphGen::exportGraph() {
   if (cfile.is_open()) {
     cfile << depGraph.bb_nodes.size() << "\n";
     cfile << depGraph.i_nodes.size() << "\n";
-    cfile << depGraph.num_export_edges << "\n";
+    cfile << depGraph.num_export_edges  + bb_to_phi_edges.size() << "\n";
     for(int i=0; i<depGraph.i_nodes.size(); i++) {
       Node *n =depGraph.i_nodes.at(i);
       cfile << n->id << "," << static_cast<int>(n->itype) << "," << n->bb_id << "," << n->name << "\n";
@@ -240,7 +245,11 @@ void GraphGen::exportGraph() {
         }
       }
     }
-    if(ect != depGraph.num_export_edges) {
+    for(int i=0; i<bb_to_phi_edges.size(); i++) {
+      cfile << bb_to_phi_edges.at(i).first << "," << bb_to_phi_edges.at(i).second << ",-1\n";
+      ect++;
+    }
+    if(ect != (depGraph.num_export_edges+bb_to_phi_edges.size())) {
       errs() << "Ect : " << ect << " / " << depGraph.num_export_edges <<"\n";
       assert(false);
     }
