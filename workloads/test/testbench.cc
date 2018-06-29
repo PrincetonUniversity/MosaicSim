@@ -5,7 +5,7 @@
 void _kernel_testbench(int*  __restrict__ a, int* __restrict__ b, int * __restrict__ c)
 {
   #pragma clang loop unroll(disable)
-  for(int i=0; i<ARRAY_SIZE; i++) {
+  for(int i=0; i<10; i++) {
       a[i] = b[i]+ c[i];
   } 
 }

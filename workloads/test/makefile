@@ -12,7 +12,7 @@ testbench: testbench.cc
 clean: 
 	rm -f $(NAME)
 	rm output/*.txt
-	rm output/*.dot
+	rm int/*.dot
 	rm output/*.png
 	rm *.out
 	rm int/*.llvm

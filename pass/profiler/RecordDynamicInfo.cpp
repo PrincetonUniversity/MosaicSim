@@ -19,6 +19,8 @@ struct RecordDynamicInfo : public ModulePass {
   Function *printSw;
   Function *printMem;
   Module *mod;
+  std::map<BasicBlock*, int> bb_id_table;
+  std::map<Instruction*, int> id_table;
   RecordDynamicInfo() : ModulePass(ID) {}
   bool runOnModule(Module &M) override {
     mod = &(M);
@@ -39,14 +41,29 @@ struct RecordDynamicInfo : public ModulePass {
     printMem = cast<Function>(printMemFunc);
     for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
         if (isFoI(*fI)) {
+          assignID(*fI);
           errs() << fI->getName() << "\n";
           instInspect(*fI);
         }
     }
     return false;
   }
+  void assignID(Function &F) {
+    int bb_id = 0;
+    int id = 0;
+    for (BasicBlock &B : F)  {
+      bb_id_table.insert(std::make_pair(&B, bb_id));
+      bb_id++;
+      for(Instruction &I : B) {
+        id_table.insert(std::make_pair(&I, id));
+        id++;
+      }
+    }
+  }
   int findBID(BasicBlock *bb)
   {
+    return bb_id_table.at(bb);
+    /*
     Function *f = bb->getParent();
     int id = 0;
     for (BasicBlock &B : *f)  {
@@ -54,11 +71,13 @@ struct RecordDynamicInfo : public ModulePass {
       if(bb == curb)
         return id;
       id++;
-    }
-    return -1;
+    }*/
+    //return -1;
   }
   int findID(Instruction *ins)
   {
+    return id_table.at(ins);
+    /*
     Function *F = ins->getParent()->getParent();
     int ct = 0;
     for (inst_iterator iI = inst_begin(*F), iE = inst_end(*F);iI != iE; iI++) {
@@ -66,8 +85,8 @@ struct RecordDynamicInfo : public ModulePass {
         if(ins == inst)
           return ct;
         ct++;
-    }
-    return -1;
+    }*/
+    //return -1;
   }
   bool isFoI(Function &F) {
     return (F.getName().str().find(KERNEL_STR) != std::string::npos);

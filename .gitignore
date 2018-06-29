@@ -12,6 +12,10 @@ cmake-build-*/
 CMakeScripts/
 CMakeFiles/
 Testing/
+*.out
+# Workloads Internal
+workloads/test/int/
+workloads/test/output/
 
 # Pre-compiler generated files.
 CMakeCache.txt

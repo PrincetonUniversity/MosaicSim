@@ -520,7 +520,7 @@ public:
       }
       else
         assert(false);
-    } //end for
+    }
 
     // Continue with following active instructions
     c->start_set = c->next_start_set;
@@ -545,7 +545,7 @@ public:
     cout << "[Cycle: " << cycle_count << "]\n";
     cycle_count++;
     bool simulate = false;
-    assert(cycle_count < 2000);
+    assert(cycle_count < 500);
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
     // process all live contexts
@@ -579,9 +579,9 @@ int main(int argc, char const *argv[])
   //  assert(false);
   cout << "Path: " << argv[1] << "\n";
   string s(argv[1]);
-  string gname = s + "/graphOutput.txt";
-  string mname = s + "/mem.txt";
-  string cname = s + "/ctrl.txt";
+  string gname = s + "/output/graphOutput.txt";
+  string mname = s + "/output/mem.txt";
+  string cname = s + "/output/ctrl.txt";
   r.readCfg("sim/config/config.txt", sim.cfg);
   //r.readGraph(gname, sim.g, sim.cfg);
   //r.readProfMemory(mname , sim.memory);
