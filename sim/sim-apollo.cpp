@@ -148,7 +148,7 @@ public:
       if (n->typeInstr == ST || n->typeInstr == LD) {
         // add entries to LSQ
         if(memory.find(n->id) == memory.end()) {
-          cout << "ID: " << n->id << "\n";
+          cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
           assert(false);
         }
         uint64_t addr = memory.at(n->id).front();
@@ -577,8 +577,9 @@ int main(int argc, char const *argv[])
   Reader r;
   //if(argc != 2)
   //  assert(false);
-  cout << "Path: " << argv[1] << "\n";
-  string s(argv[1]);
+  //cout << "Path: " << argv[1] << "\n";
+  //string s(argv[1]);
+  string s = "";
   string gname = s + "/output/graphOutput.txt";
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
