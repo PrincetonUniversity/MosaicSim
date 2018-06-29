@@ -20,10 +20,10 @@
 using namespace std;
 namespace apollo {
 
-#define NUM_INST_TYPES 14
+#define NUM_INST_TYPES 16
 class Node;
 typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
-typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, LOGICAL, CAST, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
+typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
 typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
 
 // TJH: For now, we can assume that one instruction type corresponds to one functional unit 
@@ -208,7 +208,7 @@ public:
     cfg.lsq_size = 512;
     cfg.CF_one_context_at_once = true;
     cfg.CF_all_contexts_concurrently = false;
-    typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, LOGICAL, CAST, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
+    typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
 
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
@@ -217,8 +217,10 @@ public:
     cfg.instr_latency[FP_ADDSUB] = 1;
     cfg.instr_latency[FP_MULT] = 3;
     cfg.instr_latency[FP_DIV] = 9;
+    cfg.instr_latency[FP_REM] = 1;
     cfg.instr_latency[LOGICAL] = 1;
     cfg.instr_latency[CAST] = 1;
+    cfg.instr_latency[GEP] = 1;
     cfg.instr_latency[LD] = -1;
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
@@ -227,12 +229,14 @@ public:
     cfg.num_units[I_ADDSUB] = -1;
     cfg.num_units[I_MULT] = 4;
     cfg.num_units[I_DIV] = 4;
-    cfg.num_units[I_REM] = -1;
+    cfg.num_units[I_REM] = 4;
     cfg.num_units[FP_ADDSUB] = -1;
     cfg.num_units[FP_MULT] = 4;
     cfg.num_units[FP_DIV] = 4;
+    cfg.num_units[FP_REM] = 4;
     cfg.num_units[LOGICAL] = -1;
     cfg.num_units[CAST] = -1;
+    cfg.num_units[GEP] = -1;
     cfg.num_units[LD] = -1;
     cfg.num_units[ST] = -1;
     cfg.num_units[TERMINATOR] = -1;
