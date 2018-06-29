@@ -23,7 +23,7 @@ namespace apollo {
 #define NUM_INST_TYPES 14
 class Node;
 typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
-typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
+typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, LOGICAL, CAST, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
 typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
 
 // TJH: For now, we can assume that one instruction type corresponds to one functional unit 
@@ -208,34 +208,36 @@ public:
     cfg.lsq_size = 512;
     cfg.CF_one_context_at_once = true;
     cfg.CF_all_contexts_concurrently = false;
-    cfg.instr_latency[I_ADD] = 5;
-    cfg.instr_latency[FP_ADD] = 1;
-    cfg.instr_latency[I_SUB] = 1;
-    cfg.instr_latency[FP_SUB] = 1;
-    cfg.instr_latency[LOGICAL] = 1;
+    typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, LOGICAL, CAST, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
+
+    cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
-    cfg.instr_latency[FP_MULT] = 3;
     cfg.instr_latency[I_DIV] = 9;
+    cfg.instr_latency[I_REM] = 1;
+    cfg.instr_latency[FP_ADDSUB] = 1;
+    cfg.instr_latency[FP_MULT] = 3;
     cfg.instr_latency[FP_DIV] = 9;
+    cfg.instr_latency[LOGICAL] = 1;
+    cfg.instr_latency[CAST] = 1;
     cfg.instr_latency[LD] = -1;
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;
     cfg.instr_latency[ENTRY] = 1;
-    cfg.num_units[I_ADD] = 1;
-    cfg.num_units[FP_ADD] = -1;
-    cfg.num_units[I_SUB] = -1;
-    cfg.num_units[FP_SUB] = -1;
+    cfg.num_units[I_ADDSUB] = -1;
+    cfg.num_units[I_MULT] = 4;
+    cfg.num_units[I_DIV] = 4;
+    cfg.num_units[I_REM] = -1;
+    cfg.num_units[FP_ADDSUB] = -1;
+    cfg.num_units[FP_MULT] = 4;
+    cfg.num_units[FP_DIV] = 4;
     cfg.num_units[LOGICAL] = -1;
-    cfg.num_units[I_MULT] = 1;
-    cfg.num_units[FP_MULT] = 1;
-    cfg.num_units[I_DIV] = 1;
-    cfg.num_units[FP_DIV] = 1;
+    cfg.num_units[CAST] = -1;
     cfg.num_units[LD] = -1;
     cfg.num_units[ST] = -1;
-    cfg.num_units[ENTRY] = -1;
     cfg.num_units[TERMINATOR] = -1;
     cfg.num_units[PHI] = -1;
+    cfg.num_units[ENTRY] = -1;
     cfg.load_ports = 4;
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
