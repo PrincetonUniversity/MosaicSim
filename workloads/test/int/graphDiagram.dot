@@ -1,0 +1,59 @@
+digraph G {
+node [nodesep=0.75, ranksep=0.75];
+edge [weight=1.2];
+subgraph cluster_0 {
+color=black;
+0[label="entry",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+3[label="  br label %for.body",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_1 {
+color=black;
+1[label="for.cond.cleanup",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+4[label="  ret void",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_2 {
+color=black;
+2[label="for.body",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+5[label="  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body ]",fontsize=10,shape=ellipse];
+6[label="  %arrayidx = getelementptr inbounds i32, i32* %b, i64 %indvars.iv",fontsize=10,shape=ellipse];
+7[label="  %tmp = load i32, i32* %arrayidx, align 4, !tbaa !2",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+8[label="  %arrayidx2 = getelementptr inbounds i32, i32* %c, i64 %indvars.iv",fontsize=10,shape=ellipse];
+9[label="  %tmp1 = load i32, i32* %arrayidx2, align 4, !tbaa !2",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+10[label="  %add = add nsw i32 %tmp1, %tmp",fontsize=10,shape=ellipse];
+11[label="  %arrayidx4 = getelementptr inbounds i32, i32* %a, i64 %indvars.iv",fontsize=10,shape=ellipse];
+12[label="  store i32 %add, i32* %arrayidx4, align 4, !tbaa !2",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+13[label="  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1",fontsize=10,shape=ellipse];
+14[label="  %exitcond = icmp eq i64 %indvars.iv.next, 100",fontsize=10,shape=ellipse];
+15[label="  br i1 %exitcond, label %for.cond.cleanup, label %for.body, !llvm.loop !6",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+2 -> 5[color=blue];
+3 -> 2[color=blue];
+5 -> 13[color=black];
+5 -> 8[color=black];
+5 -> 11[color=black];
+5 -> 6[color=black];
+6 -> 7[color=black];
+7 -> 10[color=black];
+8 -> 9[color=black];
+9 -> 10[color=black];
+10 -> 12[color=black];
+11 -> 12[color=black];
+13 -> 14[color=black];
+5 -> 13[color=navyblue,dir=back];
+14 -> 15[color=black];
+2 -> 15[color=blue,dir=back];
+15 -> 1[color=blue];
+subgraph cluster_help {
+color=black;
+t1[label="Red Ellipse = LD/ST",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+t2[label="Blue Rectangle = BasicBlock",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+t3[label="Blue Ellipse = Terminator Instruction",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+t4[label="Black Edge = Data Dependence
+ Red Edge = Memory Dependence
+ Blue Edge = Control
+ Navy Edge = Phi Data Dependence",fontsize=10,shape=rectangle,fontcolor=black];
+t1->t2 [style=invis];
+t2->t3 [style=invis];
+t3->t4 [style=invis];
+}
+}
