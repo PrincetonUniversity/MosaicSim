@@ -23,8 +23,8 @@ namespace apollo {
 #define NUM_INST_TYPES 14
 class Node;
 typedef std::pair<Node*,int> DNode;  // Dynamic Node: a pair of <node,context>
-typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, ENTRY, TERMINATOR, PHI} TInstr;
-typedef enum {DATA_DEP, BB_DEP, PHI_DEP} TEdge;
+typedef enum {I_ADD, FP_ADD, I_SUB, FP_SUB, LOGICAL, I_MULT, FP_MULT, I_DIV, FP_DIV, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
+typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
 
 // TJH: For now, we can assume that one instruction type corresponds to one functional unit 
 // since accelerators do not really use one functional unit to do multiple types of operations
