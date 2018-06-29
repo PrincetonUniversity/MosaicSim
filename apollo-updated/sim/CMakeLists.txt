@@ -1,5 +1,0 @@
-LINK_DIRECTORIES(${CMAKE_SOURCE_DIR}/lib)
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_BUILD_TYPE Debug)
-ADD_EXECUTABLE(sim-apollo sim-apollo.cpp)
-target_link_libraries(sim-apollo dramsim)
