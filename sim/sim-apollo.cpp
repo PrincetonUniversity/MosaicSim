@@ -458,8 +458,8 @@ public:
         }
         
         // Handle Resource
-        if ( FUs.at(n->typeInstr) != -1 ) { // FU limited operation
-          FUs.at(n->typeInstr)++; // release FU
+        if ( FUs.at(n->typeInstr) != -1 ) { // if FU is "limited" -> realease the FU
+          FUs.at(n->typeInstr)++; 
           cout << "Node [" << n->name << "]: released FU, new free FU: " << FUs.at(n->typeInstr) << endl;
         }
 

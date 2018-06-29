@@ -208,7 +208,6 @@ public:
     cfg.lsq_size = 512;
     cfg.CF_one_context_at_once = true;
     cfg.CF_all_contexts_concurrently = false;
-    typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
 
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
@@ -265,7 +264,7 @@ public:
           cout << last_line << " / " << line << "\n";
           assert(false);
         }
-        if(!init) {
+        if (!init) {
           cf.push_back(stoi(s.at(1)));
           init = true;
         }
@@ -274,8 +273,10 @@ public:
         last_line = line;
       }
     }
-    else
+    else {
+      cout << "Error opening CF profiling file\n";
       assert(false);
+    }
     cfile.close();
   }
   // Read Dynamic Memory accesses from profiling file.
@@ -289,15 +290,15 @@ public:
         vector<string> s = split(line, ',');
         assert(s.size() == 4);
         int id = stoi(s.at(1));
-        // if it's a NEW memory instruction, insert it into the <map>
-        if (memory.find(id) == memory.end()) 
+        if (memory.find(id) == memory.end())  // if it's NEW, insert a new entry into the <map>
           memory.insert(make_pair(id, queue<uint64_t>()));
-        // insert the <address> into the memory instructions's <queue>
-        memory.at(id).push(stoull(s.at(2)));
+        memory.at(id).push(stoull(s.at(2)));  // insert the <address> into the memory instructions's <queue>
       }
     }
-    else
+    else {
+      cout << "Error opening Memory profiling file\n";
       assert(false);
+    }
     cfile.close();
   }
   void readGraph(std::string name, Graph &g, Config &cfg) {
@@ -332,8 +333,10 @@ public:
       if (getline(cfile,line))
         assert(false);
     }
-    else
+    else {
+      cout << "Error opening Graph file\n";
       assert(false);
+    }
     cfile.close();
     cout << g;
   }

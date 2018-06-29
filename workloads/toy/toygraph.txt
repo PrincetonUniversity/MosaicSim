@@ -3,11 +3,11 @@
 9
 0,0,0,addInst1
 1,0,0,addInst2
-2,12,0,TerminatorInst1
-3,13,1,PhiNode2
+2,13,0,TerminatorInst1
+3,14,1,PhiNode2
 4,0,1,addInst3
 5,9,1,loadInst1
-6,12,1,TerminatorInst2
+6,11,1,TerminatorInst2
 0,2,0
 1,2,0
 1,3,2
