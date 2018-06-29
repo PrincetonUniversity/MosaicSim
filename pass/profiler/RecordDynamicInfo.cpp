@@ -24,6 +24,7 @@ struct RecordDynamicInfo : public ModulePass {
   RecordDynamicInfo() : ModulePass(ID) {}
   bool runOnModule(Module &M) override {
     mod = &(M);
+    
     LLVMContext& ctx = M.getContext();
     Constant *printuBRFunc = M.getOrInsertFunction("_Z12printuBranchPcS_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
     Constant *printBRFunc = M.getOrInsertFunction("_Z11printBranchPciS_S_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
@@ -122,6 +123,7 @@ struct RecordDynamicInfo : public ModulePass {
       BasicBlock *bb = pi->getSuccessor(0);
       std::string temp= std::to_string(findBID(bb));
       StringRef p = temp;
+      errs() << "[uBranch] " << *pi << " - " << p << "\n";
       std::string bbname = std::to_string(findBID(pi->getParent()));
       Value *name = Builder.CreateGlobalStringPtr(bbname);
       Value *name1= Builder.CreateGlobalStringPtr(p);
@@ -214,7 +216,7 @@ struct RecordDynamicInfo : public ModulePass {
         else if(auto *sI = dyn_cast<StoreInst>(inst))
           printMemory(inst);
         else if(auto *tI = dyn_cast<TerminatorInst>(inst))
-          errs() << *inst <<"\n";
+          errs() << "[WARNING] Terminator Instruction not handled : " << *inst <<"\n";
     }
   }
 };

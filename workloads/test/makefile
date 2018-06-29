@@ -7,6 +7,7 @@ testbench: testbench.cc
 	opt -S -instnamer -load ../../lib/libGraphGen.so -graphgen int/$(NAME)-integrated.llvm > /dev/null
 	dot -Tpng int/graphDiagram.dot -o output/graphDiagram.png
 	llc -filetype=obj int/$(NAME)-pass.llvm -o int/$(NAME).o
+	llc -filetype=asm int/$(NAME)-pass.llvm -o int/$(NAME).s
 	$(CC) int/$(NAME).o -o $(NAME)-profile.out
 	./$(NAME)-profile.out
 clean: 

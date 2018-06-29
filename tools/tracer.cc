@@ -1,5 +1,6 @@
 #include <iostream>
 #include <stdlib.h>
+#include <cassert>
 #include <vector>
 #include <fstream>
 
@@ -7,9 +8,8 @@ std::ofstream f1;
 std::ofstream f2;
 __attribute__((noinline)) void printBranch(char* name, int cond, char* n1, char *n2)
 {
-	if(f1 == NULL)
-		f1.open("output/ctrl.txt");
-
+  if(!f1.is_open())
+    f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
 	char *target;
 	if(cond == 0)
 		target = n1;
@@ -21,16 +21,18 @@ __attribute__((noinline)) void printBranch(char* name, int cond, char* n1, char 
 
 __attribute__((noinline)) void printuBranch(char* name, char *n1)
 {
-	if(f1 == NULL)
-		f1.open("output/ctrl.txt");
-	f1 << "U,"<<name << "," << n1 << "\n";
+	if(!f1.is_open())
+    f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
+  if(!f1.is_open())
+    assert(false);
+	f1 << "U,"<< name << "," << n1 << "\n";
 	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
 }
 
 __attribute__((noinline)) void printMem(char *name, bool type, long long addr, int size)
 {
-	if(f2 == NULL)
-		f2.open("output/mem.txt");
+	if(!f2.is_open())
+    f2.open("output/mem.txt", std::ofstream::out | std::ofstream::trunc);
 	
 	if(type == 0)
 		//std::cout << "Load ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
@@ -41,8 +43,8 @@ __attribute__((noinline)) void printMem(char *name, bool type, long long addr, i
 }
 __attribute__((noinline)) void printSw(char *name, int value, char *def, int n, ...)
 {
-	if(f1 == NULL)
-		f1.open("output/ctrl.txt");
+  if(!f1.is_open())
+    f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
 	va_list vl;
 	std::vector<int> vals;
 	std::vector<char*> strs;
