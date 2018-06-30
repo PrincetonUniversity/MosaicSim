@@ -106,7 +106,7 @@ public:
 
   // Print Node
   friend std::ostream& operator<<(std::ostream &os, Node &n) {
-    os << "I[" << n.name << "], lat=" << n.lat << "\n";
+    os << "I[" << n.name << "], lat=" << n.lat;
     return os;
   }
 };
@@ -179,7 +179,7 @@ public:
   friend std::ostream &operator<<(std::ostream &os, Graph &g) {
     os << "Graph: Total_nodes=" << g.nodes.size() << std::endl;
     for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
-      std::cout << it->first << ":" << *it->second;
+      std::cout << it->first << ":" << *it->second <<"\n";
     std::cout << "";
     return os;
   }

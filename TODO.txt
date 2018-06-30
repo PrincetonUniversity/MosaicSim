@@ -1,0 +1,27 @@
+/* Issues */ (High Priority)
+
+[Sim] Two Phase Cycle: Operation finishing on cycle n should not let its dependent to run on cycle n (same applies for contexts and context creation)
+[Sim] 0-latency Inst: Handle 0 latency instructions (and context creation)
+[Sim] Decouple Store Address and Store Value: Store does not have to wait for its both operand to mark it as "addr_resolved"
+
+/* Major Functionality */
+
+[Sim] Cache Hierarchy: Integrate Cache hierarchy (provided hint code to Chirag)
+[Sim] MSHR request merges : N DRAM requests to the same cacheline (in a short time) should be merged instead of issuing N separate requests for the same cacheline
+
+/* Code Improvements */ (Low Priority)
+[Sim] Improve Node/Graph Print
+[Sim] readGraph does not read instruction name correctly
+[Sim] Handle BB entry block in a better way
+[GraphGen and Sim] Handle BB to Phi dependencies in a better way
+
+/* Note */
+
+Initial version of workload-to-sim pipeline is ready. 
+
+1. To compile workload, go to workloads/test and type "make"
+2. in bin/, "./sim-apollo ../workloads/test/" to execute "test" workload
+
+Chirag will spend some time on making some of these to be a one-command process
+
+/* CHANGELOG */

@@ -8,7 +8,6 @@ public:
   static char ID;
   Graph depGraph;
   std::map<Value*,Node*> nodeMap;
-  //TODO: Handle BB to Phi Dependency better
   std::vector<std::pair<int,int>> bb_to_phi_edges;
   GraphGen(): FunctionPass(ID) { }
   virtual bool runOnFunction(Function &func) override;
