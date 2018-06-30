@@ -20,8 +20,8 @@ enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_RE
 enum EdgeType {
   Edge_Control,
   Edge_Data,
+  Edge_Phi,
   Edge_Memory,
-  Edge_Phi
 };
 enum NodeType {
   Node_Instruction,

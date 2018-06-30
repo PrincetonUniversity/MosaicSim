@@ -62,6 +62,7 @@ public:
   TInstr typeInstr;
   int bbid;
   std::string name;
+  Node* addr_operand; // Only for ST inst
 
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
@@ -330,12 +331,15 @@ public:
         getline(cfile,line);
         vector<string> s = split(line, ',');
         int edgeT = stoi(s.at(2));
-        if(edgeT != -1) {
+        if(edgeT >=0) {
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
           g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
         }
-        else {
+        else if (edgeT == -1) {
           g.addDependent(g.bbs.at(stoi(s.at(0)))->entry, g.getNode(stoi(s.at(1))), PHI_DEP);     
+        }
+        else if (edgeT == -2) {
+          g.getNode(stoi(s.at(0)))->addr_operand = g.getNode(stoi(s.at(1)));
         }
       }
       if (getline(cfile,line))

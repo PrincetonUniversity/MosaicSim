@@ -9,6 +9,7 @@ public:
   Graph depGraph;
   std::map<Value*,Node*> nodeMap;
   std::vector<std::pair<int,int>> bb_to_phi_edges;
+  std::map<Instruction*, Instruction*> store_to_addr;
   GraphGen(): FunctionPass(ID) { }
   virtual bool runOnFunction(Function &func) override;
   virtual StringRef getPassName() const override;
@@ -59,6 +60,14 @@ void GraphGen::constructGraph(Function &func) {
   for (auto &bb : func) {
     for (auto &inst : bb) {
       Instruction *i = &(inst);
+      if (StoreInst *stinst = dyn_cast<StoreInst>(&inst)) {
+        Value *pv = stinst->getPointerOperand();
+        if(Instruction *ipv = dyn_cast<Instruction>(pv)) {
+          store_to_addr.insert(std::make_pair(stinst, ipv));
+        }
+        else
+          assert(false);
+      }
       Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
       depGraph.addNode(n);
       nodeMap[i] = n;
@@ -222,9 +231,10 @@ void GraphGen::visualize() {
 void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");
   if (cfile.is_open()) {
+    int numEdge = depGraph.num_export_edges  + bb_to_phi_edges.size() + store_to_addr.size();
     cfile << depGraph.bb_nodes.size() << "\n";
     cfile << depGraph.i_nodes.size() << "\n";
-    cfile << depGraph.num_export_edges  + bb_to_phi_edges.size() << "\n";
+    cfile << numEdge << "\n";
     for(int i=0; i<depGraph.i_nodes.size(); i++) {
       Node *n =depGraph.i_nodes.at(i);
       cfile << n->id << "," << static_cast<int>(n->itype) << "," << n->bb_id << "," << n->name << "\n";
@@ -248,8 +258,14 @@ void GraphGen::exportGraph() {
       cfile << bb_to_phi_edges.at(i).first << "," << bb_to_phi_edges.at(i).second << ",-1\n";
       ect++;
     }
-    if(ect != (depGraph.num_export_edges+bb_to_phi_edges.size())) {
-      errs() << "Ect : " << ect << " / " << depGraph.num_export_edges <<"\n";
+    for(std::map<Instruction*, Instruction*>::iterator it = store_to_addr.begin(); it != store_to_addr.end(); ++it) {
+      Node *src = nodeMap.at(it->first);
+      Node *dst = nodeMap.at(it->second);
+      cfile << src->id << "," << dst->id <<",-2\n";
+      ect++;
+    }
+    if(ect != numEdge) {
+      errs() << "Ect : " << ect << " / " << numEdge <<"\n";
       assert(false);
     }
   }
