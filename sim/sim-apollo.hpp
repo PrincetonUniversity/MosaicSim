@@ -66,10 +66,13 @@ public:
 
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
+    addr_operand = NULL;
   } 
   
   // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {}
+  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {
+    addr_operand = NULL;
+  }
 
   void addDependent(Node *dest, TEdge type) {
     if(type == DATA_DEP || type == BB_DEP) {
