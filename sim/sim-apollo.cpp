@@ -16,6 +16,8 @@ public:
   bool completed=false;
   bool spec_started=false;
   bool spec_failed=false;
+  //this keeps track of # in-progress loads issued speculatively. we assume they will come back in the order they were sent.
+  int outstanding=0; 
   MemOp(uint64_t addr, DNode d) : addr(addr), d(d){}
 };
 
@@ -338,6 +340,7 @@ public:
           uint64_t addr = lsq.tracker.at(d)->addr;
           uint64_t dramaddr = (addr/64) * 64;
           canExecute &= mem->willAcceptTransaction(dramaddr);
+
         }
         // Execution (if possible)
         if(canExecute) {
@@ -355,6 +358,8 @@ public:
             if (n->typeInstr == LD) {
               ports[0]--;
               mem->addTransaction(false, dramaddr);
+              if (will_speculate)
+                lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
             }
             else if (n->typeInstr == ST) {
               ports[1]--;
@@ -372,47 +377,53 @@ public:
           continue;
         }
       }
+
       // decrease the remaining # of cycles for current node <n>
       int remaining_cycles = c->remaining_cycles_map.at(n);
       if (remaining_cycles > 0)
         remaining_cycles--;
+      
+      
+      DNode d = make_pair(n,c->id);
+      //handle speculation here
+      if (mem_spec_mode && n->typeInstr==LD && lsq.tracker.at(d)->spec_started) {
+        bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
+        bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
+        if (remaining_cycles==0)
+          lsq.tracker.at(d)->outstanding--; //decrease number of outstanding loads by that node
+        
+        //note: once started (address known), every store will update spec failed for all younger speculative stores with matching address
+        if (lsq.tracker.at(d)->spec_failed) {
+          // Handle Speculation Failure 
+          lsq.tracker.at(d)->spec_failed = false;
+          lsq.tracker.at(d)->spec_started = false;
+          c->remaining_cycles_map.at(n) = -1; 
+          c->next_active_list.push_back(n);
+          c->next_start_set.insert(n);
+          continue;
+        }
+        //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
+        //no need to reissue load, but you must check again. Also, can't complete if speculative loads are still outstanding.
+        else if (exists_unresolved_ST || lsq.tracker.at(d)->outstanding > 0) { 
+          c->next_active_list.push_back(n);
+          continue;
+        }
+        else if(exists_conflicting_ST) {
+          assert(false);
+        }
+      }
+            
       if ( remaining_cycles > 0 || remaining_cycles == -1 ) {  // Node <n> will continue execution in next cycle
         // A remaining_cycles == -1 represents a outstanding memory request being processed currently by DRAMsim
         c->remaining_cycles_map.at(n) = remaining_cycles;
         c->next_active_list.push_back(n);
-      }
+      }      
       else if (remaining_cycles == 0) { // Execution Finished for node <n>
         cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
+        if (n->typeInstr == LD || n->typeInstr == ST) {         
+          //for speculation
+          assert(lsq.tracker.at(d)->outstanding==0);
 
-        if (n->typeInstr == LD || n->typeInstr == ST) {
-          DNode d = make_pair(n,c->id);
-          uint64_t addr = lsq.tracker.at(d)->addr;
-          
-          //adding support for speculation
-          if (n->typeInstr==LD && mem_spec_mode && lsq.tracker.at(d)->spec_started) {
-            bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
-            bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
-
-            //note: once started (address known), every store will update spec failed for all younger speculative stores with matching address
-            if (lsq.tracker.at(d)->spec_failed) {
-              // Handle Speculation Failure 
-              lsq.tracker.at(d)->spec_failed = false;
-              lsq.tracker.at(d)->spec_started = false;
-              c->remaining_cycles_map.at(n) = -1; 
-              c->next_active_list.push_back(n);
-              c->next_start_set.insert(n);
-              continue;
-            }
-            //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
-            //no need to reissue load, but you must check again
-            else if (exists_unresolved_ST) { 
-              c->next_active_list.push_back(n);
-              continue;
-            }
-            else if(exists_conflicting_ST) {
-              assert(false);
-            }
-          }
           if (n->typeInstr==ST && mem_spec_mode) {
             lsq.flag_misspec(d); //this store will flag every prior speculatively executed load with same address as failed          
           }         
@@ -548,10 +559,12 @@ int main(int argc, char const *argv[])
   string cname = s + "/output/ctrl.txt";
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
-  r.readProfCF(cname, sim.cf); 
+  r.readProfCF(cname, sim.cf);
+
   /*r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
-  r.readProfCF("../workloads/toy/toycf.txt", sim.cf);*/
+  r.readProfCF("../workloads/toy/toycf.txt", sim.cf); */
+  
   sim.initialize();
   sim.run();
   return 0;
