@@ -225,8 +225,8 @@ public:
     cfg.instr_latency[LD] = -1;
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
-    cfg.instr_latency[PHI] = 1;
-    cfg.instr_latency[ENTRY] = 1;
+    cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
+    cfg.instr_latency[ENTRY] = 1;   // JLA: should it be 0 ?
     cfg.num_units[I_ADDSUB] = -1;
     cfg.num_units[I_MULT] = 4;
     cfg.num_units[I_DIV] = 4;
@@ -346,7 +346,7 @@ public:
       assert(false);
     }
     cfile.close();
-    cout << g;
+    cout << g << endl;
   }
 };
 
