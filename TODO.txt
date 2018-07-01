@@ -1,15 +1,19 @@
 /* Issues */ (High Priority)
 
-[Sim] Two Phase Cycle: Operation finishing on cycle n should not let its dependent to run on cycle n (same applies for contexts and context creation)
+[Sim] TJH / Two Phase Cycle: Operation finishing on cycle n should not let its dependent to run on cycle n (same applies for contexts and context creation)
 [Sim] 0-latency Inst: Handle 0 latency instructions (and context creation)
 [Sim] Decouple Store Address and Store Value: Store does not have to wait for its both operand to mark it as "addr_resolved"
 
 /* Major Functionality */
-
-[Sim] Cache Hierarchy: Integrate Cache hierarchy (provided hint code to Chirag)
+[Sim] JLA / Limited number of active, same BB contexts
+[Sim] Luwa / Store to Load Forwarding 
+[Sim] Chirag & Luwa / Cache Hierarchy: Integrate Cache hierarchy (provided hint code to Chirag)
 [Sim] MSHR request merges : N DRAM requests to the same cacheline (in a short time) should be merged instead of issuing N separate requests for the same cacheline
+[Workload] SHOC & Machsuite
 
 /* Code Improvements */ (Low Priority)
+[Compilation] Chirag / Make a script for easy compilation and run
+[GraphGen] Automatically inline all functions or make it inter-procedural
 [Sim] Improve Node/Graph Print
 [Sim] readGraph does not read instruction name correctly
 [Sim] Handle BB entry block in a better way
