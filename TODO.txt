@@ -1,6 +1,5 @@
 /* Issues */ (High Priority)
 
-[Sim] TJH / Two Phase Cycle: Operation finishing on cycle n should not let its dependent to run on cycle n (same applies for contexts and context creation)
 [Sim] 0-latency Inst: Handle 0 latency instructions (and context creation)
 [Sim] Decouple Store Address and Store Value: Store does not have to wait for its both operand to mark it as "addr_resolved"
 
