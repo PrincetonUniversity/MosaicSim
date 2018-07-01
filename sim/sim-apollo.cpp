@@ -108,8 +108,8 @@ public:
   int bbid;
   int processed;
   std::vector<Node*> active_list;
-  std::set<Node*> start_set;
-  std::set<Node*> next_start_set;
+  std::set<Node*> issue_set;
+  std::set<Node*> next_issue_set;
   std::vector<Node *> next_active_list;
   std::vector<Node *> resource_limited_list;
 
@@ -204,7 +204,7 @@ public:
       return;
     }
     next_active_list.push_back(n);
-    next_start_set.insert(n);
+    next_issue_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Ready to Execute\n";
     remaining_cycles_map.insert(std::make_pair(n, n->lat));
   }
@@ -216,30 +216,31 @@ class Simulator
 public:  
   class DRAMSimCallBack {
     public:
-      map< uint64_t, queue< pair<Node*, Context*> > > outstanding_accesses_map;
+      map< uint64_t, queue< DNode > > outstanding_accesses_map;
       Simulator* sim;
-      DRAMSimCallBack(Simulator* sim):sim(sim){}
+      DRAMSimCallBack(Simulator* sim): sim(sim){}
     
       void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
-        Node *n = q.front().first;
-        Context *c = q.front().second;
-        cout << "Node [" << n->name << " @ context " << c->id << "]: Read Transaction Returns "<< addr << "\n";
-        c->remaining_cycles_map.at(n) = 0; // mark "Load" as finished
+        queue<std::pair<Node*, int>> &q = outstanding_accesses_map.at(addr);
+        sim->handleMemoryReturn(q.front(), true);
         q.pop();
         if (q.size() == 0)
           outstanding_accesses_map.erase(addr);
       }
       void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<std::pair<Node*, Context*>> &q = outstanding_accesses_map.at(addr);
-        Node *n = q.front().first;
-        Context *c = q.front().second;
-        cout << "Node [" << n->name << " @ context " << c->id << "]: Write Transaction Returns "<< addr << "\n";
+        queue<std::pair<Node*, int>> &q = outstanding_accesses_map.at(addr);
+        sim->handleMemoryReturn(q.front(), false);
         q.pop();
         if(q.size() == 0)
           outstanding_accesses_map.erase(addr);
+      }
+      void addTransaction(DNode d, uint64_t addr, bool isLoad) {
+        sim->mem->addTransaction(!isLoad, addr);
+        if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
+          outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, int>>()));
+        outstanding_accesses_map.at(addr).push(d);
       }
   };
 
@@ -298,79 +299,80 @@ public:
     cout << "Context [" << cid << "]: Created (BB=" << bbid << ")\n";     
   }
 
-  bool issueNode(Node *n, Context *c) {
+  void handleMemoryReturn(DNode d, bool isLoad) {
+    cout << "Node [" << d.first->name << " @ context " << d.second << "]: Memory Transaction Returns \n";
+    Context *c = context_list.at(d.second);
+    if(isLoad)
+      c->remaining_cycles_map.at(d.first) = 0; // mark "Load" as finished
+  }
+  bool issueCompNode(Node *n, Context *c) {
     bool canExecute = true;
-    bool will_speculate = false;
     // check resource (FU) availability
     if (FUs.at(n->typeInstr) != -1) {
-      if (FUs.at(n->typeInstr) == 0) {
-        cout << "Node [" << n->name << "]: cannot start due to lack of FUs \n";
+      if (FUs.at(n->typeInstr) == 0)
         canExecute = false;
-      }
     }
+    if(canExecute) {
+      if (FUs.at(n->typeInstr) != -1)
+        FUs.at(n->typeInstr)--;
+      return true;
+    }
+    else
+      return false;
+  }
+  bool issueMemNode(Node *n, Context *c) {
+    bool canExecute = true;
+    bool will_speculate = false;
     // Memory Ports
     if (n->typeInstr == LD && ports[0] == 0)
       canExecute = false;
     if (n->typeInstr == ST && ports[1] == 0)
       canExecute = false;
     // Memory dependency
-    if (n->typeInstr == LD || n->typeInstr == ST) {
-      DNode d = make_pair(n,c->id);
-      bool stallCondition = false;
-      lsq.tracker.at(d)->addr_resolved = true;
-      if (n->typeInstr == ST) {
-        bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
-        bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
-        bool exists_unresolved_LD = lsq.exists_unresolved_memop(d, LD);
-        bool exists_conflicting_LD = lsq.exists_conflicting_memop(d, LD);
-        stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
-      }
-      else if (n->typeInstr == LD) {
-        bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
-        bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
-        stallCondition = (!mem_spec_mode && exists_unresolved_ST) || exists_conflicting_ST;
-        will_speculate = mem_spec_mode && exists_unresolved_ST && !exists_conflicting_ST;
-      }
-      canExecute &= !stallCondition;
-      uint64_t addr = lsq.tracker.at(d)->addr;
-      uint64_t dramaddr = (addr/64) * 64;
-      canExecute &= mem->willAcceptTransaction(dramaddr);
+    DNode d = make_pair(n,c->id);
+    bool stallCondition = false;
+    lsq.tracker.at(d)->addr_resolved = true;
+    if (n->typeInstr == ST) {
+      bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
+      bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
+      bool exists_unresolved_LD = lsq.exists_unresolved_memop(d, LD);
+      bool exists_conflicting_LD = lsq.exists_conflicting_memop(d, LD);
+      stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
     }
+    else if (n->typeInstr == LD) {
+      bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
+      bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
+      stallCondition = (!mem_spec_mode && exists_unresolved_ST) || exists_conflicting_ST;
+      will_speculate = mem_spec_mode && exists_unresolved_ST && !exists_conflicting_ST;
+    }
+    canExecute &= !stallCondition;
+    uint64_t addr = lsq.tracker.at(d)->addr;
+    uint64_t dramaddr = (addr/64) * 64;
+    canExecute &= mem->willAcceptTransaction(dramaddr);
+
     // Execution (if possible)
     if(canExecute) {
-      cout << "Node [" << n->name << " @ context " << c->id << "]: Starts Execution \n";
-      if (FUs.at(n->typeInstr) != -1) {
-        FUs.at(n->typeInstr)--;
-        cout << "Node [" << n->name << "]: acquired FU (new free FUs: " << FUs.at(n->typeInstr) << ")\n";
-      }
       if (n->typeInstr == LD || n->typeInstr == ST) {
         DNode d = make_pair(n,c->id);
         uint64_t addr = lsq.tracker.at(d)->addr;
         uint64_t dramaddr = (addr/64) * 64; // Minimum access granularity of DRAM
         lsq.tracker.at(d)->spec_started = will_speculate;
-        cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
+        cout << "Node [" << n->name << " @ context " << c->id << "]: Inserts Memory Transaction for Address "<< dramaddr << "\n";
         if (n->typeInstr == LD) {
           ports[0]--;
-          mem->addTransaction(false, dramaddr);
+          cb.addTransaction(d, dramaddr, true);
           if (will_speculate)
             lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
         }
         else if (n->typeInstr == ST) {
           ports[1]--;
-          mem->addTransaction(true, dramaddr);
+          cb.addTransaction(d, dramaddr, false);
         }
-        if (cb.outstanding_accesses_map.find(dramaddr) == cb.outstanding_accesses_map.end())
-          cb.outstanding_accesses_map.insert(make_pair(dramaddr, queue<std::pair<Node*, Context*>>()));
-        cb.outstanding_accesses_map.at(dramaddr).push(make_pair(n, c));
       }
       return true;
     }
-    else {   // if cannot execute delay <node> until next cycle
-      //cout << "Node [" << n->name << " @ context " << c->id << "]: cannot Execute this cycle \n";
-      c->next_active_list.push_back(n);
-      c->next_start_set.insert(n);
+    else
       return false;
-    }
   }
   void finishNode(Node *n, Context *c) {
     DNode d = make_pair(n,c->id);
@@ -451,10 +453,21 @@ public:
     // traverse ALL the active instructions in the context
     for (int i=0; i < c->active_list.size(); i++) {
       Node *n = c->active_list.at(i);
-      if (c->start_set.find(n) != c->start_set.end()) {
-        bool res = issueNode(n, c);
-        if(!res)
+      if (c->issue_set.find(n) != c->issue_set.end()) {
+        bool res = false;
+        if(n->typeInstr == LD || n->typeInstr == ST)
+          res = issueMemNode(n,c);
+        else
+          res = issueCompNode(n,c);
+        if(!res) {
+          cout << "Node [" << n->name << " @ context " << c->id << "]: issue failed \n";
+          c->next_active_list.push_back(n);
+          c->next_issue_set.insert(n);
           continue;
+        }
+        else {
+          cout << "Node [" << n->name << " @ context " << c->id << "]: issue succesful \n";
+        }
       }
 
       // decrease the remaining # of cycles for current node <n>
@@ -463,7 +476,7 @@ public:
         remaining_cycles--;
       
       DNode d = make_pair(n,c->id);
-      
+
       //handle speculation here
       if (mem_spec_mode && n->typeInstr==LD && lsq.tracker.at(d)->spec_started) {
         bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
@@ -478,7 +491,7 @@ public:
           lsq.tracker.at(d)->spec_started = false;
           c->remaining_cycles_map.at(n) = -1; 
           c->next_active_list.push_back(n);
-          c->next_start_set.insert(n);
+          c->next_issue_set.insert(n);
           continue;
         }
         //here, no older store has flagged failure -> no conflicts yet, but there are still unresolved older stores
@@ -503,9 +516,9 @@ public:
     }
 
     // Continue with following active instructions
-    c->start_set = c->next_start_set;
+    c->issue_set = c->next_issue_set;
     c->active_list = c->next_active_list;
-    c->next_start_set.clear();
+    c->next_issue_set.clear();
     c->next_active_list.clear();
     // Check if the current context is done
     if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
