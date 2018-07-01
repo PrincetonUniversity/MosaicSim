@@ -12,6 +12,7 @@
 [Workload] SHOC & Machsuite
 
 /* Code Improvements */ (Low Priority)
+[Sim] Probably change Dnode from <node*, int> to <node*, context*>
 [Compilation] Chirag / Make a script for easy compilation and run
 [GraphGen] Automatically inline all functions or make it inter-procedural
 [Sim] Improve Node/Graph Print
