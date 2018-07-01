@@ -8,6 +8,117 @@
 using namespace apollo;
 using namespace std;
 
+class Context {
+public:
+  bool live;
+  int id;
+  int bbid;
+  int processed;
+  std::vector<Node*> active_list;
+  std::set<Node*> issue_set;
+  std::set<Node*> next_issue_set;
+  std::vector<Node *> next_active_list;
+  std::vector<Node *> nodes_to_complete;
+
+  std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
+  std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
+  std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
+
+  Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
+  
+  //void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, LoadStoreQ &lsq, map<int, queue<uint64_t> >& memory) {
+    // assert(bbid == -1);
+    // bbid = bb->id;
+    // int mem_count = 0;
+    // for ( int i=0; i<bb->inst.size(); i++ ) {
+    //   Node *n = bb->inst.at(i);
+    //   if (n->typeInstr == ST || n->typeInstr == LD)
+    //     mem_count++;
+    // }
+    // if(!lsq.checkSize(mem_count))
+    //   assert(false); // Context creation failed due to limited LSQ size
+    // active_list.push_back(bb->entry);
+    // remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
+    
+    // // traverse all the BB's instructions and initialize the pending_parents map
+    // for ( int i=0; i<bb->inst.size(); i++ ) {
+    //   Node *n = bb->inst.at(i);
+    //   if (n->typeInstr == ST || n->typeInstr == LD) {
+    //     // add entries to LSQ
+    //     if(memory.find(n->id) == memory.end()) {
+    //       cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
+    //       assert(false);
+    //     }
+    //     uint64_t addr = memory.at(n->id).front();
+    //     lsq.insert(addr, make_pair(n, this));
+    //     memory.at(n->id).pop();
+    //   }
+          
+    //   if(n->typeInstr == PHI)
+    //     pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
+    //   else
+    //     pending_parents_map.insert(std::make_pair(n, n->parents.size()));
+    //   pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
+    // }
+
+    // /* Handle Phi */
+    // if (handled_phi_deps.find(id) != handled_phi_deps.end()) {
+    //   std::set<Node*>::iterator it;
+    //   for(it = handled_phi_deps.at(id).begin(); it != handled_phi_deps.at(id).end(); ++it) {
+    //     pending_parents_map.at(*it)--;
+    //   }
+    //   handled_phi_deps.erase(id);
+    // }
+
+    // /* Handle External Edges */
+    // for (int i=0; i<bb->inst.size(); i++) {
+    //   Node *n = bb->inst.at(i);
+    //   if (n->external_dependents.size() > 0) {
+    //     if(curr_owner.find(n) == curr_owner.end())
+    //       curr_owner.insert(make_pair(n, make_pair(id, false)));
+    //     else {
+    //       curr_owner.at(n).first = id;
+    //       curr_owner.at(n).second = false;
+    //     }
+    //   }
+    //   if (n->external_parents.size() > 0) {
+    //     std::set<Node*>::iterator it;
+    //     for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
+    //       Node *s = *it;
+    //       int src_cid = curr_owner.at(s).first;
+    //       bool done = curr_owner.at(s).second;
+    //       DNode src = make_pair(s, src_cid);
+    //       if(done)
+    //         pending_external_parents_map.at(n)--;
+    //       else {
+    //         if(deps.find(src) == deps.end()) {
+    //           deps.insert(make_pair(src, vector<DNode>()));
+    //         }
+    //         deps.at(src).push_back(make_pair(n, c));
+    //       }
+    //     }
+    //   }
+    // }
+  //}
+
+  void tryActivate(Node *n) {
+    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
+      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+      return;
+    }
+    active_list.push_back(n);
+    if(issue_set.find(n) != issue_set.end())
+      assert(false); // error : activate to the same node twice
+    issue_set.insert(n);
+    std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
+    remaining_cycles_map.insert(std::make_pair(n, n->lat));
+  }
+};
+
+
+typedef std::pair<Node*,Context*> DNode;  // Dynamic Node: a pair of <node,context>
+
+
 class MemOp {
 public:
   uint64_t addr;
@@ -62,7 +173,7 @@ public:
       MemOp *m = (*it);
       if(m->d == in)
         return false;
-      else if(m->d.second > in.second || ((m->d.second == in.second) && (m->d.first->id > in.first->id)))
+      else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
         return false;
       if(!(m->addr_resolved) && m->d.first->typeInstr == op_type) {
         return true;
@@ -78,7 +189,7 @@ public:
       MemOp *m = (*it);
       if(m->d == in)
         return false;
-      else if(m->d.second > in.second || ((m->d.second == in.second) && (m->d.first->id > in.first->id)))
+      else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
         return false;
       if(m->addr_resolved && !(m->completed) && m->d.first->typeInstr == op_type && m->addr == addr)
         return true;
@@ -92,7 +203,7 @@ public:
       MemOp *m = (*it);
       if(m->d == in)
         break;
-      else if(m->d.second < in.second || ((m->d.second == in.second) && (m->d.first->id < in.first->id)))
+      else if(m->d.second->id < in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id < in.first->id)))
         break;
       if(m->speculated && !(m->completed) && m->d.first->typeInstr == LD && m->addr == addr) {
         m->speculated = false;
@@ -102,116 +213,6 @@ public:
     return ret;
   }  
 };
-
-class Context {
-public:
-  bool live;
-  int id;
-  int bbid;
-  int processed;
-  std::vector<Node*> active_list;
-  std::set<Node*> issue_set;
-  std::set<Node*> next_issue_set;
-  std::vector<Node *> next_active_list;
-  std::vector<Node *> nodes_to_complete;
-
-  std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
-  std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
-  std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
-
-  Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
-  
-  void initialize(BasicBlock *bb, std::map<Node*, std::pair<int, bool> > &curr_owner, std::map<DNode, std::vector<DNode> > &deps, std::map<int, std::set<Node*> > &handled_phi_deps, LoadStoreQ &lsq, map<int, queue<uint64_t> >& memory) {
- 
-    assert(bbid == -1);
-    bbid = bb->id;
-    int mem_count = 0;
-    for ( int i=0; i<bb->inst.size(); i++ ) {
-      Node *n = bb->inst.at(i);
-      if (n->typeInstr == ST || n->typeInstr == LD)
-        mem_count++;
-    }
-    if(!lsq.checkSize(mem_count))
-      assert(false); // Context creation failed due to limited LSQ size
-    active_list.push_back(bb->entry);
-    remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
-    
-    // traverse all the BB's instructions and initialize the pending_parents map
-    for ( int i=0; i<bb->inst.size(); i++ ) {
-      Node *n = bb->inst.at(i);
-      if (n->typeInstr == ST || n->typeInstr == LD) {
-        // add entries to LSQ
-        if(memory.find(n->id) == memory.end()) {
-          cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
-          assert(false);
-        }
-        uint64_t addr = memory.at(n->id).front();
-        lsq.insert(addr, make_pair(n, id));
-        memory.at(n->id).pop();
-      }
-          
-      if(n->typeInstr == PHI)
-        pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
-      else
-        pending_parents_map.insert(std::make_pair(n, n->parents.size()));
-      pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
-    }
-
-    /* Handle Phi */
-    if (handled_phi_deps.find(id) != handled_phi_deps.end()) {
-      std::set<Node*>::iterator it;
-      for(it = handled_phi_deps.at(id).begin(); it != handled_phi_deps.at(id).end(); ++it) {
-        pending_parents_map.at(*it)--;
-      }
-      handled_phi_deps.erase(id);
-    }
-
-    /* Handle External Edges */
-    for (int i=0; i<bb->inst.size(); i++) {
-      Node *n = bb->inst.at(i);
-      if (n->external_dependents.size() > 0) {
-        if(curr_owner.find(n) == curr_owner.end())
-          curr_owner.insert(make_pair(n, make_pair(id, false)));
-        else {
-          curr_owner.at(n).first = id;
-          curr_owner.at(n).second = false;
-        }
-      }
-      if (n->external_parents.size() > 0) {
-        std::set<Node*>::iterator it;
-        for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
-          Node *s = *it;
-          int src_cid = curr_owner.at(s).first;
-          bool done = curr_owner.at(s).second;
-          DNode src = make_pair(s, src_cid);
-          if(done)
-            pending_external_parents_map.at(n)--;
-          else {
-            if(deps.find(src) == deps.end()) {
-              deps.insert(make_pair(src, vector<DNode>()));
-            }
-            deps.at(src).push_back(make_pair(n, id));
-          }
-        }
-      }
-    }
-    // No need to call tryActivateN; entryBB will trigger them instead. 
-  }
-
-  void tryActivate(Node *n) {
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
-      return;
-    }
-    active_list.push_back(n);
-    if(issue_set.find(n) != issue_set.end())
-      assert(false); // error : activate to the same node twice
-    issue_set.insert(n);
-    std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
-    remaining_cycles_map.insert(std::make_pair(n, n->lat));
-  }
-};
-
 
 class Simulator
 { 
@@ -224,9 +225,9 @@ public:
     
       void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<std::pair<Node*, int>> &q = outstanding_accesses_map.at(addr);
+        queue<DNode> &q = outstanding_accesses_map.at(addr);
         DNode d = q.front();
-        cout << "Node [" << d.first->name << " @ context " << d.second << "]: Memory Transaction Returns \n";
+        cout << "Node [" << d.first->name << " @ context " << d.second->id << "]: Memory Transaction Returns \n";
         sim->handleMemoryReturn(q.front(), true);
         q.pop();
         if (q.size() == 0)
@@ -234,19 +235,19 @@ public:
       }
       void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<std::pair<Node*, int>> &q = outstanding_accesses_map.at(addr);
+        queue<DNode> &q = outstanding_accesses_map.at(addr);
         DNode d = q.front();
-        cout << "Node [" << d.first->name << " @ context " << d.second << "]: Memory Transaction Returns \n";
+        cout << "Node [" << d.first->name << " @ context " << d.second->id << "]: Memory Transaction Returns \n";
         sim->handleMemoryReturn(q.front(), false);
         q.pop();
         if(q.size() == 0)
           outstanding_accesses_map.erase(addr);
       }
       void addTransaction(DNode d, uint64_t addr, bool isLoad) {
-        cout << "Node [" << d.first->name << " @ context " << d.second << "]: Inserts Memory Transaction for Address "<< addr << "\n";
+        cout << "Node [" << d.first->name << " @ context " << d.second->id << "]: Inserts Memory Transaction for Address "<< addr << "\n";
         sim->mem->addTransaction(!isLoad, addr);
         if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
-          outstanding_accesses_map.insert(make_pair(addr, queue<std::pair<Node*, int>>()));
+          outstanding_accesses_map.insert(make_pair(addr, queue<DNode>()));
         outstanding_accesses_map.at(addr).push(d);
       }
   };
@@ -303,12 +304,83 @@ public:
     Context *c = new Context(cid);
     context_list.push_back(c);
     BasicBlock *bb = g.bbs.at(bbid);
-    c->initialize(bb, curr_owner, deps, handled_phi_deps, lsq, memory);
+    // Initialize
+    c->bbid = bb->id;
+    int mem_count = 0;
+    for ( int i=0; i<bb->inst.size(); i++ ) {
+      Node *n = bb->inst.at(i);
+      if (n->typeInstr == ST || n->typeInstr == LD)
+        mem_count++;
+    }
+    if(!lsq.checkSize(mem_count))
+      assert(false); // Context creation failed due to limited LSQ size
+    c->active_list.push_back(bb->entry);
+    c->remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
+    
+    // traverse all the BB's instructions and initialize the pending_parents map
+    for ( int i=0; i<bb->inst.size(); i++ ) {
+      Node *n = bb->inst.at(i);
+      if (n->typeInstr == ST || n->typeInstr == LD) {
+        // add entries to LSQ
+        if(memory.find(n->id) == memory.end()) {
+          cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
+          assert(false);
+        }
+        uint64_t addr = memory.at(n->id).front();
+        lsq.insert(addr, make_pair(n, c));
+        memory.at(n->id).pop();
+      }
+          
+      if(n->typeInstr == PHI)
+        c->pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
+      else
+        c->pending_parents_map.insert(std::make_pair(n, n->parents.size()));
+      c->pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
+    }
+
+    /* Handle Phi */
+    if (handled_phi_deps.find(c->id) != handled_phi_deps.end()) {
+      std::set<Node*>::iterator it;
+      for(it = handled_phi_deps.at(c->id).begin(); it != handled_phi_deps.at(c->id).end(); ++it) {
+        c->pending_parents_map.at(*it)--;
+      }
+      handled_phi_deps.erase(c->id);
+    }
+
+    /* Handle External Edges */
+    for (int i=0; i<bb->inst.size(); i++) {
+      Node *n = bb->inst.at(i);
+      if (n->external_dependents.size() > 0) {
+        if(curr_owner.find(n) == curr_owner.end())
+          curr_owner.insert(make_pair(n, make_pair(c->id, false)));
+        else {
+          curr_owner.at(n).first = c->id;
+          curr_owner.at(n).second = false;
+        }
+      }
+      if (n->external_parents.size() > 0) {
+        std::set<Node*>::iterator it;
+        for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
+          Node *s = *it;
+          int src_cid = curr_owner.at(s).first;
+          bool done = curr_owner.at(s).second;
+          DNode src = make_pair(s, context_list.at(src_cid));
+          if(done)
+            c->pending_external_parents_map.at(n)--;
+          else {
+            if(deps.find(src) == deps.end()) {
+              deps.insert(make_pair(src, vector<DNode>()));
+            }
+            deps.at(src).push_back(make_pair(n, c));
+          }
+        }
+      }
+    }
+    //c->initialize(bb, curr_owner, deps, handled_phi_deps, lsq, memory);
     cout << "Context [" << cid << "]: Created (BB=" << bbid << ")\n";     
   }
 
   void handleMemoryReturn(DNode d, bool isLoad) {
-    Context *c = context_list.at(d.second);
     if(isLoad) {
       if(mem_spec_mode) {
         if(lsq.tracker.at(d)->outstanding > 0)
@@ -316,7 +388,7 @@ public:
         if(lsq.tracker.at(d)->outstanding != 0)
           return;
       }
-      c->remaining_cycles_map.at(d.first) = 0; // mark "Load" as finished
+      d.second->remaining_cycles_map.at(d.first) = 0; // mark "Load" as finished
     }
   }
   bool issueCompNode(Node *n, Context *c) {
@@ -345,7 +417,7 @@ public:
       canExecute = false;
     
     // Memory Dependency
-    DNode d = make_pair(n,c->id);
+    DNode d = make_pair(n,c);
     bool stallCondition = false;
     lsq.tracker.at(d)->addr_resolved = true;
 
@@ -371,7 +443,7 @@ public:
 
     // Issue Successful
     if(canExecute) {
-      DNode d = make_pair(n,c->id);
+      DNode d = make_pair(n,c);
       lsq.tracker.at(d)->speculated = speculate;
       if (n->typeInstr == LD) {
         ports[0]--;
@@ -389,7 +461,7 @@ public:
       return false;
   }
   void finishNode(Node *n, Context *c) {
-    DNode d = make_pair(n,c->id);
+    DNode d = make_pair(n,c);
     cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
 
     c->remaining_cycles_map.erase(n);
@@ -407,7 +479,7 @@ public:
       auto misspeculated = lsq.check_speculation(d);
       for(int i=0; i<misspeculated.size(); i++) {
         // Handle Misspeculation
-        Context *cc = context_list.at(misspeculated.at(i).second);
+        Context *cc = misspeculated.at(i).second;
         cc->tryActivate(misspeculated.at(i).first);
       }
     }
@@ -428,12 +500,12 @@ public:
 
     // The same for external dependents: decrease parent's count & try to launch them
     if (n->external_dependents.size() > 0) {
-      DNode src = make_pair(n, c->id);
+      DNode src = make_pair(n, c);
       if (deps.find(src) != deps.end()) {
         vector<DNode> users = deps.at(src);
         for (int i=0; i<users.size(); i++) {
           Node *d = users.at(i).first;
-          Context *cc = context_list.at(users.at(i).second);
+          Context *cc = users.at(i).second;
           cc->pending_external_parents_map.at(d)--;
           cc->tryActivate(d);
         }
@@ -509,7 +581,7 @@ public:
       if (remaining_cycles > 0)
         remaining_cycles--;
       
-      DNode d = make_pair(n,c->id);
+      DNode d = make_pair(n,c);
             
       if ( remaining_cycles > 0 || remaining_cycles == -1 ) {  // Node <n> will continue execution in next cycle
         c->next_active_list.push_back(n);
