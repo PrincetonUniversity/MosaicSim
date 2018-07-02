@@ -372,8 +372,8 @@ public:
     canExecute &= !stallCondition;
     uint64_t addr = lsq.tracker.at(d)->addr;
     uint64_t dramaddr = (addr/64) * 64;
-    canExecute &= mem->willAcceptTransaction(dramaddr) || forward; //if you can forward, you can always execute
-
+    canExecute &= mem->willAcceptTransaction(dramaddr); 
+    canExecute = canExecute || forward; //if you can forward, you can always execute
     // Issue Successful
     if(canExecute) {
       DNode d = make_pair(n,c);
