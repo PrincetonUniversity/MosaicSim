@@ -8,12 +8,15 @@
 using namespace apollo;
 using namespace std;
 
+class Simulator;  
+  
 class Context {
 public:
   bool live;
   int id;
   int bbid;
   int processed;
+  Simulator* sim;
   std::vector<Node*> active_list;
   std::set<Node*> issue_set;
   std::set<Node*> next_issue_set;
@@ -24,21 +27,8 @@ public:
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
-  Context(int id) : live(true), id(id), bbid(-1), processed(0) {}
-  
-
-  void tryActivate(Node *n) {
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
-      return;
-    }
-    active_list.push_back(n);
-    if(issue_set.find(n) != issue_set.end())
-      assert(false); // error : activate to the same node twice
-    issue_set.insert(n);
-    std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
-    remaining_cycles_map.insert(std::make_pair(n, n->lat));
-  }
+  Context(int id, Simulator* sim) : live(true), id(id), bbid(-1), processed(0), sim(sim) {}
+  void tryActivate(Node* parent, Node *n); 
 };
 
 
@@ -227,7 +217,7 @@ public:
     assert(bbid < g.bbs.size());
     /* Create Context */
     int cid = context_list.size();
-    Context *c = new Context(cid);
+    Context *c = new Context(cid, this);
     context_list.push_back(c);
     BasicBlock *bb = g.bbs.at(bbid);
     // Initialize
@@ -406,7 +396,7 @@ public:
       for(int i=0; i<misspeculated.size(); i++) {
         // Handle Misspeculation
         Context *cc = misspeculated.at(i).second;
-        cc->tryActivate(misspeculated.at(i).first);
+        cc->tryActivate(n,misspeculated.at(i).first);
       }
     }
 
@@ -421,7 +411,7 @@ public:
     for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
       Node *d = *it;
       c->pending_parents_map.at(d)--;
-      c->tryActivate(d);
+      c->tryActivate(n,d);    
     }
 
     // The same for external dependents: decrease parent's count & try to launch them
@@ -433,7 +423,7 @@ public:
           Node *d = users.at(i).first;
           Context *cc = users.at(i).second;
           cc->pending_external_parents_map.at(d)--;
-          cc->tryActivate(d);
+          cc->tryActivate(n,d);
         }
         deps.erase(src);
       }
@@ -448,7 +438,7 @@ public:
         if (context_list.size() > next_cid) {
           Context *cc = context_list.at(next_cid);
           cc->pending_parents_map.at(d)--;
-          cc->tryActivate(d);
+          cc->tryActivate(n,d);
         }
         else {
           if (handled_phi_deps.find(next_cid) == handled_phi_deps.end()) {
@@ -580,10 +570,26 @@ public:
   }
 };
 
+void Context::tryActivate(Node* parent, Node *n) {
+    if (n->typeInstr==ST && parent==n->addr_operand) 
+      sim->lsq.tracker.at(make_pair(n,this))->addr_resolved=true;      
+    
+    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
+      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+      return;
+    }
+    active_list.push_back(n);
+    if(issue_set.find(n) != issue_set.end())
+      assert(false); // error : activate to the same node twice
+    issue_set.insert(n);
+    std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
+    remaining_cycles_map.insert(std::make_pair(n, n->lat));
+}
+
 int main(int argc, char const *argv[])
 {
   Simulator sim;
-  sim.mem_spec_mode= false;
+  sim.mem_spec_mode= true;
   Reader r;
   r.readCfg("sim/config/config.txt", sim.cfg);
   // Workload 
@@ -591,6 +597,7 @@ int main(int argc, char const *argv[])
     assert(false);
   cout << "Path: " << argv[1] << "\n";
   string s(argv[1]);
+
   string gname = s + "/output/graphOutput.txt";
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
@@ -598,9 +605,11 @@ int main(int argc, char const *argv[])
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
 
-  /*r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
+  /*
+  r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
-  r.readProfCF("../workloads/toy/toycf.txt", sim.cf); */
+  r.readProfCF("../workloads/toy/toycf.txt", sim.cf); 
+  */
   
   sim.initialize();
   sim.run();
