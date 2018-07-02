@@ -1,7 +1,8 @@
 /* Issues */ (High Priority)
 
 [Sim] 0-latency Inst: Handle 0 latency instructions (and context creation)
-[Sim] Decouple Store Address and Store Value: Store does not have to wait for its both operand to mark it as "addr_resolved"
+[Sim] Decouple Store Address and Store Value: Store does not have to wait for its both operand to mark it as "addr_resolved" Luwa: I believe this is complete
+
 
 /* Major Functionality */
 [Sim] JLA / Limited number of active, same BB contexts
