@@ -6,7 +6,9 @@
 
 /* Major Functionality */
 [Sim] JLA / Limited number of active, same BB contexts
-[Sim] Luwa / Store to Load Forwarding 
+[Sim] Luwa / Store to Load Forwarding
+I believe this is done now
+[Sim] Handling LSQ resource limits
 [Sim] Chirag & Luwa / Cache Hierarchy: Integrate Cache hierarchy (provided hint code to Chirag)
 [Sim] MSHR request merges : N DRAM requests to the same cacheline (in a short time) should be merged instead of issuing N separate requests for the same cacheline
 [Workload] SHOC & Machsuite
