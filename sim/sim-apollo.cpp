@@ -112,6 +112,18 @@ public:
     }
     return false;
   }
+
+  deque<MemOp*>::iterator recent_memop_completed(DNode in, TInstr op_type) {
+    deque<MemOp*>::iterator it = q.begin();
+    deque<MemOp*>::iterator recent_op = q.end();
+    while (it!=q.end() && !((*it)->d.first->id == in.first->id && (*it)->d.second->id == in.second->id) && !((*it)->d.second->id > in.second->id || (((*it)->d.second->id == in.second->id) && ((*it)->d.first->id > in.first->id))) ) { //not end, not equal, not younger
+      if ((*it)->d.first->typeInstr==op_type)
+        recent_op=it;
+      ++it;
+    }
+    return recent_op;
+  }
+  
   std::vector<DNode> check_speculation (DNode in) {
     std::vector<DNode> ret;
     uint64_t addr = tracker.at(in)->addr;
@@ -189,9 +201,8 @@ public:
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   
   LoadStoreQ lsq;
-
-
   bool mem_spec_mode=false;
+  bool store_load_fwd=true;
 
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
@@ -323,19 +334,24 @@ public:
       return false;
   }
   bool issueMemNode(Node *n, Context *c) {
-    bool canExecute = true;
-    bool speculate = false;
-    
-    // Memory Ports
-    if (n->typeInstr == LD && ports[0] == 0)
-      canExecute = false;
-    if (n->typeInstr == ST && ports[1] == 0)
-      canExecute = false;
-    
     // Memory Dependency
     DNode d = make_pair(n,c);
     bool stallCondition = false;
     lsq.tracker.at(d)->addr_resolved = true;
+    
+    bool canExecute = true;
+    bool speculate = false;
+    bool forward = false;
+    deque<MemOp*>::iterator prev_store;
+    if (n->typeInstr == LD) {
+      prev_store = lsq.recent_memop_completed(d,ST);
+      forward = store_load_fwd && prev_store!=lsq.q.end() && (*prev_store)->completed;  
+    } 
+    // Memory Ports
+    if (n->typeInstr == LD && ports[0] == 0) //no need for mem ports if you can fwd from store buffer
+      canExecute = false;
+    if (n->typeInstr == ST && ports[1] == 0)
+      canExecute = false;
 
     bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
     bool exists_conflicting_ST = lsq.exists_conflicting_memop(d, ST);
@@ -347,23 +363,29 @@ public:
     else if (n->typeInstr == LD) {
       if(mem_spec_mode) {
         stallCondition = exists_conflicting_ST;
-        speculate = exists_unresolved_ST && !exists_conflicting_ST;
+        speculate = exists_unresolved_ST && !exists_conflicting_ST && !forward; //if you can fwd, you're not speculating
       }
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
     }
+    
     canExecute &= !stallCondition;
     uint64_t addr = lsq.tracker.at(d)->addr;
     uint64_t dramaddr = (addr/64) * 64;
-    canExecute &= mem->willAcceptTransaction(dramaddr);
+    canExecute &= mem->willAcceptTransaction(dramaddr) || forward; //if you can forward, you can always execute
 
     // Issue Successful
     if(canExecute) {
       DNode d = make_pair(n,c);
-      lsq.tracker.at(d)->speculated = speculate;
+      lsq.tracker.at(d)->speculated = speculate;  
       if (n->typeInstr == LD) {
         ports[0]--;
-        cb.addTransaction(d, dramaddr, true);
+        if(forward) {
+          cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
+          handleMemoryReturn(d,true); //we're done with this operation
+        }
+        else
+          cb.addTransaction(d, dramaddr, true);
         if (speculate)
           lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
       }
@@ -601,10 +623,11 @@ int main(int argc, char const *argv[])
   string gname = s + "/output/graphOutput.txt";
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
+ 
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
-
+  
   /*
   r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
