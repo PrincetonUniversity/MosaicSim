@@ -297,12 +297,11 @@ bool Context::issueMemNode(Node *n) {
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
       canExecute &= !stallCondition;
+      uint64_t addr = sim->lsq.tracker.at(d)->addr;
+      uint64_t dramaddr = (addr/64) * 64;
+      canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
     }
   }
-  
-  uint64_t addr = sim->lsq.tracker.at(d)->addr;
-  uint64_t dramaddr = (addr/64) * 64;
-  canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
 
   // Issue Successful
   if(canExecute) {
