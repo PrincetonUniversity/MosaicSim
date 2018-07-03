@@ -125,8 +125,9 @@ public:
     }
     return false;
   }
-  bool check_forwarding (DNode in) {
+  int check_forwarding (DNode in) {
     bool found = false;
+    bool speculative = false;
     for(deque<MemOp*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
       MemOp *m = (*it);
       if(m->d == in) {
@@ -135,13 +136,18 @@ public:
       }
       if(found) {
         if(m->addr == tracker.at(in)->addr)
-          if(m->completed)
-            return true;
+          if(m->completed && !speculative)
+            return 1;
+          else if(m->completed && speculative)
+            return 0;
           else
-            return false;
+            return -1;
+        else if(!m->addr_resolved) {
+          speculative = true;
+        }
       }
     }
-    return false;
+    return -1;
   }
   std::vector<DNode> check_speculation (DNode in) {
     std::vector<DNode> ret;

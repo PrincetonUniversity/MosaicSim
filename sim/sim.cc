@@ -255,12 +255,11 @@ bool Context::issueMemNode(Node *n) {
   Context *c = this;
   // Memory Dependency
   DNode d = make_pair(n,c);
-  bool stallCondition = false;
   sim->lsq.tracker.at(d)->addr_resolved = true;
-  
+  bool stallCondition = false;  
   bool canExecute = true;
   bool speculate = false;
-  bool forward = false;
+  int forwardRes = -1;
   
   // Memory Ports
   if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
@@ -276,37 +275,54 @@ bool Context::issueMemNode(Node *n) {
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
   }
   else if (n->typeInstr == LD) {
-    if(cfg->mem_speculate) {
-      stallCondition = exists_conflicting_ST;
-      speculate = exists_unresolved_ST && !exists_conflicting_ST && !forward; //if you can fwd, you're not speculating
+    if(cfg->mem_forward)
+      forwardRes = sim->lsq.check_forwarding(d);
+    if(forwardRes == 1) {
+      canExecute = true;
     }
-    else
-      stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+    else if(forwardRes == 0) {
+      if(cfg->mem_speculate) {
+        canExecute = true;
+        speculate = true;
+      }
+      else {
+        canExecute = false;
+      }
+    }
+    else if(forwardRes == -1) {
+      if(cfg->mem_speculate) {
+        stallCondition = exists_conflicting_ST;
+        speculate = exists_unresolved_ST && !exists_conflicting_ST; //if you can fwd, you're not speculating
+      }
+      else
+        stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+      canExecute &= !stallCondition;
+    }
   }
   
-  canExecute &= !stallCondition;
   uint64_t addr = sim->lsq.tracker.at(d)->addr;
   uint64_t dramaddr = (addr/64) * 64;
   canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
 
-  if (cfg->mem_forward && n->typeInstr == LD) {
-    forward =  sim->lsq.check_forwarding(d);
-    canExecute = true;
-  } 
   // Issue Successful
   if(canExecute) {
     DNode d = make_pair(n,c);
-    if(forward) { 
-      cout << "Node [" << n->name << " @ context " << c->id << "] retrieves forwarded Data \n";
-      d.second->remaining_cycles_map.at(d.first) = 0;
-      //cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
-    }
     sim->lsq.tracker.at(d)->speculated = speculate;  
     if (n->typeInstr == LD) {
-      sim->ports[0]--;
-      sim->cb.addTransaction(d, dramaddr, true);
-      if (speculate)
-        sim->lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
+      if(forwardRes == 1) { 
+        cout << "Node [" << n->name << " @ context " << c->id << "] retrieves forwarded Data \n";
+        d.second->remaining_cycles_map.at(d.first) = 0;
+        //cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
+      }
+      else if(forwardRes == 0) { 
+        cout << "Node [" << n->name << " @ context " << c->id << "] speculuatively retrieves forwarded data \n";
+      }
+      else if(forwardRes == -1) { 
+        sim->ports[0]--;
+        sim->cb.addTransaction(d, dramaddr, true);
+        if (speculate)
+          sim->lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
+      }
     }
     else if (n->typeInstr == ST) {
       sim->ports[1]--;
