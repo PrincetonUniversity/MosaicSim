@@ -264,12 +264,6 @@ bool Context::issueMemNode(Node *n) {
   uint64_t addr = sim->lsq.tracker.at(d)->addr;
   uint64_t dramaddr = (addr/64) * 64;    
   
-  // Memory Ports
-  if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
-    canExecute = false;
-  if (n->typeInstr == ST && sim->ports[1] == 0)
-    canExecute = false;
-
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(d, ST);
   if (n->typeInstr == ST) {
@@ -278,7 +272,6 @@ bool Context::issueMemNode(Node *n) {
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
   }
   else if (n->typeInstr == LD) {
-
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(d);
     if(forwardRes == 1) {
@@ -300,11 +293,16 @@ bool Context::issueMemNode(Node *n) {
       }
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-      canExecute &= !stallCondition;
-      canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
     }
   }
-
+  if(forwardRes == -1) {
+    if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
+      canExecute = false;
+    if (n->typeInstr == ST && sim->ports[1] == 0)
+      canExecute = false;
+    canExecute &= !stallCondition;
+    canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
+  }
   // Issue Successful
   if(canExecute) {
     DNode d = make_pair(n,c);
