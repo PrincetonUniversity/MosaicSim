@@ -28,12 +28,21 @@ public:
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
   Context(int id, Simulator* sim) : live(true), id(id), bbid(-1), processed(0), sim(sim) {}
-  void tryActivate(Node* parent, Node *n); 
+  void tryActivate(Node *n); 
 };
 
 
 typedef std::pair<Node*,Context*> DNode;  // Dynamic Node: a pair of <node,context>
-
+struct DNodeCompare {
+  friend bool operator< (const DNode &l, const DNode &r) {
+    if(l.second->id < r.second->id) 
+      return true;
+    else if(l.second->id == r.second->id && l.first->id < r.first->id)
+      return true;
+    else
+      return false;
+  }
+};
 
 class MemOp {
 public:
@@ -89,7 +98,8 @@ public:
       MemOp *m = (*it);
       if(m->d == in)
         return false;
-      else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
+      //else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
+      else if(m->d > in)
         return false;
       if(!(m->addr_resolved) && m->d.first->typeInstr == op_type) {
         return true;
@@ -105,15 +115,30 @@ public:
       MemOp *m = (*it);
       if(m->d == in)
         return false;
-      else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
+      //else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
+      else if(m->d > in)
         return false;
       if(m->addr_resolved && !(m->completed) && m->d.first->typeInstr == op_type && m->addr == addr)
         return true;
     }
     return false;
   }
-
-  deque<MemOp*>::iterator recent_memop_completed(DNode in, TInstr op_type) {
+  bool check_forwarding (DNode in) {
+    bool found = false;
+    for(deque<MemOp*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
+      MemOp *m = (*it);
+      if(m->d == in) {
+        found = true;
+        continue;
+      }
+      if(found) {
+        if(m->addr == tracker.at(in)->addr && m->completed)
+          return true;
+      }
+    }
+    return false;
+  }
+  /*deque<MemOp*>::iterator recent_memop_completed(DNode in, TInstr op_type) {
     deque<MemOp*>::iterator it = q.begin();
     deque<MemOp*>::iterator recent_op = q.end();
     while (it!=q.end() && !((*it)->d.first->id == in.first->id && (*it)->d.second->id == in.second->id) && !((*it)->d.second->id > in.second->id || (((*it)->d.second->id == in.second->id) && ((*it)->d.first->id > in.first->id))) ) { //not end, not equal, not younger
@@ -122,16 +147,17 @@ public:
       ++it;
     }
     return recent_op;
-  }
+  }*/
   
   std::vector<DNode> check_speculation (DNode in) {
     std::vector<DNode> ret;
     uint64_t addr = tracker.at(in)->addr;
-    for(deque<MemOp*>::iterator it = q.end(); it!= q.begin(); --it) {
+    for(deque<MemOp*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
       MemOp *m = (*it);
       if(m->d == in)
         break;
-      else if(m->d.second->id < in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id < in.first->id)))
+      //else if(m->d.second->id < in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id < in.first->id)))
+      else if(m->d < in)
         break;
       if(m->speculated && !(m->completed) && m->d.first->typeInstr == LD && m->addr == addr) {
         m->speculated = false;
@@ -343,10 +369,7 @@ public:
     bool speculate = false;
     bool forward = false;
     deque<MemOp*>::iterator prev_store;
-    if (n->typeInstr == LD) {
-      prev_store = lsq.recent_memop_completed(d,ST);
-      forward = store_load_fwd && prev_store!=lsq.q.end() && (*prev_store)->completed;  
-    } 
+    
     // Memory Ports
     if (n->typeInstr == LD && ports[0] == 0) //no need for mem ports if you can fwd from store buffer
       canExecute = false;
@@ -373,19 +396,23 @@ public:
     uint64_t addr = lsq.tracker.at(d)->addr;
     uint64_t dramaddr = (addr/64) * 64;
     canExecute &= mem->willAcceptTransaction(dramaddr); 
-    canExecute = canExecute || forward; //if you can forward, you can always execute
+
+    if (store_load_fwd && n->typeInstr == LD) {
+      forward =  lsq.check_forwarding(d);
+      canExecute = true;
+    } 
     // Issue Successful
     if(canExecute) {
       DNode d = make_pair(n,c);
+      if(forward) { 
+        cout << "Node [" << n->name << " @ context " << c->id << "] retrieves forwarded Data \n";
+        d.second->remaining_cycles_map.at(d.first) = 0;
+        //cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
+      }
       lsq.tracker.at(d)->speculated = speculate;  
       if (n->typeInstr == LD) {
         ports[0]--;
-        if(forward) {
-          cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
-          handleMemoryReturn(d,true); //we're done with this operation
-        }
-        else
-          cb.addTransaction(d, dramaddr, true);
+        cb.addTransaction(d, dramaddr, true);
         if (speculate)
           lsq.tracker.at(d)->outstanding++; //increase number of outstanding loads by that node
       }
@@ -418,7 +445,7 @@ public:
       for(int i=0; i<misspeculated.size(); i++) {
         // Handle Misspeculation
         Context *cc = misspeculated.at(i).second;
-        cc->tryActivate(n,misspeculated.at(i).first);
+        cc->tryActivate(misspeculated.at(i).first);
       }
     }
 
@@ -433,7 +460,10 @@ public:
     for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
       Node *d = *it;
       c->pending_parents_map.at(d)--;
-      c->tryActivate(n,d);    
+      if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
+        lsq.tracker.at(make_pair(d,c))->addr_resolved = true;
+      }
+      c->tryActivate(d);    
     }
 
     // The same for external dependents: decrease parent's count & try to launch them
@@ -444,8 +474,11 @@ public:
         for (int i=0; i<users.size(); i++) {
           Node *d = users.at(i).first;
           Context *cc = users.at(i).second;
+          if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
+            lsq.tracker.at(make_pair(d,cc))->addr_resolved = true;
+          }
           cc->pending_external_parents_map.at(d)--;
-          cc->tryActivate(n,d);
+          cc->tryActivate(d);
         }
         deps.erase(src);
       }
@@ -460,7 +493,7 @@ public:
         if (context_list.size() > next_cid) {
           Context *cc = context_list.at(next_cid);
           cc->pending_parents_map.at(d)--;
-          cc->tryActivate(n,d);
+          cc->tryActivate(d);
         }
         else {
           if (handled_phi_deps.find(next_cid) == handled_phi_deps.end()) {
@@ -592,9 +625,9 @@ public:
   }
 };
 
-void Context::tryActivate(Node* parent, Node *n) {
-    if (n->typeInstr==ST && parent==n->addr_operand) 
-      sim->lsq.tracker.at(make_pair(n,this))->addr_resolved=true;      
+void Context::tryActivate(Node *n) {
+    //if (n->typeInstr==ST && parent==n->addr_operand) 
+    //  sim->lsq.tracker.at(make_pair(n,this))->addr_resolved=true;      
     
     if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
       //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";

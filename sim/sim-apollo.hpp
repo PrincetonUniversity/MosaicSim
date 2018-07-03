@@ -55,22 +55,22 @@ public:
   std::set<Node*> external_dependents;
   std::set<Node*> external_parents;
   std::set<Node*> phi_dependents;
-
+  std::set<Node*> store_addr_dependents; // store_address_dependents
   int id;
   int lat;
   TInstr typeInstr;
   int bbid;
   std::string name;
-  Node* addr_operand; // Only for ST inst
+  //Node* addr_operand; // Only for ST inst
 
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
-    addr_operand = NULL;
+    //addr_operand = NULL;
   } 
   
   // Constructor for the BB's entry point
   Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {
-    addr_operand = NULL;
+    //addr_operand = NULL;
   }
 
   void addDependent(Node *dest, TEdge type) {
@@ -341,7 +341,8 @@ public:
           g.addDependent(g.bbs.at(stoi(s.at(0)))->entry, g.getNode(stoi(s.at(1))), PHI_DEP);     
         }
         else if (edgeT == -2) {
-          g.getNode(stoi(s.at(0)))->addr_operand = g.getNode(stoi(s.at(1)));
+          //g.getNode(stoi(s.at(0)))->addr_operand = g.getNode(stoi(s.at(1)));
+          g.getNode(stoi(s.at(1)))->store_addr_dependents.insert(g.getNode(stoi(s.at(0))));
         }
       }
       if (getline(cfile,line))
