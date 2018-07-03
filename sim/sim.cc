@@ -260,6 +260,9 @@ bool Context::issueMemNode(Node *n) {
   bool canExecute = true;
   bool speculate = false;
   int forwardRes = -1;
+
+  uint64_t addr = sim->lsq.tracker.at(d)->addr;
+  uint64_t dramaddr = (addr/64) * 64;    
   
   // Memory Ports
   if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
@@ -275,6 +278,7 @@ bool Context::issueMemNode(Node *n) {
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
   }
   else if (n->typeInstr == LD) {
+
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(d);
     if(forwardRes == 1) {
@@ -297,8 +301,6 @@ bool Context::issueMemNode(Node *n) {
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
       canExecute &= !stallCondition;
-      uint64_t addr = sim->lsq.tracker.at(d)->addr;
-      uint64_t dramaddr = (addr/64) * 64;
       canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
     }
   }
