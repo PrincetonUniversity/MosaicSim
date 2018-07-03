@@ -33,8 +33,10 @@ typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
 class Config {
 public:
    // Config
-  bool CF_one_context_at_once;
-  bool CF_all_contexts_concurrently;
+  bool cf_one_context_at_once;
+  bool cf_all_contexts_concurrently;
+  bool mem_speculate;
+  bool mem_forward;
   // Resource
   int lsq_size;
   // Latency
@@ -61,17 +63,12 @@ public:
   TInstr typeInstr;
   int bbid;
   std::string name;
-  //Node* addr_operand; // Only for ST inst
-
+  
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
-            id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {
-    //addr_operand = NULL;
-  } 
+            id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
   
   // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {
-    //addr_operand = NULL;
-  }
+  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {}
 
   void addDependent(Node *dest, TEdge type) {
     if(type == DATA_DEP || type == BB_DEP) {
@@ -211,9 +208,10 @@ public:
   void readCfg(std::string name, Config &cfg) {
     // TODO: Read Config From the File
     cfg.lsq_size = 512;
-    cfg.CF_one_context_at_once = true;
-    cfg.CF_all_contexts_concurrently = false;
-
+    cfg.cf_one_context_at_once = true;
+    cfg.cf_all_contexts_concurrently = false;
+    cfg.mem_speculate = true;
+    cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 9;
