@@ -134,8 +134,11 @@ public:
         continue;
       }
       if(found) {
-        if(m->addr == tracker.at(in)->addr && m->completed)
-          return true;
+        if(m->addr == tracker.at(in)->addr)
+          if(m->completed)
+            return true;
+          else
+            return false;
       }
     }
     return false;

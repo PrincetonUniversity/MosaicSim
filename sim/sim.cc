@@ -261,7 +261,6 @@ bool Context::issueMemNode(Node *n) {
   bool canExecute = true;
   bool speculate = false;
   bool forward = false;
-  deque<MemOp*>::iterator prev_store;
   
   // Memory Ports
   if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
