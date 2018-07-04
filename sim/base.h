@@ -312,7 +312,7 @@ public:
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
         int bbid = stoi(s.at(2));
         string name = s.at(3);
-        name = s.at(3).substr(0, s.at(3).size());
+        name = s.at(3).substr(0, s.at(3).size());       
         g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
       }
       for (int i=0; i<numEdge; i++) {

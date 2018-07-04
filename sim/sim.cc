@@ -21,15 +21,15 @@ int main(int argc, char const *argv[])
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
   
-  Reader r;
+  Reader r; 
+  r.readCfg("sim/config/config.txt", sim.cfg);
 
   /*
-  r.readCfg("sim/config/config.txt", sim.cfg);
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
   */
- 
+    
   r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
   r.readProfCF("../workloads/toy/toycf.txt", sim.cf); 
@@ -138,7 +138,8 @@ void Context::process()
       else
         res = issueCompNode(n);
       if(!res) {
-        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << this->id << "]: Issue failed \n";
+        if(DEBUGLOG)
+          {cout << "Node [" << n->name << " @ context " << this->id << "]: Issue failed \n";}
         next_active_list.push_back(n);
         next_issue_set.insert(n);
         continue;
@@ -149,9 +150,11 @@ void Context::process()
 
     // Update Remaining Cycles
     int remaining_cycles = remaining_cycles_map.at(n);
+    
     if (remaining_cycles > 0)
       remaining_cycles--;
     
+   
     // Continue Execution
     if ( remaining_cycles > 0 || remaining_cycles == -1 ) {
       next_active_list.push_back(n);
@@ -172,7 +175,9 @@ void Context::process()
       nodes_to_complete.push_back(n);
     }
     else
-      assert(false);
+      {
+        
+        assert(false); }
   }
   issue_set = next_issue_set;
   active_list = next_active_list;
@@ -369,7 +374,8 @@ void Context::finishNode(Node *n) {
 
 void Context::tryActivate(Node *n) {
     if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      if(DEBUGLOG) std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+      if(DEBUGLOG)
+        {std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";}
       return;
     }
     active_list.push_back(n);
@@ -377,4 +383,5 @@ void Context::tryActivate(Node *n) {
     issue_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
     remaining_cycles_map.insert(std::make_pair(n, n->lat));
+    cout << n->lat << " for n-type " << n->typeInstr << " is number of remaining cycles \n"; //luwa delete
 }
