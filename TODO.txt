@@ -8,6 +8,7 @@
 
 /* Minor Functionality */
 [Sim] Detailed resource limits for memory systems
+[Sim] PHI_Node 0 latency
 
 /* Code Improvements */ (Low Priority)
 [Compilation] Chirag / Make a script for easy compilation and run
