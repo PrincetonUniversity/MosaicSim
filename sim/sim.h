@@ -44,7 +44,7 @@ public:
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
 
-  Context(int id, Simulator* sim) : live(true), id(id), sim(sim) {}
+  Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
   //void initialize();
   bool issueMemNode(Node *n);
   bool issueCompNode(Node *n);

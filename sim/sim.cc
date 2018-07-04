@@ -45,7 +45,7 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
   this->cfg = cfg;
   this->next_bbid = next_bbid;
   this->prev_bbid = prev_bbid;
-  
+  live = true;
   // Initialize Context Structures
   for ( int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
