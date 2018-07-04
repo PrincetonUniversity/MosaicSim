@@ -207,6 +207,7 @@ bool Context::issueMemNode(Node *n) {
   bool stallCondition = false;  
   bool canExecute = true;
   bool speculate = false;
+  bool issueMemory = true;
   int forwardRes = -1;
 
   uint64_t addr = memory_ops.at(n)->addr;
@@ -223,33 +224,25 @@ bool Context::issueMemNode(Node *n) {
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(d);
     if(forwardRes == 1) {
-      canExecute = true;
     }
-    else if(forwardRes == 0) {
-      if(cfg->mem_speculate) {
-        canExecute = true;
-        speculate = true;
-      }
-      else {
-        canExecute = false;
-      }
+    else if(forwardRes == 0 && cfg->mem_speculate) {
+      speculate = true;
     }
-    else if(forwardRes == -1) {
+    else {
       if(cfg->mem_speculate) {
         stallCondition = exists_conflicting_ST;
         speculate = exists_unresolved_ST && !exists_conflicting_ST; //if you can fwd, you're not speculating
       }
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+      
+      if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
+        canExecute = false;
+      if (n->typeInstr == ST && sim->ports[1] == 0)
+        canExecute = false;
+      canExecute &= !stallCondition;
+      canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
     }
-  }
-  if(forwardRes == -1) {
-    if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
-      canExecute = false;
-    if (n->typeInstr == ST && sim->ports[1] == 0)
-      canExecute = false;
-    canExecute &= !stallCondition;
-    canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
   }
   // Issue Successful
   if(canExecute) {
@@ -259,12 +252,11 @@ bool Context::issueMemNode(Node *n) {
       if(forwardRes == 1) { 
         cout << "Node [" << n->name << " @ context " << id << "] retrieves forwarded Data \n";
         d.second->remaining_cycles_map.at(d.first) = 0;
-        //cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
       }
-      else if(forwardRes == 0) { 
+      else if(forwardRes == 0 && cfg->mem_speculate) { 
         cout << "Node [" << n->name << " @ context " << id << "] speculuatively retrieves forwarded data \n";
       }
-      else if(forwardRes == -1) { 
+      else { 
         sim->ports[0]--;
         sim->cb.addTransaction(d, dramaddr, true);
         if (speculate) {

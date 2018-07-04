@@ -1,6 +1,6 @@
 /* Issues */ (High Priority)
 
-[Sim] TJH/ 0-latency Inst: Handle 0 latency instructions
+[Sim] TJH / 0-latency Inst: Handle 0 latency instructions
 
 /* Major Functionality */
 [GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
