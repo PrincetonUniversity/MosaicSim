@@ -14,29 +14,34 @@ void Simulator::initialize() {
   mem->RegisterCallbacks(read_cb, write_cb, NULL);
   mem->setCPUClockSpeed(2000000000);  
   lsq.initialize(cfg.lsq_size);
+  // Initialize Resources
   for(int i=0; i<NUM_INST_TYPES; i++) {
     FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
   }
+  // Launch Initial Context
   if (cfg.cf_one_context_at_once) {
-    createContext( cf.at(0) );  // create just the very firt context from <cf>
+    createContext();
   }
-  else if (cfg.cf_all_contexts_concurrently)  { // create ALL contexts to max parallelism
+  else if (cfg.cf_all_contexts_concurrently)  {
     for ( int i=0; i< cf.size(); i++ )
-      createContext( cf.at(i) );
+      createContext();
   }
 }
-
-void Simulator::createContext(int bbid)
+void Simulator::createContext()
 {
-  assert(bbid < g.bbs.size());
-  /* Create Context */
+  // Create Context
   int cid = context_list.size();
+  if(cf.size() == cid)
+    return;
   Context *c = new Context(cid, this);
-  c->cfg = &cfg;
   context_list.push_back(c);
+  int bbid = cf.at(cid);
   BasicBlock *bb = g.bbs.at(bbid);
-  // Initialize
-  c->bbid = bb->id;
+
+  c->bb = bb;
+  c->cfg = &cfg;
+  
+  // Check LSQ Availability
   int mem_count = 0;
   for ( int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
@@ -44,24 +49,24 @@ void Simulator::createContext(int bbid)
       mem_count++;
   }
   if(!lsq.checkSize(mem_count))
-    assert(false); // Context creation failed due to limited LSQ size
+    assert(false);
+
   c->active_list.push_back(bb->entry);
   c->remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
   
-  // traverse all the BB's instructions and initialize the pending_parents map
+  // Initialize Context Structures
   for ( int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     if (n->typeInstr == ST || n->typeInstr == LD) {
-      // add entries to LSQ
+      // Initialize entries in LSQ
       if(memory.find(n->id) == memory.end()) {
         cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
         assert(false);
       }
       uint64_t addr = memory.at(n->id).front();
-      lsq.insert(addr, make_pair(n, c));
+      lsq.insert(addr, make_pair(n,c));
       memory.at(n->id).pop();
     }
-        
     if(n->typeInstr == PHI)
       c->pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
     else
@@ -69,7 +74,7 @@ void Simulator::createContext(int bbid)
     c->pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
   }
 
-  /* Handle Phi */
+  // Initialize Phi Dependency
   if (handled_phi_deps.find(c->id) != handled_phi_deps.end()) {
     std::set<Node*>::iterator it;
     for(it = handled_phi_deps.at(c->id).begin(); it != handled_phi_deps.at(c->id).end(); ++it) {
@@ -78,31 +83,26 @@ void Simulator::createContext(int bbid)
     handled_phi_deps.erase(c->id);
   }
 
-  /* Handle External Edges */
+  // Initialize External Edges
   for (int i=0; i<bb->inst.size(); i++) {
     Node *n = bb->inst.at(i);
     if (n->external_dependents.size() > 0) {
       if(curr_owner.find(n) == curr_owner.end())
-        curr_owner.insert(make_pair(n, make_pair(c->id, false)));
+        curr_owner.insert(make_pair(n, c));
       else {
-        curr_owner.at(n).first = c->id;
-        curr_owner.at(n).second = false;
+        curr_owner.at(n) = c;
       }
+      c->external_deps.insert(make_pair(n, vector<DNode>()));
     }
     if (n->external_parents.size() > 0) {
       std::set<Node*>::iterator it;
       for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
         Node *s = *it;
-        int src_cid = curr_owner.at(s).first;
-        bool done = curr_owner.at(s).second;
-        DNode src = make_pair(s, context_list.at(src_cid));
-        if(done)
+        Context *cc = curr_owner.at(s);
+        if(cc->completed_nodes.find(s) != cc->completed_nodes.end())
           c->pending_external_parents_map.at(n)--;
         else {
-          if(deps.find(src) == deps.end()) {
-            deps.insert(make_pair(src, vector<DNode>()));
-          }
-          deps.at(src).push_back(make_pair(n, c));
+          cc->external_deps.at(s).push_back(make_pair(n,c));
         }
       }
     }
@@ -128,9 +128,8 @@ void Simulator::complete_context(Context *c)
   for(int i=0; i<c->nodes_to_complete.size(); i++) {
     Node *n = c->nodes_to_complete.at(i);
     c->finishNode(n);
-    // Check if the current context is done
-    if ( c->processed == g.bbs.at(c->bbid)->inst_count ) {
-      cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->processed << " instructions) \n";
+    if (c->completed_nodes.size() == c->bb->inst_count) {
+      cout << "Context [" << c->id << "]: Finished Execution (Executed " << c->completed_nodes.size() << " instructions) \n";
       c->live = false;
     }
   }
@@ -139,7 +138,6 @@ void Simulator::complete_context(Context *c)
 
 void Simulator::process_context(Context *c)
 {
-  // traverse ALL the active instructions in the context
   for (int i=0; i < c->active_list.size(); i++) {
     Node *n = c->active_list.at(i);
     if (c->issue_set.find(n) != c->issue_set.end()) {
@@ -158,19 +156,20 @@ void Simulator::process_context(Context *c)
         cout << "Node [" << n->name << " @ context " << c->id << "]: Issue successful \n";
     }
 
-    // decrease the remaining # of cycles for current node <n>
+    // Update Remaining Cycles
     int remaining_cycles = c->remaining_cycles_map.at(n);
     if (remaining_cycles > 0)
       remaining_cycles--;
     
     DNode d = make_pair(n,c);
-          
-    if ( remaining_cycles > 0 || remaining_cycles == -1 ) {  // Node <n> will continue execution in next cycle
+    // Continue Execution
+    if ( remaining_cycles > 0 || remaining_cycles == -1 ) {
       c->next_active_list.push_back(n);
       continue;
     }      
-    else if (remaining_cycles == 0) { // Execution finished for node <n>
-      // Check if speculatied load can be confirmed to be correct
+    else if (remaining_cycles == 0) { 
+      // Execution Finished
+      // Check the speculation result for speculative loads
       if (cfg.mem_speculate && n->typeInstr == LD && lsq.tracker.at(d)->speculated) {
         assert(lsq.tracker.at(d)->outstanding == 0);
         bool exists_unresolved_ST = lsq.exists_unresolved_memop(d, ST);
@@ -184,8 +183,6 @@ void Simulator::process_context(Context *c)
     else
       assert(false);
   }
-
-  // Continue with following active instructions
   c->issue_set = c->next_issue_set;
   c->active_list = c->next_active_list;
   c->next_issue_set.clear();
@@ -204,12 +201,13 @@ bool Simulator::process_cycle()
   assert(cycle_count < 10000);
   ports[0] = cfg.load_ports;
   ports[1] = cfg.store_ports;
-  // process all live contexts
+
   for (int i=0; i<context_list.size(); i++) {
     if (context_list.at(i)->live) {
       process_context(context_list.at(i));
     }
   }
+
   for (int i=0; i<context_list.size(); i++) {
     if (context_list.at(i)->live) {
       complete_context(context_list.at(i));
@@ -217,11 +215,11 @@ bool Simulator::process_cycle()
         simulate = true;
     }
   }
-  for (int i=0; i<context_to_create.size(); i++) {
-    createContext(context_to_create.at(i));
+  for (int i=0; i<context_to_create; i++) {
+    createContext();
     simulate = true;
   }
-  context_to_create.clear();
+  context_to_create = 0;
   process_memory();
   return simulate;
 }
@@ -229,14 +227,15 @@ bool Simulator::process_cycle()
 void Simulator::run()
 {
   bool simulate = true;
-  while (simulate) {
+  while (simulate)
     simulate = process_cycle();
-  }
   mem->printStats(false);
 }
+/*
+bool Context::issueNode(Node *n, bool isMem) {
 
+}*/
 bool Context::issueCompNode(Node *n) {
-  Context *c = this;
   bool canExecute = true;
   // check resource (FU) availability
   if (sim->FUs.at(n->typeInstr) != -1) {
@@ -252,9 +251,8 @@ bool Context::issueCompNode(Node *n) {
     return false;
 }
 bool Context::issueMemNode(Node *n) {
-  Context *c = this;
   // Memory Dependency
-  DNode d = make_pair(n,c);
+  DNode d = make_pair(n,this);
   sim->lsq.tracker.at(d)->addr_resolved = true;
   bool stallCondition = false;  
   bool canExecute = true;
@@ -305,16 +303,16 @@ bool Context::issueMemNode(Node *n) {
   }
   // Issue Successful
   if(canExecute) {
-    DNode d = make_pair(n,c);
+    DNode d = make_pair(n,this);
     sim->lsq.tracker.at(d)->speculated = speculate;  
     if (n->typeInstr == LD) {
       if(forwardRes == 1) { 
-        cout << "Node [" << n->name << " @ context " << c->id << "] retrieves forwarded Data \n";
+        cout << "Node [" << n->name << " @ context " << id << "] retrieves forwarded Data \n";
         d.second->remaining_cycles_map.at(d.first) = 0;
         //cout << "For Address " << addr << " Node [" << (*prev_store)->d.first->name << " @ context " << (*prev_store)->d.second->id << "]: Forwards Data to Node [" << d.first->name << " @ context " << d.second->id << "] \n";
       }
       else if(forwardRes == 0) { 
-        cout << "Node [" << n->name << " @ context " << c->id << "] speculuatively retrieves forwarded data \n";
+        cout << "Node [" << n->name << " @ context " << id << "] speculuatively retrieves forwarded data \n";
       }
       else if(forwardRes == -1) { 
         sim->ports[0]--;
@@ -334,16 +332,15 @@ bool Context::issueMemNode(Node *n) {
     return false;
 }
 void Context::finishNode(Node *n) {
-  Context *c = this;
-  DNode d = make_pair(n,c);
-  cout << "Node [" << n->name << " @ context " << c->id << "]: Finished Execution \n";
+  DNode d = make_pair(n,this);
+  cout << "Node [" << n->name << " @ context " << id << "]: Finished Execution \n";
 
-  c->remaining_cycles_map.erase(n);
+  remaining_cycles_map.erase(n);
   if (n->typeInstr != ENTRY)
-    c->processed++;
+    completed_nodes.insert(n);
 
   // Handle Resource
-  if ( sim->FUs.at(n->typeInstr) != -1 ) { // if FU is "limited" -> realease the FU
+  if ( sim->FUs.at(n->typeInstr) != -1 ) { // if FU is "limited" -> release the FU
     sim->FUs.at(n->typeInstr)++; 
     cout << "Node [" << n->name << "]: released FU, new free FU: " << sim->FUs.at(n->typeInstr) << endl;
   }
@@ -354,7 +351,7 @@ void Context::finishNode(Node *n) {
     for(int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
       Context *cc = misspeculated.at(i).second;
-      cc->tryActivate(misspeculated.at(i).first);
+      tryActivate(misspeculated.at(i).first);
     }
   }
 
@@ -368,54 +365,50 @@ void Context::finishNode(Node *n) {
   set<Node*>::iterator it;
   for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
     Node *d = *it;
-    c->pending_parents_map.at(d)--;
+    pending_parents_map.at(d)--;
     if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
-      sim->lsq.tracker.at(make_pair(d,c))->addr_resolved = true;
+      sim->lsq.tracker.at(make_pair(d,this))->addr_resolved = true;
     }
-    c->tryActivate(d);    
+    tryActivate(d);    
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
   if (n->external_dependents.size() > 0) {
-    DNode src = make_pair(n, c);
-    if (sim->deps.find(src) != sim->deps.end()) {
-      vector<DNode> users = sim->deps.at(src);
+    if (external_deps.at(n).size() > 0) {
+      vector<DNode> users = external_deps.at(n);
       for (int i=0; i<users.size(); i++) {
         Node *d = users.at(i).first;
         Context *cc = users.at(i).second;
         if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
           sim->lsq.tracker.at(make_pair(d,cc))->addr_resolved = true;
         }
-        cc->pending_external_parents_map.at(d)--;
-        cc->tryActivate(d);
+        pending_external_parents_map.at(d)--;
+        tryActivate(d);
       }
-      sim->deps.erase(src);
+      external_deps.erase(n);
     }
-    sim->curr_owner.at(n).second = true;
   }
 
   // Same for Phi dependents
   for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
     Node *d = *it;
-    if(sim->getNextBasicBlock(c->id) == d->bbid) {
-      if(Context *cc = sim->getNextContext(c->id)) {
-        cc->pending_parents_map.at(d)--;
-        cc->tryActivate(d);
+    if(sim->getNextBasicBlock(id) == d->bbid) {
+      if(Context *cc = sim->getNextContext(id)) {
+        pending_parents_map.at(d)--;
+        tryActivate(d);
       }
       else {
-        if (sim->handled_phi_deps.find(c->id+1) == sim->handled_phi_deps.end()) {
-          sim->handled_phi_deps.insert(make_pair(c->id+1, set<Node*>()));
+        if (sim->handled_phi_deps.find(id+1) == sim->handled_phi_deps.end()) {
+          sim->handled_phi_deps.insert(make_pair(id+1, set<Node*>()));
         }
-        sim->handled_phi_deps.at(c->id+1).insert(d);
+        sim->handled_phi_deps.at(id+1).insert(d);
       }
     }
   }
 
   // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
   if (cfg->cf_one_context_at_once && n->typeInstr == TERMINATOR) {
-    if ( c->id < sim->cf.size()-1 ) {  // if there are more pending contexts in the <cf> vector
-      sim->context_to_create.push_back(sim->cf.at(c->id + 1));
-    }
+    sim->context_to_create++;
   }
 }
 

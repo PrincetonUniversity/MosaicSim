@@ -12,21 +12,25 @@ class Context {
 public:
   bool live;
   int id;
-  int bbid;
-  int processed;
+
   Simulator* sim;
   Config *cfg;
+  BasicBlock *bb;
+
+  map<Node*, vector<std::pair<Node*, Context*>>> external_deps; // Source of external dependency (Node, Destinations for that source (Node, cid))
   std::vector<Node*> active_list;
   std::set<Node*> issue_set;
   std::set<Node*> next_issue_set;
   std::vector<Node *> next_active_list;
   std::vector<Node *> nodes_to_complete;
+  std::set<Node*> completed_nodes;
 
   std::map<Node*, int> remaining_cycles_map;  // tracks remaining cycles for each node
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
-  Context(int id, Simulator* sim) : live(true), id(id), bbid(-1), processed(0), sim(sim) {}
+  Context(int id, Simulator* sim) : live(true), id(id), sim(sim) {}
+  //void initialize();
   bool issueMemNode(Node *n);
   bool issueCompNode(Node *n);
   void finishNode(Node *n);
@@ -165,16 +169,6 @@ public:
     }
     return ret;
   }
-  /*deque<MemOp*>::iterator recent_memop_completed(DNode in, TInstr op_type) {
-    deque<MemOp*>::iterator it = q.begin();
-    deque<MemOp*>::iterator recent_op = q.end();
-    while (it!=q.end() && !((*it)->d.first->id == in.first->id && (*it)->d.second->id == in.second->id) && !((*it)->d.second->id > in.second->id || (((*it)->d.second->id == in.second->id) && ((*it)->d.first->id > in.first->id))) ) { //not end, not equal, not younger
-      if ((*it)->d.first->typeInstr==op_type)
-        recent_op=it;
-      ++it;
-    }
-    return recent_op;
-  }*/
 };
 class Simulator 
 {
@@ -218,34 +212,37 @@ public:
   
   int cycle_count = 0;
   vector<Context*> context_list;
-  vector<int> context_to_create;
+  int context_to_create = 0;
+
   /* Resources */
   map<TInstr, int> FUs;
   int ports[2]; // ports[0] = loads; ports[1] = stores;
 
+  /* Profiled */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
-  /* Handling External Dependencies */
-  map<Node*, pair<int, bool> > curr_owner; // Source of external dependency (Node), Context ID for the node (cid), Finished
-  map<DNode, vector<DNode> > deps; // Source of external dependency (Node,cid), Destinations for that source (Node, cid)
-  /* Handling Phi Dependencies */
+  
+  /* Handling External/Phi Dependencies */
+  map<Node*, Context*> curr_owner;
   map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   
+  /* LSQ */
   LoadStoreQ lsq;
+
   Context* getNextContext(int cid) {
-    if (cf.size() > cid+1 && context_list.size() > cid+1)
+    if (context_list.size() > cid+1)
       return context_list.at(cid+1);
     else
       return NULL;
   }
   int getNextBasicBlock(int cid) {
-    if(cf.size() > cid+1) 
+    if(cf.size() > cid+1)
       return cf.at(cid+1);
     else
       return -1;
   }
   void initialize();
-  void createContext(int bbid);
+  void createContext();
   void handleMemoryReturn(DNode d, bool isLoad);
   void complete_context(Context *c);
   void process_context(Context *C);
