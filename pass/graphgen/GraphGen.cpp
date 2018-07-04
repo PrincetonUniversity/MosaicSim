@@ -8,7 +8,6 @@ public:
   static char ID;
   Graph depGraph;
   std::map<Value*,Node*> nodeMap;
-  std::vector<std::pair<int,int>> bb_to_phi_edges;
   std::map<Instruction*, Instruction*> store_to_addr;
   GraphGen(): FunctionPass(ID) { }
   virtual bool runOnFunction(Function &func) override;
@@ -119,10 +118,6 @@ void GraphGen::addPhiEdges(Function &func) {
           auto phisrc =  nodeMap.at(v);
           depGraph.addEdge(phisrc, phidst, Edge_Phi);
         }
-        else {
-          BasicBlock *srcb = phiNode.getIncomingBlock(i);
-          bb_to_phi_edges.push_back(std::make_pair(nodeMap.at(srcb)->bb_id, phidst->id));
-        }
       }
     }
   }
@@ -231,7 +226,7 @@ void GraphGen::visualize() {
 void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");
   if (cfile.is_open()) {
-    int numEdge = depGraph.num_export_edges  + bb_to_phi_edges.size() + store_to_addr.size();
+    int numEdge = depGraph.num_export_edges  + store_to_addr.size();
     cfile << depGraph.bb_nodes.size() << "\n";
     cfile << depGraph.i_nodes.size() << "\n";
     cfile << numEdge << "\n";
@@ -254,14 +249,10 @@ void GraphGen::exportGraph() {
         }
       }
     }
-    for(int i=0; i<bb_to_phi_edges.size(); i++) {
-      cfile << bb_to_phi_edges.at(i).first << "," << bb_to_phi_edges.at(i).second << ",-1\n";
-      ect++;
-    }
     for(std::map<Instruction*, Instruction*>::iterator it = store_to_addr.begin(); it != store_to_addr.end(); ++it) {
       Node *src = nodeMap.at(it->first);
       Node *dst = nodeMap.at(it->second);
-      cfile << src->id << "," << dst->id <<",-2\n";
+      cfile << src->id << "," << dst->id <<",-1\n";
       ect++;
     }
     if(ect != numEdge) {

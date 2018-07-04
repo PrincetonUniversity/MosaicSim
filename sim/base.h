@@ -204,11 +204,11 @@ public:
     cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
-    cfg.instr_latency[I_DIV] = 9;
+    cfg.instr_latency[I_DIV] = 26;
     cfg.instr_latency[I_REM] = 1;
     cfg.instr_latency[FP_ADDSUB] = 1;
     cfg.instr_latency[FP_MULT] = 3;
-    cfg.instr_latency[FP_DIV] = 9;
+    cfg.instr_latency[FP_DIV] = 26;
     cfg.instr_latency[FP_REM] = 1;
     cfg.instr_latency[LOGICAL] = 1;
     cfg.instr_latency[CAST] = 1;
@@ -217,7 +217,6 @@ public:
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.instr_latency[ENTRY] = 1;   // JLA: should it be 0 ?
     cfg.num_units[I_ADDSUB] = -1;
     cfg.num_units[I_MULT] = 4;
     cfg.num_units[I_DIV] = 4;
@@ -233,7 +232,6 @@ public:
     cfg.num_units[ST] = -1;
     cfg.num_units[TERMINATOR] = -1;
     cfg.num_units[PHI] = -1;
-    cfg.num_units[ENTRY] = -1;
     cfg.load_ports = 4;
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
@@ -325,7 +323,7 @@ public:
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
           g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
         }
-        else if (edgeT == -2) {
+        else if (edgeT == -1) {
           g.getNode(stoi(s.at(1)))->store_addr_dependents.insert(g.getNode(stoi(s.at(0))));
         }
       }
