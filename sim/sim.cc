@@ -37,10 +37,11 @@ int main(int argc, char const *argv[])
 } 
 
 
-void Context::initialize(BasicBlock *bb, Config *cfg) 
+void Context::initialize(BasicBlock *bb, Config *cfg, int nextbbid) 
 {
   this->bb = bb;
   this->cfg = cfg;
+  this->nextbbid = nextbbid;
   active_list.push_back(bb->entry);
   remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
   
@@ -342,7 +343,7 @@ void Context::finishNode(Node *n) {
   // Same for Phi dependents
   for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
     Node *d = *it;
-    if(sim->getNextBasicBlock(id) == d->bbid) {
+    if(nextbbid == d->bbid) {
       if(Context *cc = sim->getNextContext(id)) {
         pending_parents_map.at(d)--;
         cc->tryActivate(d);

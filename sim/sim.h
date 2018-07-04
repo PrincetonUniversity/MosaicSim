@@ -27,6 +27,7 @@ public:
   Simulator* sim;
   Config *cfg;
   BasicBlock *bb;
+  int nextbbid;
 
   map<Node*, MemOpInfo*> memory_ops;
   map<Node*, vector<std::pair<Node*, Context*>>> external_deps; // Source of external dependency (Node, Destinations for that source (Node, cid))
@@ -51,7 +52,7 @@ public:
   void handleMemoryReturn(Node *n);
   void process();
   void complete();
-  void initialize(BasicBlock *bb, Config *cfg);
+  void initialize(BasicBlock *bb, Config *cfg, int nextbbid);
 };
 
 typedef std::pair<Node*,Context*> DNode;  // Dynamic Node: a pair of <node,context>
@@ -236,99 +237,92 @@ public:
     else
       return NULL;
   }
-  int getNextBasicBlock(int cid) {
-    if(cf.size() > cid+1)
-      return cf.at(cid+1);
-    else
-      return -1;
+
+  void initialize() {
+    DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
+    DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
+    mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
+    mem->RegisterCallbacks(read_cb, write_cb, NULL);
+    mem->setCPUClockSpeed(2000000000);  
+
+    // Initialize Resources
+    lsq.size = cfg.lsq_size;
+    for(int i=0; i<NUM_INST_TYPES; i++) {
+      FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
+    }
+    // Launch Initial Context
+    if (cfg.cf_one_context_at_once) {
+      createContext();
+    }
+    else if (cfg.cf_all_contexts_concurrently)  {
+      for ( int i=0; i< cf.size(); i++ )
+        createContext();
+    }
   }
-  void initialize();
-  void createContext();
-  bool process_cycle();
-  void process_memory();
-  void run();
+  void createContext()
+  {
+    // Create Context
+    int cid = context_list.size();
+    if(cf.size() == cid)
+      return;
+    Context *c = new Context(cid, this);
+    context_list.push_back(c);
+    int bbid = cf.at(cid);
+    BasicBlock *bb = g.bbs.at(bbid);
+    int nextbbid;
+    if(cf.size() > cid + 1)
+      nextbbid = cf.at(cid+1);
+    else
+      nextbbid = -1;
+    // Check LSQ Availability
+    if(!lsq.checkSize(bb->mem_inst_count))
+      assert(false);
+    c->initialize(bb, &cfg, nextbbid);
+  }
+
+
+  void process_memory()
+  {
+    mem->update();
+  }
+
+  bool process_cycle()
+  {
+    cout << "[Cycle: " << cycle_count << "]\n";
+    cycle_count++;
+    bool simulate = false;
+    assert(cycle_count < 10000);
+    ports[0] = cfg.load_ports;
+    ports[1] = cfg.store_ports;
+
+    for (int i=0; i<context_list.size(); i++) {
+      if (context_list.at(i)->live) {
+        context_list.at(i)->process();
+      }
+    }
+
+    for (int i=0; i<context_list.size(); i++) {
+      if(context_list.at(i)->live) {
+        context_list.at(i)->complete();
+      if(context_list.at(i)->live)
+          simulate = true;
+      }
+    }
+    for (int i=0; i<context_to_create; i++) {
+      createContext();
+      simulate = true;
+    }
+    context_to_create = 0;
+    process_memory();
+    return simulate;
+  }
+
+  void run()
+  {
+    bool simulate = true;
+    while (simulate)
+      simulate = process_cycle();
+    mem->printStats(false);
+  }
 };
 
-
-void Simulator::initialize() {
-  DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
-  DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
-  mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
-  mem->RegisterCallbacks(read_cb, write_cb, NULL);
-  mem->setCPUClockSpeed(2000000000);  
-
-  // Initialize Resources
-  lsq.size = cfg.lsq_size;
-  for(int i=0; i<NUM_INST_TYPES; i++) {
-    FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
-  }
-  // Launch Initial Context
-  if (cfg.cf_one_context_at_once) {
-    createContext();
-  }
-  else if (cfg.cf_all_contexts_concurrently)  {
-    for ( int i=0; i< cf.size(); i++ )
-      createContext();
-  }
-}
-void Simulator::createContext()
-{
-  // Create Context
-  int cid = context_list.size();
-  if(cf.size() == cid)
-    return;
-  Context *c = new Context(cid, this);
-  context_list.push_back(c);
-  int bbid = cf.at(cid);
-  BasicBlock *bb = g.bbs.at(bbid);
-
-  // Check LSQ Availability
-  if(!lsq.checkSize(bb->mem_inst_count))
-    assert(false);
-  c->initialize(bb, &cfg);
-}
-
-
-void Simulator::process_memory()
-{
-  mem->update();
-}
-
-bool Simulator::process_cycle()
-{
-  cout << "[Cycle: " << cycle_count << "]\n";
-  cycle_count++;
-  bool simulate = false;
-  assert(cycle_count < 10000);
-  ports[0] = cfg.load_ports;
-  ports[1] = cfg.store_ports;
-
-  for (int i=0; i<context_list.size(); i++) {
-    if (context_list.at(i)->live) {
-      context_list.at(i)->process();
-    }
-  }
-
-  for (int i=0; i<context_list.size(); i++) {
-    if(context_list.at(i)->live) {
-      context_list.at(i)->complete();
-    if(context_list.at(i)->live)
-        simulate = true;
-    }
-  }
-  for (int i=0; i<context_to_create; i++) {
-    createContext();
-    simulate = true;
-  }
-  context_to_create = 0;
-  process_memory();
-  return simulate;
-}
-
-void Simulator::run()
-{
-  bool simulate = true;
-  while (simulate)
-    simulate = process_cycle();
-  mem->printStats(false);
-}
