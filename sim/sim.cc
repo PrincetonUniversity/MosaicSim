@@ -7,6 +7,8 @@
 using namespace apollo;
 using namespace std;
 
+#define DEBUGLOG 0
+
 int main(int argc, char const *argv[])
 {
   Simulator sim;
@@ -128,7 +130,7 @@ void Context::process()
       else
         res = issueCompNode(n);
       if(!res) {
-        //cout << "Node [" << n->name << " @ context " << c->id << "]: Issue failed \n";
+        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << c->id << "]: Issue failed \n";
         next_active_list.push_back(n);
         next_issue_set.insert(n);
         continue;
@@ -231,12 +233,12 @@ bool Context::issueMemNode(Node *n) {
     else {
       if(cfg->mem_speculate) {
         stallCondition = exists_conflicting_ST;
-        speculate = exists_unresolved_ST && !exists_conflicting_ST; //if you can fwd, you're not speculating
+        speculate = exists_unresolved_ST && !exists_conflicting_ST;
       }
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
       
-      if (n->typeInstr == LD && sim->ports[0] == 0) //no need for mem ports if you can fwd from store buffer
+      if (n->typeInstr == LD && sim->ports[0] == 0)
         canExecute = false;
       if (n->typeInstr == ST && sim->ports[1] == 0)
         canExecute = false;
@@ -357,7 +359,7 @@ void Context::finishNode(Node *n) {
 
 void Context::tryActivate(Node *n) {
     if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      //std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+      std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
       return;
     }
     active_list.push_back(n);
