@@ -1,7 +1,3 @@
-/* Issues */ (High Priority)
-
-[Sim] TJH / 0-latency Inst: Handle 0 latency instructions
-
 /* Major Functionality */
 [GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
 [Sim] JLA / Limited number of active, same BB contexts
@@ -12,14 +8,13 @@
 
 /* Minor Functionality */
 [Sim] Detailed resource limits for memory systems
+[Sim] PHI_Node 0 latency
 
 /* Code Improvements */ (Low Priority)
 [Compilation] Chirag / Make a script for easy compilation and run
 [GraphGen] Automatically inline all functions or make it inter-procedural
 [Sim] Improve Node/Graph Print
 [Sim] readGraph does not read instruction name correctly
-[Sim] Handle BB entry block in a better way
-[GraphGen and Sim] Handle BB to Phi dependencies in a better way
 
 /* Note */
 
