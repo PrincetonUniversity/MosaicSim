@@ -359,7 +359,7 @@ void Context::finishNode(Node *n) {
 
 void Context::tryActivate(Node *n) {
     if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
+      if(DEBUGLOG) std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";
       return;
     }
     active_list.push_back(n);
