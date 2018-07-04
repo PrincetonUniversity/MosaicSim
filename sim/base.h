@@ -19,16 +19,11 @@
 
 using namespace std;
 namespace apollo {
-//TODO : FIX ReadGraph Name (with comma)
 
 #define NUM_INST_TYPES 16
 class Node;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
 typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
-
-// TJH: For now, we can assume that one instruction type corresponds to one functional unit 
-// since accelerators do not really use one functional unit to do multiple types of operations
-// Also, let's assume only mult and div units are shared (others are replicated and thus there's no limit)
 
 class Config {
 public:
@@ -46,7 +41,6 @@ public:
   int store_ports;
   int outstanding_load_requests;
   int outstanding_store_requests;
-  // TODO: handle 0 latency (currently we can't handle zero latency correctly)
 };
 
 
@@ -191,12 +185,7 @@ public:
 
 class Reader {
 public:
-  /*void read(Simulator &sim) {
-    readCfg("input/config.txt", sim.cfg);
-    readGraph("input/graph2.txt", sim.g, sim.cfg);
-    readProfMemory("input/memory.txt", sim.memory);
-    readProfCF("input/ctrl.txt", sim.cf);
-  }*/
+ 
   // helper function: split a string [with delimiter] into a vector
   vector<string> split(const string &s, char delim) {
      stringstream ss(s);
