@@ -22,16 +22,18 @@ int main(int argc, char const *argv[])
   string cname = s + "/output/ctrl.txt";
   
   Reader r;
+
+  /*
   r.readCfg("sim/config/config.txt", sim.cfg);
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
-  
-  /*
+  */
+ 
   r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
   r.readProfCF("../workloads/toy/toycf.txt", sim.cf); 
-  */
+  
   
   sim.initialize();
   sim.run();
@@ -130,7 +132,7 @@ void Context::process()
       else
         res = issueCompNode(n);
       if(!res) {
-        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << c->id << "]: Issue failed \n";
+        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << this->id << "]: Issue failed \n";
         next_active_list.push_back(n);
         next_issue_set.insert(n);
         continue;
@@ -214,7 +216,8 @@ bool Context::issueMemNode(Node *n) {
 
   uint64_t addr = memory_ops.at(n)->addr;
   uint64_t dramaddr = (addr/64) * 64;    
-  
+
+  bool lsq_full = !sim->lsq.checkSize(1);
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(d, ST);
   if (n->typeInstr == ST) {
@@ -237,15 +240,16 @@ bool Context::issueMemNode(Node *n) {
       }
       else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-      
-      if (n->typeInstr == LD && sim->ports[0] == 0)
-        canExecute = false;
-      if (n->typeInstr == ST && sim->ports[1] == 0)
-        canExecute = false;
-      canExecute &= !stallCondition;
-      canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
     }
   }
+  
+  if (lsq_full || (n->typeInstr == LD && sim->ports[0] == 0 && forwardRes<0)) //don't worry about mem ports if LSQ can forward
+    canExecute = false;
+  if (lsq_full || (n->typeInstr == ST && sim->ports[1] == 0 && forwardRes<0))
+    canExecute = false;
+  canExecute &= !stallCondition;
+  canExecute &= sim->mem->willAcceptTransaction(dramaddr);
+  
   // Issue Successful
   if(canExecute) {
     DNode d = make_pair(n,this);
