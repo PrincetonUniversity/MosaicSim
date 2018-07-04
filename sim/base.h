@@ -115,6 +115,7 @@ class BasicBlock {
 public:
   int id;
   int inst_count;
+  int mem_inst_count;
   std::vector<Node*> inst;
   Node *entry;
 
@@ -126,6 +127,8 @@ public:
     entry->addDependent(n, BB_DEP);
     inst.push_back(n);
     inst_count++;
+    if(n->typeInstr == LD || n->typeInstr == ST)
+      mem_inst_count++;
   }
 };
 

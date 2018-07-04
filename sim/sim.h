@@ -8,6 +8,17 @@
 using namespace apollo;
 using namespace std;
 class Simulator;
+
+class MemOpInfo {
+public:
+  uint64_t addr;
+  bool addr_resolved = false;
+  bool completed = false;
+  bool speculated = false;
+  int outstanding = 0;  // this keeps track of # in-progress speculative loads. we assume they will come back in the order they were sent.
+  MemOpInfo(uint64_t addr): addr(addr) {};
+};
+
 class Context {
 public:
   bool live;
@@ -17,6 +28,7 @@ public:
   Config *cfg;
   BasicBlock *bb;
 
+  map<Node*, MemOpInfo*> memory_ops;
   map<Node*, vector<std::pair<Node*, Context*>>> external_deps; // Source of external dependency (Node, Destinations for that source (Node, cid))
   std::vector<Node*> active_list;
   std::set<Node*> issue_set;
@@ -29,12 +41,17 @@ public:
   std::map<Node*, int> pending_parents_map;   // tracks the # of pending parents (intra BB)
   std::map<Node*, int> pending_external_parents_map; // tracks the # of pending parents (across BB)
 
+
   Context(int id, Simulator* sim) : live(true), id(id), sim(sim) {}
   //void initialize();
   bool issueMemNode(Node *n);
   bool issueCompNode(Node *n);
   void finishNode(Node *n);
   void tryActivate(Node *n); 
+  void handleMemoryReturn(Node *n);
+  void process();
+  void complete();
+  void initialize(BasicBlock *bb, Config *cfg);
 };
 
 typedef std::pair<Node*,Context*> DNode;  // Dynamic Node: a pair of <node,context>
@@ -50,26 +67,14 @@ struct DNodeCompare {
   }
 };
 
-class MemOp {
-public:
-  uint64_t addr;
-  DNode d;
-  bool addr_resolved = false;
-  bool completed = false;
-  bool speculated = false;
-  int outstanding = 0;  // this keeps track of # in-progress speculative loads. we assume they will come back in the order they were sent.
-  MemOp(uint64_t addr, DNode d) : addr(addr), d(d){}
-};
-
 class LoadStoreQ {
 public:
-  map<DNode, MemOp*> tracker;
-  deque<MemOp*> q;
-  bool initialized = false;
+  map<DNode, MemOpInfo*> tracker;
+  deque<DNode> q;
   int size;
-  void initialize(int s) { 
-    size = s;
-    initialized = true;
+  void insert(DNode d) {
+    tracker.insert(make_pair(d, d.second->memory_ops.at(d.first)));
+    q.push_back(d);
   }
   bool checkSize(int requested_space) {
     if(q.size() <= size - requested_space) {
@@ -77,8 +82,8 @@ public:
     }
     else {
       int ct = 0;
-      for(deque<MemOp*>::iterator it = q.begin(); it!= q.end(); ++it) {
-        if((*it)->completed)
+      for(deque<DNode>::iterator it = q.begin(); it!= q.end(); ++it) {
+        if(tracker.at(*it)->completed)
           ct++;
         else
           break;
@@ -91,23 +96,17 @@ public:
       return false;
     }
   }
-  void insert(uint64_t addr, DNode d) {
-    assert(initialized);
-    MemOp *temp = new MemOp(addr, d);
-    q.push_back(temp);
-    tracker.insert(make_pair(d, temp));
-  }
   //there's at least one unstarted (unknown address) older memop
   //negation: every older memop has at least started (knows address)
   bool exists_unresolved_memop (DNode in, TInstr op_type) {
-    for(deque<MemOp*>::iterator it = q.begin(); it!= q.end(); ++it) {
-      MemOp *m = (*it);
-      if(m->d == in)
+    for(deque<DNode>::iterator it = q.begin(); it!= q.end(); ++it) {
+      MemOpInfo *m = tracker.at(*it);
+      if(*it == in)
         return false;
       //else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
-      else if(m->d > in)
+      else if(*it > in)
         return false;
-      if(!(m->addr_resolved) && m->d.first->typeInstr == op_type) {
+      if(!(m->addr_resolved) && it->first->typeInstr == op_type) {
         return true;
       }     
     }
@@ -117,14 +116,14 @@ public:
   //negation says for all memops with addr_resolved, uncompleted older memops don't match address
   bool exists_conflicting_memop (DNode in, TInstr op_type) {
     uint64_t addr = tracker.at(in)->addr;
-    for(deque<MemOp*>::iterator it = q.begin(); it!= q.end(); ++it) {
-      MemOp *m = (*it);
-      if(m->d == in)
+    for(deque<DNode>::iterator it = q.begin(); it!= q.end(); ++it) {
+      MemOpInfo *m = tracker.at(*it);
+      if(*it == in)
         return false;
       //else if(m->d.second->id > in.second->id || ((m->d.second->id == in.second->id) && (m->d.first->id > in.first->id)))
-      else if(m->d > in)
+      else if(*it > in)
         return false;
-      if(m->addr_resolved && !(m->completed) && m->d.first->typeInstr == op_type && m->addr == addr)
+      if(m->addr_resolved && !(m->completed) &&it->first->typeInstr == op_type && m->addr == addr)
         return true;
     }
     return false;
@@ -132,9 +131,9 @@ public:
   int check_forwarding (DNode in) {
     bool found = false;
     bool speculative = false;
-    for(deque<MemOp*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
-      MemOp *m = (*it);
-      if(m->d == in) {
+    for(deque<DNode>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
+      MemOpInfo *m = tracker.at(*it);
+      if(*it == in) {
         found = true;
         continue;
       }
@@ -156,15 +155,15 @@ public:
   std::vector<DNode> check_speculation (DNode in) {
     std::vector<DNode> ret;
     uint64_t addr = tracker.at(in)->addr;
-    for(deque<MemOp*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
-      MemOp *m = (*it);
-      if(m->d == in)
+    for(deque<DNode>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
+      MemOpInfo *m = tracker.at(*it);
+      if(*it == in)
         break;
-      else if(m->d < in)
+      else if(*it < in)
         break;
-      if(m->speculated && !(m->completed) && m->d.first->typeInstr == LD && m->addr == addr) {
+      if(m->speculated && !(m->completed) && it->first->typeInstr == LD && m->addr == addr) {
         m->speculated = false;
-        ret.push_back(m->d);
+        ret.push_back(*it);
       }
     }
     return ret;
@@ -183,7 +182,8 @@ public:
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
         queue<DNode> &q = outstanding_accesses_map.at(addr);
         DNode d = q.front();
-        sim->handleMemoryReturn(q.front(), true);
+        d.second->handleMemoryReturn(d.first);
+        //sim->handleMemoryReturn(q.front(), true);
         q.pop();
         if (q.size() == 0)
           outstanding_accesses_map.erase(addr);
@@ -192,7 +192,8 @@ public:
         assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
         queue<DNode> &q = outstanding_accesses_map.at(addr);
         DNode d = q.front();
-        sim->handleMemoryReturn(q.front(), false);
+        d.second->handleMemoryReturn(d.first);
+        //sim->handleMemoryReturn(q.front(), false);
         q.pop();
         if(q.size() == 0)
           outstanding_accesses_map.erase(addr);
@@ -243,10 +244,91 @@ public:
   }
   void initialize();
   void createContext();
-  void handleMemoryReturn(DNode d, bool isLoad);
-  void complete_context(Context *c);
-  void process_context(Context *C);
   bool process_cycle();
   void process_memory();
   void run();
 };
+
+
+void Simulator::initialize() {
+  DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
+  DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
+  mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
+  mem->RegisterCallbacks(read_cb, write_cb, NULL);
+  mem->setCPUClockSpeed(2000000000);  
+
+  // Initialize Resources
+  lsq.size = cfg.lsq_size;
+  for(int i=0; i<NUM_INST_TYPES; i++) {
+    FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
+  }
+  // Launch Initial Context
+  if (cfg.cf_one_context_at_once) {
+    createContext();
+  }
+  else if (cfg.cf_all_contexts_concurrently)  {
+    for ( int i=0; i< cf.size(); i++ )
+      createContext();
+  }
+}
+void Simulator::createContext()
+{
+  // Create Context
+  int cid = context_list.size();
+  if(cf.size() == cid)
+    return;
+  Context *c = new Context(cid, this);
+  context_list.push_back(c);
+  int bbid = cf.at(cid);
+  BasicBlock *bb = g.bbs.at(bbid);
+
+  // Check LSQ Availability
+  if(!lsq.checkSize(bb->mem_inst_count))
+    assert(false);
+  c->initialize(bb, &cfg);
+}
+
+
+void Simulator::process_memory()
+{
+  mem->update();
+}
+
+bool Simulator::process_cycle()
+{
+  cout << "[Cycle: " << cycle_count << "]\n";
+  cycle_count++;
+  bool simulate = false;
+  assert(cycle_count < 10000);
+  ports[0] = cfg.load_ports;
+  ports[1] = cfg.store_ports;
+
+  for (int i=0; i<context_list.size(); i++) {
+    if (context_list.at(i)->live) {
+      context_list.at(i)->process();
+    }
+  }
+
+  for (int i=0; i<context_list.size(); i++) {
+    if(context_list.at(i)->live) {
+      context_list.at(i)->complete();
+    if(context_list.at(i)->live)
+        simulate = true;
+    }
+  }
+  for (int i=0; i<context_to_create; i++) {
+    createContext();
+    simulate = true;
+  }
+  context_to_create = 0;
+  process_memory();
+  return simulate;
+}
+
+void Simulator::run()
+{
+  bool simulate = true;
+  while (simulate)
+    simulate = process_cycle();
+  mem->printStats(false);
+}
