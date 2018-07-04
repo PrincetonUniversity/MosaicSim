@@ -351,7 +351,7 @@ void Context::finishNode(Node *n) {
     for(int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
       Context *cc = misspeculated.at(i).second;
-      tryActivate(misspeculated.at(i).first);
+      cc->tryActivate(misspeculated.at(i).first);
     }
   }
 
@@ -383,7 +383,7 @@ void Context::finishNode(Node *n) {
           sim->lsq.tracker.at(make_pair(d,cc))->addr_resolved = true;
         }
         pending_external_parents_map.at(d)--;
-        tryActivate(d);
+        cc->tryActivate(d);
       }
       external_deps.erase(n);
     }
@@ -395,7 +395,7 @@ void Context::finishNode(Node *n) {
     if(sim->getNextBasicBlock(id) == d->bbid) {
       if(Context *cc = sim->getNextContext(id)) {
         pending_parents_map.at(d)--;
-        tryActivate(d);
+        cc->tryActivate(d);
       }
       else {
         if (sim->handled_phi_deps.find(id+1) == sim->handled_phi_deps.end()) {
