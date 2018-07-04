@@ -27,7 +27,8 @@ public:
   Simulator* sim;
   Config *cfg;
   BasicBlock *bb;
-  int nextbbid;
+  int next_bbid;
+  int prev_bbid;
 
   map<Node*, MemOpInfo*> memory_ops;
   map<Node*, vector<std::pair<Node*, Context*>>> external_deps; // Source of external dependency (Node, Destinations for that source (Node, cid))
@@ -52,7 +53,7 @@ public:
   void handleMemoryReturn(Node *n);
   void process();
   void complete();
-  void initialize(BasicBlock *bb, Config *cfg, int nextbbid);
+  void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
 };
 
 typedef std::pair<Node*,Context*> DNode;  // Dynamic Node: a pair of <node,context>
@@ -269,15 +270,19 @@ public:
     context_list.push_back(c);
     int bbid = cf.at(cid);
     BasicBlock *bb = g.bbs.at(bbid);
-    int nextbbid;
+    int next_bbid, prev_bbid;
     if(cf.size() > cid + 1)
-      nextbbid = cf.at(cid+1);
+      next_bbid = cf.at(cid+1);
     else
-      nextbbid = -1;
+      next_bbid = -1;
+    if(cid != 0)
+      prev_bbid = cf.at(cid-1);
+    else
+      prev_bbid = -1;
     // Check LSQ Availability
     if(!lsq.checkSize(bb->mem_inst_count))
       assert(false);
-    c->initialize(bb, &cfg, nextbbid);
+    c->initialize(bb, &cfg, next_bbid, prev_bbid);
   }
 
 

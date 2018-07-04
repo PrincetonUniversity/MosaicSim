@@ -18,7 +18,6 @@
 [GraphGen] Automatically inline all functions or make it inter-procedural
 [Sim] Improve Node/Graph Print
 [Sim] readGraph does not read instruction name correctly
-[Sim] Handle BB entry block in a better way
 [GraphGen and Sim] Handle BB to Phi dependencies in a better way
 
 /* Note */

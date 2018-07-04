@@ -39,13 +39,12 @@ int main(int argc, char const *argv[])
 } 
 
 
-void Context::initialize(BasicBlock *bb, Config *cfg, int nextbbid) 
+void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid) 
 {
   this->bb = bb;
   this->cfg = cfg;
-  this->nextbbid = nextbbid;
-  active_list.push_back(bb->entry);
-  remaining_cycles_map.insert(std::make_pair(bb->entry, 0));
+  this->next_bbid = next_bbid;
+  this->prev_bbid = prev_bbid;
   
   // Initialize Context Structures
   for ( int i=0; i<bb->inst.size(); i++ ) {
@@ -61,8 +60,13 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int nextbbid)
       sim->lsq.insert(make_pair(n,this));
       sim->memory.at(n->id).pop();
     }
-    if(n->typeInstr == PHI)
-      pending_parents_map.insert(std::make_pair(n, n->parents.size()+1));
+    if(n->typeInstr == PHI) {
+      assert(n->parents.size() == 0);
+      if(n->phi_parents.find(prev_bbid) == n->phi_parents.end())
+        pending_parents_map.insert(std::make_pair(n, 0));
+      else
+        pending_parents_map.insert(std::make_pair(n, 1));
+    }
     else
       pending_parents_map.insert(std::make_pair(n, n->parents.size()));
     pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
@@ -83,9 +87,8 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int nextbbid)
     if (n->external_dependents.size() > 0) {
       if(sim->curr_owner.find(n) == sim->curr_owner.end())
         sim->curr_owner.insert(make_pair(n, this));
-      else {
+      else
         sim->curr_owner.at(n) = this;
-      }
       external_deps.insert(make_pair(n, vector<DNode>()));
     }
     if (n->external_parents.size() > 0) {
@@ -95,11 +98,14 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int nextbbid)
         Context *cc = sim->curr_owner.at(s);
         if(cc->completed_nodes.find(s) != cc->completed_nodes.end())
           pending_external_parents_map.at(n)--;
-        else {
+        else
           cc->external_deps.at(s).push_back(make_pair(n,this));
-        }
       }
     }
+  }
+  for(int i=0; i<bb->inst.size(); i++) {
+    Node *n = bb->inst.at(i);
+    tryActivate(n);
   }
   cout << "Context [" << id << "]: Created (BB=" << bb->id << ")\n";     
 }
@@ -130,7 +136,7 @@ void Context::process()
       else
         res = issueCompNode(n);
       if(!res) {
-        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << c->id << "]: Issue failed \n";
+        if(DEBUGLOG) cout << "Node [" << n->name << " @ context " << id << "]: Issue failed \n";
         next_active_list.push_back(n);
         next_issue_set.insert(n);
         continue;
@@ -281,9 +287,9 @@ void Context::finishNode(Node *n) {
   cout << "Node [" << n->name << " @ context " << id << "]: Finished Execution \n";
 
   remaining_cycles_map.erase(n);
-  if (n->typeInstr != ENTRY)
-    completed_nodes.insert(n);
-
+  assert(completed_nodes.find(n) == completed_nodes.end());
+  completed_nodes.insert(n);
+  
   // Handle Resource
   if ( sim->FUs.at(n->typeInstr) != -1 ) { // if FU is "limited" -> release the FU
     sim->FUs.at(n->typeInstr)++; 
@@ -337,7 +343,7 @@ void Context::finishNode(Node *n) {
   // Same for Phi dependents
   for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
     Node *d = *it;
-    if(nextbbid == d->bbid) {
+    if(next_bbid == d->bbid) {
       if(Context *cc = sim->getNextContext(id)) {
         pending_parents_map.at(d)--;
         cc->tryActivate(d);
@@ -363,8 +369,7 @@ void Context::tryActivate(Node *n) {
       return;
     }
     active_list.push_back(n);
-    if(issue_set.find(n) != issue_set.end())
-      assert(false); // error : activate to the same node twice
+    assert(issue_set.find(n) == issue_set.end());
     issue_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
     remaining_cycles_map.insert(std::make_pair(n, n->lat));

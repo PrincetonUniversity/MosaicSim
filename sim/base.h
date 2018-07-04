@@ -22,8 +22,8 @@ namespace apollo {
 
 #define NUM_INST_TYPES 16
 class Node;
-typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, ENTRY} TInstr;
-typedef enum {DATA_DEP, PHI_DEP, BB_DEP} TEdge;
+typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
+typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
 class Config {
 public:
@@ -51,6 +51,9 @@ public:
   std::set<Node*> external_dependents;
   std::set<Node*> external_parents;
   std::set<Node*> phi_dependents;
+  // For PHI Nodes
+  std::set<int> phi_parents;
+  // For Store Nodes
   std::set<Node*> store_addr_dependents; // store_address_dependents
   int id;
   int lat;
@@ -60,12 +63,9 @@ public:
   
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
-  
-  // Constructor for the BB's entry point
-  Node(int bbid) : id(-1), lat(0), typeInstr(ENTRY), bbid(bbid), name("BB-Entry") {}
 
   void addDependent(Node *dest, TEdge type) {
-    if(type == DATA_DEP || type == BB_DEP) {
+    if(type == DATA_DEP) {
       if(dest->bbid == this->bbid) {
         dependents.insert(dest);
         dest->parents.insert(this);
@@ -77,12 +77,13 @@ public:
     }
     else if(type == PHI_DEP) {
       phi_dependents.insert(dest);
+      dest->phi_parents.insert(this->bbid);
     }
   }
 
   void eraseDependent(Node *dest, TEdge type) {
     int count = 0;
-    if(type == DATA_DEP || type == BB_DEP) {
+    if(type == DATA_DEP) {
       if(dest->bbid == this->bbid) {
         count += dependents.erase(dest);
         dest->parents.erase(dest);
@@ -110,15 +111,12 @@ public:
   int id;
   int inst_count;
   int mem_inst_count;
+  
   std::vector<Node*> inst;
-  Node *entry;
 
-  BasicBlock(int id): id(id), inst_count(0) { entry = new Node(id); }
-  ~BasicBlock() { delete entry; }
+  BasicBlock(int id): id(id), inst_count(0) {}
   
   void addInst(Node* n) {
-    assert(entry != NULL);
-    entry->addDependent(n, BB_DEP);
     inst.push_back(n);
     inst_count++;
     if(n->typeInstr == LD || n->typeInstr == ST)
@@ -327,11 +325,7 @@ public:
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
           g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
         }
-        else if (edgeT == -1) {
-          g.addDependent(g.bbs.at(stoi(s.at(0)))->entry, g.getNode(stoi(s.at(1))), PHI_DEP);     
-        }
         else if (edgeT == -2) {
-          //g.getNode(stoi(s.at(0)))->addr_operand = g.getNode(stoi(s.at(1)));
           g.getNode(stoi(s.at(1)))->store_addr_dependents.insert(g.getNode(stoi(s.at(0))));
         }
       }
