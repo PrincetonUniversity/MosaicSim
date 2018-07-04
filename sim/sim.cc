@@ -23,17 +23,16 @@ int main(int argc, char const *argv[])
   
   Reader r; 
   r.readCfg("sim/config/config.txt", sim.cfg);
-
-  /*
+  
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
-  */
-    
+ 
+  /*  
   r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
   r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
   r.readProfCF("../workloads/toy/toycf.txt", sim.cf); 
-  
+  */
   
   sim.initialize();
   sim.run();
@@ -383,5 +382,4 @@ void Context::tryActivate(Node *n) {
     issue_set.insert(n);
     std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
     remaining_cycles_map.insert(std::make_pair(n, n->lat));
-    cout << n->lat << " for n-type " << n->typeInstr << " is number of remaining cycles \n"; //luwa delete
 }

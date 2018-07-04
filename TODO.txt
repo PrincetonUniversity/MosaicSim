@@ -1,7 +1,7 @@
 /* Major Functionality */
 [GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
 [Sim] JLA / Limited number of active, same BB contexts
-[Sim] Luwa: Handling LSQ resource limits
+[Sim] Luwa: Handling LSQ resource limits (I believe this is now done)
 [Sim] Chirag & Luwa / Cache Hierarchy: Integrate Cache hierarchy (provided hint code to Chirag)
 [Sim] MSHR request merges : N DRAM requests to the same cacheline (in a short time) should be merged instead of issuing N separate requests for the same cacheline
 [Workload] Chirag & JLA / SHOC & Machsuite
@@ -21,4 +21,4 @@
 Initial version of workload-to-sim pipeline is ready. 
 
 1. To compile workload, go to workloads/test and type "make"
-2. in bin/, "./sim-apollo ../workloads/test/" to execute "test" workload
+2. in bin/, "./sim ../workloads/test/" to execute "test" workload
