@@ -336,19 +336,17 @@ public:
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
 
-    for (int i=0; i<context_list.size(); i++) {
-      if (context_list.at(i)->live) {
+    for (int i=0; i<context_list.size(); i++)
+      if (context_list.at(i)->live)
         context_list.at(i)->process();
-      }
-    }
 
-    for (int i=0; i<context_list.size(); i++) {
+    for (int i=0; i<context_list.size(); i++) 
       if(context_list.at(i)->live) {
         context_list.at(i)->complete();
-      if(context_list.at(i)->live)
+        if(context_list.at(i)->live)
           simulate = true;
       }
-    }
+
     // JLA: CHECKME: if cf_one_context_at_once==true this can create more than 1 contexts: is this correct behavior?
     int context_created = 0;
     for (int i=0; i<context_to_create; i++)   
