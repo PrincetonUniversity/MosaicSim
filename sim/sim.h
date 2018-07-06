@@ -289,10 +289,10 @@ public:
 
   bool createContext() {
     int cid = context_list.size();
-    if(cf.size() == cid) // reached the end of <cf> : no more context to create !
+    if (cf.size() == cid) // reached the end of <cf> so no more contexts to create. We are done!
       return false;
 
-    // set current, prev, next BB ids.
+    // set "current", "prev", "next" BB ids.
     int bbid = cf.at(cid);
     int next_bbid, prev_bbid;
     if(cf.size() > cid + 1)
@@ -357,7 +357,7 @@ public:
         context_created++;
       }
 //cout << "JLA #_contexts_created= " << context_created << endl;
-    context_to_create -= context_created;
+    context_to_create -= context_created;   // some contexts can be left pending for later cycles
     process_memory();
     return simulate;
   }
