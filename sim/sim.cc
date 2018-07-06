@@ -36,6 +36,7 @@ int main(int argc, char const *argv[])
   
   sim.initialize();
   sim.run();
+  sim.stats.print();
   return 0;
 } 
 
@@ -184,19 +185,19 @@ void Context::process()
   next_active_list.clear();
 }
 
-void Context::complete()
+void Context::complete(GlobalStats &stats)
 {
   for(int i=0; i<nodes_to_complete.size(); i++) {
     Node *n = nodes_to_complete.at(i);
     finishNode(n);
     if (completed_nodes.size() == bb->inst_count) {
       cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
+      stats.num_exec_instr += completed_nodes.size();
       live = false;
     }
   }
   nodes_to_complete.clear();
 }
-
 
 bool Context::issueCompNode(Node *n) {
   bool canExecute = true;
@@ -290,6 +291,7 @@ bool Context::issueMemNode(Node *n) {
   else
     return false;
 }
+
 void Context::finishNode(Node *n) {
   DNode d = make_pair(n,this);
   cout << "Node [" << n->name << " @ context " << id << "]: Finished Execution \n";

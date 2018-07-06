@@ -9,6 +9,25 @@ using namespace apollo;
 using namespace std;
 class Simulator;
 
+class GlobalStats {
+public:
+  // some global stats
+  int num_exec_instr;
+  int num_cycles;
+  
+  GlobalStats() { reset(); }
+
+  void reset() {
+    num_exec_instr = 0;
+    num_cycles = 0;
+  }
+  void print() {
+    cout << "** Global Stats **\n";
+    cout << "num_exec_instr = " << num_exec_instr << endl;
+    cout << "num_cycles     = " << num_cycles << endl;
+  }
+};
+
 class MemOpInfo {
 public:
   uint64_t addr;
@@ -52,7 +71,7 @@ public:
   void tryActivate(Node *n); 
   void handleMemoryReturn(Node *n);
   void process();
-  void complete();
+  void complete(GlobalStats &stats);
   void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
 };
 
@@ -171,6 +190,8 @@ public:
     return ret;
   }
 };
+
+
 class Simulator 
 {
 public:
@@ -210,11 +231,11 @@ public:
 
   Graph g;
   Config cfg;
+  GlobalStats stats;
   DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
   
-  int cycle_count = 0;
-  vector<Context*> context_list;
+    vector<Context*> context_list;
   int context_to_create = 0;
 
   /* Resources */
@@ -260,6 +281,7 @@ public:
         createContext();
     }
   }
+
   void createContext()
   {
     // Create Context
@@ -293,10 +315,10 @@ public:
 
   bool process_cycle()
   {
-    cout << "[Cycle: " << cycle_count << "]\n";
-    cycle_count++;
+    cout << "[Cycle: " << stats.num_cycles << "]\n";
+    stats.num_cycles++;
     bool simulate = false;
-    assert(cycle_count < 10000);
+    assert(stats.num_cycles < 10000);
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
 
@@ -308,7 +330,7 @@ public:
 
     for (int i=0; i<context_list.size(); i++) {
       if(context_list.at(i)->live) {
-        context_list.at(i)->complete();
+        context_list.at(i)->complete(stats);
       if(context_list.at(i)->live)
           simulate = true;
       }
