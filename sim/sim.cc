@@ -9,8 +9,7 @@ using namespace std;
 
 #define DEBUGLOG 0
 
-int main(int argc, char const *argv[])
-{
+int main(int argc, char const *argv[]) {
   Simulator sim;
   // Workload 
   if(argc != 2)
@@ -41,8 +40,7 @@ int main(int argc, char const *argv[])
 } 
 
 
-void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid) 
-{
+void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid) {
   this->bb = bb;
   this->cfg = cfg;
   this->next_bbid = next_bbid;
@@ -127,8 +125,7 @@ void Context::handleMemoryReturn(Node *n) {
   }
 }
 
-void Context::process()
-{
+void Context::process() {
   for (int i=0; i < active_list.size(); i++) {
     Node *n = active_list.at(i);
     if (issue_set.find(n) != issue_set.end()) {
@@ -185,15 +182,18 @@ void Context::process()
   next_active_list.clear();
 }
 
-void Context::complete(GlobalStats &stats)
-{
+void Context::complete() {
   for(int i=0; i<nodes_to_complete.size(); i++) {
     Node *n = nodes_to_complete.at(i);
     finishNode(n);
     if (completed_nodes.size() == bb->inst_count) {
       cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
-      stats.num_exec_instr += completed_nodes.size();
+      sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
       live = false;
+
+      // decrement consecutive_contexts_same_BB 
+      if ( bb->id == next_bbid )
+        sim->consecutive_contexts_same_BB--;
     }
   }
   nodes_to_complete.clear();
@@ -202,13 +202,13 @@ void Context::complete(GlobalStats &stats)
 bool Context::issueCompNode(Node *n) {
   bool canExecute = true;
   // check resource (FU) availability
-  if (sim->FUs.at(n->typeInstr) != -1) {
-    if (sim->FUs.at(n->typeInstr) == 0)
+  if (sim->avail_FUs.at(n->typeInstr) != -1) {
+    if (sim->avail_FUs.at(n->typeInstr) == 0)
       canExecute = false;
   }
   if(canExecute) {
-    if (sim->FUs.at(n->typeInstr) != -1)
-      sim->FUs.at(n->typeInstr)--;
+    if (sim->avail_FUs.at(n->typeInstr) != -1)
+      sim->avail_FUs.at(n->typeInstr)--;
     return true;
   }
   else
@@ -300,10 +300,10 @@ void Context::finishNode(Node *n) {
   assert(completed_nodes.find(n) == completed_nodes.end());
   completed_nodes.insert(n);
   
-  // Handle Resource
-  if ( sim->FUs.at(n->typeInstr) != -1 ) { // if FU is "limited" -> release the FU
-    sim->FUs.at(n->typeInstr)++; 
-    cout << "Node [" << n->name << "]: released FU, new free FU: " << sim->FUs.at(n->typeInstr) << endl;
+  // Handle Resource limits
+  if ( sim->avail_FUs.at(n->typeInstr) != -1 ) { // if "limited" -> release FU (-1 means unlimited)
+    int avail = ++sim->avail_FUs.at(n->typeInstr); 
+    cout << "Node [" << n->name << "]: released FU, new free FUs: " << avail << endl;
   }
 
   // Speculation

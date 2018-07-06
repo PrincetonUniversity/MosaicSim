@@ -27,20 +27,21 @@ typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
 class Config {
 public:
-   // Config
+   // Config parameters
   bool cf_one_context_at_once;
   bool cf_all_contexts_concurrently;
   bool mem_speculate;
   bool mem_forward;
-  // Resource
+  // Resources
   int lsq_size;
-  // Latency
-  int instr_latency[NUM_INST_TYPES];
-  int num_units[NUM_INST_TYPES];
   int load_ports;
   int store_ports;
   int outstanding_load_requests;
   int outstanding_store_requests;
+  int max_active_contexts_BB;
+  // FUs
+  int instr_latency[NUM_INST_TYPES];
+  int num_units[NUM_INST_TYPES];
 };
 
 class Node {
@@ -235,6 +236,7 @@ public:
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
+    cfg.max_active_contexts_BB = 2;
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
