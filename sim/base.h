@@ -202,7 +202,7 @@ public:
     cfg.cf_all_contexts_concurrently = false;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
-    cfg.instr_latency[I_ADDSUB] = 1;
+    cfg.instr_latency[I_ADDSUB] = 2;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 26;
     cfg.instr_latency[I_REM] = 1;

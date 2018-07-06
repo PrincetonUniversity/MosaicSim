@@ -150,11 +150,12 @@ void Context::process()
     // Update Remaining Cycles
     int remaining_cycles = remaining_cycles_map.at(n);
     
-    if (remaining_cycles > 0)
+    if (remaining_cycles > 0) {
       remaining_cycles--;
-    
+      remaining_cycles_map.at(n) = remaining_cycles;
+    }
    
-    // Continue Execution
+    // Continue Execution (note: a remaining_cycles of -1 represents load issued to DRAMSim2)
     if ( remaining_cycles > 0 || remaining_cycles == -1 ) {
       next_active_list.push_back(n);
       continue;
@@ -173,10 +174,9 @@ void Context::process()
       }
       nodes_to_complete.push_back(n);
     }
-    else
-      {
-        
-        assert(false); }
+    else {
+      assert(false); 
+    }
   }
   issue_set = next_issue_set;
   active_list = next_active_list;
@@ -190,7 +190,7 @@ void Context::complete()
     Node *n = nodes_to_complete.at(i);
     finishNode(n);
     if (completed_nodes.size() == bb->inst_count) {
-      cout << "Context [" << id << "]: Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
+      cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
       live = false;
     }
   }
