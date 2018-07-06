@@ -240,25 +240,35 @@ bool Context::issueMemNode(Node *n) {
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(d);
     if(forwardRes == 1) {
+      issueMemory = false;
     }
     else if(forwardRes == 0 && cfg->mem_speculate) {
       speculate = true;
+      issueMemory = false;
     }
     else {
       if(cfg->mem_speculate) {
         stallCondition = exists_conflicting_ST;
         speculate = exists_unresolved_ST && !exists_conflicting_ST;
       }
-      else
+      else {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+        if (n->typeInstr == LD && sim->ports[0] == 0)
+          canExecute = false;
+        if (n->typeInstr == ST && sim->ports[1] == 0)
+          canExecute = false;
+      }
     }
   }
-  
-  if (lsq_full || (n->typeInstr == LD && sim->ports[0] == 0 && forwardRes<0)) //don't worry about mem ports if LSQ can forward
-    canExecute = false;
-  if (lsq_full || (n->typeInstr == ST && sim->ports[1] == 0 && forwardRes<0))
-    canExecute = false;
   canExecute &= !stallCondition;
+  if(issueMemory)
+    canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
+
+  
+      
+  //if (lsq_full)
+  //  canExecute = false;
+  //canExecute &= !stallCondition;
   canExecute &= sim->mem->willAcceptTransaction(dramaddr);
   
   // Issue Successful
