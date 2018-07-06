@@ -198,8 +198,8 @@ public:
   void readCfg(std::string filename, Config &cfg) {
     // TODO: Read config from <filename>
     cfg.lsq_size = 512;
-    cfg.cf_one_context_at_once = true;
-    cfg.cf_all_contexts_concurrently = false;
+    cfg.cf_one_context_at_once = false;
+    cfg.cf_all_contexts_concurrently = true;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 120;

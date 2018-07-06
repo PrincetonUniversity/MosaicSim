@@ -343,7 +343,7 @@ void Context::finishNode(Node *n) {
         if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
           cc->memory_ops.at(d)->addr_resolved = true;
         }
-        pending_external_parents_map.at(d)--;
+        cc->pending_external_parents_map.at(d)--;
         cc->tryActivate(d);
       }
       external_deps.erase(n);
@@ -355,7 +355,7 @@ void Context::finishNode(Node *n) {
     Node *d = *it;
     if(next_bbid == d->bbid) {
       if(Context *cc = sim->getNextContext(id)) {
-        pending_parents_map.at(d)--;
+        cc->pending_parents_map.at(d)--;
         cc->tryActivate(d);
       }
       else {
