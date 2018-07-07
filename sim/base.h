@@ -29,7 +29,7 @@ class Config {
 public:
    // Config parameters
   bool cf_one_context_at_once;
-  bool cf_all_contexts_concurrently;
+  bool cf_max_contexts_concurrently;
   bool mem_speculate;
   bool mem_forward;
   // Resources
@@ -198,7 +198,7 @@ public:
     // TODO: Read config from <filename>
     cfg.lsq_size = 512;
     cfg.cf_one_context_at_once = false;
-    cfg.cf_all_contexts_concurrently = true;
+    cfg.cf_max_contexts_concurrently = true;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 120;
@@ -235,7 +235,7 @@ public:
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
-    cfg.max_active_contexts_BB = 1;
+    cfg.max_active_contexts_BB = 3;
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>

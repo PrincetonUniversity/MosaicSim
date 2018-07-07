@@ -274,13 +274,17 @@ public:
     }
 
     // Launch Initial/s Context/s depending on a config's parameter
-    if (cfg.cf_one_context_at_once) {
+/*    if (cfg.cf_one_context_at_once) {
       createContext();
     }
     else if (cfg.cf_all_contexts_concurrently)  {
       for ( int i=0; i<cf.size(); i++ )
         createContext();
-    }
+    }*/
+    if (cfg.cf_one_context_at_once) 
+      context_to_create = 1;
+    else if (cfg.cf_max_contexts_concurrently)  
+      context_to_create = cf.size();
   }
 
   bool createContext() {
@@ -341,14 +345,13 @@ public:
           simulate = true;
       }
 
-    // JLA: CHECKME: if cf_one_context_at_once==true this can create more than 1 contexts: is this correct behavior?
     int context_created = 0;
     for (int i=0; i<context_to_create; i++)   
       if ( createContext() ) {
         simulate = true;
         context_created++;
       }
-//cout << "JLA #_contexts_created=" << context_created << endl;
+
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
     process_memory();
     return simulate;
