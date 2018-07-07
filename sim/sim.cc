@@ -240,25 +240,35 @@ bool Context::issueMemNode(Node *n) {
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(d);
     if(forwardRes == 1) {
+      issueMemory = false;
     }
     else if(forwardRes == 0 && cfg->mem_speculate) {
       speculate = true;
+      issueMemory = false;
     }
     else {
       if(cfg->mem_speculate) {
         stallCondition = exists_conflicting_ST;
         speculate = exists_unresolved_ST && !exists_conflicting_ST;
       }
-      else
+      else {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+        if (n->typeInstr == LD && sim->ports[0] == 0)
+          canExecute = false;
+        if (n->typeInstr == ST && sim->ports[1] == 0)
+          canExecute = false;
+      }
     }
   }
-  
-  if (lsq_full || (n->typeInstr == LD && sim->ports[0] == 0 && forwardRes<0)) //don't worry about mem ports if LSQ can forward
-    canExecute = false;
-  if (lsq_full || (n->typeInstr == ST && sim->ports[1] == 0 && forwardRes<0))
-    canExecute = false;
   canExecute &= !stallCondition;
+  if(issueMemory)
+    canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
+
+  
+      
+  //if (lsq_full)
+  //  canExecute = false;
+  //canExecute &= !stallCondition;
   canExecute &= sim->mem->willAcceptTransaction(dramaddr);
   
   // Issue Successful
@@ -343,7 +353,7 @@ void Context::finishNode(Node *n) {
         if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
           cc->memory_ops.at(d)->addr_resolved = true;
         }
-        pending_external_parents_map.at(d)--;
+        cc->pending_external_parents_map.at(d)--;
         cc->tryActivate(d);
       }
       external_deps.erase(n);
@@ -355,7 +365,7 @@ void Context::finishNode(Node *n) {
     Node *d = *it;
     if(next_bbid == d->bbid) {
       if(Context *cc = sim->getNextContext(id)) {
-        pending_parents_map.at(d)--;
+        cc->pending_parents_map.at(d)--;
         cc->tryActivate(d);
       }
       else {
