@@ -108,13 +108,13 @@ public:
 
 class BasicBlock {
 public:
+  std::vector<Node*> inst;
   int id;
   int inst_count;
   int mem_inst_count;
-  
-  std::vector<Node*> inst;
+  int contexts_on_the_fly;
 
-  BasicBlock(int id): id(id), inst_count(0) {}
+  BasicBlock(int id): id(id), inst_count(0), mem_inst_count(0), contexts_on_the_fly(0) {}
   
   void addInst(Node* n) {
     inst.push_back(n);
@@ -134,12 +134,11 @@ public:
     bbs.insert( std::make_pair(id, new BasicBlock(id)) );
   }
 
-  Node *addNode(int id, TInstr type, int bbid, std::string name, int lat) {
+  void addNode(int id, TInstr type, int bbid, std::string name, int lat) {
     Node *n = new Node(id, type, bbid, name, lat);
     nodes.insert(std::make_pair(n->id, n));
-    assert(bbs.find(bbid)!= bbs.end());
+    assert( bbs.find(bbid) != bbs.end() );   // make sure the BB exists
     bbs.at(bbid)->addInst(n);
-    return n;
   }
 
   // Return an exsisting node given an instruction <id> 
@@ -236,7 +235,7 @@ public:
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
-    cfg.max_active_contexts_BB = 2;
+    cfg.max_active_contexts_BB = 1;
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
@@ -320,7 +319,7 @@ public:
         getline(cfile,line);
         vector<string> s = split(line, ',');
         int edgeT = stoi(s.at(2));
-        if(edgeT >=0) {
+        if(edgeT >= 0) {
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
           g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
         }

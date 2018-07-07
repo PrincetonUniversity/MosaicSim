@@ -241,9 +241,7 @@ public:
   /* Resources / limits */
   map<TInstr, int> avail_FUs;
   int ports[2]; // ports[0] = loads; ports[1] = stores;
-  int max_active_contexts_BB, 
-      consecutive_contexts_same_BB;
-
+  
   /* Profiled */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
@@ -274,15 +272,13 @@ public:
     for(int i=0; i<NUM_INST_TYPES; i++) {
       avail_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
     }
-    max_active_contexts_BB = cfg.max_active_contexts_BB;
-    consecutive_contexts_same_BB = 1;
 
-    // Launch Initial/s Context/s based on config parameter
+    // Launch Initial/s Context/s depending on a config's parameter
     if (cfg.cf_one_context_at_once) {
       createContext();
     }
     else if (cfg.cf_all_contexts_concurrently)  {
-      for ( int i=0; i< cf.size(); i++ )
+      for ( int i=0; i<cf.size(); i++ )
         createContext();
     }
   }
@@ -295,34 +291,32 @@ public:
     // set "current", "prev", "next" BB ids.
     int bbid = cf.at(cid);
     int next_bbid, prev_bbid;
-    if(cf.size() > cid + 1)
+    if (cf.size() > cid + 1)
       next_bbid = cf.at(cid+1);
     else
       next_bbid = -1;
-    if(cid != 0)
+    if (cid != 0)
       prev_bbid = cf.at(cid-1);
     else
       prev_bbid = -1;
     
     // check the limit of consecutive contexts per BB
-    if ( bbid == prev_bbid ) {
-      if ( consecutive_contexts_same_BB+1 > max_active_contexts_BB)
+    BasicBlock *bb = g.bbs.at(bbid);
+    if ( cfg.max_active_contexts_BB > 0 )
+      if ( bb->contexts_on_the_fly < cfg.max_active_contexts_BB )
+        bb->contexts_on_the_fly++;
+      else
         return false;
-      consecutive_contexts_same_BB++;
-    }
 
     Context *c = new Context(cid, this);
-    context_list.push_back(c);  // JLA: FIXME: context_list only grows and is never cleaned (!live contexts should be removed??)
-                                //              ...but be careful, context_list.size() is used as a pointer to get next context from <cf> vector
-    BasicBlock *bb = g.bbs.at(bbid);
-
+    context_list.push_back(c);  // JLA: context_list grows and is never cleaned (!live contexts should be removed??)
+                                //      ...if fixed but be careful, context_list.size() is used as a pointer to get next context from <cf> vector
     // Check LSQ Availability
     if(!lsq.checkSize(bb->mem_inst_count))
       assert(false);
     c->initialize(bb, &cfg, next_bbid, prev_bbid);
     return true;
   }
-
 
   void process_memory() {
     mem->update();
@@ -354,7 +348,7 @@ public:
         simulate = true;
         context_created++;
       }
-//cout << "JLA #_contexts_created= " << context_created << endl;
+//cout << "JLA #_contexts_created=" << context_created << endl;
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
     process_memory();
     return simulate;

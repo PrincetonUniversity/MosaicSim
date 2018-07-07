@@ -187,13 +187,13 @@ void Context::complete() {
     Node *n = nodes_to_complete.at(i);
     finishNode(n);
     if (completed_nodes.size() == bb->inst_count) {
+      live = false;
+      if ( sim->cfg.max_active_contexts_BB > 0 ) {
+        bb->contexts_on_the_fly--;
+        assert(bb->contexts_on_the_fly>=0);
+      }
       cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
       sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
-      live = false;
-
-      // decrement consecutive_contexts_same_BB 
-      if ( bb->id == next_bbid )
-        sim->consecutive_contexts_same_BB--;
     }
   }
   nodes_to_complete.clear();
