@@ -237,8 +237,10 @@ public:
     Simulator* sim;
     int hit_rate=70;
     int latency=2;
+    
     Cache(Simulator* sim): sim(sim){}
-    int present() {
+    
+    int isHit() {
       int outcome = rand() % 100;
       if (outcome<hit_rate)        
         return true;
@@ -258,7 +260,7 @@ public:
       memop_list=next_memop_list;
     }
     bool memop_complete(DNode d, uint64_t addr) {
-      if (present()) {                  
+      if (isHit()) {                  
         d.second->handleMemoryReturn(d.first);
         if(DEBUGLOG)
           {cout << "Node : " << d.first->id << " Address: " << addr << " IsLoad: " << (d.first->typeInstr==LD) << " hit in cache.\n";}
