@@ -4,6 +4,7 @@
 
 #include "base.h"
 #include "include/DRAMSim.h"
+#define DEBUGLOG 1
 
 using namespace apollo;
 using namespace std;
@@ -196,45 +197,98 @@ class Simulator
 {
 public:
   class DRAMSimCallBack {
-    public:
-      map< uint64_t, queue< DNode > > outstanding_accesses_map;
-      Simulator* sim;
-      DRAMSimCallBack(Simulator* sim): sim(sim){}
+  public:
+    map< uint64_t, queue< DNode > > outstanding_accesses_map;
+    Simulator* sim;
+    DRAMSimCallBack(Simulator* sim): sim(sim){}
     
-      void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
-        assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<DNode> &q = outstanding_accesses_map.at(addr);
-        DNode d = q.front();
-        d.second->handleMemoryReturn(d.first);
-        //sim->handleMemoryReturn(q.front(), true);
-        q.pop();
-        if (q.size() == 0)
-          outstanding_accesses_map.erase(addr);
-      }
-      void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-        assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-        queue<DNode> &q = outstanding_accesses_map.at(addr);
-        DNode d = q.front();
-        d.second->handleMemoryReturn(d.first);
-        //sim->handleMemoryReturn(q.front(), false);
-        q.pop();
-        if(q.size() == 0)
-          outstanding_accesses_map.erase(addr);
-      }
-      void addTransaction(DNode d, uint64_t addr, bool isLoad) {
-        sim->mem->addTransaction(!isLoad, addr);
-        if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
-          outstanding_accesses_map.insert(make_pair(addr, queue<DNode>()));
-        outstanding_accesses_map.at(addr).push(d);
-      }
+    void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
+      assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+      queue<DNode> &q = outstanding_accesses_map.at(addr);
+      DNode d = q.front();
+      d.second->handleMemoryReturn(d.first);
+      //sim->handleMemoryReturn(q.front(), true);
+      q.pop();
+      if (q.size() == 0)
+        outstanding_accesses_map.erase(addr);
+    }
+    void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
+      assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+      queue<DNode> &q = outstanding_accesses_map.at(addr);
+      DNode d = q.front();
+      d.second->handleMemoryReturn(d.first);
+      //sim->handleMemoryReturn(q.front(), false);
+      q.pop();
+      if(q.size() == 0)
+        outstanding_accesses_map.erase(addr);
+    }
+    void addTransaction(DNode d, uint64_t addr, bool isLoad) {
+      sim->mem->addTransaction(!isLoad, addr);
+      if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
+        outstanding_accesses_map.insert(make_pair(addr, queue<DNode>()));
+      outstanding_accesses_map.at(addr).push(d);
+    }
   };
+
+  class Cache {
+  public:
+    vector<tuple<DNode,uint64_t,int>> memop_list;
+    vector<tuple<DNode,uint64_t,int>> next_memop_list;
+    Simulator* sim;
+    int hit_rate=70;
+    int latency=2;
+    Cache(Simulator* sim): sim(sim){}
+    int present() {
+      int outcome = rand() % 100;
+      if (outcome<hit_rate)        
+        return true;
+      return false;
+    }
+    void process_cache() {
+      next_memop_list.clear();
+      for (vector<tuple<DNode,uint64_t,int>>::iterator it=memop_list.begin() ; it!=memop_list.end() ; it++) {
+        if(get<2>(*it)==sim->stats.num_cycles) {
+          if (!memop_complete(get<0>(*it), get<1>(*it))) 
+            next_memop_list.push_back(*it);                    
+        }
+        else {
+          next_memop_list.push_back(*it);
+        }          
+      }
+      memop_list=next_memop_list;
+    }
+    bool memop_complete(DNode d, uint64_t addr) {
+      if (present()) {                  
+        d.second->handleMemoryReturn(d.first);
+        if(DEBUGLOG)
+          {cout << "Node : " << d.first->id << " Address: " << addr << " IsLoad: " << (d.first->typeInstr==LD) << " hit in cache.\n";}
+        return true;
+      }
+      else if (sim->mem->willAcceptTransaction(addr)) {
+        if(DEBUGLOG)
+          {cout << "Node : " << d.first->id << " Address: " << addr << " IsLoad: " << (d.first->typeInstr==LD) << " missed in cache.\n";}
+        sim->cb.addTransaction(d, addr, d.first->typeInstr==LD);
+        return true;
+      }
+      if(DEBUGLOG)
+        {cout << "Node : " << d.first->id << " Address: " << addr << " IsLoad: " << (d.first->typeInstr==LD) << " transaction not accepted.\n";}
+      return false;
+    }
+    
+    void addTransaction(DNode d, uint64_t addr, bool isLoad) {
+      if(DEBUGLOG)
+        {cout << "Node : " << d.first->id << " Address: " << addr << " IsLoad: " << (d.first->typeInstr==LD) << " added cache transaction.\n";}
+      memop_list.push_back(make_tuple(d,addr,sim->stats.num_cycles+latency));   
+    }   
+  };
+
 
   Graph g;
   Config cfg;
   GlobalStats stats;
   DRAMSimCallBack cb=DRAMSimCallBack(this); 
   DRAMSim::MultiChannelMemorySystem *mem;
-  
+  Cache* cache=new Cache(this);
   vector<Context*> context_list;
   int context_to_create = 0;
 
@@ -253,6 +307,10 @@ public:
   /* LSQ */
   LoadStoreQ lsq;
 
+  void toMemHierarchy(DNode d, uint64_t addr, bool isLoad) {
+    cache->addTransaction(d, addr, isLoad);
+  }
+ 
   Context* getNextContext(int cid) {
     if (context_list.size() > cid+1)
       return context_list.at(cid+1);
@@ -312,12 +370,13 @@ public:
       else
         return false;
 
+    // Check LSQ Availability
+    if(!lsq.checkSize(bb->mem_inst_count))
+      return false;
+    
     Context *c = new Context(cid, this);
     context_list.push_back(c);  // JLA: context_list grows and is never cleaned (!live contexts should be removed??)
                                 //      ...if fixed but be careful, context_list.size() is used as a pointer to get next context from <cf> vector
-    // Check LSQ Availability
-    if(!lsq.checkSize(bb->mem_inst_count))
-      assert(false);
     c->initialize(bb, &cfg, next_bbid, prev_bbid);
     return true;
   }
@@ -353,6 +412,7 @@ public:
       }
 
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
+    cache->process_cache();
     process_memory();
     return simulate;
   }

@@ -7,7 +7,6 @@
 using namespace apollo;
 using namespace std;
 
-#define DEBUGLOG 0
 
 int main(int argc, char const *argv[]) {
   Simulator sim;
@@ -228,7 +227,7 @@ bool Context::issueMemNode(Node *n) {
   uint64_t addr = memory_ops.at(n)->addr;
   uint64_t dramaddr = (addr/64) * 64;    
 
-  bool lsq_full = !sim->lsq.checkSize(1);
+
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(d, ST);
   if (n->typeInstr == ST) {
@@ -263,12 +262,7 @@ bool Context::issueMemNode(Node *n) {
   canExecute &= !stallCondition;
   if(issueMemory)
     canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
-
-  
-      
-  //if (lsq_full)
-  //  canExecute = false;
-  //canExecute &= !stallCondition;
+   
   canExecute &= sim->mem->willAcceptTransaction(dramaddr);
   
   // Issue Successful
@@ -285,7 +279,7 @@ bool Context::issueMemNode(Node *n) {
       }
       else { 
         sim->ports[0]--;
-        sim->cb.addTransaction(d, dramaddr, true);
+        sim->toMemHierarchy(d, dramaddr, true);
         if (speculate) {
           memory_ops.at(n)->outstanding++;
         }
@@ -293,7 +287,7 @@ bool Context::issueMemNode(Node *n) {
     }
     else if (n->typeInstr == ST) {
       sim->ports[1]--;
-      sim->cb.addTransaction(d, dramaddr, false);
+      sim->toMemHierarchy(d, dramaddr, false);
     }
     cout << "Node [" << d.first->name << " @ context " << d.second->id << "]: Inserts Memory Transaction for Address "<< dramaddr << "\n";
     return true;
