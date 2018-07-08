@@ -21,7 +21,6 @@ int main(int argc, char const *argv[]) {
   
   Reader r; 
   r.readCfg("sim/config/config.txt", sim.cfg);
-  
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
@@ -48,128 +47,102 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
   // Initialize Context Structures
   for ( int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
-    if (n->typeInstr == ST || n->typeInstr == LD) {
-      // Initialize entries in LSQ
-      if(sim->memory.find(n->id) == sim->memory.end()) {
-        cout << "Can't find Corresponding Memory Input (" << n->id << ")\n";
-        assert(false);
-      }
-      uint64_t addr = sim->memory.at(n->id).front();
-      memory_ops.insert(make_pair(n, new MemOpInfo(addr)));
-      sim->lsq.insert(make_pair(n,this));
+    if(n->typeInstr == ST || n->typeInstr == LD) {
+      assert(sim->memory.find(n->id) !=sim->memory.end());
+      DynamicNode *d = new DynamicNode(n, this, sim, cfg, sim->memory.at(n->id).front());
+      nodes.insert(make_pair(n,d));
       sim->memory.at(n->id).pop();
-    }
-    if(n->typeInstr == PHI) {
-      assert(n->parents.size() == 0);
-      if(n->phi_parents.find(prev_bbid) == n->phi_parents.end())
-        pending_parents_map.insert(std::make_pair(n, 0));
-      else
-        pending_parents_map.insert(std::make_pair(n, 1));
+      sim->lsq.insert(d);
     }
     else
-      pending_parents_map.insert(std::make_pair(n, n->parents.size()));
-    pending_external_parents_map.insert(std::make_pair(n, n->external_parents.size()));
+      nodes.insert(make_pair(n, new DynamicNode(n, this, sim, cfg)));  
   }
 
   // Initialize Phi Dependency
   if (sim->handled_phi_deps.find(id) != sim->handled_phi_deps.end()) {
-    std::set<Node*>::iterator it;
-    for(it = sim->handled_phi_deps.at(id).begin(); it != sim->handled_phi_deps.at(id).end(); ++it) {
-      pending_parents_map.at(*it)--;
+    for(auto it = sim->handled_phi_deps.at(id).begin(); it != sim->handled_phi_deps.at(id).end(); ++it) {
+      DynamicNode *d = nodes.at(*it);
+      d->pending_parents--;
     }
     sim->handled_phi_deps.erase(id);
   }
-
+  if(sim->curr_owner.find(bb->id) == sim->curr_owner.end())
+    sim->curr_owner.insert(make_pair(bb->id,this));
+  else
+    sim->curr_owner.at(bb->id) = this;
   // Initialize External Edges
-  for (int i=0; i<bb->inst.size(); i++) {
-    Node *n = bb->inst.at(i);
-    if (n->external_dependents.size() > 0) {
-      if(sim->curr_owner.find(n) == sim->curr_owner.end())
-        sim->curr_owner.insert(make_pair(n, this));
-      else
-        sim->curr_owner.at(n) = this;
-      external_deps.insert(make_pair(n, vector<DNode>()));
-    }
-    if (n->external_parents.size() > 0) {
-      std::set<Node*>::iterator it;
-      for (it = n->external_parents.begin(); it != n->external_parents.end(); ++it) {
-        Node *s = *it;
-        Context *cc = sim->curr_owner.at(s);
-        if(cc->completed_nodes.find(s) != cc->completed_nodes.end())
-          pending_external_parents_map.at(n)--;
+  for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
+    DynamicNode *d = it->second;
+    if (d->n->external_parents.size() > 0) {
+      for (auto it = d->n->external_parents.begin(); it != d->n->external_parents.end(); ++it) {
+        Node *src = *it;
+        Context *c_src = sim->curr_owner.at(src->bbid);
+        DynamicNode *d_src = c_src->nodes.at(src);
+        if(c_src->completed_nodes.find(d_src) != c_src->completed_nodes.end())
+          d->pending_external_parents--;
         else
-          cc->external_deps.at(s).push_back(make_pair(n,this));
+          d_src->external_dependents.push_back(d);
       }
     }
   }
-  for(int i=0; i<bb->inst.size(); i++) {
-    Node *n = bb->inst.at(i);
-    tryActivate(n);
-  }
+  for(auto it = nodes.begin(); it!= nodes.end(); ++it)
+    it->second->tryActivate();
+
   cout << "Context [" << id << "]: Created (BB=" << bb->id << ")\n";     
 }
 
-void Context::handleMemoryReturn(Node *n) {
-  cout << "Node [" << n->name << " @ context " << id << "]: Memory Transaction Returns \n";
-  if(n->typeInstr == LD) {
+void DynamicNode::handleMemoryReturn() {
+  print("Memory Transaction Returns", 0);
+  if(type == LD) {
     if(cfg->mem_speculate) {
-      if(memory_ops.at(n)->outstanding > 0) {
-        memory_ops.at(n)->outstanding--;
-      }
-      if(memory_ops.at(n)->outstanding != 0) {
+      if(outstanding_accesses > 0)
+        outstanding_accesses--;
+      if(outstanding_accesses != 0) 
         return;
-      }
     }
-    remaining_cycles_map.at(n) = 0; // mark "Load" as finished
+    remaining_cycles = 0;
   }
 }
 
 void Context::process() {
   for (int i=0; i < active_list.size(); i++) {
-    Node *n = active_list.at(i);
-    if (issue_set.find(n) != issue_set.end()) {
+    DynamicNode *d = active_list.at(i);
+    if (issue_set.find(d) != issue_set.end()) {
       bool res = false;
-      if(n->typeInstr == LD || n->typeInstr == ST)
-        res = issueMemNode(n);
+      if(d->isMem)
+        res = d->issueMemNode();
       else
-        res = issueCompNode(n);
+        res = d->issueCompNode();
       if(!res) {
-        if(DEBUGLOG)
-          {cout << "Node [" << n->name << " @ context " << this->id << "]: Issue failed \n";}
-        next_active_list.push_back(n);
-        next_issue_set.insert(n);
+        d->print("Issue Failed", 0);
+        next_active_list.push_back(d);
+        next_issue_set.insert(d);
         continue;
       }
       else
-        cout << "Node [" << n->name << " @ context " << id << "]: Issue successful \n";
+        d->print("Issue Succesful",0);
     }
 
     // Update Remaining Cycles
-    int remaining_cycles = remaining_cycles_map.at(n);
-    
-    if (remaining_cycles > 0) {
-      remaining_cycles--;
-      remaining_cycles_map.at(n) = remaining_cycles;
-    }
+    if (d->remaining_cycles > 0)
+      d->remaining_cycles--;
    
     // Continue Execution (note: a remaining_cycles of -1 represents load issued to DRAMSim2)
-    if ( remaining_cycles > 0 || remaining_cycles == -1 ) {
-      next_active_list.push_back(n);
+    if ( d->remaining_cycles > 0 || d->remaining_cycles == -1 ) {
+      next_active_list.push_back(d);
       continue;
-    }      
-    else if (remaining_cycles == 0) { 
-      // Execution Finished
+    } 
+    // Execution Finished     
+    else if (d->remaining_cycles == 0) { 
       // Check the speculation result for speculative loads
-      DNode d = make_pair(n,this);
-      if (cfg->mem_speculate && n->typeInstr == LD && memory_ops.at(n)->speculated) {
-        assert(memory_ops.at(n)->outstanding == 0);
+      if (cfg->mem_speculate && d->type == LD && d->speculated) {
         bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
         if (exists_unresolved_ST) { 
-          next_active_list.push_back(n);
+          next_active_list.push_back(d);
           continue;
         }
       }
-      nodes_to_complete.push_back(n);
+      nodes_to_complete.push_back(d);
     }
     else {
       assert(false); 
@@ -183,22 +156,22 @@ void Context::process() {
 
 void Context::complete() {
   for(int i=0; i<nodes_to_complete.size(); i++) {
-    Node *n = nodes_to_complete.at(i);
-    finishNode(n);
-    if (completed_nodes.size() == bb->inst_count) {
-      live = false;
-      if ( sim->cfg.max_active_contexts_BB > 0 ) {
-        bb->contexts_on_the_fly--;
-        assert(bb->contexts_on_the_fly>=0);
-      }
-      cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
-      sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
-    }
+    DynamicNode *d = nodes_to_complete.at(i);
+    d->finishNode();
+
   }
   nodes_to_complete.clear();
+  if (completed_nodes.size() == bb->inst_count) {
+    live = false;
+    if (cfg->max_active_contexts_BB > 0) {
+      sim->outstanding_contexts.at(bb)++;
+    }
+    cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) \n";
+    sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
+  }
 }
 
-bool Context::issueCompNode(Node *n) {
+bool DynamicNode::issueCompNode() {
   bool canExecute = true;
   // check resource (FU) availability
   if (sim->avail_FUs.at(n->typeInstr) != -1) {
@@ -214,30 +187,29 @@ bool Context::issueCompNode(Node *n) {
     return false;
 }
 
-bool Context::issueMemNode(Node *n) {
+bool DynamicNode::issueMemNode() {
   // Memory Dependency
-  DNode d = make_pair(n,this);
-  memory_ops.at(n)->addr_resolved = true;
+  issued = true;
+  addr_resolved = true;
+
   bool stallCondition = false;  
   bool canExecute = true;
   bool speculate = false;
   bool issueMemory = true;
   int forwardRes = -1;
 
-  uint64_t addr = memory_ops.at(n)->addr;
   uint64_t dramaddr = (addr/64) * 64;    
 
-
-  bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
-  bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(d, ST);
-  if (n->typeInstr == ST) {
-    bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(d, LD);
-    bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(d, LD);
+  bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
+  bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
+  if (type == ST) {
+    bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(this, LD);
+    bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
   }
-  else if (n->typeInstr == LD) {
+  else if (type == LD) {
     if(cfg->mem_forward)
-      forwardRes = sim->lsq.check_forwarding(d);
+      forwardRes = sim->lsq.check_forwarding(this);
     if(forwardRes == 1) {
       issueMemory = false;
     }
@@ -252,9 +224,9 @@ bool Context::issueMemNode(Node *n) {
       }
       else {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-        if (n->typeInstr == LD && sim->ports[0] == 0)
+        if (type == LD && sim->ports[0] == 0)
           canExecute = false;
-        if (n->typeInstr == ST && sim->ports[1] == 0)
+        if (type == ST && sim->ports[1] == 0)
           canExecute = false;
       }
     }
@@ -262,130 +234,110 @@ bool Context::issueMemNode(Node *n) {
   canExecute &= !stallCondition;
   if(issueMemory)
     canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
-   
   canExecute &= sim->mem->willAcceptTransaction(dramaddr);
   
   // Issue Successful
   if(canExecute) {
-    DNode d = make_pair(n,this);
-    memory_ops.at(n)->speculated = speculate;
-    if (n->typeInstr == LD) {
+    speculated = speculate;
+    if (type == LD) {
       if(forwardRes == 1) { 
-        cout << "Node [" << n->name << " @ context " << id << "] retrieves forwarded Data \n";
-        d.second->remaining_cycles_map.at(d.first) = 0;
+        print("Retrieves Forwarded Data", 1);
+        remaining_cycles = 0;
       }
       else if(forwardRes == 0 && cfg->mem_speculate) { 
-        cout << "Node [" << n->name << " @ context " << id << "] speculuatively retrieves forwarded data \n";
+        print("Retrieves Speculatively Forwarded Data", 1);
       }
       else { 
         sim->ports[0]--;
-        sim->toMemHierarchy(d, dramaddr, true);
+        sim->toMemHierarchy(this);
         if (speculate) {
-          memory_ops.at(n)->outstanding++;
+          outstanding_accesses++;
         }
       }
     }
     else if (n->typeInstr == ST) {
       sim->ports[1]--;
-      sim->toMemHierarchy(d, dramaddr, false);
+      sim->toMemHierarchy(this);
     }
-    cout << "Node [" << d.first->name << " @ context " << d.second->id << "]: Inserts Memory Transaction for Address "<< dramaddr << "\n";
+    print("Inserts Memory Transaction", 1);
     return true;
   }
   else
     return false;
 }
 
-void Context::finishNode(Node *n) {
-  DNode d = make_pair(n,this);
-  cout << "Node [" << n->name << " @ context " << id << "]: Finished Execution \n";
-
-  remaining_cycles_map.erase(n);
-  assert(completed_nodes.find(n) == completed_nodes.end());
-  completed_nodes.insert(n);
-  
+void DynamicNode::finishNode() {
+  print("Finished Execution", 0);
+  c->completed_nodes.insert(this);
+  completed = true;
   // Handle Resource limits
-  if ( sim->avail_FUs.at(n->typeInstr) != -1 ) { // if "limited" -> release FU (-1 means unlimited)
+  if ( sim->avail_FUs.at(n->typeInstr) != -1 ) {
     int avail = ++sim->avail_FUs.at(n->typeInstr); 
-    cout << "Node [" << n->name << "]: released FU, new free FUs: " << avail << endl;
   }
 
   // Speculation
   if (cfg->mem_speculate && n->typeInstr == ST) {
-    auto misspeculated = sim->lsq.check_speculation(d);
+    auto misspeculated = sim->lsq.check_speculation(this);
     for(int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
-      Context *cc = misspeculated.at(i).second;
-      cc->tryActivate(misspeculated.at(i).first);
+      misspeculated.at(i)->tryActivate();
     }
   }
 
-  if (n->typeInstr == LD || n->typeInstr == ST) {         
-    assert(memory_ops.at(n)->outstanding==0);
-    memory_ops.at(n)->speculated = false;
-    memory_ops.at(n)->completed = true;
-  }
+  if (type == LD || type == ST)         
+    speculated = false;
 
   // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
   set<Node*>::iterator it;
   for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
-    Node *d = *it;
-    pending_parents_map.at(d)--;
-    if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
-      memory_ops.at(d)->addr_resolved = true;
+    DynamicNode *dst = c->nodes.at(*it);
+    if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {
+      dst->addr_resolved = true;
     }
-    tryActivate(d);    
+    dst->pending_parents--;
+    dst->tryActivate();    
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
-  if (n->external_dependents.size() > 0) {
-    if (external_deps.at(n).size() > 0) {
-      vector<DNode> users = external_deps.at(n);
-      for (int i=0; i<users.size(); i++) {
-        Node *d = users.at(i).first;
-        Context *cc = users.at(i).second;
-        if(n->store_addr_dependents.find(d) != n->store_addr_dependents.end()) {
-          cc->memory_ops.at(d)->addr_resolved = true;
-        }
-        cc->pending_external_parents_map.at(d)--;
-        cc->tryActivate(d);
-      }
-      external_deps.erase(n);
+  for(int i=0; i<external_dependents.size(); i++) {
+    DynamicNode *dst = external_dependents.at(i);
+    if(dst->n->store_addr_dependents.find(n) != dst->n->store_addr_dependents.end()) {
+      dst->addr_resolved = true;
     }
+    dst->pending_external_parents--;
+    dst->tryActivate();
   }
+  external_dependents.clear();
 
   // Same for Phi dependents
   for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
-    Node *d = *it;
-    if(next_bbid == d->bbid) {
-      if(Context *cc = sim->getNextContext(id)) {
-        cc->pending_parents_map.at(d)--;
-        cc->tryActivate(d);
+    Node *dst = *it;
+    if(c->next_bbid == dst->bbid) {
+      if(Context *cc = sim->getNextContext(c->id)) {
+        cc->nodes.at(dst)->pending_parents--;
+        cc->nodes.at(dst)->tryActivate();
       }
       else {
-        if (sim->handled_phi_deps.find(id+1) == sim->handled_phi_deps.end()) {
-          sim->handled_phi_deps.insert(make_pair(id+1, set<Node*>()));
+        if (sim->handled_phi_deps.find(c->id+1) == sim->handled_phi_deps.end()) {
+          sim->handled_phi_deps.insert(make_pair(c->id+1, set<Node*>()));
         }
-        sim->handled_phi_deps.at(id+1).insert(d);
+        sim->handled_phi_deps.at(c->id+1).insert(dst);
       }
     }
   }
 
   // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
-  if (cfg->cf_one_context_at_once && n->typeInstr == TERMINATOR) {
+  if (cfg->cf_one_context_at_once && type == TERMINATOR) {
     sim->context_to_create++;
   }
 }
 
-void Context::tryActivate(Node *n) {
-    if(pending_parents_map.at(n) > 0 || pending_external_parents_map.at(n) > 0) {
-      if(DEBUGLOG)
-        {std::cout << "Node [" << n->name << " @ context " << id << "]: Failed to Execute - " << pending_parents_map.at(n) << " / " << pending_external_parents_map.at(n) << "\n";}
+void DynamicNode::tryActivate() {
+    if(pending_parents > 0 || pending_external_parents > 0) {
+      print("Failed Execution", 0);
       return;
     }
-    active_list.push_back(n);
-    assert(issue_set.find(n) == issue_set.end());
-    issue_set.insert(n);
-    std::cout << "Node [" << n->name << " @ context " << id << "]: Added to active list\n";
-    remaining_cycles_map.insert(std::make_pair(n, n->lat));
+    c->active_list.push_back(this);
+    assert(c->issue_set.find(this) == c->issue_set.end());
+    c->issue_set.insert(this);
 }

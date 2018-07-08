@@ -7,6 +7,7 @@
 [Workload] Chirag & JLA / SHOC & Machsuite
 
 /* Minor Functionality */
+[Sim] Memory Cleanup 
 [Sim] Detailed resource limits for memory systems
 [Sim] PHI_Node 0 latency
 

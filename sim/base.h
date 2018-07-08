@@ -112,9 +112,8 @@ public:
   int id;
   int inst_count;
   int mem_inst_count;
-  int contexts_on_the_fly;
 
-  BasicBlock(int id): id(id), inst_count(0), mem_inst_count(0), contexts_on_the_fly(0) {}
+  BasicBlock(int id): id(id), inst_count(0), mem_inst_count(0) {}
   
   void addInst(Node* n) {
     inst.push_back(n);
