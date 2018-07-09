@@ -106,20 +106,6 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
   cout << "Context [" << id << "]: Created (BB=" << bb->id << ")\n";     
 }
 
-void DynamicNode::handleMemoryReturn() {
-  print("Memory Transaction Returns", 0);
-  print(to_string(outstanding_accesses), 0);
-  if(type == LD) {
-    if(cfg->mem_speculate) {
-      if(outstanding_accesses > 0)
-        outstanding_accesses--;
-      if(outstanding_accesses != 0) 
-        return;
-    }
-    remaining_cycles = 0;
-  }
-}
-
 void Context::process() {
   for (int i=0; i < active_list.size(); i++) {
     DynamicNode *d = active_list.at(i);
@@ -187,6 +173,19 @@ void Context::complete() {
   }
 }
 
+void DynamicNode::handleMemoryReturn() {
+  print("Memory Transaction Returns", 0);
+  print(to_string(outstanding_accesses), 0);
+  if(type == LD) {
+    if(cfg->mem_speculate) {
+      if(outstanding_accesses > 0)
+        outstanding_accesses--;
+      if(outstanding_accesses != 0) 
+        return;
+    }
+    remaining_cycles = 0;
+  }
+}
 bool DynamicNode::issueCompNode() {
   bool canExecute = true;
   // check resource (FU) availability

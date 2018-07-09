@@ -4,6 +4,7 @@
 
 #include "base.h"
 #include "include/DRAMSim.h"
+#include "functional_cache.h"
 #define DEBUGLOG 1
 
 using namespace apollo;
@@ -230,118 +231,137 @@ public:
   }
 };
 
-class Simulator 
-{
+
+class DRAMSimInterface {
 public:
-  class DRAMSimCallBack {
-  public:
-    map< uint64_t, queue<DynamicNode*> > outstanding_accesses_map;
-    Simulator* sim;
-    DRAMSimCallBack(Simulator* sim): sim(sim){}
-    
-    void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
-      assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-      queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
-      DynamicNode* d = q.front();
-      d->handleMemoryReturn();
-      q.pop();
-      if (q.size() == 0)
-        outstanding_accesses_map.erase(addr);
-    }
-    void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-      assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-      queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
-      DynamicNode* d = q.front();
-      d->handleMemoryReturn();
-      q.pop();
-      if(q.size() == 0)
-        outstanding_accesses_map.erase(addr);
-    }
-    void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
-      sim->mem->addTransaction(!isLoad, addr);
+  map< uint64_t, queue<DynamicNode*> > outstanding_accesses_map;
+  DRAMSim::MultiChannelMemorySystem *mem;
+  DRAMSimInterface() {
+    DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
+    DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
+    mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
+    mem->RegisterCallbacks(read_cb, write_cb, NULL);
+    mem->setCPUClockSpeed(2000000000);
+  }
+  
+  void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
+    assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+    queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
+    DynamicNode* d = q.front();
+    d->handleMemoryReturn();
+    q.pop();
+    if (q.size() == 0)
+      outstanding_accesses_map.erase(addr);
+  }
+  void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
+    assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+    queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
+    DynamicNode* d = q.front();
+    d->handleMemoryReturn();
+    q.pop();
+    if(q.size() == 0)
+      outstanding_accesses_map.erase(addr);
+  }
+  void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
+    mem->addTransaction(!isLoad, addr);
+    if(d!= NULL) {
       if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
         outstanding_accesses_map.insert(make_pair(addr, queue<DynamicNode*>()));
       outstanding_accesses_map.at(addr).push(d);
     }
+  }
+};
+
+class Cache {
+public:
+  typedef pair<DynamicNode*, uint64_t> CacheOp;
+  uint64_t cycles = 0;
+  DRAMSimInterface *memInterface;
+  int hit_rate=70;
+  int latency=2;
+  FunctionalSetCache *fc;
+
+  priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
+  vector<DynamicNode*> ready_to_execute;
+  vector<DynamicNode*> next_ready_to_execute;
+  vector<pair<DynamicNode*,int>> memop_list, next_memop_list;
+  
+  struct CacheOpCompare {
+    friend bool operator< (const CacheOp &l, const CacheOp &r) {
+      if(l.second < r.second) 
+        return true;
+      else if(l.second == r.second)
+        return true;
+      else
+        return false;
+    }
   };
 
-  class Cache {
-  public:
-    typedef pair<DynamicNode*, uint64_t> CacheOp;
-    
-    Simulator* sim;
-    int hit_rate=70;
-    int latency=2;
-
-    priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
-    vector<DynamicNode*> ready_to_execute;
-    vector<DynamicNode*> next_ready_to_execute;
-    vector<pair<DynamicNode*,int>> memop_list, next_memop_list;
-    
-    struct CacheOpCompare {
-      friend bool operator< (const CacheOp &l, const CacheOp &r) {
-        if(l.second < r.second) 
-          return true;
-        else if(l.second == r.second)
-          return true;
-        else
-          return false;
-      }
-    };
-
-    Cache(Simulator* sim): sim(sim){}
-    
-    int isHit() {
-      int outcome = rand() % 100;
-      if (outcome<hit_rate)        
-        return true;
-      return false;
+  Cache(DRAMSimInterface *memInterface): memInterface(memInterface) {
+    fc = new FunctionalSetCache(4, 8);
+  }
+  
+  /*int isHit() {
+    int outcome = rand() % 100;
+    if (outcome<hit_rate)        
+      return true;
+    return false;
+  }*/
+  void process_cache() {
+    cycles++;
+    while(pq.size() > 0) {
+      if(pq.top().second > cycles)
+        break;
+      ready_to_execute.push_back(pq.top().first);
+      pq.pop();
     }
-    void process_cache() {
-      while(pq.size() > 0) {
-        if(pq.top().second > sim->cycles)
-          break;
-        ready_to_execute.push_back(pq.top().first);
-        pq.pop();
-      }
 
-      for(int i=0; i<ready_to_execute.size(); i++) {
-        if(!execute(ready_to_execute.at(i)))
-          next_ready_to_execute.push_back(ready_to_execute.at(i));
-      }
-      ready_to_execute = next_ready_to_execute;
-      next_ready_to_execute.clear();
+    for(int i=0; i<ready_to_execute.size(); i++) {
+      if(!execute(ready_to_execute.at(i)))
+        next_ready_to_execute.push_back(ready_to_execute.at(i));
     }
-    bool execute(DynamicNode* d) {
-      uint64_t dramaddr =d->addr/64 * 64;
-      if (isHit()) {                  
-        d->handleMemoryReturn();
-        d->print("Hits in Cache", 2);
-        return true;
-      }
-      else if (sim->mem->willAcceptTransaction(dramaddr)) {
-        sim->cb.addTransaction(d, dramaddr, d->type == LD);
-        d->print("Misses in Cache", 2);
-        return true;
-      }
-      d->print("Transaction Rejected", 2);
-      return false;
+    ready_to_execute = next_ready_to_execute;
+    next_ready_to_execute.clear();
+  }
+  bool execute(DynamicNode* d) {
+    int size_of_cacheline = 64;
+    uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
+    int64_t evictedAddr = -1;
+    bool res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
+    if (res) {                  
+      d->handleMemoryReturn();
+      d->print("Hits in Cache", 2);
     }
-    
-    void addTransaction(DynamicNode *d) {
-      d->print("Added Cache Transaction", 2);
-      pq.push(make_pair(d, sim->cycles+latency));   
-    }   
-  };
+    else {//if (memInterface->mem->willAcceptTransaction(dramaddr)) {
+      memInterface->addTransaction(d, dramaddr, d->type == LD);
+      d->print("Misses in Cache", 2);
+    }
+    if(evictedAddr != -1) {
+      memInterface->addTransaction(NULL, evictedAddr * size_of_cacheline, false);
+    }
+    return true;
+    /* Temporarily disabling rejected transaction */
+    //d->print("Transaction Rejected", 2);
+    //return false;
+  }
+  
+  void addTransaction(DynamicNode *d) {
+    d->print("Added Cache Transaction", 2);
+    pq.push(make_pair(d, cycles+latency));   
+  }   
+};
 
 
+
+class Simulator 
+{
+public:
   Graph g;
   Config cfg;
   GlobalStats stats;
   uint64_t cycles = 0;
-  DRAMSimCallBack cb=DRAMSimCallBack(this); 
-  DRAMSim::MultiChannelMemorySystem *mem;
-  Cache* cache=new Cache(this);
+  DRAMSimInterface cb= DRAMSimInterface(); 
+  Cache* cache= new Cache(&cb);
   vector<Context*> context_list;
   int context_to_create = 0;
 
@@ -367,12 +387,7 @@ public:
   }
  
   void initialize() {
-    DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
-    DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
-    mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
-    mem->RegisterCallbacks(read_cb, write_cb, NULL);
-    mem->setCPUClockSpeed(2000000000);  
-
+    
     // Initialize Resources / Limits
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
@@ -423,7 +438,7 @@ public:
   }
 
   void process_memory() {
-    mem->update();
+    cb.mem->update();
   }
 
   bool process_cycle() {
@@ -464,7 +479,7 @@ public:
     while (simulate)
       simulate = process_cycle();
     stats.num_cycles = cycles;
-    mem->printStats(false);
+    cb.mem->printStats(false);
   }
 };
 
