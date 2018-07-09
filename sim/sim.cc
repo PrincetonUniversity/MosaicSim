@@ -37,7 +37,18 @@ int main(int argc, char const *argv[]) {
   return 0;
 } 
 
-
+Context* Context::getNextContext() {
+  if(sim->context_list.size() > id+1)
+    return sim->context_list.at(id+1);
+  else
+    return NULL;
+}
+Context* Context::getPrevContext() {
+  if(id != 0)
+    return sim->context_list.at(id-1);
+  else
+    return NULL;
+}
 void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid) {
   this->bb = bb;
   this->cfg = cfg;
@@ -58,30 +69,34 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
       nodes.insert(make_pair(n, new DynamicNode(n, this, sim, cfg)));  
   }
 
-  // Initialize Phi Dependency
-  if (sim->handled_phi_deps.find(id) != sim->handled_phi_deps.end()) {
-    for(auto it = sim->handled_phi_deps.at(id).begin(); it != sim->handled_phi_deps.at(id).end(); ++it) {
-      DynamicNode *d = nodes.at(*it);
-      d->pending_parents--;
-    }
-    sim->handled_phi_deps.erase(id);
-  }
   if(sim->curr_owner.find(bb->id) == sim->curr_owner.end())
     sim->curr_owner.insert(make_pair(bb->id,this));
   else
     sim->curr_owner.at(bb->id) = this;
+
   // Initialize External Edges
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
     DynamicNode *d = it->second;
+    if(d->type == PHI) {
+      for(auto pit = d->n->phi_parents.begin(); pit!= d->n->phi_parents.end(); ++pit) {
+        Node *src = *pit;
+        Context *cc = getPrevContext();
+        if(src->bbid == prev_bbid && cc!= NULL) {
+          DynamicNode *dsrc = cc->nodes.at(src);
+          if(dsrc->completed)
+            d->pending_parents--;
+        }
+      }
+    }
     if (d->n->external_parents.size() > 0) {
       for (auto it = d->n->external_parents.begin(); it != d->n->external_parents.end(); ++it) {
         Node *src = *it;
-        Context *c_src = sim->curr_owner.at(src->bbid);
-        DynamicNode *d_src = c_src->nodes.at(src);
-        if(c_src->completed_nodes.find(d_src) != c_src->completed_nodes.end())
+        Context *cc = sim->curr_owner.at(src->bbid);
+        DynamicNode *dsrc = cc->nodes.at(src);
+        if(dsrc->completed)
           d->pending_external_parents--;
         else
-          d_src->external_dependents.push_back(d);
+          dsrc->external_dependents.push_back(d);
       }
     }
   }
@@ -93,6 +108,7 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
 
 void DynamicNode::handleMemoryReturn() {
   print("Memory Transaction Returns", 0);
+  print(to_string(outstanding_accesses), 0);
   if(type == LD) {
     if(cfg->mem_speculate) {
       if(outstanding_accesses > 0)
@@ -232,12 +248,9 @@ bool DynamicNode::issueMemNode() {
     }
   }
   canExecute &= !stallCondition;
-  if(issueMemory)
-    canExecute &= sim->mem->willAcceptTransaction(dramaddr); 
-  canExecute &= sim->mem->willAcceptTransaction(dramaddr);
-  
   // Issue Successful
   if(canExecute) {
+    issued = true;
     speculated = speculate;
     if (type == LD) {
       if(forwardRes == 1) { 
@@ -259,7 +272,6 @@ bool DynamicNode::issueMemNode() {
       sim->ports[1]--;
       sim->toMemHierarchy(this);
     }
-    print("Inserts Memory Transaction", 1);
     return true;
   }
   else
@@ -280,6 +292,8 @@ void DynamicNode::finishNode() {
     auto misspeculated = sim->lsq.check_speculation(this);
     for(int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
+      misspeculated.at(i)->issued = false;
+      misspeculated.at(i)->completed = false;
       misspeculated.at(i)->tryActivate();
     }
   }
@@ -313,15 +327,9 @@ void DynamicNode::finishNode() {
   for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
     Node *dst = *it;
     if(c->next_bbid == dst->bbid) {
-      if(Context *cc = sim->getNextContext(c->id)) {
+      if(Context *cc = c->getNextContext()) {
         cc->nodes.at(dst)->pending_parents--;
         cc->nodes.at(dst)->tryActivate();
-      }
-      else {
-        if (sim->handled_phi_deps.find(c->id+1) == sim->handled_phi_deps.end()) {
-          sim->handled_phi_deps.insert(make_pair(c->id+1, set<Node*>()));
-        }
-        sim->handled_phi_deps.at(c->id+1).insert(dst);
       }
     }
   }
@@ -337,6 +345,8 @@ void DynamicNode::tryActivate() {
       print("Failed Execution", 0);
       return;
     }
+    if(issued || completed)
+      assert(false);
     c->active_list.push_back(this);
     assert(c->issue_set.find(this) == c->issue_set.end());
     c->issue_set.insert(this);

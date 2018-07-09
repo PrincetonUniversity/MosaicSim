@@ -52,7 +52,8 @@ public:
   std::set<Node*> external_parents;
   std::set<Node*> phi_dependents;
   // For PHI Nodes
-  std::set<int> phi_parents;
+  std::set<Node*> phi_parents;
+
   // For Store Nodes
   std::set<Node*> store_addr_dependents; // store_address_dependents
   int id;
@@ -77,7 +78,7 @@ public:
     }
     else if(type == PHI_DEP) {
       phi_dependents.insert(dest);
-      dest->phi_parents.insert(this->bbid);
+      dest->phi_parents.insert(this);
     }
   }
 

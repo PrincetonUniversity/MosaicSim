@@ -51,8 +51,9 @@ public:
   std::vector<DynamicNode*> nodes_to_complete;
   std::set<DynamicNode*> completed_nodes;
 
-
   Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
+  Context* getNextContext();
+  Context* getPrevContext();
   void process();
   void complete();
   void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
@@ -82,10 +83,17 @@ public:
   DynamicNode(Node *n, Context *c, Simulator *sim, Config* cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg), addr(addr) {
     type = n->typeInstr;
     if(type == PHI) {
-      if(n->phi_parents.find(c->prev_bbid) == n->phi_parents.end())
-        pending_parents = 0;
-      else
+      bool found = false;
+      for(auto it = n->phi_parents.begin(); it!= n->phi_parents.end(); ++it) {
+        if((*it)->bbid == c->prev_bbid) {
+          found = true;
+          break;
+        }
+      }
+      if(found)
         pending_parents = 1;
+      else
+        pending_parents = 0;
     }
     else
       pending_parents = n->parents.size();
@@ -348,7 +356,7 @@ public:
   
   /* Handling External/Phi Dependencies */
   map<int, Context*> curr_owner;
-  map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
+  //map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   
   /* LSQ */
   LoadStoreQ lsq;
@@ -358,13 +366,6 @@ public:
     cache->addTransaction(d);
   }
  
-  Context* getNextContext(int cid) {
-    if (context_list.size() > cid+1)
-      return context_list.at(cid+1);
-    else
-      return NULL;
-  }
-
   void initialize() {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimCallBack, void, unsigned, uint64_t, uint64_t>(&cb, &DRAMSimCallBack::write_complete);
