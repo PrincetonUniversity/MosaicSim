@@ -202,8 +202,8 @@ public:
   void readCfg(std::string filename, Config &cfg) {
     // TODO: Read config from <filename>
     cfg.lsq_size = 512;
-    cfg.cf_one_context_at_once = true;
-    cfg.cf_max_contexts_concurrently = false;
+    cfg.cf_one_context_at_once = false;
+    cfg.cf_max_contexts_concurrently = true;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 1;
@@ -221,7 +221,7 @@ public:
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.num_units[I_ADDSUB] = 2;
+    cfg.num_units[I_ADDSUB] = 4;
     cfg.num_units[I_MULT] = 4;
     cfg.num_units[I_DIV] = 4;
     cfg.num_units[I_REM] = 4;

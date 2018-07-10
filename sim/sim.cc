@@ -345,7 +345,7 @@ void DynamicNode::finishNode() {
 
 void DynamicNode::tryActivate() {
     if(pending_parents > 0 || pending_external_parents > 0) {
-      print("Failed Execution", 0);
+//      print("Failed Execution", 0);
       return;
     }
     if(issued || completed)
