@@ -116,13 +116,13 @@ void Context::process() {
       else
         res = d->issueCompNode();
       if(!res) {
-        d->print("Issue Failed", 0);
+        d->print("Issue Failed", 2);
         next_active_list.push_back(d);
         next_issue_set.insert(d);
         continue;
       }
       else
-        d->print("Issue Succesful",0);
+        d->print("Issue Succesful",1);
     }
 
     // Update Remaining Cycles

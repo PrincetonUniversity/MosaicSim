@@ -130,7 +130,8 @@ public:
     return os;
   }
   void print(string str, int level = 0) {
-    cout << (*this) << str << "\n";
+    if(level == 0)
+      cout << (*this) << str << "\n";
   }
 
 };
@@ -454,7 +455,7 @@ public:
     cout << "[Cycle: " << cycles << "]\n";
     cycles++;
     bool simulate = false;
-    assert(cycles < 10000);
+    //assert(cycles < 10000);
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
 
