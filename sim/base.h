@@ -42,6 +42,10 @@ public:
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
+  // L1 cache
+  int L1_size;     // MB
+  int L1_assoc; 
+  int block_size;  // bytes
 };
 
 class Node {
@@ -197,11 +201,11 @@ public:
   void readCfg(std::string filename, Config &cfg) {
     // TODO: Read config from <filename>
     cfg.lsq_size = 512;
-    cfg.cf_one_context_at_once = false;
-    cfg.cf_max_contexts_concurrently = true;
+    cfg.cf_one_context_at_once = true;
+    cfg.cf_max_contexts_concurrently = false;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
-    cfg.instr_latency[I_ADDSUB] = 120;
+    cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 26;
     cfg.instr_latency[I_REM] = 1;
@@ -235,7 +239,13 @@ public:
     cfg.store_ports = 4;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
-    cfg.max_active_contexts_BB = 3;
+    cfg.max_active_contexts_BB = -1;
+
+    // L1 config
+    cfg.L1_size = 4;
+    cfg.L1_assoc = 8;
+    cfg.block_size = 64;  // bytes
+
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>

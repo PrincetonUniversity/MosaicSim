@@ -105,7 +105,7 @@ public:
     else
       isMem = true;
   }
- bool operator== (const DynamicNode &in) {
+  bool operator== (const DynamicNode &in) {
     if(c->id == in.c->id && n->id == in.n->id)
       return true;
     else
@@ -297,8 +297,8 @@ public:
     }
   };
 
-  Cache(DRAMSimInterface *memInterface): memInterface(memInterface) {
-    fc = new FunctionalSetCache(4, 8);
+  Cache(int size, int assoc, int block_size, DRAMSimInterface *memInterface): memInterface(memInterface) {
+    fc = new FunctionalSetCache(size, assoc, block_size);
   }
   
   /*int isHit() {
@@ -361,7 +361,7 @@ public:
   GlobalStats stats;
   uint64_t cycles = 0;
   DRAMSimInterface cb= DRAMSimInterface(); 
-  Cache* cache= new Cache(&cb);
+  Cache* cache;
   vector<Context*> context_list;
   int context_to_create = 0;
 
@@ -389,6 +389,8 @@ public:
   void initialize() {
     
     // Initialize Resources / Limits
+    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb);
+
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
       avail_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
@@ -402,7 +404,7 @@ public:
 
   bool createContext() {
     int cid = context_list.size();
-    if (cf.size() == cid) // reached the end of <cf> so no more contexts to create. We are done!
+    if (cf.size() == cid) // reached end of <cf> so no more contexts to create
       return false;
 
     // set "current", "prev", "next" BB ids.
@@ -417,11 +419,13 @@ public:
     else
       prev_bbid = -1;
     
-    // check the limit of consecutive contexts per BB
+    // check the limit of contexts per BB
     BasicBlock *bb = g.bbs.at(bbid);
     if (cfg.max_active_contexts_BB > 0) {
-      if(outstanding_contexts.find(bb) == outstanding_contexts.end())
+      if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
         outstanding_contexts.insert(make_pair(bb, cfg.max_active_contexts_BB));
+        outstanding_contexts.at(bb)--;
+      }
       else if(outstanding_contexts.at(bb) == 0)
         return false;
     }
@@ -431,7 +435,6 @@ public:
       return false;
     
     Context *c = new Context(cid, this);
-    outstanding_contexts.at(bb)--;
     context_list.push_back(c);
     c->initialize(bb, &cfg, next_bbid, prev_bbid);
     return true;
