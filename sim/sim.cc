@@ -117,24 +117,24 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
 }
 
 void Context::process() {
+  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
+    DynamicNode *d = *it;
+    bool res = false;
+    if(d->isMem)
+      res = d->issueMemNode();
+    else
+      res = d->issueCompNode();
+    if(!res) {
+      d->print("Issue Failed", 2);
+      next_issue_set.insert(d);
+    }
+    else {
+      active_list.push_back(d);
+      d->print("Issue Succesful",1);
+    }
+  }
   for (int i=0; i < active_list.size(); i++) {
     DynamicNode *d = active_list.at(i);
-    if (issue_set.find(d) != issue_set.end()) {
-      bool res = false;
-      if(d->isMem)
-        res = d->issueMemNode();
-      else
-        res = d->issueCompNode();
-      if(!res) {
-        d->print("Issue Failed", 2);
-        next_active_list.push_back(d);
-        next_issue_set.insert(d);
-        continue;
-      }
-      else
-        d->print("Issue Succesful",1);
-    }
-
     // Update Remaining Cycles
     if (d->remaining_cycles > 0)
       d->remaining_cycles--;
@@ -357,7 +357,7 @@ void DynamicNode::tryActivate() {
     }
     if(issued || completed)
       assert(false);
-    c->active_list.push_back(this);
+    //c->active_list.push_back(this);
     assert(c->issue_set.find(this) == c->issue_set.end());
     c->issue_set.insert(this);
 }

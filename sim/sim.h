@@ -287,7 +287,6 @@ public:
   FunctionalSetCache *fc;
   bool ideal=false;
   priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
-  vector<DynamicNode*> ready_to_execute;
   vector<uint64_t> to_evict;
   vector<DynamicNode*> to_send;
     
@@ -315,13 +314,10 @@ public:
     while(pq.size() > 0) {
       if(pq.top().second > cycles)
         break;
-      ready_to_execute.push_back(pq.top().first);
+      execute(pq.top().first);
       pq.pop();
     }
 
-    for(int i=0; i<ready_to_execute.size(); i++) {
-      execute(ready_to_execute.at(i));
-    }
     for(auto it = to_evict.begin(); it!= to_evict.end();) {
       uint64_t eAddr = *it;
       if(memInterface->mem->willAcceptTransaction(eAddr)) {
@@ -341,9 +337,8 @@ public:
       else
         it++;
     }
-    ready_to_execute.clear();
   }
-  bool execute(DynamicNode* d) {
+  void execute(DynamicNode* d) {
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
     int64_t evictedAddr = -1;
     bool res = true;
@@ -360,10 +355,6 @@ public:
     if(evictedAddr != -1) {
       to_evict.push_back(evictedAddr*size_of_cacheline);
     }
-    return true;
-    /* Temporarily disabling rejected transaction */
-    //d->print("Transaction Rejected", 2);
-    //return false;
   }
   
   void addTransaction(DynamicNode *d) {
