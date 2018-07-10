@@ -208,7 +208,7 @@ public:
           if(d->completed && !speculative)
             return 1;
           else if(d->completed && speculative)
-            return -1;
+            return 0;
           else
             return -1;
         else if(!d->addr_resolved) {
