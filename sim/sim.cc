@@ -227,8 +227,6 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
 
-  uint64_t dramaddr = (addr/64) * 64;    
-
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
   if (type == ST) {
@@ -295,7 +293,7 @@ void DynamicNode::finishNode() {
   completed = true;
   // Handle Resource limits
   if ( sim->avail_FUs.at(n->typeInstr) != -1 ) {
-    int avail = ++sim->avail_FUs.at(n->typeInstr); 
+    sim->avail_FUs.at(n->typeInstr)++; 
   }
 
   // Speculation
