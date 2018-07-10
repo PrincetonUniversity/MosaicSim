@@ -282,7 +282,7 @@ public:
   typedef pair<DynamicNode*, uint64_t> CacheOp;
   uint64_t cycles = 0;
   DRAMSimInterface *memInterface;
-  int hit_rate=70;
+  int size_of_cacheline = 64;
   int latency;
   FunctionalSetCache *fc;
   bool ideal=false;
@@ -344,7 +344,6 @@ public:
     ready_to_execute.clear();
   }
   bool execute(DynamicNode* d) {
-    int size_of_cacheline = 64;
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
     int64_t evictedAddr = -1;
     bool res = true;
