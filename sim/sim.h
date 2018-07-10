@@ -208,7 +208,7 @@ public:
           if(d->completed && !speculative)
             return 1;
           else if(d->completed && speculative)
-            return 1;
+            return 0;
           else
             return -1;
         else if(!d->addr_resolved) {
@@ -258,13 +258,14 @@ public:
       outstanding_accesses_map.erase(addr);
   }
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-    //assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-    queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
-    DynamicNode* d = q.front();
-    d->handleMemoryReturn();
-    q.pop();
-    if(q.size() == 0)
-      outstanding_accesses_map.erase(addr);
+    if(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end()) { 
+      queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
+      DynamicNode* d = q.front();
+      d->handleMemoryReturn();
+      q.pop();
+      if(q.size() == 0)
+        outstanding_accesses_map.erase(addr);
+    }
   }
   void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
     mem->addTransaction(!isLoad, addr);

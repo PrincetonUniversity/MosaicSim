@@ -170,7 +170,6 @@ void Context::complete() {
   for(int i=0; i<nodes_to_complete.size(); i++) {
     DynamicNode *d = nodes_to_complete.at(i);
     d->finishNode();
-
   }
   nodes_to_complete.clear();
   if (completed_nodes.size() == bb->inst_count) {
@@ -228,8 +227,6 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
 
-  uint64_t dramaddr = (addr/64) * 64;    
-
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
   if (type == ST) {
@@ -271,6 +268,7 @@ bool DynamicNode::issueMemNode() {
       }
       else if(forwardRes == 0 && cfg->mem_speculate) { 
         print("Retrieves Speculatively Forwarded Data", 1);
+        remaining_cycles = 0;
       }
       else { 
         sim->ports[0]--;
@@ -296,7 +294,7 @@ void DynamicNode::finishNode() {
   completed = true;
   // Handle Resource limits
   if ( sim->avail_FUs.at(n->typeInstr) != -1 ) {
-    int avail = ++sim->avail_FUs.at(n->typeInstr); 
+    sim->avail_FUs.at(n->typeInstr)++; 
   }
 
   // Speculation
