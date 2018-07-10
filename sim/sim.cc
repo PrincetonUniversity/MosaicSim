@@ -268,6 +268,7 @@ bool DynamicNode::issueMemNode() {
       }
       else if(forwardRes == 0 && cfg->mem_speculate) { 
         print("Retrieves Speculatively Forwarded Data", 1);
+        remaining_cycles = 0;
       }
       else { 
         sim->ports[0]--;
