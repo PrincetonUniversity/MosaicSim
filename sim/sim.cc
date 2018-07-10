@@ -135,6 +135,8 @@ void Context::process() {
   }
   for (int i=0; i < active_list.size(); i++) {
     DynamicNode *d = active_list.at(i);
+    if(!d->issued)
+      assert(false);
     // Update Remaining Cycles
     if (d->remaining_cycles > 0)
       d->remaining_cycles--;
