@@ -203,9 +203,6 @@ public:
   }
   void readCfg(std::string filename, Config &cfg) { // TODO: Read config from <filename>
     
-    // simulator behavior
-    cfg.vInputLevel = -1;
-
     // resource limits
     cfg.lsq_size = 512;
     cfg.cf_one_context_at_once = true;

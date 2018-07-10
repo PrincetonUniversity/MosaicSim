@@ -11,7 +11,7 @@ using namespace std;
 int main(int argc, char const *argv[]) {
   Simulator sim;
   // Workload 
-  if(argc != 2)
+  if (argc < 2)
     assert(false);
   cout << "Path: " << argv[1] << "\n";
   string s(argv[1]);
@@ -19,8 +19,17 @@ int main(int argc, char const *argv[]) {
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
   
+  // enable verbosity level: -v
+  if (argc == 3) {
+    string s(argv[2]);
+    if ( s == "-v" )
+       sim.cfg.vInputLevel = 0;
+    else
+       sim.cfg.vInputLevel = -1;
+  }
+  
   Reader r; 
-  r.readCfg("sim/config/config.txt", sim.cfg);
+  r.readCfg("fake_config.txt", sim.cfg);
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
