@@ -43,6 +43,7 @@ public:
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
   // L1 cache
+  bool ideal_cache;
   int L1_size;     // MB
   int L1_assoc; 
   int block_size;  // bytes
@@ -242,6 +243,7 @@ public:
     cfg.max_active_contexts_BB = -1;
 
     // L1 config
+    cfg.ideal_cache = true;
     cfg.L1_size = 4;
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes

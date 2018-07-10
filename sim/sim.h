@@ -395,7 +395,7 @@ public:
   void initialize() {
     
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb, true);
+    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb, cfg.ideal_cache);
 
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
