@@ -280,6 +280,7 @@ public:
   int hit_rate=70;
   int latency=2;
   FunctionalSetCache *fc;
+  bool ideal=true;
 
   priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
   vector<DynamicNode*> ready_to_execute;
@@ -297,8 +298,10 @@ public:
     }
   };
 
-  Cache(int size, int assoc, int block_size, DRAMSimInterface *memInterface): memInterface(memInterface) {
-    fc = new FunctionalSetCache(size, assoc, block_size);
+  Cache(int size, int assoc, int block_size, DRAMSimInterface *memInterface, bool ideal): memInterface(memInterface), ideal(ideal) {
+    fc = new FunctionalSetCache(size, assoc, block_size);   
+    if (ideal)
+      latency=1;
   }
   
   /*int isHit() {
@@ -327,7 +330,9 @@ public:
     int size_of_cacheline = 64;
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
     int64_t evictedAddr = -1;
-    bool res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
+    bool res = true;
+    if(!ideal)
+      bool res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
     if (res) {                  
       d->handleMemoryReturn();
       d->print("Hits in Cache", 2);
@@ -390,7 +395,7 @@ public:
   void initialize() {
     
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb);
+    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb, true);
 
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
