@@ -295,7 +295,7 @@ void DynamicNode::finishNode() {
   completed = true;
   // Handle Resource limits
   if ( sim->avail_FUs.at(n->typeInstr) != -1 ) {
-    int avail = ++sim->avail_FUs.at(n->typeInstr); 
+    sim->avail_FUs.at(n->typeInstr)++; 
   }
 
   // Speculation
