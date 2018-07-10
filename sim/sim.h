@@ -334,10 +334,12 @@ public:
       d->print("Hits in Cache", 2);
     }
     else {//if (memInterface->mem->willAcceptTransaction(dramaddr)) {
+      assert(memInterface->mem->willAcceptTransaction(dramaddr));
       memInterface->addTransaction(d, dramaddr, d->type == LD);
       d->print("Misses in Cache", 2);
     }
     if(evictedAddr != -1) {
+      assert(memInterface->mem->willAcceptTransaction(evictedAddr * size_of_cacheline));
       memInterface->addTransaction(NULL, evictedAddr * size_of_cacheline, false);
     }
     return true;
