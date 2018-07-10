@@ -12,7 +12,7 @@ uint64_t extract(int max, int min, uint64_t address) // inclusive
     uint64_t val = address & mask;
     if(min > 0)
       val = val >> (min-1);
-    cout << max << "/" << min << " -- " << bitset<64>(address) << "/" << bitset<64>(val)  << "\n";
+    //cout << max << "/" << min << " -- " << bitset<64>(address) << "/" << bitset<64>(val)  << "\n";
     return val;
 }
 
