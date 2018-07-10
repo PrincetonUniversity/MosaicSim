@@ -385,6 +385,8 @@ public:
   Cache* cache;
 
   vector<Context*> context_list;
+  vector<Context*> live_context;
+
   int context_to_create = 0;
 
   /* Resources / limits */
@@ -458,6 +460,7 @@ public:
     
     Context *c = new Context(cid, this);
     context_list.push_back(c);
+    live_context.push_back(c);
     c->initialize(bb, &cfg, next_bbid, prev_bbid);
     return true;
   }
@@ -479,25 +482,41 @@ public:
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
 
+    for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
+      Context *c = *it;
+      c->process();
+    }
+    for(auto it = live_context.begin(); it!=live_context.end();) {
+      Context *c = *it;
+      c->complete();
+      if(c->live)
+        it++;
+      else
+        it = live_context.erase(it);
+    }
+    if(live_context.size() > 0)
+      simulate = true;
+    /*
     for (int i=0; i<context_list.size(); i++) {
       if (context_list.at(i)->live)
         context_list.at(i)->process();
     }
 
-    for (int i=0; i<context_list.size(); i++) 
+    for (int i=0; i<context_list.size(); i++) {
       if(context_list.at(i)->live) {
         context_list.at(i)->complete();
         if(context_list.at(i)->live)
           simulate = true;
       }
-
+    }
+    */
     int context_created = 0;
-    for (int i=0; i<context_to_create; i++)   
+    for (int i=0; i<context_to_create; i++) {
       if ( createContext() ) {
         simulate = true;
         context_created++;
       }
-
+    }
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
     cache->process_cache();
     process_memory();
