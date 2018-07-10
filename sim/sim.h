@@ -360,8 +360,8 @@ public:
   Config cfg;
   GlobalStats stats;
   uint64_t cycles = 0;
-  DRAMSimInterface cb= DRAMSimInterface(); 
   Cache* cache= new Cache(&cb);
+  DRAMSimInterface cb= DRAMSimInterface(); 
   vector<Context*> context_list;
   int context_to_create = 0;
 

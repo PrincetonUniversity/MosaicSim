@@ -61,29 +61,35 @@ public:
       return true;
     }
     else
-    {
+    {      
       // Miss
-      if(freeEntries.size() == 0)
-      {
-        // Evcit
-        c = tail->prev;
-        deleteNode(c);
-        addr_map.erase(c->addr);
+      if(freeEntries.size() == 0) {
         if(evict)
-          *evict = c->addr;
+          *evict = c->addr;        
       }
-      else
-      {
-        // Get from Free Entries
-        c = freeEntries.front();
-        freeEntries.erase(freeEntries.begin());
-      }
-      c->addr = address;
-      addr_map[address] = c;
-      insertFront(c);
-      return false;
+      return false;            
     }
   }
+
+  //data has come back after DRAM miss, insert in cache set
+  void set_insert(uint64_t address) {    
+    CacheLine *c = addr_map[address];
+    if(freeEntries.size() == 0) {
+      // Evcit
+      c = tail->prev;
+      deleteNode(c);
+      addr_map.erase(c->addr);
+    }
+    else {
+      // Get from Free Entries
+      c = freeEntries.front();
+      freeEntries.erase(freeEntries.begin());
+    }
+    c->addr = address;
+    addr_map[address] = c;
+    insertFront(c);
+  }
+  
   void insertFront(CacheLine *c)
   {
     c->next = head->next;
@@ -129,4 +135,10 @@ public:
     }
     return res;
   }
+  void cache_insert(uint64_t address) {
+    uint64_t setid = extract(log_set_count-1, 0, address);
+    FunctionalCache *c = sets.at(setid);
+    c->set_insert(address);
+  }
+  
 };
