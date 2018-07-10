@@ -453,7 +453,7 @@ public:
       cout << "[Cycle: " << cycles << "]\n";
     if(cycles % 100000 == 0) {
       stats.num_cycles = cycles;
-      sim.stats.print();
+      stats.print();
     }
     cycles++;
     bool simulate = false;
