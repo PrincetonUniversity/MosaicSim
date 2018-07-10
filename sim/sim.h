@@ -302,7 +302,7 @@ public:
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
             latency(latency), ideal(ideal), memInterface(memInterface) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
-cout << "KKKKKK " << latency << " " << size << " " << assoc << " " << block_size << "ideal: " << ideal;
+cout << "$$$$$ l:" << latency << "s:" << size << "a:" << assoc << "b:" << block_size << "ideal:" << ideal;
     /*if (ideal)
       latency=1; */ // JLA: commented this out so we can have perfect caches w/ latency > 1
   }
