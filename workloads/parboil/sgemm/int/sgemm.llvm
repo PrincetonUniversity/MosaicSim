@@ -1,0 +1,164 @@
+; ModuleID = 'sgemm.cc'
+source_filename = "sgemm.cc"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+; Function Attrs: noinline norecurse nounwind uwtable
+define dso_local void @_Z13_kernel_sgemmcciiifPKfiS0_ifPfii(i8 signext %transa, i8 signext %transb, i32 %m, i32 %n, i32 %k, float %alpha, float* nocapture readonly %A, i32 %lda, float* nocapture readonly %B, i32 %ldb, float %beta, float* nocapture %C, i32 %ldc, i32 %tid) local_unnamed_addr #0 {
+entry:
+  %div = sdiv i32 %n, 128
+  %cmp59 = icmp sgt i32 %n, 127
+  br i1 %cmp59, label %for.cond1.preheader.lr.ph, label %for.cond.cleanup
+
+for.cond1.preheader.lr.ph:                        ; preds = %entry
+  %cmp256 = icmp sgt i32 %m, 0
+  %cmp653 = icmp sgt i32 %k, 0
+  br i1 %cmp256, label %for.cond1.preheader.us.preheader, label %for.cond.cleanup
+
+for.cond1.preheader.us.preheader:                 ; preds = %for.cond1.preheader.lr.ph
+  %0 = sext i32 %lda to i64
+  %1 = sext i32 %ldb to i64
+  %2 = sext i32 %ldc to i64
+  %wide.trip.count105 = zext i32 %k to i64
+  %wide.trip.count110 = zext i32 %m to i64
+  %wide.trip.count115 = zext i32 %div to i64
+  %mul20.us70 = fmul float %alpha, 0.000000e+00
+  %wide.trip.count = zext i32 %m to i64
+  %xtraiter121 = and i64 %wide.trip.count105, 1
+  %3 = icmp eq i32 %k, 1
+  %unroll_iter123 = sub nsw i64 %wide.trip.count105, %xtraiter121
+  %lcmp.mod122 = icmp eq i64 %xtraiter121, 0
+  %xtraiter = and i64 %wide.trip.count, 1
+  %4 = icmp eq i32 %m, 1
+  %unroll_iter = sub nsw i64 %wide.trip.count, %xtraiter
+  %lcmp.mod = icmp eq i64 %xtraiter, 0
+  br label %for.cond1.preheader.us
+
+for.cond1.preheader.us:                           ; preds = %for.cond1.for.cond.cleanup3_crit_edge.us, %for.cond1.preheader.us.preheader
+  %indvars.iv112 = phi i64 [ 0, %for.cond1.preheader.us.preheader ], [ %indvars.iv.next113, %for.cond1.for.cond.cleanup3_crit_edge.us ]
+  %5 = mul nsw i64 %indvars.iv112, %2
+  br i1 %cmp653, label %for.cond5.preheader.us.us, label %for.cond5.preheader.us89.preheader
+
+for.cond5.preheader.us89.preheader:               ; preds = %for.cond1.preheader.us
+  br i1 %4, label %for.cond1.for.cond.cleanup3_crit_edge.us.loopexit120.unr-lcssa, label %for.cond5.preheader.us89
+
+for.cond5.preheader.us89:                         ; preds = %for.cond5.preheader.us89.preheader, %for.cond5.preheader.us89
+  %indvars.iv = phi i64 [ %indvars.iv.next.1, %for.cond5.preheader.us89 ], [ 0, %for.cond5.preheader.us89.preheader ]
+  %niter = phi i64 [ %niter.nsub.1, %for.cond5.preheader.us89 ], [ %unroll_iter, %for.cond5.preheader.us89.preheader ]
+  %6 = add nsw i64 %indvars.iv, %5
+  %arrayidx18.us68 = getelementptr inbounds float, float* %C, i64 %6
+  %7 = load float, float* %arrayidx18.us68, align 4, !tbaa !2
+  %mul19.us69 = fmul float %7, %beta
+  %add21.us71 = fadd float %mul20.us70, %mul19.us69
+  store float %add21.us71, float* %arrayidx18.us68, align 4, !tbaa !2
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %8 = add nsw i64 %indvars.iv.next, %5
+  %arrayidx18.us68.1 = getelementptr inbounds float, float* %C, i64 %8
+  %9 = load float, float* %arrayidx18.us68.1, align 4, !tbaa !2
+  %mul19.us69.1 = fmul float %9, %beta
+  %add21.us71.1 = fadd float %mul20.us70, %mul19.us69.1
+  store float %add21.us71.1, float* %arrayidx18.us68.1, align 4, !tbaa !2
+  %indvars.iv.next.1 = add nuw nsw i64 %indvars.iv, 2
+  %niter.nsub.1 = add i64 %niter, -2
+  %niter.ncmp.1 = icmp eq i64 %niter.nsub.1, 0
+  br i1 %niter.ncmp.1, label %for.cond1.for.cond.cleanup3_crit_edge.us.loopexit120.unr-lcssa, label %for.cond5.preheader.us89
+
+for.cond1.for.cond.cleanup3_crit_edge.us.loopexit120.unr-lcssa: ; preds = %for.cond5.preheader.us89, %for.cond5.preheader.us89.preheader
+  %indvars.iv.unr = phi i64 [ 0, %for.cond5.preheader.us89.preheader ], [ %indvars.iv.next.1, %for.cond5.preheader.us89 ]
+  br i1 %lcmp.mod, label %for.cond1.for.cond.cleanup3_crit_edge.us, label %for.cond5.preheader.us89.epil
+
+for.cond5.preheader.us89.epil:                    ; preds = %for.cond1.for.cond.cleanup3_crit_edge.us.loopexit120.unr-lcssa
+  %10 = add nsw i64 %indvars.iv.unr, %5
+  %arrayidx18.us68.epil = getelementptr inbounds float, float* %C, i64 %10
+  %11 = load float, float* %arrayidx18.us68.epil, align 4, !tbaa !2
+  %mul19.us69.epil = fmul float %11, %beta
+  %add21.us71.epil = fadd float %mul20.us70, %mul19.us69.epil
+  store float %add21.us71.epil, float* %arrayidx18.us68.epil, align 4, !tbaa !2
+  br label %for.cond1.for.cond.cleanup3_crit_edge.us
+
+for.cond1.for.cond.cleanup3_crit_edge.us:         ; preds = %for.cond5.preheader.us89.epil, %for.cond1.for.cond.cleanup3_crit_edge.us.loopexit120.unr-lcssa, %for.cond5.for.cond.cleanup7_crit_edge.us.us
+  %indvars.iv.next113 = add nuw nsw i64 %indvars.iv112, 1
+  %exitcond116 = icmp eq i64 %indvars.iv.next113, %wide.trip.count115
+  br i1 %exitcond116, label %for.cond.cleanup, label %for.cond1.preheader.us
+
+for.cond5.preheader.us.us:                        ; preds = %for.cond1.preheader.us, %for.cond5.for.cond.cleanup7_crit_edge.us.us
+  %indvars.iv107 = phi i64 [ %indvars.iv.next108, %for.cond5.for.cond.cleanup7_crit_edge.us.us ], [ 0, %for.cond1.preheader.us ]
+  br i1 %3, label %for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa, label %for.body8.us.us
+
+for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa: ; preds = %for.body8.us.us, %for.cond5.preheader.us.us
+  %add14.us.us.lcssa.ph = phi float [ undef, %for.cond5.preheader.us.us ], [ %add14.us.us.1, %for.body8.us.us ]
+  %indvars.iv99.unr = phi i64 [ 0, %for.cond5.preheader.us.us ], [ %indvars.iv.next100.1, %for.body8.us.us ]
+  %c.054.us.us.unr = phi float [ 0.000000e+00, %for.cond5.preheader.us.us ], [ %add14.us.us.1, %for.body8.us.us ]
+  br i1 %lcmp.mod122, label %for.cond5.for.cond.cleanup7_crit_edge.us.us, label %for.cond5.for.cond.cleanup7_crit_edge.us.us.epilog-lcssa
+
+for.cond5.for.cond.cleanup7_crit_edge.us.us.epilog-lcssa: ; preds = %for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa
+  %12 = mul nsw i64 %indvars.iv99.unr, %0
+  %13 = add nsw i64 %12, %indvars.iv107
+  %arrayidx.us.us.epil = getelementptr inbounds float, float* %A, i64 %13
+  %14 = load float, float* %arrayidx.us.us.epil, align 4, !tbaa !2
+  %15 = mul nsw i64 %indvars.iv99.unr, %1
+  %16 = add nsw i64 %15, %indvars.iv112
+  %arrayidx12.us.us.epil = getelementptr inbounds float, float* %B, i64 %16
+  %17 = load float, float* %arrayidx12.us.us.epil, align 4, !tbaa !2
+  %mul13.us.us.epil = fmul float %14, %17
+  %add14.us.us.epil = fadd float %c.054.us.us.unr, %mul13.us.us.epil
+  br label %for.cond5.for.cond.cleanup7_crit_edge.us.us
+
+for.cond5.for.cond.cleanup7_crit_edge.us.us:      ; preds = %for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa, %for.cond5.for.cond.cleanup7_crit_edge.us.us.epilog-lcssa
+  %add14.us.us.lcssa = phi float [ %add14.us.us.lcssa.ph, %for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa ], [ %add14.us.us.epil, %for.cond5.for.cond.cleanup7_crit_edge.us.us.epilog-lcssa ]
+  %18 = add nsw i64 %indvars.iv107, %5
+  %arrayidx18.us.us = getelementptr inbounds float, float* %C, i64 %18
+  %19 = load float, float* %arrayidx18.us.us, align 4, !tbaa !2
+  %mul19.us.us = fmul float %19, %beta
+  %mul20.us.us = fmul float %add14.us.us.lcssa, %alpha
+  %add21.us.us = fadd float %mul20.us.us, %mul19.us.us
+  store float %add21.us.us, float* %arrayidx18.us.us, align 4, !tbaa !2
+  %indvars.iv.next108 = add nuw nsw i64 %indvars.iv107, 1
+  %exitcond111 = icmp eq i64 %indvars.iv.next108, %wide.trip.count110
+  br i1 %exitcond111, label %for.cond1.for.cond.cleanup3_crit_edge.us, label %for.cond5.preheader.us.us
+
+for.body8.us.us:                                  ; preds = %for.cond5.preheader.us.us, %for.body8.us.us
+  %indvars.iv99 = phi i64 [ %indvars.iv.next100.1, %for.body8.us.us ], [ 0, %for.cond5.preheader.us.us ]
+  %c.054.us.us = phi float [ %add14.us.us.1, %for.body8.us.us ], [ 0.000000e+00, %for.cond5.preheader.us.us ]
+  %niter124 = phi i64 [ %niter124.nsub.1, %for.body8.us.us ], [ %unroll_iter123, %for.cond5.preheader.us.us ]
+  %20 = mul nsw i64 %indvars.iv99, %0
+  %21 = add nsw i64 %20, %indvars.iv107
+  %arrayidx.us.us = getelementptr inbounds float, float* %A, i64 %21
+  %22 = load float, float* %arrayidx.us.us, align 4, !tbaa !2
+  %23 = mul nsw i64 %indvars.iv99, %1
+  %24 = add nsw i64 %23, %indvars.iv112
+  %arrayidx12.us.us = getelementptr inbounds float, float* %B, i64 %24
+  %25 = load float, float* %arrayidx12.us.us, align 4, !tbaa !2
+  %mul13.us.us = fmul float %22, %25
+  %add14.us.us = fadd float %c.054.us.us, %mul13.us.us
+  %indvars.iv.next100 = or i64 %indvars.iv99, 1
+  %26 = mul nsw i64 %indvars.iv.next100, %0
+  %27 = add nsw i64 %26, %indvars.iv107
+  %arrayidx.us.us.1 = getelementptr inbounds float, float* %A, i64 %27
+  %28 = load float, float* %arrayidx.us.us.1, align 4, !tbaa !2
+  %29 = mul nsw i64 %indvars.iv.next100, %1
+  %30 = add nsw i64 %29, %indvars.iv112
+  %arrayidx12.us.us.1 = getelementptr inbounds float, float* %B, i64 %30
+  %31 = load float, float* %arrayidx12.us.us.1, align 4, !tbaa !2
+  %mul13.us.us.1 = fmul float %28, %31
+  %add14.us.us.1 = fadd float %add14.us.us, %mul13.us.us.1
+  %indvars.iv.next100.1 = add nuw nsw i64 %indvars.iv99, 2
+  %niter124.nsub.1 = add i64 %niter124, -2
+  %niter124.ncmp.1 = icmp eq i64 %niter124.nsub.1, 0
+  br i1 %niter124.ncmp.1, label %for.cond5.for.cond.cleanup7_crit_edge.us.us.unr-lcssa, label %for.body8.us.us
+
+for.cond.cleanup:                                 ; preds = %for.cond1.for.cond.cleanup3_crit_edge.us, %for.cond1.preheader.lr.ph, %entry
+  ret void
+}
+
+attributes #0 = { noinline norecurse nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.module.flags = !{!0}
+!llvm.ident = !{!1}
+
+!0 = !{i32 1, !"wchar_size", i32 4}
+!1 = !{!"clang version 7.0.0 (trunk 330892) (llvm/trunk 330891)"}
+!2 = !{!3, !3, i64 0}
+!3 = !{!"float", !4, i64 0}
+!4 = !{!"omnipotent char", !5, i64 0}
+!5 = !{!"Simple C++ TBAA"}
