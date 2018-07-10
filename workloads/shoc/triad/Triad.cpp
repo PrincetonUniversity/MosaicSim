@@ -4,7 +4,7 @@
 #define SCALE   3
 #define MAX_NUM 10000
 
-void _kernel_triad(int* __restrict__ a, int* __restrict__ b, int* __restrict__ c, int s) {
+void _kernel_triad(int a[], int b[], int c[], int s) {
   #pragma clang loop unroll(disable)
   for (int i = 0; i < SIZE; i++) {
     c[i] = a[i] + s * b[i];

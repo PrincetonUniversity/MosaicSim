@@ -170,7 +170,6 @@ void Context::complete() {
   for(int i=0; i<nodes_to_complete.size(); i++) {
     DynamicNode *d = nodes_to_complete.at(i);
     d->finishNode();
-
   }
   nodes_to_complete.clear();
   if (completed_nodes.size() == bb->inst_count) {
