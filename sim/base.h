@@ -44,6 +44,7 @@ public:
   int num_units[NUM_INST_TYPES];
   // L1 cache
   bool ideal_cache;
+  int L1_latency;
   int L1_size;     // MB
   int L1_assoc; 
   int block_size;  // bytes
@@ -202,8 +203,8 @@ public:
   void readCfg(std::string filename, Config &cfg) {
     // TODO: Read config from <filename>
     cfg.lsq_size = 512;
-    cfg.cf_one_context_at_once = false;
-    cfg.cf_max_contexts_concurrently = true;
+    cfg.cf_one_context_at_once = true;
+    cfg.cf_max_contexts_concurrently = false;
     cfg.mem_speculate = true;
     cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 1;
@@ -243,7 +244,8 @@ public:
     cfg.max_active_contexts_BB = -1;
 
     // L1 config
-    cfg.ideal_cache = true;
+    cfg.ideal_cache = false;
+    cfg.L1_latency = 2;
     cfg.L1_size = 4;
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
