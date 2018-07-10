@@ -362,6 +362,7 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface cb= DRAMSimInterface(); 
   Cache* cache;
+
   vector<Context*> context_list;
   int context_to_create = 0;
 

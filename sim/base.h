@@ -245,7 +245,6 @@ public:
     cfg.L1_size = 4;
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
-
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>

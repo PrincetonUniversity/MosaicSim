@@ -175,7 +175,8 @@ void Context::complete() {
 
 void DynamicNode::handleMemoryReturn() {
   print("Memory Transaction Returns", 0);
-  print(to_string(outstanding_accesses), 0);
+  print(to_string(outstanding_accesses), 0);  
+  sim->cache->fc->cache_insert(addr/64);  //Luwa : here we ask the functional cache to insert the missing entry
   if(type == LD) {
     if(cfg->mem_speculate) {
       if(outstanding_accesses > 0)
@@ -186,6 +187,7 @@ void DynamicNode::handleMemoryReturn() {
     remaining_cycles = 0;
   }
 }
+
 bool DynamicNode::issueCompNode() {
   bool canExecute = true;
   // check resource (FU) availability
