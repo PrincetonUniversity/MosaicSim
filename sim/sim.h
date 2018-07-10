@@ -463,7 +463,7 @@ public:
   bool process_cycle() {
     if(cfg.vInputLevel > 0)
       cout << "[Cycle: " << cycles << "]\n";
-    if(cycles % 100000 == 0) {
+    if(cycles % 1000000 == 0) {
       stats.num_cycles = cycles;
       stats.print();
     }
