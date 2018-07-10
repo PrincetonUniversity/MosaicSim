@@ -301,17 +301,11 @@ public:
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
             latency(latency), ideal(ideal), memInterface(memInterface) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
-//cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
+    //cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
     /*if (ideal)
       latency=1; */ // JLA: commented this out so we can have perfect caches w/ latency > 1
   }
   
-  /*int isHit() {
-    int outcome = rand() % 100;
-    if (outcome<hit_rate)        
-      return true;
-    return false;
-  }*/
   void process_cache() {
     cycles++;
     while(pq.size() > 0) {
@@ -453,7 +447,8 @@ public:
   }
 
   bool process_cycle() {
-    cout << "[Cycle: " << cycles << "]\n";
+    if(cfg.vInputLevel > 0)
+      cout << "[Cycle: " << cycles << "]\n";
     cycles++;
     bool simulate = false;
     //assert(cycles < 10000);
