@@ -181,6 +181,7 @@ void Context::complete() {
     if(cfg->vInputLevel > 0)
       cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) at cycle " << sim->cycles << "\n";
     sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
+    sim->stats.num_finished_context++;
   }
 }
 
