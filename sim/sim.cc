@@ -129,7 +129,8 @@ void Context::process() {
       next_issue_set.insert(d);
     }
     else {
-      active_list.push_back(d);
+      if(!d->type == LD)
+        active_list.push_back(d);
       d->print("Issue Succesful",1);
     }
   }
@@ -138,16 +139,8 @@ void Context::process() {
     if(!d->issued)
       assert(false);
     // Update Remaining Cycles
-    if (d->remaining_cycles > 0)
+    if (d->remaining_cycles == 1) {
       d->remaining_cycles--;
-   
-    // Continue Execution (note: a remaining_cycles of -1 represents load issued to DRAMSim2)
-    if ( d->remaining_cycles > 0 || d->remaining_cycles == -1 ) {
-      next_active_list.push_back(d);
-      continue;
-    } 
-    // Execution Finished     
-    else if (d->remaining_cycles == 0) { 
       // Check the speculation result for speculative loads
       if (cfg->mem_speculate && d->type == LD && d->speculated) {
         bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
@@ -157,6 +150,11 @@ void Context::process() {
         }
       }
       nodes_to_complete.push_back(d);
+    }
+    else if ( d->remaining_cycles > 1) {
+      d->remaining_cycles--;
+      next_active_list.push_back(d);
+      continue;
     }
     else {
       assert(false); 
@@ -200,6 +198,8 @@ void DynamicNode::handleMemoryReturn() {
         return;
     }
     remaining_cycles = 0;
+    // TODO
+    c->active_list.push_back(this);
   }
 }
 
@@ -267,10 +267,12 @@ bool DynamicNode::issueMemNode() {
       if(forwardRes == 1) { 
         print("Retrieves Forwarded Data", 1);
         remaining_cycles = 0;
+        c->active_list.push_back(this);
       }
       else if(forwardRes == 0 && cfg->mem_speculate) { 
         print("Retrieves Speculatively Forwarded Data", 1);
         remaining_cycles = 0;
+        c->active_list.push_back(this);
       }
       else { 
         sim->ports[0]--;
