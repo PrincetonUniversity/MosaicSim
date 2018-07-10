@@ -5,6 +5,7 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/Mangler.h"
+#include "llvm/Support/CommandLine.h"
 #include "cxxabi.h"
 #include <string>
 
@@ -12,6 +13,7 @@ using namespace llvm;
 #define KERNEL_STR "_kernel_"
 
 namespace {
+static cl::opt<int> isC("isC", cl::Hidden, cl::desc("True when the target application is written in C"));
 struct RecordDynamicInfo : public ModulePass {
   static char ID;
   Function *printuBR;
@@ -24,18 +26,22 @@ struct RecordDynamicInfo : public ModulePass {
   RecordDynamicInfo() : ModulePass(ID) {}
   bool runOnModule(Module &M) override {
     mod = &(M);
-    
+    std::string k1 = "_Z12printuBranchPcS_";
+    std::string k2 = "_Z11printBranchPciS_S_";
+    std::string k3 = "_Z7printSwPciS_iz";
+    std::string k4 = "_Z8printMemPcbxi";
+   
     LLVMContext& ctx = M.getContext();
-    Constant *printuBRFunc = M.getOrInsertFunction("_Z12printuBranchPcS_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
-    Constant *printBRFunc = M.getOrInsertFunction("_Z11printBranchPciS_S_", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
+    Constant *printuBRFunc = M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
+    Constant *printBRFunc = M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
     std::vector<Type*> targs;
     targs.push_back(Type::getInt8PtrTy(ctx));
     targs.push_back(Type::getInt32Ty(ctx));
     targs.push_back(Type::getInt8PtrTy(ctx));
     targs.push_back(Type::getInt32Ty(ctx));
     FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
-    Constant *printSwitchFunc = M.getOrInsertFunction("_Z7printSwPciS_iz", sF);
-    Constant *printMemFunc = M.getOrInsertFunction("_Z8printMemPcbxi", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
+    Constant *printSwitchFunc = M.getOrInsertFunction(k3, sF);
+    Constant *printMemFunc = M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
     printuBR = cast<Function>(printuBRFunc);
     printBR= cast<Function>(printBRFunc);
     printSw= cast<Function>(printSwitchFunc);

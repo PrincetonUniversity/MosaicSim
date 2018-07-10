@@ -1,0 +1,123 @@
+_kernel_spmv
+[Branch]   br i1 %cmp252, label %for.cond1.preheader.us.preheader, label %for.end26 - 11 / 1
+[uBranch]   br label %for.cond1.preheader.us - 2
+[uBranch]   br label %for.body3.us - 3
+[Load]   %tmp = load i32, i32* %arrayidx.us, align 4, !tbaa !2
+[Branch]   br i1 %cmp549.us, label %for.body6.us.preheader, label %for.end.us - 8 / 4
+[Branch]   br i1 %tmp2, label %for.end.us.loopexit.unr-lcssa, label %for.body6.us.preheader.new - 5 / 6
+[uBranch]   br label %for.body6.us - 9
+[Branch]   br i1 %lcmp.mod, label %for.end.us, label %for.body6.us.epil - 7 / 8
+[Load]   %tmp3 = load i32, i32* %arrayidx8.us.epil, align 4, !tbaa !2
+[Load]   %tmp4 = load float, float* %arrayidx13.us.epil, align 4, !tbaa !6
+[Load]   %tmp5 = load i32, i32* %arrayidx11.us.epil, align 4, !tbaa !2
+[Load]   %tmp6 = load float, float* %arrayidx15.us.epil, align 4, !tbaa !6
+[uBranch]   br label %for.end.us - 8
+[Load]   %tmp7 = load i32, i32* %arrayidx18.us, align 4, !tbaa !2
+[Store]   store float %sum.0.lcssa.us, float* %arrayidx20.us, align 4, !tbaa !6
+[Branch]   br i1 %exitcond63, label %for.cond1.for.inc24_crit_edge.us, label %for.body3.us - 3 / 10
+[Load]   %tmp8 = load i32, i32* %arrayidx8.us, align 4, !tbaa !2
+[Load]   %tmp9 = load i32, i32* %arrayidx11.us, align 4, !tbaa !2
+[Load]   %tmp10 = load float, float* %arrayidx13.us, align 4, !tbaa !6
+[Load]   %tmp11 = load float, float* %arrayidx15.us, align 4, !tbaa !6
+[Load]   %tmp12 = load i32, i32* %arrayidx8.us.1, align 4, !tbaa !2
+[Load]   %tmp13 = load i32, i32* %arrayidx11.us.1, align 4, !tbaa !2
+[Load]   %tmp14 = load float, float* %arrayidx13.us.1, align 4, !tbaa !6
+[Load]   %tmp15 = load float, float* %arrayidx15.us.1, align 4, !tbaa !6
+[Branch]   br i1 %niter.ncmp.1, label %for.end.us.loopexit.unr-lcssa, label %for.body6.us - 9 / 6
+[Branch]   br i1 %exitcond64, label %for.end26, label %for.cond1.preheader.us - 2 / 11
+[WARNING] Terminator Instruction not handled :   ret void
+int/spmv.o: In function `printBranch':
+llvm-link:(.text+0x18): undefined reference to `std::__basic_file<char>::is_open() const'
+llvm-link:(.text+0x30): undefined reference to `std::basic_filebuf<char, std::char_traits<char> >::open(char const*, std::_Ios_Openmode)'
+llvm-link:(.text+0x54): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x6e): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x8b): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0xad): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0xc1): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0xde): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x100): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x11e): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+int/spmv.o: In function `printuBranch':
+llvm-link:(.text+0x140): undefined reference to `std::__basic_file<char>::is_open() const'
+llvm-link:(.text+0x158): undefined reference to `std::basic_filebuf<char, std::char_traits<char> >::open(char const*, std::_Ios_Openmode)'
+llvm-link:(.text+0x17c): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x186): undefined reference to `std::__basic_file<char>::is_open() const'
+llvm-link:(.text+0x1a2): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x1bf): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x1e1): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x1f5): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x212): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x234): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x24f): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+int/spmv.o: In function `printMem':
+llvm-link:(.text+0x288): undefined reference to `std::__basic_file<char>::is_open() const'
+llvm-link:(.text+0x2a0): undefined reference to `std::basic_filebuf<char, std::char_traits<char> >::open(char const*, std::_Ios_Openmode)'
+llvm-link:(.text+0x2c4): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x2e3): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x300): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x322): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x336): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x343): undefined reference to `std::ostream& std::ostream::_M_insert<long long>(long long)'
+llvm-link:(.text+0x358): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x363): undefined reference to `std::ostream::operator<<(int)'
+llvm-link:(.text+0x375): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+int/spmv.o: In function `printSw':
+llvm-link:(.text+0x409): undefined reference to `std::__basic_file<char>::is_open() const'
+llvm-link:(.text+0x421): undefined reference to `std::basic_filebuf<char, std::char_traits<char> >::open(char const*, std::_Ios_Openmode)'
+llvm-link:(.text+0x445): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x5a5): undefined reference to `operator new(unsigned long)'
+llvm-link:(.text+0x5e9): undefined reference to `operator delete(void*)'
+llvm-link:(.text+0x69e): undefined reference to `operator new(unsigned long)'
+llvm-link:(.text+0x6e3): undefined reference to `operator delete(void*)'
+llvm-link:(.text+0x77e): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x7a0): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x7c2): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x7d6): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x7f3): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x815): undefined reference to `std::basic_ios<char, std::char_traits<char> >::clear(std::_Ios_Iostate)'
+llvm-link:(.text+0x829): undefined reference to `std::basic_ostream<char, std::char_traits<char> >& std::__ostream_insert<char, std::char_traits<char> >(std::basic_ostream<char, std::char_traits<char> >&, char const*, long)'
+llvm-link:(.text+0x838): undefined reference to `operator delete(void*)'
+llvm-link:(.text+0x847): undefined reference to `operator delete(void*)'
+llvm-link:(.text+0x85e): undefined reference to `std::__throw_bad_alloc()'
+llvm-link:(.text+0x863): undefined reference to `std::__throw_bad_alloc()'
+llvm-link:(.text+0x872): undefined reference to `std::__throw_out_of_range_fmt(char const*, ...)'
+llvm-link:(.text+0x88a): undefined reference to `operator delete(void*)'
+llvm-link:(.text+0x899): undefined reference to `operator delete(void*)'
+int/spmv.o: In function `_kernel_spmv':
+llvm-link:(.text+0x8ed): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0x90b): undefined reference to `printuBranch(char*, char*)'
+llvm-link:(.text+0x930): undefined reference to `printuBranch(char*, char*)'
+llvm-link:(.text+0x95d): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0x97d): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0x9a8): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0x9eb): undefined reference to `printuBranch(char*, char*)'
+llvm-link:(.text+0xa2b): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xa59): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xa7b): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xaa4): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xadc): undefined reference to `printMem(char*, bool, long long, int)'
+int/spmv.o:llvm-link:(.text+0xb02): more undefined references to `printMem(char*, bool, long long, int)' follow
+int/spmv.o: In function `_kernel_spmv':
+llvm-link:(.text+0xb75): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0xbb0): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0xbdf): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xbff): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xc27): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xc4c): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xc75): undefined reference to `printuBranch(char*, char*)'
+llvm-link:(.text+0xc96): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xcbe): undefined reference to `printMem(char*, bool, long long, int)'
+llvm-link:(.text+0xcf2): undefined reference to `printBranch(char*, int, char*, char*)'
+llvm-link:(.text+0xd20): undefined reference to `printBranch(char*, int, char*, char*)'
+int/spmv.o: In function `_GLOBAL__sub_I_tracer.c':
+llvm-link:(.text.startup+0x7): undefined reference to `std::ios_base::Init::Init()'
+llvm-link:(.text.startup+0xc): undefined reference to `std::ios_base::Init::~Init()'
+llvm-link:(.text.startup+0x25): undefined reference to `std::basic_ofstream<char, std::char_traits<char> >::basic_ofstream()'
+llvm-link:(.text.startup+0x2a): undefined reference to `std::basic_ofstream<char, std::char_traits<char> >::~basic_ofstream()'
+llvm-link:(.text.startup+0x43): undefined reference to `std::basic_ofstream<char, std::char_traits<char> >::basic_ofstream()'
+llvm-link:(.text.startup+0x48): undefined reference to `std::basic_ofstream<char, std::char_traits<char> >::~basic_ofstream()'
+int/spmv.o:(.eh_frame+0xe7): undefined reference to `__gxx_personality_v0'
+/tmp/convert_dataset-0c2303.o: In function `coo_to_jds':
+convert_dataset.c:(.text+0x85c): undefined reference to `ceil'
+clang-7: error: linker command failed with exit code 1 (use -v to see invocation)
+make: *** [testbench] Error 1
