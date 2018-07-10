@@ -281,8 +281,7 @@ public:
   int hit_rate=70;
   int latency;
   FunctionalSetCache *fc;
-  bool ideal=true;
-
+  bool ideal=false;
   priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
   vector<DynamicNode*> ready_to_execute;
   vector<DynamicNode*> next_ready_to_execute;
@@ -335,7 +334,7 @@ public:
     int64_t evictedAddr = -1;
     bool res = true;
     if(!ideal)
-      bool res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
+      res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
     if (res) {                  
       d->handleMemoryReturn();
       d->print("Hits in Cache", 2);

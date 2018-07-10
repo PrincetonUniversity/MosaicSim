@@ -64,6 +64,7 @@ public:
     {      
       // Miss
       if(freeEntries.size() == 0) {
+        c = tail->prev;
         if(evict)
           *evict = c->addr;        
       }
