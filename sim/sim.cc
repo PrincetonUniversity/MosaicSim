@@ -225,7 +225,6 @@ bool DynamicNode::issueMemNode() {
   bool stallCondition = false;  
   bool canExecute = true;
   bool speculate = false;
-  bool issueMemory = true;
   int forwardRes = -1;
 
   uint64_t dramaddr = (addr/64) * 64;    
@@ -241,11 +240,9 @@ bool DynamicNode::issueMemNode() {
     if(cfg->mem_forward)
       forwardRes = sim->lsq.check_forwarding(this);
     if(forwardRes == 1) {
-      issueMemory = false;
     }
     else if(forwardRes == 0 && cfg->mem_speculate) {
       speculate = true;
-      issueMemory = false;
     }
     else {
       if(cfg->mem_speculate) {
@@ -254,11 +251,11 @@ bool DynamicNode::issueMemNode() {
       }
       else {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-        if (type == LD && sim->ports[0] == 0)
-          canExecute = false;
-        if (type == ST && sim->ports[1] == 0)
-          canExecute = false;
       }
+      if (type == LD && sim->ports[0] == 0)
+        canExecute = false;
+      if (type == ST && sim->ports[1] == 0)
+        canExecute = false;
     }
   }
   canExecute &= !stallCondition;
