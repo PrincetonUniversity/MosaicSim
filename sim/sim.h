@@ -17,16 +17,19 @@ public:
   // some global stats
   int num_exec_instr;
   int num_cycles;
+  int num_finished_context;
   
   GlobalStats() { reset(); }
 
   void reset() {
+    num_finished_context = 0;
     num_exec_instr = 0;
     num_cycles = 0;
   }
   void print() {
     cout << "** Global Stats **\n";
     cout << "num_exec_instr = " << num_exec_instr << endl;
+    cout << "num_finished_context = " << num_finished_context << endl;
     cout << "num_cycles     = " << num_cycles << endl;
   }
 };

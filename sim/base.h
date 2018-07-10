@@ -283,6 +283,7 @@ public:
       cout << "Error opening CF profiling file\n";
       assert(false);
     }
+    cout << "Finished Reading CF -- Total number of contexts : " << cf.size() << "\n";
     cfile.close();
   }
   // Read Dynamic Memory accesses from profiling file.
@@ -305,6 +306,7 @@ public:
       cout << "Error opening Memory profiling file\n";
       assert(false);
     }
+    cout << "Finished Reading Memory Profile "<< "\n";
     cfile.close();
   }
   void readGraph(std::string name, Graph &g, Config &cfg) {
