@@ -81,7 +81,7 @@ public:
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
 
-  DynamicNode(Node *n, Context *c, Simulator *sim, Config* cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg), addr(addr) {
+  DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg), addr(addr) {
     type = n->typeInstr;
     if(type == PHI) {
       bool found = false;
@@ -130,7 +130,7 @@ public:
     return os;
   }
   void print(string str, int level = 0) {
-    if(level == 0)
+    if( level < cfg->vInputLevel )
       cout << (*this) << str << "\n";
   }
 
@@ -302,7 +302,7 @@ public:
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
             latency(latency), ideal(ideal), memInterface(memInterface) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
-cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal;
+//cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
     /*if (ideal)
       latency=1; */ // JLA: commented this out so we can have perfect caches w/ latency > 1
   }

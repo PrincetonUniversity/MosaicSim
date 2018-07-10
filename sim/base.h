@@ -27,7 +27,8 @@ typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
 class Config {
 public:
-   // Config parameters
+  // Config parameters
+  int vInputLevel; // verbosity level
   bool cf_one_context_at_once;
   bool cf_max_contexts_concurrently;
   bool mem_speculate;
@@ -200,8 +201,12 @@ public:
      }
      return tokens;
   }
-  void readCfg(std::string filename, Config &cfg) {
-    // TODO: Read config from <filename>
+  void readCfg(std::string filename, Config &cfg) { // TODO: Read config from <filename>
+    
+    // simulator behavior
+    cfg.vInputLevel = -1;
+
+    // resource limits
     cfg.lsq_size = 512;
     cfg.cf_one_context_at_once = true;
     cfg.cf_max_contexts_concurrently = false;
