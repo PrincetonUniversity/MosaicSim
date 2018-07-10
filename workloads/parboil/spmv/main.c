@@ -104,9 +104,7 @@ int main(int argc, char** argv) {
 	args.h_perm = h_perm;
 	args.h_Ax_vector = h_Ax_vector;
 	args.h_x_vector = h_x_vector;
-	printf("Create Thread \n");
 	kernel_func(&args);
-	printf("Finished Creating Thread \n");
 	free (h_data);
 	free (h_indices);
 	free (h_ptr);
