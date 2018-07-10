@@ -243,7 +243,7 @@ public:
     cfg.max_active_contexts_BB = -1;
 
     // L1 config
-    cfg.ideal_cache = true;
+    cfg.ideal_cache = false;
     cfg.L1_size = 4;
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
