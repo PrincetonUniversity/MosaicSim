@@ -255,7 +255,7 @@ public:
       outstanding_accesses_map.erase(addr);
   }
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-    assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
+    //assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
     queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
     DynamicNode* d = q.front();
     d->handleMemoryReturn();
