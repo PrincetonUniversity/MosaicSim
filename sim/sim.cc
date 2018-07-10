@@ -129,7 +129,7 @@ void Context::process() {
       next_issue_set.insert(d);
     }
     else {
-      if(!d->type == LD)
+      if(d->type != LD)
         active_list.push_back(d);
       d->print("Issue Succesful",1);
     }
@@ -139,8 +139,9 @@ void Context::process() {
     if(!d->issued)
       assert(false);
     // Update Remaining Cycles
-    if (d->remaining_cycles == 1) {
-      d->remaining_cycles--;
+    if (d->remaining_cycles == 0 || d->remaining_cycles == 1) {
+      if(d->remaining_cycles == 1)
+        d->remaining_cycles--;
       // Check the speculation result for speculative loads
       if (cfg->mem_speculate && d->type == LD && d->speculated) {
         bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
@@ -151,14 +152,13 @@ void Context::process() {
       }
       nodes_to_complete.push_back(d);
     }
-    else if ( d->remaining_cycles > 1) {
+    else if (d->remaining_cycles > 1) {
       d->remaining_cycles--;
       next_active_list.push_back(d);
       continue;
     }
-    else {
+    else
       assert(false); 
-    }
   }
   issue_set = next_issue_set;
   active_list = next_active_list;
@@ -204,6 +204,7 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 bool DynamicNode::issueCompNode() {
+  issued = true;
   bool canExecute = true;
   // check resource (FU) availability
   if (sim->avail_FUs.at(n->typeInstr) != -1) {
