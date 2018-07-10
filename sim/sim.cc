@@ -112,8 +112,8 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
   }
   for(auto it = nodes.begin(); it!= nodes.end(); ++it)
     it->second->tryActivate();
-
-  cout << "Context [" << id << "]: Created (BB=" << bb->id << ") at cycle " << sim->cycles << "\n";     
+  if(cfg.vInputLevel > 0)
+    cout << "Context [" << id << "]: Created (BB=" << bb->id << ") at cycle " << sim->cycles << "\n";     
 }
 
 void Context::process() {
@@ -178,7 +178,8 @@ void Context::complete() {
     if (cfg->max_active_contexts_BB > 0) {
       sim->outstanding_contexts.at(bb)++;
     }
-    cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) at cycle " << sim->cycles << "\n";
+    if(cfg.vInputLevel > 0)
+      cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) at cycle " << sim->cycles << "\n";
     sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
   }
 }

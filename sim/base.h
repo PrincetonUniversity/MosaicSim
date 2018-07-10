@@ -208,7 +208,7 @@ public:
     cfg.cf_one_context_at_once = true;
     cfg.cf_max_contexts_concurrently = false;
     cfg.mem_speculate = true;
-    cfg.mem_forward = false;
+    cfg.mem_forward = true;
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 26;

@@ -205,7 +205,7 @@ public:
           if(d->completed && !speculative)
             return 1;
           else if(d->completed && speculative)
-            return 0;
+            return 1;
           else
             return -1;
         else if(!d->addr_resolved) {
@@ -451,6 +451,10 @@ public:
   bool process_cycle() {
     if(cfg.vInputLevel > 0)
       cout << "[Cycle: " << cycles << "]\n";
+    if(cycles % 100000 == 0) {
+      stats.num_cycles = cycles;
+      sim.stats.print();
+    }
     cycles++;
     bool simulate = false;
     //assert(cycles < 10000);
