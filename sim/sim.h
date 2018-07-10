@@ -282,15 +282,15 @@ public:
   typedef pair<DynamicNode*, uint64_t> CacheOp;
   uint64_t cycles = 0;
   DRAMSimInterface *memInterface;
-  int hit_rate=70;
+  int size_of_cacheline = 64;
   int latency;
   FunctionalSetCache *fc;
   bool ideal=false;
   priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
   vector<DynamicNode*> ready_to_execute;
-  vector<DynamicNode*> next_ready_to_execute;
-  vector<pair<DynamicNode*,int>> memop_list, next_memop_list;
-  
+  vector<uint64_t> to_evict;
+  vector<DynamicNode*> to_send;
+    
   struct CacheOpCompare {
     friend bool operator< (const CacheOp &l, const CacheOp &r) {
       if(l.second < r.second) 
@@ -320,14 +320,30 @@ public:
     }
 
     for(int i=0; i<ready_to_execute.size(); i++) {
-      if(!execute(ready_to_execute.at(i)))
-        next_ready_to_execute.push_back(ready_to_execute.at(i));
+      execute(ready_to_execute.at(i));
     }
-    ready_to_execute = next_ready_to_execute;
-    next_ready_to_execute.clear();
+    for(auto it = to_evict.begin(); it!= to_evict.end();) {
+      uint64_t eAddr = *it;
+      if(memInterface->mem->willAcceptTransaction(eAddr)) {
+        memInterface->addTransaction(NULL, eAddr, false);
+        it = to_evict.erase(it);
+      }
+      else
+        it++;
+    }
+    for(auto it = to_send.begin(); it!= to_send.end();) {
+      DynamicNode *d = *it;
+      uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
+      if(memInterface->mem->willAcceptTransaction(dramaddr)) {
+        memInterface->addTransaction(d, dramaddr, d->type == LD);
+        it = to_send.erase(it);
+      }
+      else
+        it++;
+    }
+    ready_to_execute.clear();
   }
   bool execute(DynamicNode* d) {
-    int size_of_cacheline = 64;
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
     int64_t evictedAddr = -1;
     bool res = true;
@@ -337,14 +353,12 @@ public:
       d->handleMemoryReturn();
       d->print("Hits in Cache", 2);
     }
-    else {//if (memInterface->mem->willAcceptTransaction(dramaddr)) {
-      assert(memInterface->mem->willAcceptTransaction(dramaddr));
-      memInterface->addTransaction(d, dramaddr, d->type == LD);
+    else {
+      to_send.push_back(d);
       d->print("Misses in Cache", 2);
     }
     if(evictedAddr != -1) {
-      assert(memInterface->mem->willAcceptTransaction(evictedAddr * size_of_cacheline));
-      memInterface->addTransaction(NULL, evictedAddr * size_of_cacheline, false);
+      to_evict.push_back(evictedAddr*size_of_cacheline);
     }
     return true;
     /* Temporarily disabling rejected transaction */
