@@ -24,9 +24,10 @@ int main(int argc, char const *argv[]) {
     string s(argv[2]);
     if ( s == "-v" )
        sim.cfg.vInputLevel = 20;
-    else
-       sim.cfg.vInputLevel = -1;
   }
+  else
+    sim.cfg.vInputLevel = -1;
+
 
   Reader r; 
   r.readCfg("fake_config.txt", sim.cfg);
