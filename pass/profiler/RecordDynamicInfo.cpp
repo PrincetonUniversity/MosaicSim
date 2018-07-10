@@ -13,7 +13,6 @@ using namespace llvm;
 #define KERNEL_STR "_kernel_"
 
 namespace {
-static cl::opt<int> isC("isC", cl::Hidden, cl::desc("True when the target application is written in C"));
 struct RecordDynamicInfo : public ModulePass {
   static char ID;
   Function *printuBR;
