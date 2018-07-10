@@ -1,0 +1,256 @@
+; ModuleID = 'int/sgemm-opt.llvm'
+source_filename = "sgemm.cc"
+target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
+target triple = "x86_64-unknown-linux-gnu"
+
+%union.pthread_barrier_t = type { i64, [24 x i8] }
+
+@barr_start = global %union.pthread_barrier_t zeroinitializer, align 8
+@barr_end = global %union.pthread_barrier_t zeroinitializer, align 8
+@barr_ex = global %union.pthread_barrier_t zeroinitializer, align 8
+
+; Function Attrs: noinline norecurse nounwind uwtable
+define void @_Z18_kernel_sgemm_commcciiifPKfiS0_ifPfii(i8 signext %transa, i8 signext %transb, i32 %m, i32 %n, i32 %k, float %alpha, float* nocapture readonly %A, i32 %lda, float* nocapture readonly %B, i32 %ldb, float %beta, float* nocapture %C, i32 %ldc, i32 %tid) #0 {
+entry:
+  %div = sdiv i32 %tid, 2
+  %div2 = sdiv i32 %n, 32
+  %mul = mul nsw i32 %div, %div2
+  %add = add nsw i32 %div, 1
+  %mul3 = mul nsw i32 %add, %div2
+  %cmp69 = icmp slt i32 %mul, %mul3
+  br i1 %cmp69, label %for.cond4.preheader.lr.ph, label %for.cond.cleanup
+
+for.cond4.preheader.lr.ph:                        ; preds = %entry
+  %cmp566 = icmp sgt i32 %m, 0
+  %cmp963 = icmp sgt i32 %k, 0
+  %tmp = sext i32 %ldb to i64
+  %tmp3 = sext i32 %lda to i64
+  %tmp4 = sext i32 %mul to i64
+  %tmp5 = sext i32 %ldc to i64
+  %xtraiter = and i32 %k, 1
+  %lcmp.mod = icmp eq i32 %xtraiter, %k
+  %unroll_iter = sub i32 %k, %xtraiter
+  %tmp6 = icmp eq i32 %xtraiter, 0
+  br label %for.cond4.preheader
+
+for.cond4.preheader:                              ; preds = %for.cond.cleanup6, %for.cond4.preheader.lr.ph
+  %indvars.iv81 = phi i64 [ %tmp4, %for.cond4.preheader.lr.ph ], [ %indvars.iv.next82, %for.cond.cleanup6 ]
+  br i1 %cmp566, label %for.cond8.preheader.lr.ph, label %for.cond.cleanup6
+
+for.cond8.preheader.lr.ph:                        ; preds = %for.cond4.preheader
+  %tmp7 = mul nsw i64 %indvars.iv81, %tmp5
+  br label %for.cond8.preheader
+
+for.cond.cleanup.loopexit:                        ; preds = %for.cond.cleanup6
+  br label %for.cond.cleanup
+
+for.cond.cleanup:                                 ; preds = %for.cond.cleanup.loopexit, %entry
+  ret void
+
+for.cond8.preheader:                              ; preds = %for.cond.cleanup10, %for.cond8.preheader.lr.ph
+  %indvars.iv76 = phi i64 [ 0, %for.cond8.preheader.lr.ph ], [ %indvars.iv.next77, %for.cond.cleanup10 ]
+  br i1 %cmp963, label %for.body11.preheader, label %for.cond.cleanup10
+
+for.body11.preheader:                             ; preds = %for.cond8.preheader
+  br i1 %lcmp.mod, label %for.cond.cleanup10.loopexit.unr-lcssa, label %for.body11.preheader.new
+
+for.body11.preheader.new:                         ; preds = %for.body11.preheader
+  br label %for.body11
+
+for.cond.cleanup6.loopexit:                       ; preds = %for.cond.cleanup10
+  br label %for.cond.cleanup6
+
+for.cond.cleanup6:                                ; preds = %for.cond.cleanup6.loopexit, %for.cond4.preheader
+  %indvars.iv.next82 = add nsw i64 %indvars.iv81, 1
+  %lftr.wideiv84 = trunc i64 %indvars.iv.next82 to i32
+  %exitcond85 = icmp eq i32 %lftr.wideiv84, %mul3
+  br i1 %exitcond85, label %for.cond.cleanup.loopexit, label %for.cond4.preheader
+
+for.cond.cleanup10.loopexit.unr-lcssa.loopexit:   ; preds = %for.body11
+  %indvars.iv.next.1.lcssa = phi i64 [ %indvars.iv.next.1, %for.body11 ]
+  br label %for.cond.cleanup10.loopexit.unr-lcssa
+
+for.cond.cleanup10.loopexit.unr-lcssa:            ; preds = %for.cond.cleanup10.loopexit.unr-lcssa.loopexit, %for.body11.preheader
+  %indvars.iv.unr = phi i64 [ 0, %for.body11.preheader ], [ %indvars.iv.next.1.lcssa, %for.cond.cleanup10.loopexit.unr-lcssa.loopexit ]
+  br i1 %tmp6, label %for.cond.cleanup10.loopexit, label %for.body11.epil.preheader
+
+for.body11.epil.preheader:                        ; preds = %for.cond.cleanup10.loopexit.unr-lcssa
+  br label %for.body11.epil
+
+for.body11.epil:                                  ; preds = %for.body11.epil.preheader
+  br label %for.cond.cleanup10.loopexit.epilog-lcssa
+
+for.cond.cleanup10.loopexit.epilog-lcssa:         ; preds = %for.body11.epil
+  %tmp8 = mul nsw i64 %indvars.iv.unr, %tmp3
+  %tmp9 = add nsw i64 %tmp8, %indvars.iv76
+  %arrayidx.epil = getelementptr inbounds float, float* %A, i64 %tmp9
+  %tmp10 = load float, float* %arrayidx.epil, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx.epil)
+  %tmp11 = mul nsw i64 %indvars.iv.unr, %tmp
+  %tmp12 = add nsw i64 %tmp11, %indvars.iv81
+  %arrayidx17.epil = getelementptr inbounds float, float* %B, i64 %tmp12
+  %tmp13 = load float, float* %arrayidx17.epil, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx17.epil)
+  br label %for.cond.cleanup10.loopexit
+
+for.cond.cleanup10.loopexit:                      ; preds = %for.cond.cleanup10.loopexit.epilog-lcssa, %for.cond.cleanup10.loopexit.unr-lcssa
+  br label %for.cond.cleanup10
+
+for.cond.cleanup10:                               ; preds = %for.cond.cleanup10.loopexit, %for.cond8.preheader
+  %tmp14 = add nsw i64 %indvars.iv76, %tmp7
+  %arrayidx23 = getelementptr inbounds float, float* %C, i64 %tmp14
+  %tmp15 = load float, float* %arrayidx23, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx23)
+  %0 = ptrtoint float* %arrayidx23 to i64
+  call void asm sideeffect "mov $0, %eax \0A\09  mov $1, %rbx \0A\09  xchg %bx, %bx\0A", "i,r,~{ax},~{rbx}"(i32 22, i64 %0)
+  %indvars.iv.next77 = add nuw nsw i64 %indvars.iv76, 1
+  %lftr.wideiv = trunc i64 %indvars.iv.next77 to i32
+  %exitcond = icmp eq i32 %lftr.wideiv, %m
+  br i1 %exitcond, label %for.cond.cleanup6.loopexit, label %for.cond8.preheader
+
+for.body11:                                       ; preds = %for.body11, %for.body11.preheader.new
+  %indvars.iv = phi i64 [ 0, %for.body11.preheader.new ], [ %indvars.iv.next.1, %for.body11 ]
+  %niter = phi i32 [ %unroll_iter, %for.body11.preheader.new ], [ %niter.nsub.1, %for.body11 ]
+  %tmp16 = mul nsw i64 %indvars.iv, %tmp3
+  %tmp17 = add nsw i64 %tmp16, %indvars.iv76
+  %arrayidx = getelementptr inbounds float, float* %A, i64 %tmp17
+  %tmp18 = load float, float* %arrayidx, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx)
+  %tmp19 = mul nsw i64 %indvars.iv, %tmp
+  %tmp20 = add nsw i64 %tmp19, %indvars.iv81
+  %arrayidx17 = getelementptr inbounds float, float* %B, i64 %tmp20
+  %tmp21 = load float, float* %arrayidx17, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx17)
+  %indvars.iv.next = or i64 %indvars.iv, 1
+  %tmp22 = mul nsw i64 %indvars.iv.next, %tmp3
+  %tmp23 = add nsw i64 %tmp22, %indvars.iv76
+  %arrayidx.1 = getelementptr inbounds float, float* %A, i64 %tmp23
+  %tmp24 = load float, float* %arrayidx.1, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx.1)
+  %tmp25 = mul nsw i64 %indvars.iv.next, %tmp
+  %tmp26 = add nsw i64 %tmp25, %indvars.iv81
+  %arrayidx17.1 = getelementptr inbounds float, float* %B, i64 %tmp26
+  %tmp27 = load float, float* %arrayidx17.1, align 4, !tbaa !1
+  call void asm sideeffect "mov $0, %eax \0A\09  mov ($1), %xmm0 \0A\09  xchg %dx, %dx\0A", "i,r,~{ax},~{xmm0}"(i32 18, float* %arrayidx17.1)
+  %indvars.iv.next.1 = add nsw i64 %indvars.iv, 2
+  %niter.nsub.1 = add i32 %niter, -2
+  %niter.ncmp.1 = icmp eq i32 %niter.nsub.1, 0
+  br i1 %niter.ncmp.1, label %for.cond.cleanup10.loopexit.unr-lcssa.loopexit, label %for.body11
+}
+
+; Function Attrs: noinline norecurse nounwind uwtable
+define void @_Z18_kernel_sgemm_compcciiifPKfiS0_ifPfii(i8 signext %transa, i8 signext %transb, i32 %m, i32 %n, i32 %k, float %alpha, float* nocapture readonly %A, i32 %lda, float* nocapture readonly %B, i32 %ldb, float %beta, float* nocapture %C, i32 %ldc, i32 %tid) #0 {
+entry:
+  %div = sdiv i32 %tid, 2
+  %div2 = sdiv i32 %n, 32
+  %mul = mul nsw i32 %div, %div2
+  %add = add nsw i32 %div, 1
+  %mul3 = mul nsw i32 %add, %div2
+  %cmp69 = icmp slt i32 %mul, %mul3
+  br i1 %cmp69, label %for.cond4.preheader.lr.ph, label %for.cond.cleanup
+
+for.cond4.preheader.lr.ph:                        ; preds = %entry
+  %cmp566 = icmp sgt i32 %m, 0
+  %cmp963 = icmp sgt i32 %k, 0
+  %tmp4 = sext i32 %mul to i64
+  %xtraiter = and i32 %k, 1
+  %lcmp.mod = icmp eq i32 %xtraiter, %k
+  %unroll_iter = sub i32 %k, %xtraiter
+  %tmp6 = icmp eq i32 %xtraiter, 0
+  br label %for.cond4.preheader
+
+for.cond4.preheader:                              ; preds = %for.cond.cleanup6, %for.cond4.preheader.lr.ph
+  %indvars.iv81 = phi i64 [ %tmp4, %for.cond4.preheader.lr.ph ], [ %indvars.iv.next82, %for.cond.cleanup6 ]
+  br i1 %cmp566, label %for.cond8.preheader.lr.ph, label %for.cond.cleanup6
+
+for.cond8.preheader.lr.ph:                        ; preds = %for.cond4.preheader
+  br label %for.cond8.preheader
+
+for.cond.cleanup.loopexit:                        ; preds = %for.cond.cleanup6
+  br label %for.cond.cleanup
+
+for.cond.cleanup:                                 ; preds = %for.cond.cleanup.loopexit, %entry
+  ret void
+
+for.cond8.preheader:                              ; preds = %for.cond.cleanup10, %for.cond8.preheader.lr.ph
+  %indvars.iv76 = phi i64 [ 0, %for.cond8.preheader.lr.ph ], [ %indvars.iv.next77, %for.cond.cleanup10 ]
+  br i1 %cmp963, label %for.body11.preheader, label %for.cond.cleanup10
+
+for.body11.preheader:                             ; preds = %for.cond8.preheader
+  br i1 %lcmp.mod, label %for.cond.cleanup10.loopexit.unr-lcssa, label %for.body11.preheader.new
+
+for.body11.preheader.new:                         ; preds = %for.body11.preheader
+  br label %for.body11
+
+for.cond.cleanup6.loopexit:                       ; preds = %for.cond.cleanup10
+  br label %for.cond.cleanup6
+
+for.cond.cleanup6:                                ; preds = %for.cond.cleanup6.loopexit, %for.cond4.preheader
+  %indvars.iv.next82 = add nsw i64 %indvars.iv81, 1
+  %lftr.wideiv84 = trunc i64 %indvars.iv.next82 to i32
+  %exitcond85 = icmp eq i32 %lftr.wideiv84, %mul3
+  br i1 %exitcond85, label %for.cond.cleanup.loopexit, label %for.cond4.preheader
+
+for.cond.cleanup10.loopexit.unr-lcssa.loopexit:   ; preds = %for.body11
+  %add19.1.lcssa = phi float [ %add19.1, %for.body11 ]
+  br label %for.cond.cleanup10.loopexit.unr-lcssa
+
+for.cond.cleanup10.loopexit.unr-lcssa:            ; preds = %for.cond.cleanup10.loopexit.unr-lcssa.loopexit, %for.body11.preheader
+  %add19.lcssa.ph = phi float [ undef, %for.body11.preheader ], [ %add19.1.lcssa, %for.cond.cleanup10.loopexit.unr-lcssa.loopexit ]
+  %c.064.unr = phi float [ 0.000000e+00, %for.body11.preheader ], [ %add19.1.lcssa, %for.cond.cleanup10.loopexit.unr-lcssa.loopexit ]
+  br i1 %tmp6, label %for.cond.cleanup10.loopexit, label %for.body11.epil.preheader
+
+for.body11.epil.preheader:                        ; preds = %for.cond.cleanup10.loopexit.unr-lcssa
+  br label %for.body11.epil
+
+for.body11.epil:                                  ; preds = %for.body11.epil.preheader
+  br label %for.cond.cleanup10.loopexit.epilog-lcssa
+
+for.cond.cleanup10.loopexit.epilog-lcssa:         ; preds = %for.body11.epil
+  %0 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %1 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %mul18.epil = fmul float %0, %1
+  %add19.epil = fadd float %c.064.unr, %mul18.epil
+  br label %for.cond.cleanup10.loopexit
+
+for.cond.cleanup10.loopexit:                      ; preds = %for.cond.cleanup10.loopexit.epilog-lcssa, %for.cond.cleanup10.loopexit.unr-lcssa
+  %add19.lcssa = phi float [ %add19.lcssa.ph, %for.cond.cleanup10.loopexit.unr-lcssa ], [ %add19.epil, %for.cond.cleanup10.loopexit.epilog-lcssa ]
+  br label %for.cond.cleanup10
+
+for.cond.cleanup10:                               ; preds = %for.cond.cleanup10.loopexit, %for.cond8.preheader
+  %c.0.lcssa = phi float [ 0.000000e+00, %for.cond8.preheader ], [ %add19.lcssa, %for.cond.cleanup10.loopexit ]
+  %2 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %mul24 = fmul float %2, %beta
+  %mul25 = fmul float %c.0.lcssa, %alpha
+  %add26 = fadd float %mul25, %mul24
+  call void asm sideeffect "mov $0, %eax \0A\09  mov $1, %xmm0 \0A\09  xchg %dx, %dx\0A", "i,x,~{ax},~{xmm0}"(i32 31, float %add26)
+  %indvars.iv.next77 = add nuw nsw i64 %indvars.iv76, 1
+  %lftr.wideiv = trunc i64 %indvars.iv.next77 to i32
+  %exitcond = icmp eq i32 %lftr.wideiv, %m
+  br i1 %exitcond, label %for.cond.cleanup6.loopexit, label %for.cond8.preheader
+
+for.body11:                                       ; preds = %for.body11, %for.body11.preheader.new
+  %c.064 = phi float [ 0.000000e+00, %for.body11.preheader.new ], [ %add19.1, %for.body11 ]
+  %niter = phi i32 [ %unroll_iter, %for.body11.preheader.new ], [ %niter.nsub.1, %for.body11 ]
+  %3 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %4 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %mul18 = fmul float %3, %4
+  %add19 = fadd float %c.064, %mul18
+  %5 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %6 = call float asm sideeffect "mov $1, %eax \0A\09 xchg %dx, %dx\0A", "={xmm0},i,~{ax}"(i32 20)
+  %mul18.1 = fmul float %5, %6
+  %add19.1 = fadd float %add19, %mul18.1
+  %niter.nsub.1 = add i32 %niter, -2
+  %niter.ncmp.1 = icmp eq i32 %niter.nsub.1, 0
+  br i1 %niter.ncmp.1, label %for.cond.cleanup10.loopexit.unr-lcssa.loopexit, label %for.body11
+}
+
+attributes #0 = { noinline norecurse nounwind uwtable "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+
+!llvm.ident = !{!0}
+
+!0 = !{!"clang version 3.9.0 (http://llvm.org/git/clang.git c9192fab899a2b4d5b8ae436c9910c4ef6708120) (http://llvm.org/git/llvm.git c5cc3f2a20591c1978136310e453d8f801563900)"}
+!1 = !{!2, !2, i64 0}
+!2 = !{!"float", !3, i64 0}
+!3 = !{!"omnipotent char", !4, i64 0}
+!4 = !{!"Simple C++ TBAA"}
