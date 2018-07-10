@@ -27,7 +27,8 @@ typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
 class Config {
 public:
-   // Config parameters
+  // Config parameters
+  int vInputLevel; // verbosity level
   bool cf_one_context_at_once;
   bool cf_max_contexts_concurrently;
   bool mem_speculate;
@@ -44,6 +45,7 @@ public:
   int num_units[NUM_INST_TYPES];
   // L1 cache
   bool ideal_cache;
+  int L1_latency;
   int L1_size;     // MB
   int L1_assoc; 
   int block_size;  // bytes
@@ -199,8 +201,12 @@ public:
      }
      return tokens;
   }
-  void readCfg(std::string filename, Config &cfg) {
-    // TODO: Read config from <filename>
+  void readCfg(std::string filename, Config &cfg) { // TODO: Read config from <filename>
+    
+    // simulator behavior
+    cfg.vInputLevel = -1;
+
+    // resource limits
     cfg.lsq_size = 512;
     cfg.cf_one_context_at_once = true;
     cfg.cf_max_contexts_concurrently = false;
@@ -221,7 +227,7 @@ public:
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.num_units[I_ADDSUB] = 2;
+    cfg.num_units[I_ADDSUB] = 4;
     cfg.num_units[I_MULT] = 4;
     cfg.num_units[I_DIV] = 4;
     cfg.num_units[I_REM] = 4;
@@ -244,7 +250,8 @@ public:
 
     // L1 config
     cfg.ideal_cache = false;
-    cfg.L1_size = 4;
+    cfg.L1_latency = 2;
+    cfg.L1_size = 4;      // MB
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
   }

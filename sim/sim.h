@@ -81,7 +81,7 @@ public:
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
 
-  DynamicNode(Node *n, Context *c, Simulator *sim, Config* cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg), addr(addr) {
+  DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg), addr(addr) {
     type = n->typeInstr;
     if(type == PHI) {
       bool found = false;
@@ -130,7 +130,7 @@ public:
     return os;
   }
   void print(string str, int level = 0) {
-    if(level == 0)
+    if( level < cfg->vInputLevel )
       cout << (*this) << str << "\n";
   }
 
@@ -279,7 +279,7 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface *memInterface;
   int hit_rate=70;
-  int latency=2;
+  int latency;
   FunctionalSetCache *fc;
   bool ideal=false;
   priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
@@ -298,10 +298,12 @@ public:
     }
   };
 
-  Cache(int size, int assoc, int block_size, DRAMSimInterface *memInterface, bool ideal): memInterface(memInterface), ideal(ideal) {
-    fc = new FunctionalSetCache(size, assoc, block_size);   
-    if (ideal)
-      latency=1;
+  Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
+            latency(latency), ideal(ideal), memInterface(memInterface) {
+    fc = new FunctionalSetCache(size, assoc, block_size);  
+//cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
+    /*if (ideal)
+      latency=1; */ // JLA: commented this out so we can have perfect caches w/ latency > 1
   }
   
   /*int isHit() {
@@ -395,8 +397,8 @@ public:
   void initialize() {
     
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_size, cfg.L1_assoc, cfg.block_size, &cb, cfg.ideal_cache);
-
+    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, &cb);
+            
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
       avail_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
