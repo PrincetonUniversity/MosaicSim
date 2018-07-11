@@ -205,8 +205,8 @@ public:
     
     // resource limits
     cfg.lsq_size = 512;
-    cfg.cf_one_context_at_once = true;
-    cfg.cf_max_contexts_concurrently = false;
+    cfg.cf_one_context_at_once = false;
+    cfg.cf_max_contexts_concurrently = true;
     cfg.mem_speculate = false;
     cfg.mem_forward = false;
     cfg.instr_latency[I_ADDSUB] = 1;
@@ -224,14 +224,14 @@ public:
     cfg.instr_latency[ST] = 1;
     cfg.instr_latency[TERMINATOR] = 1;
     cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.num_units[I_ADDSUB] = 4;
-    cfg.num_units[I_MULT] = 4;
-    cfg.num_units[I_DIV] = 4;
-    cfg.num_units[I_REM] = 4;
+    cfg.num_units[I_ADDSUB] = 400;
+    cfg.num_units[I_MULT] = 400;
+    cfg.num_units[I_DIV] = 400;
+    cfg.num_units[I_REM] = 400;
     cfg.num_units[FP_ADDSUB] = -1;
-    cfg.num_units[FP_MULT] = 4;
-    cfg.num_units[FP_DIV] = 4;
-    cfg.num_units[FP_REM] = 4;
+    cfg.num_units[FP_MULT] = 400;
+    cfg.num_units[FP_DIV] = 400;
+    cfg.num_units[FP_REM] = 400;
     cfg.num_units[LOGICAL] = -1;
     cfg.num_units[CAST] = -1;
     cfg.num_units[GEP] = -1;
@@ -239,15 +239,15 @@ public:
     cfg.num_units[ST] = -1;
     cfg.num_units[TERMINATOR] = -1;
     cfg.num_units[PHI] = -1;
-    cfg.load_ports = 4;
-    cfg.store_ports = 4;
+    cfg.load_ports = 400;
+    cfg.store_ports = 400;
     cfg.outstanding_load_requests = 128;
     cfg.outstanding_store_requests = 128;
     cfg.max_active_contexts_BB = -1;
 
     // L1 config
-    cfg.ideal_cache = false;
-    cfg.L1_latency = 2;
+    cfg.ideal_cache = true;
+    cfg.L1_latency = 1;
     cfg.L1_size = 4;      // MB
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
