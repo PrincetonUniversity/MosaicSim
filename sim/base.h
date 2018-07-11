@@ -360,7 +360,7 @@ public:
    cfg.store_ports = 400;
    cfg.outstanding_load_requests = 128;
    cfg.outstanding_store_requests = 128;
-   cfg.max_active_contexts_BB = 10;
+   cfg.max_active_contexts_BB = 128;
 
     // L1 config
     cfg.ideal_cache = true;
