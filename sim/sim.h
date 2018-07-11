@@ -39,6 +39,8 @@ public:
     cout << "num_cycles     = " << num_cycles << endl;
     cout << "IPC            = " << num_exec_instr / (double)num_cycles << endl;
     cout << "num_finished_context = " << num_finished_context << endl;
+    cout << "L1_hits = " << num_L1_hits << endl;
+    cout << "L1_misses = " << num_L1_misses << endl;
     cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   }
 };
