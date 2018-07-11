@@ -542,7 +542,7 @@ public:
     while (simulate)
       simulate = process_cycle();
     stats.num_cycles = cycles;
-    cb.mem->printStats(false);
+    cb.mem->printStats(true);
   }
 };
 
