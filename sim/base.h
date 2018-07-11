@@ -241,8 +241,8 @@ public:
       Node *n = it->second;
       if(n->typeInstr == TERMINATOR) {
         if(findOptimizableTerminator(n, phis)) {
-          if(n->external_parents.size() != 0)
-            assert(false);
+          //if(n->external_parents.size() != 0)
+          //  assert(false);
           for(auto iit = n->parents.begin(); iit != n->parents.end(); ++iit) {
             Node *sn = *iit;
             sn->eraseDependent(n, DATA_DEP);
