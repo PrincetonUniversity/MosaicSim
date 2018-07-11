@@ -5,11 +5,14 @@
 #include "base.h"
 #include "include/DRAMSim.h"
 #include "functional_cache.h"
-#define DEBUGLOG 1
 
 using namespace apollo;
 using namespace std;
+
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
 class Simulator;
+
 
 
 class GlobalStats {
@@ -35,6 +38,19 @@ public:
 };
 
 class DynamicNode;
+typedef pair<DynamicNode*, uint64_t> Operator;
+
+struct OpCompare {
+  friend bool operator< (const Operator &l, const Operator &r) {
+    if(l.second < r.second) 
+      return true;
+    else if(l.second == r.second)
+      return true;
+    else
+      return false;
+  }
+};
+
 class Context {
 public:
   bool live;
@@ -48,16 +64,20 @@ public:
   int prev_bbid;
 
   std::map<Node*, DynamicNode*> nodes;
-  std::vector<DynamicNode*> active_list;
+  //std::vector<DynamicNode*> active_list;
   std::set<DynamicNode*> issue_set;
+  std::set<DynamicNode*> waiting_set;
   std::set<DynamicNode*> next_issue_set;
-  std::vector<DynamicNode*> next_active_list;
+  //std::vector<DynamicNode*> next_active_list;
   std::vector<DynamicNode*> nodes_to_complete;
   std::set<DynamicNode*> completed_nodes;
+  typedef pair<DynamicNode*, uint64_t> Op;
+  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
 
   Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
   Context* getNextContext();
   Context* getPrevContext();
+  void insertQ(DynamicNode *d);
   void process();
   void complete();
   void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
@@ -79,7 +99,7 @@ public:
   bool speculated = false;
   int outstanding_accesses = 0;
   /* Depedency */
-  int remaining_cycles;
+  //int remaining_cycles;
   int pending_parents;
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
@@ -102,7 +122,7 @@ public:
     else
       pending_parents = n->parents.size();
     pending_external_parents = n->external_parents.size();
-    remaining_cycles = n->lat;
+    //remaining_cycles = n->lat;
     if(addr == 0)
       isMem = false;
     else
@@ -279,28 +299,17 @@ public:
 
 class Cache {
 public:
-  typedef pair<DynamicNode*, uint64_t> CacheOp;
+  typedef pair<DynamicNode*, uint64_t> Operator;
   uint64_t cycles = 0;
   DRAMSimInterface *memInterface;
   int size_of_cacheline = 64;
   int latency;
   FunctionalSetCache *fc;
   bool ideal=false;
-  priority_queue<CacheOp, vector<CacheOp>, less<vector<CacheOp>::value_type> > pq;
+  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
   vector<uint64_t> to_evict;
   vector<DynamicNode*> to_send;
-    
-  struct CacheOpCompare {
-    friend bool operator< (const CacheOp &l, const CacheOp &r) {
-      if(l.second < r.second) 
-        return true;
-      else if(l.second == r.second)
-        return true;
-      else
-        return false;
-    }
-  };
-
+  
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
             latency(latency), ideal(ideal), memInterface(memInterface) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
@@ -337,6 +346,8 @@ public:
       else
         it++;
     }
+    if(to_send.size() > 50 || to_evict.size() > 50)
+      assert(false);
   }
   void execute(DynamicNode* d) {
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
@@ -374,6 +385,9 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface cb= DRAMSimInterface(); 
   Cache* cache;
+  chrono::high_resolution_clock::time_point curr;
+  chrono::high_resolution_clock::time_point last;
+  uint64_t last_processed_contexts;
 
   vector<Context*> context_list;
   vector<Context*> live_context;
@@ -463,9 +477,18 @@ public:
   bool process_cycle() {
     if(cfg.vInputLevel > 0)
       cout << "[Cycle: " << cycles << "]\n";
-    if(cycles % 1000000 == 0) {
+    if(cycles % 1000000 == 0 && cycles !=0) {
+      curr = Clock::now();
+      uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
+      cout << "Simulation Speed: " << ((double)(stats.num_finished_context - last_processed_contexts)) / tdiff << " contexts per ms \n";
+      last_processed_contexts = stats.num_finished_context;
+      last = curr;
       stats.num_cycles = cycles;
       stats.print();
+    }
+    else if(cycles == 0) {
+      last = Clock::now();
+      last_processed_contexts = 0;
     }
     cycles++;
     bool simulate = false;
@@ -487,20 +510,7 @@ public:
     }
     if(live_context.size() > 0)
       simulate = true;
-    /*
-    for (int i=0; i<context_list.size(); i++) {
-      if (context_list.at(i)->live)
-        context_list.at(i)->process();
-    }
-
-    for (int i=0; i<context_list.size(); i++) {
-      if(context_list.at(i)->live) {
-        context_list.at(i)->complete();
-        if(context_list.at(i)->live)
-          simulate = true;
-      }
-    }
-    */
+    
     int context_created = 0;
     for (int i=0; i<context_to_create; i++) {
       if ( createContext() ) {

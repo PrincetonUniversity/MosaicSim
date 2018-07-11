@@ -34,14 +34,9 @@ int main(int argc, char const *argv[]) {
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
- 
-  /*  
-  r.readGraph("../workloads/toy/toygraph.txt", sim.g, sim.cfg);
-  r.readProfMemory("../workloads/toy/toymem.txt", sim.memory);
-  r.readProfCF("../workloads/toy/toycf.txt", sim.cf); 
-  */
   
   sim.initialize();
+  cout << "Initialization Complete \n";
   sim.run();
   sim.stats.print();
   return 0;
@@ -59,11 +54,17 @@ Context* Context::getPrevContext() {
   else
     return NULL;
 }
+void Context::insertQ(DynamicNode *d) {
+  if(d->n->lat != -1)
+    pq.push(make_pair(d, sim->cycles+d->n->lat));
+  else
+    pq.push(make_pair(d, sim->cycles));
+}
 void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid) {
   this->bb = bb;
   this->cfg = cfg;
   this->next_bbid = next_bbid;
-  this->prev_bbid = prev_bbid;
+  this->prev_bbid = prev_bbid;  
   live = true;
   // Initialize Context Structures
   for ( int i=0; i<bb->inst.size(); i++ ) {
@@ -130,40 +131,32 @@ void Context::process() {
     }
     else {
       if(d->type != LD)
-        active_list.push_back(d);
+        insertQ(d);
       d->print("Issue Succesful",1);
     }
   }
-  for (int i=0; i < active_list.size(); i++) {
-    DynamicNode *d = active_list.at(i);
-    if(!d->issued)
-      assert(false);
-    // Update Remaining Cycles
-    if (d->remaining_cycles == 0 || d->remaining_cycles == 1) {
-      if(d->remaining_cycles == 1)
-        d->remaining_cycles--;
-      // Check the speculation result for speculative loads
-      if (cfg->mem_speculate && d->type == LD && d->speculated) {
-        bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(d, ST);
-        if (exists_unresolved_ST) { 
-          next_active_list.push_back(d);
-          continue;
-        }
-      }
+  for(auto it = waiting_set.begin(); it!= waiting_set.end();) {
+    DynamicNode *d = *it;
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.exists_unresolved_memop(d, ST))
+      ++it;
+    else {
       nodes_to_complete.push_back(d);
+      it = waiting_set.erase(it);
     }
-    else if (d->remaining_cycles > 1) {
-      d->remaining_cycles--;
-      next_active_list.push_back(d);
-      continue;
-    }
-    else
-      assert(false); 
   }
-  issue_set = next_issue_set;
-  active_list = next_active_list;
+  while(pq.size() > 0) {
+    if(pq.top().second > sim->cycles)
+      break;
+    DynamicNode *d = pq.top().first;
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.exists_unresolved_memop(d, ST))
+      waiting_set.insert(d);
+    else
+      nodes_to_complete.push_back(d);
+    pq.pop();
+  }
+
+  issue_set = move(next_issue_set);
   next_issue_set.clear();
-  next_active_list.clear();
 }
 
 void Context::complete() {
@@ -197,9 +190,7 @@ void DynamicNode::handleMemoryReturn() {
       if(outstanding_accesses != 0) 
         return;
     }
-    remaining_cycles = 0;
-    // TODO
-    c->active_list.push_back(this);
+    c->insertQ(this);
   }
 }
 
@@ -267,13 +258,11 @@ bool DynamicNode::issueMemNode() {
     if (type == LD) {
       if(forwardRes == 1) { 
         print("Retrieves Forwarded Data", 1);
-        remaining_cycles = 0;
-        c->active_list.push_back(this);
+        c->insertQ(this);
       }
       else if(forwardRes == 0 && cfg->mem_speculate) { 
         print("Retrieves Speculatively Forwarded Data", 1);
-        remaining_cycles = 0;
-        c->active_list.push_back(this);
+        c->insertQ(this);
       }
       else { 
         sim->ports[0]--;
@@ -362,7 +351,6 @@ void DynamicNode::tryActivate() {
     }
     if(issued || completed)
       assert(false);
-    //c->active_list.push_back(this);
     assert(c->issue_set.find(this) == c->issue_set.end());
     c->issue_set.insert(this);
 }
