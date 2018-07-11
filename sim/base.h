@@ -322,8 +322,8 @@ public:
     
    // resource limits
    cfg.lsq_size = 2048;
-   cfg.cf_one_context_at_once = false;
-   cfg.cf_max_contexts_concurrently = true;
+   cfg.cf_one_context_at_once = true;
+   cfg.cf_max_contexts_concurrently = false;
    cfg.mem_speculate = false;
    cfg.mem_forward = false;
    cfg.instr_latency[I_ADDSUB] = 1;

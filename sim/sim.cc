@@ -340,18 +340,25 @@ void DynamicNode::finishNode() {
   }
 
   // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
-  if (cfg->cf_one_context_at_once && type == TERMINATOR) {
-    sim->context_to_create++;
-  }
+  // if (cfg->cf_one_context_at_once && type == TERMINATOR) {
+  //   sim->context_to_create++;
+  // }
 }
 
 void DynamicNode::tryActivate() {
     if(pending_parents > 0 || pending_external_parents > 0) {
-//      print("Failed Execution", 0);
       return;
     }
     if(issued || completed)
       assert(false);
-    assert(c->issue_set.find(this) == c->issue_set.end());
-    c->issue_set.insert(this);
+    if(type == TERMINATOR) {
+      c->completed_nodes.insert(this);
+      completed = true;
+      if (cfg->cf_one_context_at_once && type == TERMINATOR)
+        sim->context_to_create++;
+    }
+    else {
+      assert(c->issue_set.find(this) == c->issue_set.end());
+      c->issue_set.insert(this);
+    }
 }
