@@ -138,8 +138,9 @@ public:
   }
   void cache_insert(uint64_t address) {
     uint64_t setid = extract(log_set_count-1, 0, address);
+    uint64_t tag = extract(58, log_set_count, address);
     FunctionalCache *c = sets.at(setid);
-    c->set_insert(address);
+    c->set_insert(tag);
   }
   
 };
