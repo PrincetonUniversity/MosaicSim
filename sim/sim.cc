@@ -55,8 +55,8 @@ Context* Context::getPrevContext() {
     return NULL;
 }
 void Context::insertQ(DynamicNode *d) {
-  if(d->n->lat != -1)
-    pq.push(make_pair(d, sim->cycles+d->n->lat));
+  if(d->n->lat > 0)
+    pq.push(make_pair(d, sim->cycles+d->n->lat-1));
   else
     pq.push(make_pair(d, sim->cycles));
 }
