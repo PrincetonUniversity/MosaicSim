@@ -47,7 +47,7 @@ all: $(SRC)
 	mkdir -p int
 	mkdir -p output
 	$(CXX) $(CXXFLAGS) $(CXXSRC) -o $(CXXBC)
-	$(LL)  -S $(LLSRC) -o $(LLDST)
+	$(LL)  -S $(LLSRC) $(CXXBC) -o $(LLDST)
 	$(OPT) -S $(OPTFLAGS) -load $(OPTLIB1) $(OPTPASS1) $(OPTSRC1) -o $(OPTED)
 	$(OPT) -S $(OPTFLAGS) -load $(OPTLIB2) $(OPTPASS2) $(OPTSRC2) > /dev/null
 	$(DOT) -T $(DOTFMT) $(DOTIN) -o $(DOTOUT)
@@ -62,9 +62,9 @@ run: all
 # Clean up the directories by removing compiled/generated files.
 clean:
 	rm -f $(NAME)
-	rm *.out
-	rm output/*.txt
-	rm output/*.png
-	rm int/*.dot
-	rm int/*.ll
-	rm int/*.o
+	rm -f *.out
+	rm -f output/*.txt
+	rm -f output/*.png
+	rm -f int/*.dot
+	rm -f int/*.ll
+	rm -f int/*.o
