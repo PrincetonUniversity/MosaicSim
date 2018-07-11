@@ -464,10 +464,10 @@ public:
     if (cfg.max_active_contexts_BB > 0) {
       if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
         outstanding_contexts.insert(make_pair(bb, cfg.max_active_contexts_BB));
-        outstanding_contexts.at(bb)--;
       }
       else if(outstanding_contexts.at(bb) == 0)
         return false;
+      outstanding_contexts.at(bb)--;
     }
 
     // Check LSQ Availability
