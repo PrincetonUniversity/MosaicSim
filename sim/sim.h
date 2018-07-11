@@ -459,12 +459,12 @@ public:
     else
       prev_bbid = -1;
     
+    BasicBlock *bb = g.bbs.at(bbid);
     // Check LSQ Availability
     if(!lsq.checkSize(bb->mem_inst_count))
       return false;
 
     // check the limit of contexts per BB
-    BasicBlock *bb = g.bbs.at(bbid);
     if (cfg.max_active_contexts_BB > 0) {
       if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
         outstanding_contexts.insert(make_pair(bb, cfg.max_active_contexts_BB));
