@@ -137,7 +137,6 @@ void Context::process() {
     else {
       if(d->type != LD)
         insertQ(d);
-        //active_list.push_back(d);
       d->print("Issue Succesful",1);
     }
   }
@@ -150,7 +149,6 @@ void Context::process() {
       it = waiting_set.erase(it);
     }
   }
-
   while(pq.size() > 0) {
     if(pq.top().second > sim->cycles)
       break;
