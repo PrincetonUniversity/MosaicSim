@@ -34,7 +34,8 @@ int main(int argc, char const *argv[]) {
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
-  
+
+  sim.g.inductionOptimization();
   sim.initialize();
   cout << "Initialization Complete \n";
   sim.run();
