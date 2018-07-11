@@ -103,13 +103,14 @@ public:
     }
     else if(type == PHI_DEP) {
       count += phi_dependents.erase(dest);
+      dest->phi_parents.erase(this);
     }
     assert(count == 1);
   }
 
   // Print Node
   friend std::ostream& operator<<(std::ostream &os, Node &n) {
-    os << "I[" << n.name << "], lat=" << n.lat;
+    os << "[" << n.name << "]";
     return os;
   }
 };
@@ -155,14 +156,14 @@ public:
       for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
         Node *n = *fit;
         for(auto it = n->parents.begin(); it!=n->parents.end(); ++it) {
-          Node *dn = *it;
-          if(dn->typeInstr == PHI && (phis.find(dn) != phis.end()))
+          Node *sn = *it;
+          if(sn->typeInstr == PHI && (phis.find(sn) != phis.end()))
             continue;
-          if(!checkType(dn))
+          if(!checkType(sn))
             return false;
-          else if(visited.find(dn) == visited.end()) {
-            visited.insert(dn);
-            next_frontier.insert(dn);
+          else if(visited.find(sn) == visited.end()) {
+            visited.insert(sn);
+            next_frontier.insert(sn);
           }
         }
       }
@@ -177,13 +178,16 @@ public:
     std::set<Node*> frontier;
     std::set<Node*> next_frontier;
     std::set<Node*> visited;
+    cout << "Checking .. " << *init << "\n";
     for(auto pit = init->phi_parents.begin(); pit!= init->phi_parents.end(); ++pit) {
       Node *sn = *pit;
       if(sn->bbid == init->bbid) {
         if(sn->typeInstr == PHI)
           assert(false); 
-        if(!checkType(sn))
+        if(!checkType(sn)) {
+          cout << "[1] Failed because of " << *sn <<"\n";
           return false;
+        }
         visited.insert(sn);
         frontier.insert(sn);
       }
@@ -192,14 +196,18 @@ public:
       for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
         Node *n = *fit;
         for(auto it = n->parents.begin(); it!=n->parents.end(); ++it) {
-          Node *dn = *it;
-          if(dn->typeInstr == PHI && dn!= init)
+          Node *sn = *it;
+          if(sn->typeInstr == PHI && sn!= init)
             assert(false);
-          if(!checkType(dn))
+          if(sn->typeInstr == PHI && sn == init)
+            continue;
+          if(!checkType(sn)) {
+            cout << "[2] Failed because of " << *sn <<"\n";
             return false;
-          else if(visited.find(dn) == visited.end()) {
-            visited.insert(dn);
-            next_frontier.insert(dn);
+          }
+          else if(visited.find(sn) == visited.end()) {
+            visited.insert(sn);
+            next_frontier.insert(sn);
           }
         }
       }

@@ -35,7 +35,7 @@ int main(int argc, char const *argv[]) {
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
 
-  sim.g.inductionOptimization();
+  //sim.g.inductionOptimization();
   sim.initialize();
   cout << "Initialization Complete \n";
   sim.run();
