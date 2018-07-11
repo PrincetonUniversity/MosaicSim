@@ -356,7 +356,7 @@ public:
 
     // L1 config
     cfg.ideal_cache = true;
-    cfg.L1_latency = 2;
+    cfg.L1_latency = 1;
     cfg.L1_size = 4;      // MB
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
