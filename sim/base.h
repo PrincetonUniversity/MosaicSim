@@ -94,11 +94,11 @@ public:
     if(type == DATA_DEP) {
       if(dest->bbid == this->bbid) {
         count += dependents.erase(dest);
-        dest->parents.erase(dest);
+        dest->parents.erase(this);
       }
       else {
         count += external_dependents.erase(dest);
-        dest->external_parents.erase(dest);
+        dest->external_parents.erase(this);
       }
     }
     else if(type == PHI_DEP) {
@@ -246,12 +246,12 @@ public:
           for(auto iit = n->parents.begin(); iit != n->parents.end(); ++iit) {
             Node *sn = *iit;
             sn->eraseDependent(n, DATA_DEP);
+            cout << "Erase parent : " << *sn << "\n";
           }
           cout << "foundOptimizableTerminator : " << *n << "\n";
         }
       }
     }
-
   }
 
   void addBasicBlock(int id) {
