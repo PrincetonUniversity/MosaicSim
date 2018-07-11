@@ -4,6 +4,6 @@
 0,mem_forward
 9999,max_contexts_per_bb
 0,ideal_cache
-4,l1_size_in_mb
+4096,l1_size_in_kb
 16,load_ports
 16,store_ports
