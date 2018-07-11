@@ -322,8 +322,8 @@ public:
     
    // resource limits
    cfg.lsq_size = 2048;
-   cfg.cf_one_context_at_once = false;
-   cfg.cf_max_contexts_concurrently = true;
+   cfg.cf_one_context_at_once = true;
+   cfg.cf_max_contexts_concurrently = false;
    cfg.mem_speculate = false;
    cfg.mem_forward = false;
    cfg.instr_latency[I_ADDSUB] = 1;
@@ -363,7 +363,7 @@ public:
    cfg.max_active_contexts_BB = 128;
 
     // L1 config
-    cfg.ideal_cache = true;
+    cfg.ideal_cache = false;
     cfg.L1_latency = 1;
     cfg.L1_size = 4;      // MB
     cfg.L1_assoc = 8;

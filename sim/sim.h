@@ -355,8 +355,8 @@ public:
       else
         it++;
     }
-    if(to_send.size() > 50 || to_evict.size() > 50)
-      assert(false);
+//    if(to_send.size() > 50 || to_evict.size() > 50)
+  //    assert(false);
   }
   void execute(DynamicNode* d) {
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
