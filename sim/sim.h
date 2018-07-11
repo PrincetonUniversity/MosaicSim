@@ -459,6 +459,10 @@ public:
     else
       prev_bbid = -1;
     
+    // Check LSQ Availability
+    if(!lsq.checkSize(bb->mem_inst_count))
+      return false;
+
     // check the limit of contexts per BB
     BasicBlock *bb = g.bbs.at(bbid);
     if (cfg.max_active_contexts_BB > 0) {
@@ -470,10 +474,6 @@ public:
       outstanding_contexts.at(bb)--;
     }
 
-    // Check LSQ Availability
-    if(!lsq.checkSize(bb->mem_inst_count))
-      return false;
-    
     Context *c = new Context(cid, this);
     context_list.push_back(c);
     live_context.push_back(c);
@@ -528,6 +528,8 @@ public:
         simulate = true;
         context_created++;
       }
+      else
+        break;
     }
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
     cache->process_cache();
