@@ -15,13 +15,21 @@ int main(int argc, char const *argv[]) {
     assert(false);
   cout << "Path: " << argv[1] << "\n";
   string s(argv[1]);
+  string cfgpath;
+  if(argc >= 3) {
+    string cfgname(argv[2]);
+    cfgpath = "../sim/config/" + cfgname;
+  }
+  else 
+    cfgpath = "../sim/config/default.txt";
+
   string gname = s + "/output/graphOutput.txt";
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
   
   // enable verbosity level: -v
-  if (argc == 3) {
-    string s(argv[2]);
+  if (argc == 4) {
+    string s(argv[3]);
     if ( s == "-v" )
        sim.cfg.vInputLevel = 20;
   }
@@ -30,7 +38,7 @@ int main(int argc, char const *argv[]) {
 
 
   Reader r; 
-  r.readCfg("fake_config.txt", sim.cfg);
+  r.readCfg(cfgpath, sim.cfg);
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
@@ -352,7 +360,7 @@ void DynamicNode::tryActivate() {
     if(type == TERMINATOR) {
       c->completed_nodes.insert(this);
       completed = true;
-      if (cfg->cf_one_context_at_once && type == TERMINATOR)
+      if (cfg->cf_mode == 0 && type == TERMINATOR)
         sim->context_to_create++;
     }
     else {

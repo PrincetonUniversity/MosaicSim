@@ -29,8 +29,7 @@ class Config {
 public:
   // Config parameters
   int  vInputLevel; // verbosity level
-  bool cf_one_context_at_once;
-  bool cf_max_contexts_concurrently;
+  bool cf_mode; // 0: one at a time / 1: all together
   bool mem_speculate;
   bool mem_forward;
   // Resources
@@ -318,56 +317,100 @@ public:
      }
      return tokens;
   }
-  void readCfg(std::string filename, Config &cfg) { // TODO: Read config from <filename>
-    
-   // resource limits
-   cfg.lsq_size = 2048;
-   cfg.cf_one_context_at_once = true;
-   cfg.cf_max_contexts_concurrently = false;
-   cfg.mem_speculate = false;
-   cfg.mem_forward = false;
-   cfg.instr_latency[I_ADDSUB] = 1;
-   cfg.instr_latency[I_MULT] = 3;
-   cfg.instr_latency[I_DIV] = 26;
-   cfg.instr_latency[I_REM] = 1;
-   cfg.instr_latency[FP_ADDSUB] = 1;
-   cfg.instr_latency[FP_MULT] = 3;
-   cfg.instr_latency[FP_DIV] = 26;
-   cfg.instr_latency[FP_REM] = 1;
-   cfg.instr_latency[LOGICAL] = 1;
-   cfg.instr_latency[CAST] = 1;
-   cfg.instr_latency[GEP] = 1;
-   cfg.instr_latency[LD] = -1;
-   cfg.instr_latency[ST] = 1;
-   cfg.instr_latency[TERMINATOR] = 1;
-   cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-   cfg.num_units[I_ADDSUB] = 400;
-   cfg.num_units[I_MULT] = 400;
-   cfg.num_units[I_DIV] = 400;
-   cfg.num_units[I_REM] = 400;
-   cfg.num_units[FP_ADDSUB] = -1;
-   cfg.num_units[FP_MULT] = 400;
-   cfg.num_units[FP_DIV] = 400;
-   cfg.num_units[FP_REM] = 400;
-   cfg.num_units[LOGICAL] = -1;
-   cfg.num_units[CAST] = -1;
-   cfg.num_units[GEP] = -1;
-   cfg.num_units[LD] = -1;
-   cfg.num_units[ST] = -1;
-   cfg.num_units[TERMINATOR] = -1;
-   cfg.num_units[PHI] = -1;
-   cfg.load_ports = 400;
-   cfg.store_ports = 400;
-   cfg.outstanding_load_requests = 128;
-   cfg.outstanding_store_requests = 128;
-   cfg.max_active_contexts_BB = 128;
+  void tempCfg(int id, int val, Config &cfg) {
+    switch (id) { 
+      case 0:
+        cfg.lsq_size = val; 
+        break;
+      case 1:
+        cfg.cf_mode = val;
+        break;
+      case 2:
+        cfg.mem_speculate = val;
+        break;
+      case 3:
+        cfg.mem_forward = val;
+        break;
+      case 4:
+        cfg.max_active_contexts_BB = val;
+        break;
+      case 5:
+        cfg.ideal_cache = val;
+        break;
+      case 6:
+        cfg.L1_size = val;
+        break;
+    }
+  }
+  void readCfg(std::string name, Config &cfg) { // TODO: Read config from <filename>
+    string line;
+    string last_line;
+    cout << "CFG: " << name << "\n";
+    ifstream cfile(name);
+    int id = 0;
+    if (cfile.is_open()) {
+      while (getline (cfile,line)) {
+        vector<string> s = split(line, ',');
+        tempCfg(id, stoi(s.at(0)), cfg);
+        id++;
+      }
+    }
+    else {
+      cout << "Error opening Config\n";
+      assert(false);
+    }
+    cfile.close();
+    /* 
+    // resource limits
+    cfg.lsq_size = 2048;
+    cfg.cf_mode = 1;
+    cfg.mem_speculate = false;
+    cfg.mem_forward = false;
+    cfg.max_active_contexts_BB = 128;
 
     // L1 config
     cfg.ideal_cache = false;
-    cfg.L1_latency = 1;
     cfg.L1_size = 4;      // MB
+    */
+    cfg.L1_latency = 1;
     cfg.L1_assoc = 8;
     cfg.block_size = 64;  // bytes
+
+    cfg.instr_latency[I_ADDSUB] = 1;
+    cfg.instr_latency[I_MULT] = 3;
+    cfg.instr_latency[I_DIV] = 26;
+    cfg.instr_latency[I_REM] = 1;
+    cfg.instr_latency[FP_ADDSUB] = 1;
+    cfg.instr_latency[FP_MULT] = 3;
+    cfg.instr_latency[FP_DIV] = 26;
+    cfg.instr_latency[FP_REM] = 1;
+    cfg.instr_latency[LOGICAL] = 1;
+    cfg.instr_latency[CAST] = 1;
+    cfg.instr_latency[GEP] = 1;
+    cfg.instr_latency[LD] = -1;
+    cfg.instr_latency[ST] = 1;
+    cfg.instr_latency[TERMINATOR] = 1;
+    cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
+    cfg.num_units[I_ADDSUB] = -1;
+    cfg.num_units[I_MULT] =  -1;
+    cfg.num_units[I_DIV] = -1;
+    cfg.num_units[I_REM] = -1;
+    cfg.num_units[FP_ADDSUB] = -1;
+    cfg.num_units[FP_MULT] = -1;
+    cfg.num_units[FP_DIV] = -1;
+    cfg.num_units[FP_REM] = -1;
+    cfg.num_units[LOGICAL] = -1;
+    cfg.num_units[CAST] = -1;
+    cfg.num_units[GEP] = -1;
+    cfg.num_units[LD] = -1;
+    cfg.num_units[ST] = -1;
+    cfg.num_units[TERMINATOR] = -1;
+    cfg.num_units[PHI] = -1;
+    cfg.load_ports = 9999;
+    cfg.store_ports = 9999;
+    cfg.outstanding_load_requests = 9999;
+    cfg.outstanding_store_requests = 9999;
+
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
