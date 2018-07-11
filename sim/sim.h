@@ -21,19 +21,25 @@ public:
   int num_exec_instr;
   int num_cycles;
   int num_finished_context;
+  int num_L1_hits;
+  int num_L1_misses;
   
   GlobalStats() { reset(); }
 
   void reset() {
-    num_finished_context = 0;
     num_exec_instr = 0;
     num_cycles = 0;
+    num_finished_context = 0;
+    num_L1_hits = 0;
+    num_L1_misses = 0;
   }
   void print() {
     cout << "** Global Stats **\n";
     cout << "num_exec_instr = " << num_exec_instr << endl;
-    cout << "num_finished_context = " << num_finished_context << endl;
     cout << "num_cycles     = " << num_cycles << endl;
+    cout << "IPC            = " << num_exec_instr / (double)num_cycles << endl;
+    cout << "num_finished_context = " << num_finished_context << endl;
+    cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   }
 };
 
@@ -309,9 +315,10 @@ public:
   priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
   vector<uint64_t> to_evict;
   vector<DynamicNode*> to_send;
+  GlobalStats *stats;
   
-  Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface): 
-            latency(latency), ideal(ideal), memInterface(memInterface) {
+  Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface, GlobalStats *stats): 
+            latency(latency), ideal(ideal), memInterface(memInterface), stats(stats) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
     //cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
     /*if (ideal)
@@ -358,10 +365,12 @@ public:
     if (res) {                  
       d->handleMemoryReturn();
       d->print("Hits in Cache", 2);
+      stats->num_L1_hits++;
     }
     else {
       to_send.push_back(d);
       d->print("Misses in Cache", 2);
+      stats->num_L1_misses++;
     }
     if(evictedAddr != -1) {
       to_evict.push_back(evictedAddr*size_of_cacheline);
@@ -418,7 +427,7 @@ public:
   void initialize() {
     
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, &cb);
+    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, &cb, &stats);
             
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
