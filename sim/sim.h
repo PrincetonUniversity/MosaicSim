@@ -264,47 +264,25 @@ public:
 };
 
 
+class Cache;
 class DRAMSimInterface {
 public:
-  map< uint64_t, queue<DynamicNode*> > outstanding_accesses_map;
+  map< uint64_t, queue<DynamicNode*> > outstanding_load_map;
+  map< uint64_t, queue<DynamicNode*> > outstanding_store_map;;
   DRAMSim::MultiChannelMemorySystem *mem;
-  DRAMSimInterface() {
+  Cache *c;
+  bool ideal;
+  DRAMSimInterface(Cache *c, bool ideal) : c(c),ideal(ideal)  {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
     mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);
   }
-  
-  void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
-    assert(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end());
-    queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
-    DynamicNode* d = q.front();
-    d->handleMemoryReturn();
-    q.pop();
-    if (q.size() == 0)
-      outstanding_accesses_map.erase(addr);
-  }
-  void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-    if(outstanding_accesses_map.find(addr) != outstanding_accesses_map.end()) { 
-      queue<DynamicNode*> &q = outstanding_accesses_map.at(addr);
-      DynamicNode* d = q.front();
-      d->handleMemoryReturn();
-      q.pop();
-      if(q.size() == 0)
-        outstanding_accesses_map.erase(addr);
-    }
-  }
-  void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
-    mem->addTransaction(!isLoad, addr);
-    if(d!= NULL) {
-      if(outstanding_accesses_map.find(addr) == outstanding_accesses_map.end())
-        outstanding_accesses_map.insert(make_pair(addr, queue<DynamicNode*>()));
-      outstanding_accesses_map.at(addr).push(d);
-    }
-  }
+  void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle);
+  void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
+  void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad);
 };
-
 class Cache {
 public:
   typedef pair<DynamicNode*, uint64_t> Operator;
@@ -315,35 +293,22 @@ public:
   FunctionalSetCache *fc;
   bool ideal=false;
   priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
-  vector<uint64_t> to_evict;
   vector<DynamicNode*> to_send;
+  vector<uint64_t> to_evict;
+
   GlobalStats *stats;
   
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface, GlobalStats *stats): 
             latency(latency), ideal(ideal), memInterface(memInterface), stats(stats) {
     fc = new FunctionalSetCache(size, assoc, block_size);  
-    //cout << "\n$$$$$ l:" << latency << " s:" << size << " a:" << assoc << " b:" << block_size << " ideal:" << ideal << endl;
-    /*if (ideal)
-      latency=1; */ // JLA: commented this out so we can have perfect caches w/ latency > 1
   }
   
   void process_cache() {
-    cycles++;
     while(pq.size() > 0) {
       if(pq.top().second > cycles)
         break;
       execute(pq.top().first);
       pq.pop();
-    }
-
-    for(auto it = to_evict.begin(); it!= to_evict.end();) {
-      uint64_t eAddr = *it;
-      if(memInterface->mem->willAcceptTransaction(eAddr)) {
-        memInterface->addTransaction(NULL, eAddr, false);
-        it = to_evict.erase(it);
-      }
-      else
-        it++;
     }
     for(auto it = to_send.begin(); it!= to_send.end();) {
       DynamicNode *d = *it;
@@ -355,15 +320,21 @@ public:
       else
         it++;
     }
-//    if(to_send.size() > 50 || to_evict.size() > 50)
-  //    assert(false);
+    for(auto it = to_evict.begin(); it!= to_evict.end();) {
+      uint64_t eAddr = *it;
+      if(memInterface->mem->willAcceptTransaction(eAddr)) {
+        memInterface->addTransaction(NULL, eAddr, false);
+        it = to_evict.erase(it);
+      }
+      else
+        it++;
+    }
   }
   void execute(DynamicNode* d) {
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
-    int64_t evictedAddr = -1;
     bool res = true;
     if(!ideal)
-      res = fc->access(dramaddr/size_of_cacheline, &evictedAddr);
+      res = fc->access(dramaddr/size_of_cacheline);
     if (res) {                  
       d->handleMemoryReturn();
       d->print("Hits in Cache", 2);
@@ -374,9 +345,6 @@ public:
       d->print("Misses in Cache", 2);
       stats->num_L1_misses++;
     }
-    if(evictedAddr != -1) {
-      to_evict.push_back(evictedAddr*size_of_cacheline);
-    }
   }
   
   void addTransaction(DynamicNode *d) {
@@ -384,8 +352,53 @@ public:
     pq.push(make_pair(d, cycles+latency));   
   }   
 };
-
-
+void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
+  assert(outstanding_load_map.find(addr) != outstanding_load_map.end());
+  queue<DynamicNode*> &q = outstanding_load_map.at(addr);
+  while(q.size() > 0) {
+    DynamicNode* d = q.front();  
+    d->handleMemoryReturn();
+    q.pop();
+  }
+  int64_t evictedAddr = -1;
+  if(!ideal)
+    c->fc->insert(addr/64, &evictedAddr);
+  if(evictedAddr!=-1) {
+    assert(evictedAddr >= 0);
+    c->to_evict.push_back(evictedAddr*64);
+  }
+  if(q.size() == 0)
+    outstanding_load_map.erase(addr);
+}
+void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
+  if(outstanding_store_map.find(addr) != outstanding_store_map.end()) { 
+    queue<DynamicNode*> &q = outstanding_store_map.at(addr);
+    DynamicNode* d = q.front();
+    d->handleMemoryReturn();
+    q.pop();
+    if(q.size() == 0)
+      outstanding_store_map.erase(addr);
+  }
+}
+void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
+  if(d!= NULL && d->type == LD) {
+    if(outstanding_load_map.find(addr) == outstanding_load_map.end()) {
+      outstanding_load_map.insert(make_pair(addr, queue<DynamicNode*>()));
+      mem->addTransaction(!isLoad, addr);
+    }
+    outstanding_load_map.at(addr).push(d);  
+  }
+  else if (d!= NULL && d->type == ST) {
+    if(outstanding_store_map.find(addr) == outstanding_store_map.end()) {
+      outstanding_store_map.insert(make_pair(addr, queue<DynamicNode*>()));
+      mem->addTransaction(!isLoad, addr);
+    }
+    outstanding_store_map.at(addr).push(d);  
+  }
+  else {
+    mem->addTransaction(!isLoad, addr);
+  }
+}
 
 class Simulator 
 {
@@ -394,7 +407,7 @@ public:
   Config cfg;
   GlobalStats stats;
   uint64_t cycles = 0;
-  DRAMSimInterface cb= DRAMSimInterface(); 
+  DRAMSimInterface* cb; 
   Cache* cache;
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
@@ -422,20 +435,18 @@ public:
   LoadStoreQ lsq;
 
   void toMemHierarchy(DynamicNode* d) {
-    //cb.addTransaction(d, d->addr/64 * 64, d->type==LD);
     cache->addTransaction(d);
   }
  
   void initialize() {
-    
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, &cb, &stats);
-            
+    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, NULL, &stats);
+    cb = new DRAMSimInterface(cache, cfg.ideal_cache);
+    cache->memInterface = cb;
     lsq.size = cfg.lsq_size;
     for(int i=0; i<NUM_INST_TYPES; i++) {
       avail_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
     }
-
     if (cfg.cf_one_context_at_once) 
       context_to_create = 1;
     else if (cfg.cf_max_contexts_concurrently)  
@@ -482,7 +493,7 @@ public:
   }
 
   void process_memory() {
-    cb.mem->update();
+    cb->mem->update();
   }
 
   bool process_cycle() {
@@ -501,9 +512,7 @@ public:
       last = Clock::now();
       last_processed_contexts = 0;
     }
-    cycles++;
     bool simulate = false;
-    //assert(cycles < 10000);
     ports[0] = cfg.load_ports;
     ports[1] = cfg.store_ports;
 
@@ -533,6 +542,8 @@ public:
     }
     context_to_create -= context_created;   // some contexts can be left pending for later cycles
     cache->process_cache();
+    cycles++;
+    cache->cycles++;
     process_memory();
     return simulate;
   }
@@ -542,7 +553,7 @@ public:
     while (simulate)
       simulate = process_cycle();
     stats.num_cycles = cycles;
-    cb.mem->printStats(true);
+    cb->mem->printStats(true);
   }
 };
 

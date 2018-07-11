@@ -50,7 +50,7 @@ public:
     delete tail;
     delete [] entries;
   }
-  bool access(uint64_t address, int64_t* evict = NULL)
+  bool access(uint64_t address)
   {
     CacheLine *c = addr_map[address];
     if(c)
@@ -61,27 +61,24 @@ public:
       return true;
     }
     else
-    {      
-      // Miss
-      if(freeEntries.size() == 0) {
-        c = tail->prev;
-        if(evict)
-          *evict = c->addr;        
-      }
-      return false;            
+    {
+      return false;
     }
   }
-
-  //data has come back after DRAM miss, insert in cache set
-  void set_insert(uint64_t address) {    
+  void insert(uint64_t address, int64_t *evict = NULL)
+  {
     CacheLine *c = addr_map[address];
-    if(freeEntries.size() == 0) {
-      // Evcit
+    if(freeEntries.size() == 0)
+    {
+      // Evict
       c = tail->prev;
       deleteNode(c);
       addr_map.erase(c->addr);
+      if(evict)
+        *evict = c->addr;
     }
-    else {
+    else
+    {
       // Get from Free Entries
       c = freeEntries.front();
       freeEntries.erase(freeEntries.begin());
@@ -123,24 +120,22 @@ public:
       sets.push_back(new FunctionalCache(assoc));
     }
   }
-  bool access(uint64_t address, int64_t *evicted = NULL)
+  bool access(uint64_t address)
+  {
+    uint64_t setid = extract(log_set_count-1, 0, address);
+    uint64_t tag = extract(58, log_set_count, address);
+    FunctionalCache *c = sets.at(setid);
+    bool res = c->access(tag);
+    return res;
+  }
+  void insert(uint64_t address, int64_t *evicted = NULL)
   {
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
     FunctionalCache *c = sets.at(setid);
     int64_t evictedTag = -1;
-    bool res = c->access(tag, &evictedTag);
+    c->insert(tag, &evictedTag);
     if(evicted && evictedTag != -1)
-    {
       *evicted = evictedTag * set_count + setid;
-    }
-    return res;
   }
-  void cache_insert(uint64_t address) {
-    uint64_t setid = extract(log_set_count-1, 0, address);
-    uint64_t tag = extract(58, log_set_count, address);
-    FunctionalCache *c = sets.at(setid);
-    c->set_insert(tag);
-  }
-  
 };

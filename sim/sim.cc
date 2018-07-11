@@ -181,9 +181,7 @@ void Context::complete() {
 void DynamicNode::handleMemoryReturn() {
   print("Memory Transaction Returns", 0);
   print(to_string(outstanding_accesses), 0);
-
-  if(!sim->cfg.ideal_cache)
-    sim->cache->fc->cache_insert(addr/64);  //here we ask the functional cache to insert the missing entry
+  
   if(type == LD) {
     if(cfg->mem_speculate) {
       if(outstanding_accesses > 0)
