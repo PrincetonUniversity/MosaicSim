@@ -447,10 +447,12 @@ public:
     for(int i=0; i<NUM_INST_TYPES; i++) {
       avail_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
     }
-    if (cfg.cf_one_context_at_once) 
+    if (cfg.cf_mode == 0) 
       context_to_create = 1;
-    else if (cfg.cf_max_contexts_concurrently)  
+    else if (cfg.cf_mode == 1)  
       context_to_create = cf.size();
+    else
+      assert(false);
   }
 
   bool createContext() {
