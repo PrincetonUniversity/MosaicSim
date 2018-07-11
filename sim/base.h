@@ -340,6 +340,12 @@ public:
       case 6:
         cfg.L1_size = val;
         break;
+      case 7:
+        cfg.load_ports = val;
+        break;
+      case 8:
+        cfg.store_ports = val;
+        break;
     }
   }
   void readCfg(std::string name, Config &cfg) { // TODO: Read config from <filename>
@@ -406,8 +412,8 @@ public:
     cfg.num_units[ST] = -1;
     cfg.num_units[TERMINATOR] = -1;
     cfg.num_units[PHI] = -1;
-    cfg.load_ports = 9999;
-    cfg.store_ports = 9999;
+    //cfg.load_ports = 9999;
+    //cfg.store_ports = 9999;
     cfg.outstanding_load_requests = 9999;
     cfg.outstanding_store_requests = 9999;
 
