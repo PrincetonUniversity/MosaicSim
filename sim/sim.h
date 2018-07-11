@@ -5,11 +5,14 @@
 #include "base.h"
 #include "include/DRAMSim.h"
 #include "functional_cache.h"
-#define DEBUGLOG 1
 
 using namespace apollo;
 using namespace std;
+
+#include <chrono>
+typedef std::chrono::high_resolution_clock Clock;
 class Simulator;
+
 
 
 class GlobalStats {
@@ -382,6 +385,9 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface cb= DRAMSimInterface(); 
   Cache* cache;
+  chrono::high_resolution_clock::time_point curr;
+  chrono::high_resolution_clock::time_point last;
+  uint64_t last_processed_contexts;
 
   vector<Context*> context_list;
   vector<Context*> live_context;
@@ -471,9 +477,18 @@ public:
   bool process_cycle() {
     if(cfg.vInputLevel > 0)
       cout << "[Cycle: " << cycles << "]\n";
-    if(cycles % 1000000 == 0) {
+    if(cycles % 1000000 == 0 && cycles !=0) {
+      curr = Clock::now();
+      uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
+      cout << "Simulation Speed: " << ((double)(stats.num_finished_context - last_processed_contexts)) / tdiff << " contexts per ms \n";
+      last_processed_contexts = stats.num_finished_context;
+      last = curr;
       stats.num_cycles = cycles;
       stats.print();
+    }
+    else if(cycles == 0) {
+      last = Clock::now();
+      last_processed_contexts = 0;
     }
     cycles++;
     bool simulate = false;
@@ -495,20 +510,7 @@ public:
     }
     if(live_context.size() > 0)
       simulate = true;
-    /*
-    for (int i=0; i<context_list.size(); i++) {
-      if (context_list.at(i)->live)
-        context_list.at(i)->process();
-    }
-
-    for (int i=0; i<context_list.size(); i++) {
-      if(context_list.at(i)->live) {
-        context_list.at(i)->complete();
-        if(context_list.at(i)->live)
-          simulate = true;
-      }
-    }
-    */
+    
     int context_created = 0;
     for (int i=0; i<context_to_create; i++) {
       if ( createContext() ) {
