@@ -227,6 +227,10 @@ bool DynamicNode::issueMemNode() {
   bool canExecute = true;
   bool speculate = false;
   int forwardRes = -1;
+  if(sim->ports[1] == 0 && type == ST)
+    return false;
+  if(sim->ports[0] == 0 && type == LD)
+    return false;
 
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
@@ -234,8 +238,6 @@ bool DynamicNode::issueMemNode() {
     bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(this, LD);
     bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
-    if (sim->ports[1] == 0)
-      canExecute = false;
   }
   else if (type == LD) {
     if(cfg->mem_forward)
@@ -250,14 +252,11 @@ bool DynamicNode::issueMemNode() {
         stallCondition = exists_conflicting_ST;
         speculate = exists_unresolved_ST && !exists_conflicting_ST;
       }
-      else {
+      else
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-      }
-      if(sim->ports[0] == 0)
-        canExecute = false;
     }
   }
-  canExecute &= !stallCondition;
+  canExecute = !stallCondition;
   // Issue Successful
   if(canExecute) {
     issued = true;
@@ -271,7 +270,7 @@ bool DynamicNode::issueMemNode() {
         print("Retrieves Speculatively Forwarded Data", 1);
         c->insertQ(this);
       }
-      else { 
+      else {
         sim->ports[0]--;
         sim->toMemHierarchy(this);
         if (speculate) {
@@ -279,7 +278,7 @@ bool DynamicNode::issueMemNode() {
         }
       }
     }
-    else if (n->typeInstr == ST) {
+    else if (type == ST) {
       sim->ports[1]--;
       sim->toMemHierarchy(this);
     }

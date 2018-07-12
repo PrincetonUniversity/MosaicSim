@@ -1,9 +1,9 @@
-4096,lsq_size
+16384,lsq_size
 0,cf_mode
 0,mem_speculate
 0,mem_forward
 9999,max_contexts_per_bb
 0,ideal_cache
 4096,l1_size_in_kb
-16,load_ports
-16,store_ports
+400,load_ports
+400,store_ports
