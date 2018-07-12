@@ -20,7 +20,7 @@
 using namespace std;
 namespace apollo {
 
-#define NUM_INST_TYPES 16
+#define NUM_INST_TYPES 15
 class Node;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, PHI_DEP} TEdge;

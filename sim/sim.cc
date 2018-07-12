@@ -227,9 +227,10 @@ bool DynamicNode::issueMemNode() {
   bool canExecute = true;
   bool speculate = false;
   int forwardRes = -1;
-  if(sim->ports[1] == 0 && type == ST)
-    return false;
+  
   if(sim->ports[0] == 0 && type == LD)
+    return false;
+  if(sim->ports[1] == 0 && type == ST)
     return false;
 
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);

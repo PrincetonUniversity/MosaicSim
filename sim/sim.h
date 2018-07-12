@@ -198,8 +198,15 @@ public:
       DynamicNode *d = *it;
       if(*d == *in)
         return false;
-      else if(*in < *d)
+      else if(*in < *d) { // input is older (lower cid) than the current one
+        if(in->c->id > d->c->id)
+          assert(false);
+        if(in->c->id ==  d->c->id && in->n->id > d->n->id)
+          assert(false);
+        if(in->c->id == d->c->id && in->n->id == d->n->id)
+          assert(false);
         return false;
+      }
       if(!(d->addr_resolved) && d->type == op_type) {
         return true;
       }     
