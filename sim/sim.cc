@@ -234,6 +234,8 @@ bool DynamicNode::issueMemNode() {
     bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(this, LD);
     bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
     stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
+    if (sim->ports[1] == 0)
+      canExecute = false;
   }
   else if (type == LD) {
     if(cfg->mem_forward)
@@ -251,9 +253,7 @@ bool DynamicNode::issueMemNode() {
       else {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
       }
-      if (type == LD && sim->ports[0] == 0)
-        canExecute = false;
-      if (type == ST && sim->ports[1] == 0)
+      if(sim->ports[0] == 0)
         canExecute = false;
     }
   }
