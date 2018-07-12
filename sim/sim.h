@@ -213,43 +213,45 @@ public:
     }
   }
   //there's at least one unstarted (unknown address) older memop
-  bool exists_unresolved_memop (DynamicNode* in, TInstr op_type) {
+  bool check_unresolved_store (DynamicNode* in) {
     invoke[0]++;
     for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
       DynamicNode *d = *it;
       traverse[0]++;
-      if(*d == *in)
+      if((*d == *in) || (*in < *d))
         return false;
-      else if(*in < *d) { // input is older (lower cid) than the current one
-        if(in->c->id > d->c->id)
-          assert(false);
-        if(in->c->id ==  d->c->id && in->n->id > d->n->id)
-          assert(false);
-        if(in->c->id == d->c->id && in->n->id == d->n->id)
-          assert(false);
-        return false;
-      }
-      if(!(d->addr_resolved) && d->type == op_type) {
+      if(d->type == ST && !d->addr_resolved)
         return true;
-      }     
     }
     return false;
-  }
-  //there's at least one addr_resolved, uncompleted older memop with same address
-  //negation says for all memops with addr_resolved, uncompleted older memops don't match address
-  bool exists_conflicting_memop (DynamicNode* in, TInstr op_type) {
+  } 
+  bool check_load_issue(DynamicNode *in, bool speculation_enabled) {
     invoke[1]++;
     for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
-      traverse[1]++;
       DynamicNode *d = *it;
-      if(*d == *in)
+      traverse[1]++;
+      if((*d == *in) || (*in < *d))
         return false;
-      else if(*in < *d)
-        return false;
-      if((d->addr_resolved) && !(d->completed) && d->n->typeInstr == op_type && d->addr == in->addr)
-        return true;
+      if(d->type == ST) {
+        if(!speculation_enabled && !d->addr_resolved)
+          return true;
+        else if(d->addr == in->addr && !d->completed)
+          return true;
+      }
     }
-    return false;
+  }
+  bool check_store_issue(DynamicNode *in) {
+    invoke[2]++;
+    for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+      DynamicNode *d = *it;
+      traverse[2]++;
+      if((*d == *in) || (*in < *d))
+        return false;
+      if(!d->addr_resolved) // unknown address
+        return true;
+      else if(d->addr == in->addr && !d->completed) // incomplete instruction with the same address
+          return true;
+    }
   }
   int check_forwarding (DynamicNode* in) {
     invoke[2]++;
@@ -593,7 +595,7 @@ void GlobalStats::print() {
   cout << "L1_misses = " << num_L1_misses << endl;
   cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   cout << "MemIssue Try : " << num_mem_issue_try << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueTry : " << num_comp_issue_try << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
-  cout << "MemAccess : " << num_mem_access << " / " << " / DRAM Access:" << num_mem_real << "DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
+  cout << "MemAccess : " << num_mem_access << " / " << "DRAM Access:" << num_mem_real << " / DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
   cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
   cout << "lsq: " << sim->lsq.invoke[0] << " / " << sim->lsq.invoke[1] << " / " << sim->lsq.invoke[2] << " / " << sim->lsq.invoke[3] << " \n";
   cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";

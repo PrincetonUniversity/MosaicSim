@@ -146,7 +146,7 @@ void Context::process() {
   }
   for(auto it = waiting_set.begin(); it!= waiting_set.end();) {
     DynamicNode *d = *it;
-    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.exists_unresolved_memop(d, ST))
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d))
       ++it;
     else {
       nodes_to_complete.push_back(d);
@@ -157,7 +157,7 @@ void Context::process() {
     if(pq.top().second > sim->cycles)
       break;
     DynamicNode *d = pq.top().first;
-    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.exists_unresolved_memop(d, ST))
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d))
       waiting_set.insert(d);
     else
       nodes_to_complete.push_back(d);
@@ -235,75 +235,45 @@ bool DynamicNode::issueMemNode() {
     sim->stats.memory_events[7]++;
     return false;
   }
-
-  bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
-  if(exists_unresolved_ST) {
-    sim->stats.memory_events[0]++;
-    return false;
-  }
-  bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
-  if(exists_conflicting_ST) {
-    sim->stats.memory_events[1]++;
-    return false;
-  }
-
-  if (type == ST) {
-    bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(this, LD);
-    if(exists_unresolved_LD) {
-      sim->stats.memory_events[2]++;
-      return false;
-    }
-    bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
-    if(exists_conflicting_LD) {
-      sim->stats.memory_events[3]++;
-      return false;
-    }
-  }
-  /*else if (type == LD) {
-    if(cfg->mem_forward)
-      forwardRes = sim->lsq.check_forwarding(this);
-    if(forwardRes == 1) {
-    }
-    else if(forwardRes == 0 && cfg->mem_speculate) {
+  if(type == LD && cfg->mem_forward) {
+    forwardRes = sim->lsq.check_forwarding(this);
+    if(forwardRes == 0 && cfg->mem_speculate)
       speculate = true;
+  }
+  if(type == LD && forwardRes == -1) {
+    if(!sim->lsq.check_load_issue(this, cfg->mem_speculate))
+      return false;
+  }
+  else if(type == ST) {
+    if(!sim->lsq.check_store_issue(this)) 
+      return false;
+  }
+  
+  issued = true;
+  sim->stats.num_mem_issue_pass++;
+  speculated = speculate;
+  if (type == LD) {
+    if(forwardRes == 1) { 
+      print("Retrieves Forwarded Data", 1);
+      c->insertQ(this);
+    }
+    else if(forwardRes == 0 && cfg->mem_speculate) { 
+      print("Retrieves Speculatively Forwarded Data", 1);
+      c->insertQ(this);
     }
     else {
-      if(cfg->mem_speculate) {
-        stallCondition = exists_conflicting_ST;
-        speculate = exists_unresolved_ST && !exists_conflicting_ST;
-      }
-      else
-        stallCondition = exists_unresolved_ST || exists_conflicting_ST;
-    }
-  }*/
-  // Issue Successful
-  if(canExecute) {
-    issued = true;
-    sim->stats.num_mem_issue_pass++;
-    speculated = speculate;
-    if (type == LD) {
-      if(forwardRes == 1) { 
-        print("Retrieves Forwarded Data", 1);
-        c->insertQ(this);
-      }
-      else if(forwardRes == 0 && cfg->mem_speculate) { 
-        print("Retrieves Speculatively Forwarded Data", 1);
-        c->insertQ(this);
-      }
-      else {
-        sim->ports[0]--;
-        sim->toMemHierarchy(this);
-        if (speculate) {
-          outstanding_accesses++;
-        }
-      }
-    }
-    else if (type == ST) {
-      sim->ports[1]--;
+      sim->ports[0]--;
       sim->toMemHierarchy(this);
+      if (speculate) {
+        outstanding_accesses++;
+      }
     }
-    return true;
   }
+  else if (type == ST) {
+    sim->ports[1]--;
+    sim->toMemHierarchy(this);
+  }
+  return true;
 }
 
 void DynamicNode::finishNode() {
