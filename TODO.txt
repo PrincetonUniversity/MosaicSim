@@ -1,11 +1,10 @@
-/* Major Functionality */
-[GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
-[Sim] MSHR request merges : N DRAM requests to the same cacheline (in a short time) should be merged instead of issuing N separate requests for the same cacheline
-[Workload] Chirag & JLA / SHOC & Machsuite
-
-/* Minor Functionality */
-[Sim] Memory Cleanup 
+[Sim] Dirty Bit
+[Sim] Gemm Bug (Chirag's experiments)
 [Sim] Detailed resource limits for memory systems
+
+
+---- Double Check ---- 
+[GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
 [Sim] PHI_Node 0 latency
 
 /* Code Improvements */ (Low Priority)
