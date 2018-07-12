@@ -593,10 +593,10 @@ void GlobalStats::print() {
   cout << "L1_misses = " << num_L1_misses << endl;
   cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   cout << "MemIssueFail : " << num_mem_issue_fail << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueFail : " << num_comp_issue_fail << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
-  cout << "MemAccess : " << num_mem_access << " / " << "Real:" << num_mem_real << "MemReturn : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
+  cout << "MemAccess : " << num_mem_access << " / " << " / DRAM Access:" << num_mem_real << "DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
   cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
   cout << "lsq: " << sim->lsq.invoke[0] << " / " << sim->lsq.invoke[1] << " / " << sim->lsq.invoke[2] << " / " << sim->lsq.invoke[3] << " \n";
   cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";
   for(int i=0; i<8; i++)
-    cout << "Memvent: " << memory_events[i] << "\n";
+    cout << "Memory Event: " << memory_events[i] << "\n";
 }
