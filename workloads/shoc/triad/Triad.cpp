@@ -1,6 +1,6 @@
 #include <random>
 
-#define SIZE    64
+#define SIZE    2048
 #define SCALE   3
 #define MAX_NUM 10000
 

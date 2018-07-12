@@ -9,10 +9,10 @@ all:
 	make --directory=triad
 
 run: all
-	make --directory=bfs     run
-	make --directory=fft     run
+	#make --directory=bfs     run
+	#make --directory=fft     run
 	make --directory=gemm    run
-	make --directory=md      run
+	#make --directory=md      run
 	make --directory=scan    run
 	make --directory=sort    run
 	make --directory=stencil run
