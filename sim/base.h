@@ -63,10 +63,10 @@ public:
   // For Store Nodes
   std::set<Node*> store_addr_dependents; // store_address_dependents
   int id;
-  int lat;
   TInstr typeInstr;
   int bbid;
   std::string name;
+  int lat;
   
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
@@ -118,16 +118,19 @@ class BasicBlock {
 public:
   std::vector<Node*> inst;
   int id;
-  int inst_count;
-  int mem_inst_count;
+  unsigned int inst_count;
+  unsigned int ld_count;
+  unsigned int st_count;
 
-  BasicBlock(int id): id(id), inst_count(0), mem_inst_count(0) {}
+  BasicBlock(int id): id(id), inst_count(0), ld_count(0), st_count(0) {}
   
   void addInst(Node* n) {
     inst.push_back(n);
     inst_count++;
-    if(n->typeInstr == LD || n->typeInstr == ST)
-      mem_inst_count++;
+    if(n->typeInstr == LD)
+      ld_count++;
+    else if(n->typeInstr == ST)
+      st_count++;
   }
 };
 
@@ -311,7 +314,6 @@ public:
      stringstream ss(s);
      string item;
      vector<string> tokens;
-     int ct = 0;
      while (getline(ss, item, delim)) {
         tokens.push_back(item);
      }

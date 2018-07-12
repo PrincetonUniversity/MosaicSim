@@ -76,7 +76,7 @@ void Context::initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bb
   this->prev_bbid = prev_bbid;  
   live = true;
   // Initialize Context Structures
-  for ( int i=0; i<bb->inst.size(); i++ ) {
+  for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     if(n->typeInstr == ST || n->typeInstr == LD) {
       assert(sim->memory.find(n->id) !=sim->memory.end());
@@ -169,7 +169,7 @@ void Context::process() {
 }
 
 void Context::complete() {
-  for(int i=0; i<nodes_to_complete.size(); i++) {
+  for(unsigned int i=0; i<nodes_to_complete.size(); i++) {
     DynamicNode *d = nodes_to_complete.at(i);
     d->finishNode();
   }
@@ -203,7 +203,6 @@ void DynamicNode::handleMemoryReturn() {
 
 bool DynamicNode::issueCompNode() {
   issued = true;
-  bool canExecute = true;
   sim->stats.num_comp_issue_try++;
   // check resource (FU) availability
   if (sim->avail_FUs.at(n->typeInstr) != -1) {
@@ -221,7 +220,6 @@ bool DynamicNode::issueMemNode() {
   issued = true;
   addr_resolved = true;
 
-  bool stallCondition = false;  
   bool speculate = false;
   int forwardRes = -1;
 
@@ -287,7 +285,7 @@ void DynamicNode::finishNode() {
   // Speculation
   if (cfg->mem_speculate && n->typeInstr == ST) {
     auto misspeculated = sim->lsq.check_speculation(this);
-    for(int i=0; i<misspeculated.size(); i++) {
+    for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
       misspeculated.at(i)->issued = false;
       misspeculated.at(i)->completed = false;
@@ -310,7 +308,7 @@ void DynamicNode::finishNode() {
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
-  for(int i=0; i<external_dependents.size(); i++) {
+  for(unsigned int i=0; i<external_dependents.size(); i++) {
     DynamicNode *dst = external_dependents.at(i);
     if(dst->n->store_addr_dependents.find(n) != dst->n->store_addr_dependents.end()) {
       dst->addr_resolved = true;

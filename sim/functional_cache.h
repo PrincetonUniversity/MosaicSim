@@ -110,7 +110,7 @@ public:
   int set_count;
   int log_set_count;
   std::vector<FunctionalCache*> sets;
-  FunctionalSetCache(int size, int assoc, int block_size)
+  FunctionalSetCache(int size, int assoc)
   {
     line_count = size * 1024 / 64;
     set_count = line_count / assoc;

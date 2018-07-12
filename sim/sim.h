@@ -70,7 +70,7 @@ struct OpCompare {
 class Context {
 public:
   bool live;
-  int id;
+  unsigned int id;
 
   Simulator* sim;
   Config *cfg;
@@ -175,7 +175,8 @@ public:
 
 class LoadStoreQ {
 public:
-  deque<DynamicNode*> q;
+  deque<DynamicNode*> lq;
+  deque<DynamicNode*> sq;
   int size;
   int invoke[4];
   int traverse[4];
@@ -190,63 +191,88 @@ public:
     traverse[3] = 0;
   }
   void insert(DynamicNode *d) {
-    q.push_back(d);
+    if(d->type == LD)
+      lq.push_back(d);
+    else
+      sq.push_back(d);
   }
-  bool checkSize(int requested_space) {
-    if(q.size() <= size - requested_space) {
+  bool checkSize(int num_ld, int num_st) {
+    int ld_need = lq.size() + num_ld - size;
+    int st_need = sq.size() + num_st - size; 
+    int ld_ct = 0;
+    int st_ct = 0;
+    if(ld_need <= 0 && st_need <= 0)
       return true;
-    }
-    else {
-      int ct = 0;
-      for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+    if(ld_need > 0) {
+      for(auto it = lq.begin(); it!= lq.end(); ++it) {
         if((*it)->completed)
-          ct++;
+          ld_ct++;
         else
           break;
       }
-      if(ct > requested_space) {
-        for(int i=0; i<requested_space; i++)
-          q.pop_front();
-        return true;
-      }
-      return false;
     }
+    if(st_need > 0) {
+      for(auto it = sq.begin(); it!= sq.end(); ++it) {
+        if((*it)->completed)
+          st_ct++;
+        else
+          break;
+      }
+    }
+    if(ld_ct >= ld_need && st_ct >= st_need) {
+      for(int i=0; i<ld_ct; i++)
+          lq.pop_front();
+      for(int i=0; i<st_ct; i++)
+          sq.pop_front();  
+      return true;
+    }
+    else 
+      return false;
   }
   //there's at least one unstarted (unknown address) older memop
   bool check_unresolved_store (DynamicNode* in) {
     invoke[0]++;
-    for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+    assert(in->type == LD);
+    for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
       DynamicNode *d = *it;
       traverse[0]++;
-      if((*d == *in) || (*in < *d))
+      if(*in < *d) // in is older than d
         return false;
-      if(d->type == ST && !d->addr_resolved)
+      if(!d->addr_resolved)
         return true;
     }
     return false;
   } 
   bool check_load_issue(DynamicNode *in, bool speculation_enabled) {
     invoke[1]++;
-    for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+    for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
       DynamicNode *d = *it;
       traverse[1]++;
-      if((*d == *in) || (*in < *d))
+      if(*in < *d)
         return true;
-      if(d->type == ST) {
-        if(!speculation_enabled && !d->addr_resolved)
-          return false;
-        else if(d->addr == in->addr && !d->completed)
-          return false;
-      }
+      if(!speculation_enabled && !d->addr_resolved)
+        return false;
+      else if(d->addr == in->addr && !d->completed)
+        return false;
     }
     return true;
   }
   bool check_store_issue(DynamicNode *in) {
     invoke[2]++;
-    for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+    for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
       DynamicNode *d = *it;
       traverse[2]++;
       if((*d == *in) || (*in < *d))
+        return true;
+      if(!d->addr_resolved) // unknown address
+        return false;
+      else if(d->addr == in->addr && !d->completed) // incomplete instruction with the same address
+          return false;
+    }
+    for(deque<DynamicNode*>::iterator it = lq.begin(); it!= lq.end(); ++it) {
+      DynamicNode *d = *it;
+      traverse[2]++;
+      if(*in < *d)
         return true;
       if(!d->addr_resolved) // unknown address
         return false;
@@ -257,41 +283,35 @@ public:
   }
   int check_forwarding (DynamicNode* in) {
     invoke[2]++;
-    bool found = false;
     bool speculative = false;
-    for(deque<DynamicNode*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
-      DynamicNode *d = *it;
+    for(deque<DynamicNode*>::reverse_iterator it = sq.rbegin(); it!= sq.rend(); ++it) {
+      DynamicNode *d = *it; // traverse from youngest to oldest
       traverse[2]++;
-      if(*d == *in) {
-        found = true;
+      if(*in < *d) // in is older than d 
         continue;
+      if(d->addr == in->addr) {
+        if(d->completed && !speculative)
+          return 1;
+        else if(d->completed && speculative)
+          return 0;
+        else
+          return -1;
       }
-      if(found) {
-        if(d->addr == in->addr)
-          if(d->completed && !speculative)
-            return 1;
-          else if(d->completed && speculative)
-            return 0;
-          else
-            return -1;
-        else if(!d->addr_resolved) {
-          speculative = true;
-        }
-      }
+      else if(!d->addr_resolved)
+        speculative = true;
     }
     return -1;
   }
   std::vector<DynamicNode*> check_speculation (DynamicNode* in) {
     invoke[3]++;
     std::vector<DynamicNode*> ret;
-    for(deque<DynamicNode*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
+    //find younger loads than incoming store
+    for(deque<DynamicNode*>::reverse_iterator it = lq.rbegin(); it!= lq.rend(); ++it) {
       DynamicNode *d = *it;
       traverse[3]++;
-      if(*d == *in)
+      if(*d < *in) // d is older than in
         break;
-      else if(*d < *in)
-        break;
-      if(d->speculated && !(d->completed) && d->n->typeInstr == LD && d->addr == in->addr) {
+      if(d->speculated && d->n->typeInstr == LD && d->addr == in->addr) {
         d->speculated = false;
         ret.push_back(d);
       }
@@ -315,27 +335,30 @@ public:
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     mem->setCPUClockSpeed(2000000000);
   }
-  void read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle);
+  void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad);
 };
 class Cache {
 public:
   typedef pair<DynamicNode*, uint64_t> Operator;
-  uint64_t cycles = 0;
-  DRAMSimInterface *memInterface;
-  int size_of_cacheline = 64;
-  int latency;
   FunctionalSetCache *fc;
-  bool ideal=false;
-  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
   vector<DynamicNode*> to_send;
   vector<uint64_t> to_evict;
+  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
+  
+  uint64_t cycles = 0;
+  int size_of_cacheline = 64;
+  
+  int latency;
+  bool ideal;
+  DRAMSimInterface *memInterface;
+
   GlobalStats *stats;
   
-  Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface, GlobalStats *stats): 
-            latency(latency), ideal(ideal), memInterface(memInterface), stats(stats) {
-    fc = new FunctionalSetCache(size, assoc, block_size);  
+  Cache(int latency, int size, int assoc, bool ideal, GlobalStats *stats): 
+            latency(latency), ideal(ideal), stats(stats) {
+    fc = new FunctionalSetCache(size, assoc);  
   }
   
   void process_cache() {
@@ -390,7 +413,7 @@ public:
     pq.push(make_pair(d, cycles+latency));   
   }   
 };
-void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
+void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
   c->stats->num_mem_return++;
   queue<DynamicNode*> &q = outstanding_read_map.at(addr);
@@ -468,7 +491,7 @@ public:
  
   void initialize() {
     // Initialize Resources / Limits
-    cache = new Cache( cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.block_size, cfg.ideal_cache, NULL, &stats);
+    cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.ideal_cache, &stats);
     cb = new DRAMSimInterface(cache, cfg.ideal_cache);
     cache->memInterface = cb;
     lsq.size = cfg.lsq_size;
@@ -484,7 +507,7 @@ public:
   }
 
   bool createContext() {
-    int cid = context_list.size();
+    unsigned int cid = context_list.size();
     if (cf.size() == cid) // reached end of <cf> so no more contexts to create
       return false;
 
@@ -502,7 +525,7 @@ public:
     
     BasicBlock *bb = g.bbs.at(bbid);
     // Check LSQ Availability
-    if(!lsq.checkSize(bb->mem_inst_count))
+    if(!lsq.checkSize(bb->ld_count, bb->st_count))
       return false;
 
     // check the limit of contexts per BB
@@ -597,7 +620,7 @@ void GlobalStats::print() {
   cout << "L1_misses = " << num_L1_misses << endl;
   cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   cout << "MemIssue Try : " << num_mem_issue_try << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueTry : " << num_comp_issue_try << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
-  cout << "MemAccess : " << num_mem_access << " / " << "DRAM Access:" << num_mem_real << " / DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
+  cout << "MemAccess : " << num_mem_access << " / " << "DRAM Access : " << num_mem_real << " / DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
   cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
   cout << "lsq: " << sim->lsq.invoke[0] << " / " << sim->lsq.invoke[1] << " / " << sim->lsq.invoke[2] << " / " << sim->lsq.invoke[3] << " \n";
   cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";
