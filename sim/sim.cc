@@ -222,7 +222,6 @@ bool DynamicNode::issueMemNode() {
   addr_resolved = true;
 
   bool stallCondition = false;  
-  bool canExecute = true;
   bool speculate = false;
   int forwardRes = -1;
 

@@ -231,14 +231,15 @@ public:
       DynamicNode *d = *it;
       traverse[1]++;
       if((*d == *in) || (*in < *d))
-        return false;
+        return true;
       if(d->type == ST) {
         if(!speculation_enabled && !d->addr_resolved)
-          return true;
+          return false;
         else if(d->addr == in->addr && !d->completed)
-          return true;
+          return false;
       }
     }
+    return true;
   }
   bool check_store_issue(DynamicNode *in) {
     invoke[2]++;
@@ -246,12 +247,13 @@ public:
       DynamicNode *d = *it;
       traverse[2]++;
       if((*d == *in) || (*in < *d))
-        return false;
-      if(!d->addr_resolved) // unknown address
         return true;
+      if(!d->addr_resolved) // unknown address
+        return false;
       else if(d->addr == in->addr && !d->completed) // incomplete instruction with the same address
-          return true;
+          return false;
     }
+    return true;
   }
   int check_forwarding (DynamicNode* in) {
     invoke[2]++;
