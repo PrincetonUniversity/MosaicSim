@@ -107,7 +107,6 @@ public:
   bool speculated = false;
   int outstanding_accesses = 0;
   /* Depedency */
-  //int remaining_cycles;
   int pending_parents;
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
@@ -130,7 +129,6 @@ public:
     else
       pending_parents = n->parents.size();
     pending_external_parents = n->external_parents.size();
-    //remaining_cycles = n->lat;
     if(addr == 0)
       isMem = false;
     else
@@ -202,7 +200,7 @@ public:
         return false;
       else if(*in < *d)
         return false;
-      if(!(d->addr_resolved) && d->n->typeInstr == op_type) {
+      if(!(d->addr_resolved) && d->type == op_type) {
         return true;
       }     
     }
@@ -409,8 +407,8 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface* cb; 
   Cache* cache;
-  //chrono::high_resolution_clock::time_point curr;
-  //chrono::high_resolution_clock::time_point last;
+  chrono::high_resolution_clock::time_point curr;
+  chrono::high_resolution_clock::time_point last;
   uint64_t last_processed_contexts;
 
   vector<Context*> context_list;
@@ -502,16 +500,16 @@ public:
     if(cfg.vInputLevel > 0)
       cout << "[Cycle: " << cycles << "]\n";
     if(cycles % 100000 == 0 && cycles !=0) {
-      //curr = Clock::now();
-      //uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
-      //cout << "Simulation Speed: " << ((double)(stats.num_finished_context - last_processed_contexts)) / tdiff << " contexts per ms \n";
-      //last_processed_contexts = stats.num_finished_context;
-      //last = curr;
+      curr = Clock::now();
+      uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
+      cout << "Simulation Speed: " << ((double)(stats.num_finished_context - last_processed_contexts)) / tdiff << " contexts per ms \n";
+      last_processed_contexts = stats.num_finished_context;
+      last = curr;
       stats.num_cycles = cycles;
       stats.print();
     }
     else if(cycles == 0) {
-      //last = Clock::now();
+      last = Clock::now();
       last_processed_contexts = 0;
     }
     bool simulate = false;
