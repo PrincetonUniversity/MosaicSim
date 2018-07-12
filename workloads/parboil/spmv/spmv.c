@@ -5,7 +5,7 @@ void _kernel_spmv(int dim, float* h_data, int *h_nzcnt, int *h_ptr, int *h_indic
 	int ds, de;
 	//main execution // 7454500 // 1863600
 	int count = 0 ;
-	for(p=0;p<50;p++)
+	for(p=0;p<10;p++) // p = 50 
 	{
 		for (i = 0; i < dim; i=i+1) {
 		  float sum = 0.0f;
