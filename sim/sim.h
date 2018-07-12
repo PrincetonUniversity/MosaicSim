@@ -13,9 +13,8 @@ using namespace std;
 typedef std::chrono::high_resolution_clock Clock;
 class Simulator;
 
-
-
 class GlobalStats {
+  Simulator *sim;
 public:
   // some global stats
   int num_exec_instr;
@@ -23,8 +22,16 @@ public:
   int num_finished_context;
   int num_L1_hits;
   int num_L1_misses;
-  
-  GlobalStats() { reset(); }
+  int num_mem_issue_pass = 0;
+  int num_mem_issue_fail = 0;
+  int num_comp_issue_pass = 0;
+  int num_comp_issue_fail = 0;
+  int num_mem_access = 0;
+  int num_mem_return = 0;
+  int num_mem_evict = 0;
+  int num_mem_real = 0;
+  int memory_events[8];
+  GlobalStats(Simulator *sim): sim(sim) { reset(); }
 
   void reset() {
     num_exec_instr = 0;
@@ -32,17 +39,18 @@ public:
     num_finished_context = 0;
     num_L1_hits = 0;
     num_L1_misses = 0;
+    num_mem_issue_pass = 0;
+    num_mem_issue_fail = 0;
+    num_comp_issue_pass = 0;
+    num_comp_issue_fail = 0;
+    num_mem_access = 0;
+    num_mem_return = 0;
+    num_mem_evict = 0;
+    num_mem_real = 0;
+    for(int i=0; i<8; i++)
+      memory_events[i] = 0;
   }
-  void print() {
-    cout << "** Global Stats **\n";
-    cout << "num_exec_instr = " << num_exec_instr << endl;
-    cout << "num_cycles     = " << num_cycles << endl;
-    cout << "IPC            = " << num_exec_instr / (double)num_cycles << endl;
-    cout << "num_finished_context = " << num_finished_context << endl;
-    cout << "L1_hits = " << num_L1_hits << endl;
-    cout << "L1_misses = " << num_L1_misses << endl;
-    cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
-  }
+  void print();
 };
 
 class DynamicNode;
@@ -169,6 +177,18 @@ class LoadStoreQ {
 public:
   deque<DynamicNode*> q;
   int size;
+  int invoke[4];
+  int traverse[4];
+  LoadStoreQ() {
+    invoke[0] = 0;
+    invoke[1] = 0;
+    invoke[2] = 0;
+    invoke[3] = 0;
+    traverse[0] = 0;
+    traverse[1] = 0;
+    traverse[2] = 0;
+    traverse[3] = 0;
+  }
   void insert(DynamicNode *d) {
     q.push_back(d);
   }
@@ -194,8 +214,10 @@ public:
   }
   //there's at least one unstarted (unknown address) older memop
   bool exists_unresolved_memop (DynamicNode* in, TInstr op_type) {
+    invoke[0]++;
     for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
       DynamicNode *d = *it;
+      traverse[0]++;
       if(*d == *in)
         return false;
       else if(*in < *d) { // input is older (lower cid) than the current one
@@ -216,7 +238,9 @@ public:
   //there's at least one addr_resolved, uncompleted older memop with same address
   //negation says for all memops with addr_resolved, uncompleted older memops don't match address
   bool exists_conflicting_memop (DynamicNode* in, TInstr op_type) {
+    invoke[1]++;
     for(deque<DynamicNode*>::iterator it = q.begin(); it!= q.end(); ++it) {
+      traverse[1]++;
       DynamicNode *d = *it;
       if(*d == *in)
         return false;
@@ -228,10 +252,12 @@ public:
     return false;
   }
   int check_forwarding (DynamicNode* in) {
+    invoke[2]++;
     bool found = false;
     bool speculative = false;
     for(deque<DynamicNode*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
       DynamicNode *d = *it;
+      traverse[2]++;
       if(*d == *in) {
         found = true;
         continue;
@@ -252,9 +278,11 @@ public:
     return -1;
   }
   std::vector<DynamicNode*> check_speculation (DynamicNode* in) {
+    invoke[3]++;
     std::vector<DynamicNode*> ret;
     for(deque<DynamicNode*>::reverse_iterator it = q.rbegin(); it!= q.rend(); ++it) {
       DynamicNode *d = *it;
+      traverse[3]++;
       if(*d == *in)
         break;
       else if(*d < *in)
@@ -272,8 +300,7 @@ public:
 class Cache;
 class DRAMSimInterface {
 public:
-  map< uint64_t, queue<DynamicNode*> > outstanding_load_map;
-  map< uint64_t, queue<DynamicNode*> > outstanding_store_map;;
+  map< uint64_t, queue<DynamicNode*> > outstanding_read_map;
   DRAMSim::MultiChannelMemorySystem *mem;
   Cache *c;
   bool ideal;
@@ -300,7 +327,6 @@ public:
   priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
   vector<DynamicNode*> to_send;
   vector<uint64_t> to_evict;
-
   GlobalStats *stats;
   
   Cache(int latency, int size, int assoc, int block_size, bool ideal, DRAMSimInterface *memInterface, GlobalStats *stats): 
@@ -319,7 +345,8 @@ public:
       DynamicNode *d = *it;
       uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
       if(memInterface->mem->willAcceptTransaction(dramaddr)) {
-        memInterface->addTransaction(d, dramaddr, d->type == LD);
+        stats->num_mem_access++;
+        memInterface->addTransaction(d, dramaddr, true);
         it = to_send.erase(it);
       }
       else
@@ -328,6 +355,8 @@ public:
     for(auto it = to_evict.begin(); it!= to_evict.end();) {
       uint64_t eAddr = *it;
       if(memInterface->mem->willAcceptTransaction(eAddr)) {
+        stats->num_mem_access++;
+        stats->num_mem_evict++;
         memInterface->addTransaction(NULL, eAddr, false);
         it = to_evict.erase(it);
       }
@@ -358,8 +387,9 @@ public:
   }   
 };
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t mem_clock_cycle) {
-  assert(outstanding_load_map.find(addr) != outstanding_load_map.end());
-  queue<DynamicNode*> &q = outstanding_load_map.at(addr);
+  assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
+  c->stats->num_mem_return++;
+  queue<DynamicNode*> &q = outstanding_read_map.at(addr);
   while(q.size() > 0) {
     DynamicNode* d = q.front();  
     d->handleMemoryReturn();
@@ -373,35 +403,24 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t mem_cl
     c->to_evict.push_back(evictedAddr*64);
   }
   if(q.size() == 0)
-    outstanding_load_map.erase(addr);
+    outstanding_read_map.erase(addr);
 }
 void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-  if(outstanding_store_map.find(addr) != outstanding_store_map.end()) { 
-    queue<DynamicNode*> &q = outstanding_store_map.at(addr);
-    DynamicNode* d = q.front();
-    d->handleMemoryReturn();
-    q.pop();
-    if(q.size() == 0)
-      outstanding_store_map.erase(addr);
-  }
+  c->stats->num_mem_return++;
 }
 void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
-  if(d!= NULL && d->type == LD) {
-    if(outstanding_load_map.find(addr) == outstanding_load_map.end()) {
-      outstanding_load_map.insert(make_pair(addr, queue<DynamicNode*>()));
-      mem->addTransaction(!isLoad, addr);
+  if(d!= NULL) {
+    assert(isLoad == true);
+    if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
+      outstanding_read_map.insert(make_pair(addr, queue<DynamicNode*>()));
+      c->stats->num_mem_real++;
+      mem->addTransaction(false, addr);
     }
-    outstanding_load_map.at(addr).push(d);  
-  }
-  else if (d!= NULL && d->type == ST) {
-    if(outstanding_store_map.find(addr) == outstanding_store_map.end()) {
-      outstanding_store_map.insert(make_pair(addr, queue<DynamicNode*>()));
-      mem->addTransaction(!isLoad, addr);
-    }
-    outstanding_store_map.at(addr).push(d);  
+    outstanding_read_map.at(addr).push(d);  
   }
   else {
-    mem->addTransaction(!isLoad, addr);
+    assert(isLoad == false);
+    mem->addTransaction(true, addr);
   }
 }
 
@@ -410,7 +429,7 @@ class Simulator
 public:
   Graph g;
   Config cfg;
-  GlobalStats stats;
+  GlobalStats stats = GlobalStats(this);
   uint64_t cycles = 0;
   DRAMSimInterface* cb; 
   Cache* cache;
@@ -564,3 +583,20 @@ public:
   }
 };
 
+void GlobalStats::print() {
+  cout << "** Global Stats **\n";
+  cout << "num_exec_instr = " << num_exec_instr << endl;
+  cout << "num_cycles     = " << num_cycles << endl;
+  cout << "IPC            = " << num_exec_instr / (double)num_cycles << endl;
+  cout << "num_finished_context = " << num_finished_context << endl;
+  cout << "L1_hits = " << num_L1_hits << endl;
+  cout << "L1_misses = " << num_L1_misses << endl;
+  cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
+  cout << "MemIssueFail : " << num_mem_issue_fail << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueFail : " << num_comp_issue_fail << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
+  cout << "MemAccess : " << num_mem_access << " / " << "Real:" << num_mem_real << "MemReturn : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
+  cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
+  cout << "lsq: " << sim->lsq.invoke[0] << " / " << sim->lsq.invoke[1] << " / " << sim->lsq.invoke[2] << " / " << sim->lsq.invoke[3] << " \n";
+  cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";
+  for(int i=0; i<8; i++)
+    cout << "Memvent: " << memory_events[i] << "\n";
+}
