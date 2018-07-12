@@ -204,21 +204,16 @@ void DynamicNode::handleMemoryReturn() {
 bool DynamicNode::issueCompNode() {
   issued = true;
   bool canExecute = true;
+  sim->stats.num_comp_issue_try++;
   // check resource (FU) availability
   if (sim->avail_FUs.at(n->typeInstr) != -1) {
     if (sim->avail_FUs.at(n->typeInstr) == 0)
-      canExecute = false;
+      return false;
   }
-  if(canExecute) {
-    sim->stats.num_comp_issue_pass++;
-    if (sim->avail_FUs.at(n->typeInstr) != -1)
-      sim->avail_FUs.at(n->typeInstr)--;
-    return true;
-  }
-  else {
-    sim->stats.num_comp_issue_fail++;
-    return false;
-  }
+  if (sim->avail_FUs.at(n->typeInstr) != -1)
+    sim->avail_FUs.at(n->typeInstr)--;
+  sim->stats.num_comp_issue_pass++;
+  return true;
 }
 
 bool DynamicNode::issueMemNode() {
@@ -231,38 +226,38 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
 
+  sim->stats.num_mem_issue_try++;
   if(sim->ports[0] == 0 && type == LD) {
     sim->stats.memory_events[6]++;
-    sim->stats.num_mem_issue_fail++;
     return false;
   }
   if(sim->ports[1] == 0 && type == ST) {
     sim->stats.memory_events[7]++;
-    sim->stats.num_mem_issue_fail++;
     return false;
   }
 
   bool exists_unresolved_ST = sim->lsq.exists_unresolved_memop(this, ST);
+  if(exists_unresolved_ST) {
+    sim->stats.memory_events[0]++;
+    return false;
+  }
   bool exists_conflicting_ST = sim->lsq.exists_conflicting_memop(this, ST);
+  if(exists_conflicting_ST) {
+    sim->stats.memory_events[1]++;
+    return false;
+  }
+
   if (type == ST) {
     bool exists_unresolved_LD = sim->lsq.exists_unresolved_memop(this, LD);
-    bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
-    if(exists_conflicting_ST)
+    if(exists_unresolved_LD) {
       sim->stats.memory_events[2]++;
-    if(exists_unresolved_ST)
+      return false;
+    }
+    bool exists_conflicting_LD = sim->lsq.exists_conflicting_memop(this, LD);
+    if(exists_conflicting_LD) {
       sim->stats.memory_events[3]++;
-    if(exists_conflicting_LD)
-      sim->stats.memory_events[4]++;
-    if(exists_unresolved_LD)
-      sim->stats.memory_events[5]++;
-    stallCondition = exists_unresolved_ST || exists_conflicting_ST || exists_unresolved_LD || exists_conflicting_LD;
-  }
-  else if(type == LD) {
-    if(exists_conflicting_ST)
-      sim->stats.memory_events[0]++;
-    if(exists_unresolved_ST)
-      sim->stats.memory_events[1]++;
-    stallCondition = exists_unresolved_ST || exists_conflicting_ST;
+      return false;
+    }
   }
   /*else if (type == LD) {
     if(cfg->mem_forward)
@@ -281,7 +276,6 @@ bool DynamicNode::issueMemNode() {
         stallCondition = exists_unresolved_ST || exists_conflicting_ST;
     }
   }*/
-  canExecute = !stallCondition;
   // Issue Successful
   if(canExecute) {
     issued = true;
@@ -309,10 +303,6 @@ bool DynamicNode::issueMemNode() {
       sim->toMemHierarchy(this);
     }
     return true;
-  }
-  else {
-    sim->stats.num_mem_issue_fail++;
-    return false;
   }
 }
 
