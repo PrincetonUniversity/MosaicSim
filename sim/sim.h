@@ -5,7 +5,7 @@
 #include "base.h"
 #include "include/DRAMSim.h"
 #include "functional_cache.h"
-
+#define UNUSED 0
 using namespace apollo;
 using namespace std;
 
@@ -282,11 +282,11 @@ public:
     return true;
   }
   int check_forwarding (DynamicNode* in) {
-    invoke[2]++;
+    invoke[3]++;
     bool speculative = false;
     for(deque<DynamicNode*>::reverse_iterator it = sq.rbegin(); it!= sq.rend(); ++it) {
       DynamicNode *d = *it; // traverse from youngest to oldest
-      traverse[2]++;
+      traverse[3]++;
       if(*in < *d) // in is older than d 
         continue;
       if(d->addr == in->addr) {
@@ -303,12 +303,10 @@ public:
     return -1;
   }
   std::vector<DynamicNode*> check_speculation (DynamicNode* in) {
-    invoke[3]++;
     std::vector<DynamicNode*> ret;
     //find younger loads than incoming store
     for(deque<DynamicNode*>::reverse_iterator it = lq.rbegin(); it!= lq.rend(); ++it) {
       DynamicNode *d = *it;
-      traverse[3]++;
       if(*d < *in) // d is older than in
         break;
       if(d->speculated && d->n->typeInstr == LD && d->addr == in->addr) {
@@ -415,6 +413,8 @@ public:
 };
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
+  if(UNUSED)
+    cout << id << clock_cycle;
   c->stats->num_mem_return++;
   queue<DynamicNode*> &q = outstanding_read_map.at(addr);
   while(q.size() > 0) {
@@ -433,6 +433,8 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     outstanding_read_map.erase(addr);
 }
 void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
+  if(UNUSED)
+    cout << id << addr << clock_cycle;
   c->stats->num_mem_return++;
 }
 void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
