@@ -7,6 +7,7 @@
 #include <iostream>                         
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <queue>
 #include <iterator>
@@ -20,7 +21,7 @@
 using namespace std;
 namespace apollo {
 
-#define NUM_INST_TYPES 16
+#define NUM_INST_TYPES 15
 class Node;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
@@ -63,10 +64,10 @@ public:
   // For Store Nodes
   std::set<Node*> store_addr_dependents; // store_address_dependents
   int id;
-  int lat;
   TInstr typeInstr;
   int bbid;
   std::string name;
+  int lat;
   
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
@@ -118,16 +119,19 @@ class BasicBlock {
 public:
   std::vector<Node*> inst;
   int id;
-  int inst_count;
-  int mem_inst_count;
+  unsigned int inst_count;
+  unsigned int ld_count;
+  unsigned int st_count;
 
-  BasicBlock(int id): id(id), inst_count(0), mem_inst_count(0) {}
+  BasicBlock(int id): id(id), inst_count(0), ld_count(0), st_count(0) {}
   
   void addInst(Node* n) {
     inst.push_back(n);
     inst_count++;
-    if(n->typeInstr == LD || n->typeInstr == ST)
-      mem_inst_count++;
+    if(n->typeInstr == LD)
+      ld_count++;
+    else if(n->typeInstr == ST)
+      st_count++;
   }
 };
 
@@ -311,7 +315,6 @@ public:
      stringstream ss(s);
      string item;
      vector<string> tokens;
-     int ct = 0;
      while (getline(ss, item, delim)) {
         tokens.push_back(item);
      }
@@ -454,7 +457,7 @@ public:
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::string name, std::map<int, std::queue<uint64_t> > &memory) {
+  void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
     ifstream cfile(name);
