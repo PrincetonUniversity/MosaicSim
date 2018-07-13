@@ -131,6 +131,7 @@ void Context::process() {
   for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
     DynamicNode *d = *it;
     bool res = false;
+    assert(!d->issued);
     if(d->isMem)
       res = d->issueMemNode();
     else
@@ -145,7 +146,7 @@ void Context::process() {
       d->print("Issue Succesful",1);
     }
   }
-  for(auto it = waiting_set.begin(); it!= waiting_set.end();) {
+  for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
     if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)) {
       sim->stats.num_mem_hold++;
@@ -153,19 +154,14 @@ void Context::process() {
     }
     else {
       nodes_to_complete.push_back(d);
-      it = waiting_set.erase(it);
+      it = speculated_set.erase(it);
     }
   }
   while(pq.size() > 0) {
     if(pq.top().second > sim->cycles)
       break;
     DynamicNode *d = pq.top().first;
-    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)){
-      sim->stats.num_mem_hold++;
-      waiting_set.insert(d);
-    }
-    else
-      nodes_to_complete.push_back(d);
+    nodes_to_complete.push_back(d);
     pq.pop();
   }
 
@@ -194,7 +190,6 @@ void Context::complete() {
 void DynamicNode::handleMemoryReturn() {
   print("Memory Transaction Returns", 0);
   print(to_string(outstanding_accesses), 0);
-  
   if(type == LD) {
     if(cfg->mem_speculate) {
       if(outstanding_accesses > 0)
@@ -265,7 +260,8 @@ bool DynamicNode::issueMemNode() {
     }
     else if(forwardRes == 0 && cfg->mem_speculate) { 
       print("Retrieves Speculatively Forwarded Data", 1);
-      c->insertQ(this);
+      assert(false);
+      c->speculated_set.insert(this);
     }
     else {
       sim->ports[0]--;

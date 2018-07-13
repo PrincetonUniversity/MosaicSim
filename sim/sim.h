@@ -87,7 +87,7 @@ public:
 
   std::map<Node*, DynamicNode*> nodes;
   std::set<DynamicNode*> issue_set;
-  std::set<DynamicNode*> waiting_set;
+  std::set<DynamicNode*> speculated_set;
   std::set<DynamicNode*> next_issue_set;
   std::vector<DynamicNode*> nodes_to_complete;
   std::set<DynamicNode*> completed_nodes;
@@ -269,7 +269,6 @@ public:
         lq.pop_front();
       }
       for(int i=0; i<st_need; i++) {
-        assert(false);
         sm.at(sq.front()->addr)--;
         if(sm.at(sq.front()->addr) == 0)
           sm.erase(sq.front()->addr);
