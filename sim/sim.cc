@@ -219,7 +219,10 @@ bool DynamicNode::issueMemNode() {
 
   bool speculate = false;
   int forwardRes = -1;
-
+  if(type == LD)
+    sim->stats.num_mem_load_try++;
+  else
+    sim->stats.num_mem_store_try++;
   sim->stats.num_mem_issue_try++;
   if(sim->ports[0] == 0 && type == LD) {
     sim->stats.memory_events[6]++;
@@ -251,6 +254,10 @@ bool DynamicNode::issueMemNode() {
   }
   
   issued = true;
+  if(type == LD)
+    sim->stats.num_mem_load_try++;
+  else
+    sim->stats.num_mem_store_try++;
   sim->stats.num_mem_issue_pass++;
   speculated = speculate;
   if (type == LD) {

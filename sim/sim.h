@@ -26,6 +26,10 @@ public:
   int num_L1_misses;
   int num_mem_issue_pass = 0;
   int num_mem_issue_try = 0;
+  int num_mem_load_pass = 0;
+  int num_mem_store_pass = 0;
+  int num_mem_load_try = 0;
+  int num_mem_store_try = 0;
   int num_comp_issue_pass = 0;
   int num_comp_issue_try = 0;
   int num_mem_access = 0;
@@ -47,6 +51,10 @@ public:
     num_mem_issue_try = 0;
     num_comp_issue_pass = 0;
     num_comp_issue_try = 0;
+    num_mem_load_pass = 0;
+    num_mem_store_pass = 0;
+    num_mem_load_try = 0;
+    num_mem_store_try = 0;
     num_mem_access = 0;
     num_mem_return = 0;
     num_mem_evict = 0;
@@ -716,6 +724,8 @@ void GlobalStats::print() {
   cout << "L1_misses = " << num_L1_misses << endl;
   cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
   cout << "MemIssue Try : " << num_mem_issue_try << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueTry : " << num_comp_issue_try << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
+  cout << "LD Try : " << num_mem_load_try << " / " <<"LDPass : " <<  num_mem_load_pass << " / " << "StoreTry : " << num_mem_store_try << " / " << "StorePass : " <<  num_mem_store_pass << "\n";
+
   cout << "MemAccess : " << num_mem_access << " / " << "DRAM Access : " << num_mem_real << " / DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
   cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
   cout << "mem_hold " << num_mem_hold << "\n";
