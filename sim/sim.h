@@ -24,20 +24,20 @@ public:
   int num_finished_context;
   int num_L1_hits;
   int num_L1_misses;
-  int num_mem_issue_pass = 0;
-  int num_mem_issue_try = 0;
-  int num_mem_load_pass = 0;
-  int num_mem_store_pass = 0;
-  int num_mem_load_try = 0;
-  int num_mem_store_try = 0;
-  int num_comp_issue_pass = 0;
-  int num_comp_issue_try = 0;
-  int num_mem_access = 0;
-  int num_mem_return = 0;
-  int num_mem_evict = 0;
-  int num_mem_real = 0;
-  int num_misspec = 0;
-  int num_mem_hold = 0;
+  int num_mem_issue_pass;
+  int num_mem_issue_try;
+  int num_mem_load_pass;
+  int num_mem_store_pass;
+  int num_mem_load_try;
+  int num_mem_store_try;
+  int num_comp_issue_pass;
+  int num_comp_issue_try;
+  int num_mem_access;
+  int num_mem_return;
+  int num_mem_evict;
+  int num_mem_real;
+  int num_misspec;
+  int num_mem_hold;
   int memory_events[8];
   GlobalStats(Simulator *sim): sim(sim) { reset(); }
 
