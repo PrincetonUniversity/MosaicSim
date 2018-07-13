@@ -255,9 +255,9 @@ bool DynamicNode::issueMemNode() {
   
   issued = true;
   if(type == LD)
-    sim->stats.num_mem_load_try++;
+    sim->stats.num_mem_load_pass++;
   else
-    sim->stats.num_mem_store_try++;
+    sim->stats.num_mem_store_pass++;
   sim->stats.num_mem_issue_pass++;
   speculated = speculate;
   if (type == LD) {
