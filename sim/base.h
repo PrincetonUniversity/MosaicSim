@@ -7,6 +7,7 @@
 #include <iostream>                         
 #include <set>
 #include <map>
+#include <unordered_map>
 #include <vector>
 #include <queue>
 #include <iterator>
@@ -456,7 +457,7 @@ public:
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::string name, std::map<int, std::queue<uint64_t> > &memory) {
+  void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
     ifstream cfile(name);

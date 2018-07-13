@@ -11,6 +11,7 @@ using namespace std;
 int main(int argc, char const *argv[]) {
   Simulator sim;
   // Workload 
+
   if (argc < 2)
     assert(false);
   cout << "Path: " << argv[1] << "\n";
@@ -146,8 +147,10 @@ void Context::process() {
   }
   for(auto it = waiting_set.begin(); it!= waiting_set.end();) {
     DynamicNode *d = *it;
-    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d))
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)) {
+      sim->stats.num_mem_hold++;
       ++it;
+    }
     else {
       nodes_to_complete.push_back(d);
       it = waiting_set.erase(it);
@@ -157,8 +160,10 @@ void Context::process() {
     if(pq.top().second > sim->cycles)
       break;
     DynamicNode *d = pq.top().first;
-    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d))
+    if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)){
+      sim->stats.num_mem_hold++;
       waiting_set.insert(d);
+    }
     else
       nodes_to_complete.push_back(d);
     pq.pop();
@@ -216,9 +221,6 @@ bool DynamicNode::issueCompNode() {
 }
 
 bool DynamicNode::issueMemNode() {
-  // Memory Dependency
-  issued = true;
-  addr_resolved = true;
 
   bool speculate = false;
   int forwardRes = -1;
@@ -238,12 +240,19 @@ bool DynamicNode::issueMemNode() {
       speculate = true;
   }
   if(type == LD && forwardRes == -1) {
-    if(!sim->lsq.check_load_issue(this, cfg->mem_speculate))
+    int res = sim->lsq.check_load_issue(this, cfg->mem_speculate);
+    if(res == 0)
+      speculate = true;
+    else if(res == -1) {
+      sim->stats.memory_events[0]++;
       return false;
+    }
   }
   else if(type == ST) {
-    if(!sim->lsq.check_store_issue(this)) 
+    if(!sim->lsq.check_store_issue(this)) {
+      sim->stats.memory_events[1]++;
       return false;
+    }
   }
   
   issued = true;
@@ -287,6 +296,7 @@ void DynamicNode::finishNode() {
     auto misspeculated = sim->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
+      sim->stats.num_misspec++;
       misspeculated.at(i)->issued = false;
       misspeculated.at(i)->completed = false;
       misspeculated.at(i)->tryActivate();
@@ -310,7 +320,7 @@ void DynamicNode::finishNode() {
   // The same for external dependents: decrease parent's count & try to launch them
   for(unsigned int i=0; i<external_dependents.size(); i++) {
     DynamicNode *dst = external_dependents.at(i);
-    if(dst->n->store_addr_dependents.find(n) != dst->n->store_addr_dependents.end()) {
+    if(n->store_addr_dependents.find(n) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
     }
     dst->pending_external_parents--;
@@ -349,6 +359,8 @@ void DynamicNode::tryActivate() {
     }
     else {
       assert(c->issue_set.find(this) == c->issue_set.end());
+      if(isMem)
+        addr_resolved = true;
       c->issue_set.insert(this);
     }
 }
