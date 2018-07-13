@@ -317,14 +317,12 @@ public:
     invoke[0]++;
     bool check = check_unresolved_store(in);
     if(check && !speculation_enabled) {
-      count[0]++;
       return -1;
     }
     if(sm.find(in->addr) == sm.end()) {
       if(check)
         return 0;
       else {
-        count[3]++;
         return 1;
       }
     }
@@ -333,11 +331,9 @@ public:
       DynamicNode *d = *it;
       traverse[0]++;
       if(*in < *d) {
-        count[2]++;
         return 1;
       }
       else if(d->addr == in->addr && !d->completed) {
-        count[1]++;
         return -1;
       }
     }
@@ -348,9 +344,11 @@ public:
     bool skipStore = false;
     bool skipLoad = false;
     if(check_unresolved_store(in)) {
+      count[0]++;
       return false;
     }
     if(check_unresolved_load(in)) {
+      count[1]++;
       return false;
     }
     if(sm.at(in->addr) == 1)
@@ -363,8 +361,10 @@ public:
         traverse[1]++;
         if((*d == *in) || (*in < *d))
           break;
-        else if(d->addr == in->addr && !d->completed) // incomplete instruction with the same address
-            return false;
+        else if(d->addr == in->addr && !d->completed) {// incomplete instruction with the same address
+          count[2]++;
+          return false;
+        }
       }
     }
     if(!skipLoad) {
@@ -373,8 +373,10 @@ public:
         traverse[1]++;
         if(*in < *d)
           break;
-        else if(d->addr == in->addr && !d->completed) // incomplete instruction with the same address
+        else if(d->addr == in->addr && !d->completed) {// incomplete instruction with the same address
+          count[3]++;
           return false;
+        }
       }
     }
     return true;
