@@ -68,6 +68,7 @@ public:
 };
 
 class DynamicNode;
+class Context;
 typedef pair<DynamicNode*, uint64_t> Operator;
 
 struct OpCompare {
@@ -79,36 +80,6 @@ struct OpCompare {
     else
       return false;
   }
-};
-
-class Context {
-public:
-  bool live;
-  unsigned int id;
-
-  Simulator* sim;
-  Config *cfg;
-  BasicBlock *bb;
-
-  int next_bbid;
-  int prev_bbid;
-
-  std::map<Node*, DynamicNode*> nodes;
-  std::set<DynamicNode*> issue_set;
-  std::set<DynamicNode*> speculated_set;
-  std::set<DynamicNode*> next_issue_set;
-  std::vector<DynamicNode*> nodes_to_complete;
-  std::set<DynamicNode*> completed_nodes;
-  typedef pair<DynamicNode*, uint64_t> Op;
-  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
-
-  Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
-  Context* getNextContext();
-  Context* getPrevContext();
-  void insertQ(DynamicNode *d);
-  void process();
-  void complete();
-  void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
 };
 
 class DynamicNode {
@@ -131,62 +102,102 @@ public:
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
 
-  DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr = 0): n(n), c(c), sim(sim), cfg(cfg) {
-    //if(addr % 4 != 0) 
-    //  assert(false);
-    //this->addr = addr/4 * 4;
-    this->addr = addr;
-    type = n->typeInstr;
-    if(type == PHI) {
-      bool found = false;
-      for(auto it = n->phi_parents.begin(); it!= n->phi_parents.end(); ++it) {
-        if((*it)->bbid == c->prev_bbid) {
-          found = true;
-          break;
-        }
-      }
-      if(found)
-        pending_parents = 1;
-      else
-        pending_parents = 0;
-    }
-    else
-      pending_parents = n->parents.size();
-    pending_external_parents = n->external_parents.size();
-    if(addr == 0)
-      isMem = false;
-    else
-      isMem = true;
-  }
-  bool operator== (const DynamicNode &in) {
-    if(c->id == in.c->id && n->id == in.n->id)
-      return true;
-    else
-      return false;
-  }
-  bool operator< (const DynamicNode &in) const {
-    if(c->id < in.c->id) 
-      return true;
-    else if(c->id == in.c->id && n->id < in.n->id)
-      return true;
-    else
-      return false;
-  }
+  DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr = 0);
+  bool operator== (const DynamicNode &in);
+  bool operator< (const DynamicNode &in) const;
   bool issueMemNode();
   bool issueCompNode();
   void finishNode();
   void tryActivate(); 
   void handleMemoryReturn();
   
-  friend std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
-    os << "[Context-" <<d.c->id <<"] Node" << d.n->name <<" ";
-    return os;
-  }
-  void print(string str, int level = 0) {
-    if( level < cfg->vInputLevel )
-      cout << (*this) << str << "\n";
+  //friend std::ostream& operator<<(std::ostream &os, DynamicNode &d);
+  void print(string str, int level = 0);
+};
+struct DynamicNodePointerCompare {
+  bool operator() (const DynamicNode* a, const DynamicNode* b) const {
+     return *a < *b;
   }
 };
+class Context {
+public:
+  bool live;
+  unsigned int id;
+
+  Simulator* sim;
+  Config *cfg;
+  BasicBlock *bb;
+
+  int next_bbid;
+  int prev_bbid;
+
+  std::map<Node*, DynamicNode*> nodes;
+  std::set<DynamicNode*, DynamicNodePointerCompare> issue_set;
+  std::set<DynamicNode*, DynamicNodePointerCompare> speculated_set;
+  std::set<DynamicNode*, DynamicNodePointerCompare> next_issue_set;
+  std::set<DynamicNode*, DynamicNodePointerCompare> completed_nodes;
+  std::set<DynamicNode*, DynamicNodePointerCompare> nodes_to_complete;
+
+  typedef pair<DynamicNode*, uint64_t> Op;
+  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
+
+  Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
+  Context* getNextContext();
+  Context* getPrevContext();
+  void insertQ(DynamicNode *d);
+  void process();
+  void complete();
+  void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
+};
+
+DynamicNode::DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr) : n(n), c(c), sim(sim), cfg(cfg) {
+  this->addr = addr;
+  type = n->typeInstr;
+  if(type == PHI) {
+    bool found = false;
+    for(auto it = n->phi_parents.begin(); it!= n->phi_parents.end(); ++it) {
+      if((*it)->bbid == c->prev_bbid) {
+        found = true;
+        break;
+      }
+    }
+    if(found)
+      pending_parents = 1;
+    else
+      pending_parents = 0;
+  }
+  else
+    pending_parents = n->parents.size();
+  pending_external_parents = n->external_parents.size();
+  if(addr == 0)
+    isMem = false;
+  else
+    isMem = true;
+}
+bool DynamicNode::operator== (const DynamicNode &in) {
+  if(c->id == in.c->id && n->id == in.n->id)
+    return true;
+  else
+    return false;
+}
+bool DynamicNode::operator< (const DynamicNode &in) const {
+  if(c->id < in.c->id) 
+    return true;
+  else if(c->id == in.c->id && n->id < in.n->id)
+    return true;
+  else
+    return false;
+}
+
+std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
+  os << "[Context-" <<d.c->id <<"] Node" << d.n->name <<" ";
+  return os;
+}
+void DynamicNode::print(string str, int level) {
+  if( level < cfg->vInputLevel )
+    cout << (*this) << str << "\n";
+}
+
 
 class LoadStoreQ {
 public:
@@ -198,8 +209,8 @@ public:
   int invoke[4];
   int traverse[4];
   int count[4];
-  set<DynamicNode*> unresolved_st;
-  set<DynamicNode*> unresolved_ld;
+  DynamicNode* unresolved_st;
+  DynamicNode* unresolved_ld;
 
   LoadStoreQ() {
     invoke[0] = 0;
@@ -219,18 +230,22 @@ public:
   void process() {
     for(auto it = sq.begin(); it != sq.end(); ++it) {
       DynamicNode *d = *it;
-      if(!d->addr_resolved)
-        unresolved_st.insert(d);
+      if(!d->addr_resolved) {
+        unresolved_st = d;
+        break;
+      }
     }
     for(auto it = lq.begin(); it != lq.end(); ++it) {
       DynamicNode *d = *it;
-      if(!d->addr_resolved)
-        unresolved_ld.insert(d);
+      if(!d->addr_resolved) {
+        unresolved_ld = d;
+        break;
+      }
     } 
   }
   void clear() {
-    unresolved_ld.clear();
-    unresolved_st.clear();
+    unresolved_st = NULL;
+    unresolved_ld = NULL;
   }
   void insert(DynamicNode *d) {
     if(d->type == LD) {
@@ -288,54 +303,41 @@ public:
       return false; 
   }
   bool check_unresolved_load(DynamicNode *in) {
-    if(unresolved_ld.size() == 0)
+    if(unresolved_ld == NULL)
       return false;
-    if(unresolved_ld.lower_bound(in) != ++unresolved_ld.begin())
+    if(*unresolved_ld < *in || *unresolved_ld == *in)
       return true;
     else
       return false;
   }
   bool check_unresolved_store(DynamicNode *in) {
-    if(unresolved_st.size() == 0)
-        return false;
-    if(in->type == LD) {
-      if(unresolved_st.lower_bound(in) != ++unresolved_st.begin())
-        return true;
-      else
-        return false;
+    if(unresolved_st == NULL)
+      return false;
+    if(*unresolved_st < *in || *unresolved_st == *in) {
+      return true;
     }
-    else if(in->type == ST) {
-      if(*(unresolved_st.lower_bound(in)) != in)
-        return true;
-      else
-        return false;
-    }
-    assert(false);
-    return true;
+    else
+      return false;
   }
   int check_load_issue(DynamicNode *in, bool speculation_enabled) {
     invoke[0]++;
     bool check = check_unresolved_store(in);
-    if(check && !speculation_enabled) {
+    if(check && !speculation_enabled)
       return -1;
-    }
     if(sm.find(in->addr) == sm.end()) {
       if(check)
         return 0;
-      else {
+      else
         return 1;
-      }
     }
     // Check Conflict
     for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
       DynamicNode *d = *it;
       traverse[0]++;
-      if(*in < *d) {
+      if(*in < *d)
         return 1;
-      }
-      else if(d->addr == in->addr && !d->completed) {
+      else if(d->addr == in->addr && !d->completed)
         return -1;
-      }
     }
     return 1;
   }
@@ -384,7 +386,7 @@ public:
   int check_forwarding (DynamicNode* in) {
     invoke[2]++;
     bool speculative = false;
-    auto vit = lower_bound(sq.begin(), sq.end(), in);
+    /*
     auto rvit = deque<DynamicNode*>::reverse_iterator(vit);
     rvit++;
     for(deque<DynamicNode*>::reverse_iterator it = rvit; it!= sq.rend(); ++it) {
@@ -402,7 +404,7 @@ public:
       }
       else if(!d->addr_resolved)
         speculative = true;
-    }
+    }*/
     return -1;
   }
   std::vector<DynamicNode*> check_speculation (DynamicNode* in) {
@@ -585,7 +587,6 @@ public:
   
   /* Handling External/Phi Dependencies */
   unordered_map<int, Context*> curr_owner;
-  //map<int, set<Node*> > handled_phi_deps; // Context ID, Processed Phi node
   
   /* LSQ */
   LoadStoreQ lsq;
@@ -679,6 +680,7 @@ public:
       Context *c = *it;
       c->process();
     }
+    lsq.clear();
     for(auto it = live_context.begin(); it!=live_context.end();) {
       Context *c = *it;
       c->complete();
@@ -689,7 +691,6 @@ public:
     }
     if(live_context.size() > 0)
       simulate = true;
-    lsq.clear();
     int context_created = 0;
     for (int i=0; i<context_to_create; i++) {
       if ( createContext() ) {

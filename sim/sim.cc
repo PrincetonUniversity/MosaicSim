@@ -153,7 +153,7 @@ void Context::process() {
       ++it;
     }
     else {
-      nodes_to_complete.push_back(d);
+      nodes_to_complete.insert(d);
       it = speculated_set.erase(it);
     }
   }
@@ -161,7 +161,7 @@ void Context::process() {
     if(pq.top().second > sim->cycles)
       break;
     DynamicNode *d = pq.top().first;
-    nodes_to_complete.push_back(d);
+    nodes_to_complete.insert(d);
     pq.pop();
   }
 
@@ -170,8 +170,8 @@ void Context::process() {
 }
 
 void Context::complete() {
-  for(unsigned int i=0; i<nodes_to_complete.size(); i++) {
-    DynamicNode *d = nodes_to_complete.at(i);
+  for(auto it = nodes_to_complete.begin(); it!= nodes_to_complete.end(); ++it) {
+    DynamicNode *d =*it;
     d->finishNode();
   }
   nodes_to_complete.clear();
