@@ -12,7 +12,6 @@ uint64_t extract(int max, int min, uint64_t address) // inclusive
     uint64_t val = address & mask;
     if(min > 0)
       val = val >> (min-1);
-    //cout << max << "/" << min << " -- " << bitset<64>(address) << "/" << bitset<64>(val)  << "\n";
     return val;
 }
 
@@ -22,7 +21,7 @@ struct CacheLine
     CacheLine* prev;
     CacheLine* next;
 };
-class FunctionalCache
+class CacheSet
 {
 public:
   CacheLine *entries;
@@ -30,7 +29,7 @@ public:
   CacheLine *tail;
   std::vector<CacheLine*> freeEntries;
   std::map<uint64_t, CacheLine*> addr_map;
-  FunctionalCache(int size)
+  CacheSet(int size)
   {
     head = new CacheLine;
     tail = new CacheLine;
@@ -44,7 +43,7 @@ public:
     tail->next = NULL;
     tail->prev = head;
   }
-  ~FunctionalCache()
+  ~CacheSet()
   {
     delete head;
     delete tail;
@@ -103,28 +102,28 @@ public:
 };
 
 
-class FunctionalSetCache
+class FunctionalCache
 {
 public:
   int line_count;
   int set_count;
   int log_set_count;
-  std::vector<FunctionalCache*> sets;
-  FunctionalSetCache(int size, int assoc)
+  std::vector<CacheSet*> sets;
+  FunctionalCache(int size, int assoc)
   {
     line_count = size * 1024 / 64;
     set_count = line_count / assoc;
     log_set_count = log2(set_count);
     for(int i=0; i<set_count; i++)
     {
-      sets.push_back(new FunctionalCache(assoc));
+      sets.push_back(new CacheSet(assoc));
     }
   }
   bool access(uint64_t address)
   {
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
-    FunctionalCache *c = sets.at(setid);
+    CacheSet *c = sets.at(setid);
     bool res = c->access(tag);
     return res;
   }
@@ -132,7 +131,7 @@ public:
   {
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
-    FunctionalCache *c = sets.at(setid);
+    CacheSet *c = sets.at(setid);
     int64_t evictedTag = -1;
     c->insert(tag, &evictedTag);
     if(evicted && evictedTag != -1)

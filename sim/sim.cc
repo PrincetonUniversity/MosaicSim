@@ -1,17 +1,8 @@
-//=======================================================================
-// Copyright 2018 Princeton University.
-//=======================================================================
-
 #include "sim.h"
-
-using namespace apollo;
 using namespace std;
-
 
 int main(int argc, char const *argv[]) {
   Simulator sim;
-  // Workload 
-
   if (argc < 2)
     assert(false);
   cout << "Path: " << argv[1] << "\n";
@@ -28,27 +19,25 @@ int main(int argc, char const *argv[]) {
   string mname = s + "/output/mem.txt";
   string cname = s + "/output/ctrl.txt";
   
+  sim.cfg.vInputLevel = -1;
+
   // enable verbosity level: -v
   if (argc == 4) {
     string s(argv[3]);
-    if ( s == "-v" )
+    if (s == "-v")
        sim.cfg.vInputLevel = 20;
   }
-  else
-    sim.cfg.vInputLevel = -1;
-
 
   Reader r; 
   r.readCfg(cfgpath, sim.cfg);
   r.readGraph(gname, sim.g, sim.cfg);
   r.readProfMemory(mname , sim.memory);
   r.readProfCF(cname, sim.cf);
-  sim.g.inductionOptimization();
   
+  sim.g.inductionOptimization();
   sim.initialize();
-  cout << "Initialization Complete \n";
+  cout << "[Sim] Initialization Complete \n";
   sim.run();
-  sim.stats.print();
   return 0;
 } 
 
@@ -149,7 +138,6 @@ void Context::process() {
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
     if(cfg->mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)) {
-      sim->stats.num_mem_hold++;
       ++it;
     }
     else {
@@ -182,8 +170,8 @@ void Context::complete() {
     }
     if(cfg->vInputLevel > 0)
       cout << "Context [" << id << "] (BB:" << bb->id << ") Finished Execution (Executed " << completed_nodes.size() << " instructions) at cycle " << sim->cycles << "\n";
-    sim->stats.num_exec_instr += completed_nodes.size();   // update GLOBAL Stats
-    sim->stats.num_finished_context++;
+    stat.update("instr", completed_nodes.size());   // update GLOBAL Stats
+    stat.update("contexts");
   }
 }
 
@@ -203,16 +191,64 @@ void DynamicNode::handleMemoryReturn() {
 
 bool DynamicNode::issueCompNode() {
   issued = true;
-  sim->stats.num_comp_issue_try++;
+  stat.update("comp_issue_try");
   // check resource (FU) availability
-  if (sim->avail_FUs.at(n->typeInstr) != -1) {
-    if (sim->avail_FUs.at(n->typeInstr) == 0)
+  if (sim->available_FUs.at(n->typeInstr) != -1) {
+    if (sim->available_FUs.at(n->typeInstr) == 0)
       return false;
   }
-  if (sim->avail_FUs.at(n->typeInstr) != -1)
-    sim->avail_FUs.at(n->typeInstr)--;
-  sim->stats.num_comp_issue_pass++;
+  if (sim->available_FUs.at(n->typeInstr) != -1)
+    sim->available_FUs.at(n->typeInstr)--;
+  stat.update("comp_issue_success");
   return true;
+}
+
+DynamicNode::DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr) : n(n), c(c), sim(sim), cfg(cfg) {
+  this->addr = addr;
+  type = n->typeInstr;
+  if(type == PHI) {
+    bool found = false;
+    for(auto it = n->phi_parents.begin(); it!= n->phi_parents.end(); ++it) {
+      if((*it)->bbid == c->prev_bbid) {
+        found = true;
+        break;
+      }
+    }
+    if(found)
+      pending_parents = 1;
+    else
+      pending_parents = 0;
+  }
+  else
+    pending_parents = n->parents.size();
+  pending_external_parents = n->external_parents.size();
+  if(addr == 0)
+    isMem = false;
+  else
+    isMem = true;
+}
+bool DynamicNode::operator== (const DynamicNode &in) {
+  if(c->id == in.c->id && n->id == in.n->id)
+    return true;
+  else
+    return false;
+}
+bool DynamicNode::operator< (const DynamicNode &in) const {
+  if(c->id < in.c->id) 
+    return true;
+  else if(c->id == in.c->id && n->id < in.n->id)
+    return true;
+  else
+    return false;
+}
+
+std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
+  os << "[Context-" <<d.c->id <<"] Node" << d.n->name <<" ";
+  return os;
+}
+void DynamicNode::print(string str, int level) {
+  if( level < cfg->vInputLevel )
+    cout << (*this) << str << "\n";
 }
 
 bool DynamicNode::issueMemNode() {
@@ -220,51 +256,41 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD)
-    sim->stats.num_mem_load_try++;
+    stat.update("load_issue_try");
   else
-    sim->stats.num_mem_store_try++;
-  sim->stats.num_mem_issue_try++;
-  if(sim->ports[0] == 0 && type == LD) {
-    sim->stats.memory_events[6]++;
+    stat.update("store_issue_try");
+  if(sim->ports[0] == 0 && type == LD)
     return false;
-  }
-  if(sim->ports[1] == 0 && type == ST) {
-    sim->stats.memory_events[7]++;
+  if(sim->ports[1] == 0 && type == ST)
     return false;
-  }
   if(type == LD && cfg->mem_forward) {
     forwardRes = sim->lsq.check_forwarding(this);
     if(forwardRes == 0 && cfg->mem_speculate) {
-      sim->stats.num_speculated_forwarded++;
+      stat.update("speculatively_forwarded");
       speculate = true;
     }
     else if(forwardRes == 1)
-      sim->stats.num_forwarded++;
+      stat.update("forwarded");
   }
   if(type == LD && forwardRes == -1) {
     int res = sim->lsq.check_load_issue(this, cfg->mem_speculate);
     if(res == 0) {
-      sim->stats.num_speculated++;
+      stat.update("speculated");
       speculate = true;
     }
-    else if(res == -1) {
-      sim->stats.memory_events[0]++;
+    else if(res == -1)
       return false;
-    }
   }
   else if(type == ST) {
-    if(!sim->lsq.check_store_issue(this)) {
-      sim->stats.memory_events[1]++;
+    if(!sim->lsq.check_store_issue(this))
       return false;
-    }
   }
   
   issued = true;
   if(type == LD)
-    sim->stats.num_mem_load_pass++;
+    stat.update("load_issue_success");
   else
-    sim->stats.num_mem_store_pass++;
-  sim->stats.num_mem_issue_pass++;
+    stat.update("store_issue_success");
   speculated = speculate;
   if (type == LD) {
     if(forwardRes == 1) { 
@@ -295,15 +321,15 @@ void DynamicNode::finishNode() {
   c->completed_nodes.insert(this);
   completed = true;
   // Handle Resource limits
-  if ( sim->avail_FUs.at(n->typeInstr) != -1 )
-    sim->avail_FUs.at(n->typeInstr)++; 
+  if ( sim->available_FUs.at(n->typeInstr) != -1 )
+    sim->available_FUs.at(n->typeInstr)++; 
 
   // Speculation
   if (cfg->mem_speculate && n->typeInstr == ST) {
     auto misspeculated = sim->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
-      sim->stats.num_misspec++;
+      stat.update("misspeculated");
       misspeculated.at(i)->issued = false;
       misspeculated.at(i)->completed = false;
       misspeculated.at(i)->tryActivate();
@@ -345,17 +371,11 @@ void DynamicNode::finishNode() {
       }
     }
   }
-
-  // If node <n> is a TERMINATOR create new context with next bbid in <cf> (a bbid list)
-  // if (cfg->cf_one_context_at_once && type == TERMINATOR) {
-  //   sim->context_to_create++;
-  // }
 }
 
 void DynamicNode::tryActivate() {
-    if(pending_parents > 0 || pending_external_parents > 0) {
+    if(pending_parents > 0 || pending_external_parents > 0)
       return;
-    }
     if(issued || completed)
       assert(false);
     if(type == TERMINATOR) {

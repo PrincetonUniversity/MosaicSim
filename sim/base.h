@@ -2,8 +2,6 @@
 // Copyright 2018 Princeton University.
 //=======================================================================
 
-// Header file
-
 #include <iostream>                         
 #include <set>
 #include <map>
@@ -16,16 +14,19 @@
 #include <sstream> 
 #include <cstdio> 
 #include <string>  
+#include <algorithm>
+#include <iterator>
+#include <chrono>
 #include "assert.h"
-
-using namespace std;
-namespace apollo {
-
+#define UNUSED 0
 #define NUM_INST_TYPES 15
-class Node;
+using namespace std;
+
+typedef chrono::high_resolution_clock Clock;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
+class Node;
 class Config {
 public:
   // Config parameters
@@ -46,9 +47,8 @@ public:
   // L1 cache
   bool ideal_cache;
   int L1_latency;
-  int L1_size;     // MB
+  int L1_size;     // KB
   int L1_assoc; 
-  int block_size;  // bytes
 };
 
 class Node {
@@ -181,14 +181,12 @@ public:
     std::set<Node*> frontier;
     std::set<Node*> next_frontier;
     std::set<Node*> visited;
-    cout << "Checking .. " << *init << "\n";
     for(auto pit = init->phi_parents.begin(); pit!= init->phi_parents.end(); ++pit) {
       Node *sn = *pit;
       if(sn->bbid == init->bbid) {
         if(sn->typeInstr == PHI)
           assert(false); 
         if(!checkType(sn)) {
-          cout << "[1] Failed because of " << *sn <<"\n";
           return false;
         }
         visited.insert(sn);
@@ -205,7 +203,6 @@ public:
           if(sn->typeInstr == PHI && sn == init)
             continue;
           if(!checkType(sn)) {
-            cout << "[2] Failed because of " << *sn <<"\n";
             return false;
           }
           else if(visited.find(sn) == visited.end()) {
@@ -227,7 +224,7 @@ public:
       Node *n = it->second;
       if(n->typeInstr == PHI) {
         if(findOptimizablePhi(n)) {
-          cout << "foundOptimizablePhi : " << *n << "\n";
+          cout << "Optimized Phi : " << *n << "\n";
           phis.insert(n);
         }
       }
@@ -244,14 +241,11 @@ public:
       Node *n = it->second;
       if(n->typeInstr == TERMINATOR) {
         if(findOptimizableTerminator(n, phis)) {
-          //if(n->external_parents.size() != 0)
-          //  assert(false);
           for(auto iit = n->parents.begin(); iit != n->parents.end(); ++iit) {
             Node *sn = *iit;
             sn->eraseDependent(n, DATA_DEP);
-            cout << "Erase parent : " << *sn << "\n";
           }
-          cout << "foundOptimizableTerminator : " << *n << "\n";
+          cout << "Optimized Terminator : " << *n << "\n";
         }
       }
     }
@@ -309,7 +303,6 @@ public:
 
 class Reader {
 public:
- 
   // helper function: split a string [with delimiter] into a vector
   vector<string> split(const string &s, char delim) {
      stringstream ss(s);
@@ -320,7 +313,7 @@ public:
      }
      return tokens;
   }
-  void tempCfg(int id, int val, Config &cfg) {
+  void getCfg(int id, int val, Config &cfg) {
     switch (id) { 
       case 0:
         cfg.lsq_size = val; 
@@ -360,7 +353,7 @@ public:
     if (cfile.is_open()) {
       while (getline (cfile,line)) {
         vector<string> s = split(line, ',');
-        tempCfg(id, stoi(s.at(0)), cfg);
+        getCfg(id, stoi(s.at(0)), cfg);
         id++;
       }
     }
@@ -369,22 +362,8 @@ public:
       assert(false);
     }
     cfile.close();
-    /* 
-    // resource limits
-    cfg.lsq_size = 2048;
-    cfg.cf_mode = 1;
-    cfg.mem_speculate = false;
-    cfg.mem_forward = false;
-    cfg.max_active_contexts_BB = 128;
-
-    // L1 config
-    cfg.ideal_cache = false;
-    cfg.L1_size = 4;      // MB
-    */
     cfg.L1_latency = 1;
     cfg.L1_assoc = 8;
-    cfg.block_size = 64;  // bytes
-
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 26;
@@ -415,11 +394,8 @@ public:
     cfg.num_units[ST] = -1;
     cfg.num_units[TERMINATOR] = -1;
     cfg.num_units[PHI] = -1;
-    //cfg.load_ports = 9999;
-    //cfg.store_ports = 9999;
     cfg.outstanding_load_requests = 9999;
     cfg.outstanding_store_requests = 9999;
-
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
@@ -497,8 +473,10 @@ public:
         int id = stoi(s.at(0));
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
         int bbid = stoi(s.at(2));
-        string name = s.at(3);
-        name = s.at(3).substr(0, s.at(3).size());       
+        string name = "";
+        for(unsigned int i=3; i<s.size(); i++)
+          name += s.at(i);     
+        name = name.substr(2, name.size()-2);
         g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
       }
       for (int i=0; i<numEdge; i++) {
@@ -524,5 +502,3 @@ public:
     cout << g << endl;
   }
 };
-
-}
