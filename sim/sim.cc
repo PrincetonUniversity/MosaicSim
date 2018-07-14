@@ -234,13 +234,19 @@ bool DynamicNode::issueMemNode() {
   }
   if(type == LD && cfg->mem_forward) {
     forwardRes = sim->lsq.check_forwarding(this);
-    if(forwardRes == 0 && cfg->mem_speculate)
+    if(forwardRes == 0 && cfg->mem_speculate) {
+      sim->stats.num_speculated_forwarded++;
       speculate = true;
+    }
+    else if(forwardRes == 1)
+      sim->stats.num_forwarded++;
   }
   if(type == LD && forwardRes == -1) {
     int res = sim->lsq.check_load_issue(this, cfg->mem_speculate);
-    if(res == 0)
+    if(res == 0) {
+      sim->stats.num_speculated++;
       speculate = true;
+    }
     else if(res == -1) {
       sim->stats.memory_events[0]++;
       return false;
@@ -267,7 +273,6 @@ bool DynamicNode::issueMemNode() {
     }
     else if(forwardRes == 0 && cfg->mem_speculate) { 
       print("Retrieves Speculatively Forwarded Data", 1);
-      assert(false);
       c->speculated_set.insert(this);
     }
     else {
@@ -290,9 +295,8 @@ void DynamicNode::finishNode() {
   c->completed_nodes.insert(this);
   completed = true;
   // Handle Resource limits
-  if ( sim->avail_FUs.at(n->typeInstr) != -1 ) {
+  if ( sim->avail_FUs.at(n->typeInstr) != -1 )
     sim->avail_FUs.at(n->typeInstr)++; 
-  }
 
   // Speculation
   if (cfg->mem_speculate && n->typeInstr == ST) {
@@ -306,7 +310,7 @@ void DynamicNode::finishNode() {
     }
   }
 
-  if (type == LD || type == ST)         
+  if(isMem)       
     speculated = false;
 
   // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent

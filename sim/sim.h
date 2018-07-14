@@ -37,6 +37,9 @@ public:
   int num_mem_evict;
   int num_mem_real;
   int num_misspec;
+  int num_speculated;
+  int num_forwarded;
+  int num_speculated_forwarded;
   int num_mem_hold;
   int memory_events[8];
   GlobalStats(Simulator *sim): sim(sim) { reset(); }
@@ -61,6 +64,9 @@ public:
     num_mem_real = 0;
     num_mem_hold = 0;
     num_misspec = 0;
+    num_speculated = 0;
+    num_forwarded =0;
+    num_speculated_forwarded =0;
     for(int i=0; i<8; i++)
       memory_events[i] = 0;
   }
@@ -203,13 +209,14 @@ class LoadStoreQ {
 public:
   deque<DynamicNode*> lq;
   deque<DynamicNode*> sq;
-  unordered_map<uint64_t, int> lm;
-  unordered_map<uint64_t, int> sm;
+  unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> lm;
+  unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> sm;
   int size;
   int invoke[4];
   int traverse[4];
   int count[4];
   DynamicNode* unresolved_st;
+  set<DynamicNode*,DynamicNodePointerCompare> unresolved_st_set;
   DynamicNode* unresolved_ld;
 
   LoadStoreQ() {
@@ -231,8 +238,9 @@ public:
     for(auto it = sq.begin(); it != sq.end(); ++it) {
       DynamicNode *d = *it;
       if(!d->addr_resolved) {
-        unresolved_st = d;
-        break;
+        if(unresolved_st == NULL)
+          unresolved_st = d;
+        unresolved_st_set.insert(d);
       }
     }
     for(auto it = lq.begin(); it != lq.end(); ++it) {
@@ -244,6 +252,7 @@ public:
     } 
   }
   void clear() {
+    unresolved_st_set.clear();
     unresolved_st = NULL;
     unresolved_ld = NULL;
   }
@@ -251,14 +260,14 @@ public:
     if(d->type == LD) {
       lq.push_back(d);
       if(lm.find(d->addr) == lm.end())
-        lm.insert(make_pair(d->addr, 0));
-      lm.at(d->addr)++;
+        lm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));
+      lm.at(d->addr).insert(d);
     }
     else {
       sq.push_back(d);
       if(sm.find(d->addr) == sm.end())
-        sm.insert(make_pair(d->addr, 0));
-      sm.at(d->addr)++;
+        sm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));
+      sm.at(d->addr).insert(d);
     }
   }
   bool checkSize(int num_ld, int num_st) {
@@ -286,15 +295,17 @@ public:
     }
     if(ld_ct >= ld_need && st_ct >= st_need) {
       for(int i=0; i<ld_need; i++) {
-        lm.at(lq.front()->addr)--;
-        if(lm.at(lq.front()->addr) == 0)
-          lm.erase(lq.front()->addr);
+        DynamicNode *d = lq.front();
+        lm.at(d->addr).erase(d);
+        if(lm.at(d->addr).size() == 0)
+          lm.erase(d->addr);
         lq.pop_front();
       }
       for(int i=0; i<st_need; i++) {
-        sm.at(sq.front()->addr)--;
-        if(sm.at(sq.front()->addr) == 0)
-          sm.erase(sq.front()->addr);
+        DynamicNode *d = sq.front();
+        sm.at(d->addr).erase(d);
+        if(sm.at(d->addr).size() == 0)
+          sm.erase(d->addr);
         sq.pop_front();  
       }
       return true;
@@ -330,13 +341,12 @@ public:
       else
         return 1;
     }
-    // Check Conflict
-    for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
+    set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
+    for(auto it = s.begin(); it!= s.end(); ++it) {
       DynamicNode *d = *it;
-      traverse[0]++;
       if(*in < *d)
         return 1;
-      else if(d->addr == in->addr && !d->completed)
+      else if(!d->completed)
         return -1;
     }
     return 1;
@@ -346,75 +356,84 @@ public:
     bool skipStore = false;
     bool skipLoad = false;
     if(check_unresolved_store(in)) {
-      count[0]++;
       return false;
     }
     if(check_unresolved_load(in)) {
-      count[1]++;
       return false;
     }
-    if(sm.at(in->addr) == 1)
+    if(sm.at(in->addr).size() == 1)
       skipStore = true;
     if(lm.find(in->addr) == lm.end())
       skipLoad = true;
     if(!skipStore) {
-      for(deque<DynamicNode*>::iterator it = sq.begin(); it!= sq.end(); ++it) {
+      set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
+      for(auto it = s.begin(); it!= s.end(); ++it) {
         DynamicNode *d = *it;
-        traverse[1]++;
-        if((*d == *in) || (*in < *d))
+        if(*in < *d || *d == *in)
           break;
-        else if(d->addr == in->addr && !d->completed) {// incomplete instruction with the same address
-          count[2]++;
-          return false;
-        }
+        else if(!d->completed)
+          return -1;
       }
     }
     if(!skipLoad) {
-      for(deque<DynamicNode*>::iterator it = lq.begin(); it!= lq.end(); ++it) {
+      set<DynamicNode*, DynamicNodePointerCompare> &s = lm.at(in->addr);
+      for(auto it = s.begin(); it!= s.end(); ++it) {
         DynamicNode *d = *it;
-        traverse[1]++;
         if(*in < *d)
           break;
-        else if(d->addr == in->addr && !d->completed) {// incomplete instruction with the same address
-          count[3]++;
-          return false;
-        }
+        else if(!d->completed)
+          return -1;
       }
     }
     return true;
   }
   int check_forwarding (DynamicNode* in) {
     invoke[2]++;
-    bool speculative = false;
-    /*
-    auto rvit = deque<DynamicNode*>::reverse_iterator(vit);
-    rvit++;
-    for(deque<DynamicNode*>::reverse_iterator it = rvit; it!= sq.rend(); ++it) {
-      DynamicNode *d = *it; // traverse from youngest to oldest
-      traverse[2]++;
-      if(*in < *d) // in is older than d 
-        continue;
-      if(d->addr == in->addr) {
-        if(d->completed && !speculative)
-          return 1;
-        else if(d->completed && speculative)
-          return 0;
-        else
-          return -1;
-      }
-      else if(!d->addr_resolved)
-        speculative = true;
-    }*/
+    bool speculative = false;    
+    if(sm.find(in->addr) == sm.end())
+      return -1;
+    
+    set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
+    auto it = s.rbegin();
+    auto uit = unresolved_st_set.rbegin();
+    
+    while(*in < *(*uit) && uit != unresolved_st_set.rend())
+      uit++;
+    while(*in < *(*it) && it != s.rend())
+      it++;
+    
+    if(it == s.rend())
+      return -1;
+    if(uit != unresolved_st_set.rend() && *(*uit) < *(*it)) {
+      count[3]++;
+      speculative = true;
+    }
+
+    DynamicNode *d = *it;
+    if(d->completed && !speculative) {
+      count[0]++;
+      return 1;
+    }
+    else if(d->completed && speculative) {
+      count[1]++;
+      return 0;
+    }
+    else if(!d->completed) {
+      count[2]++;
+      return -1;
+    }
     return -1;
   }
   std::vector<DynamicNode*> check_speculation (DynamicNode* in) {
     std::vector<DynamicNode*> ret;
-    // find younger loads than incoming store
-    for(deque<DynamicNode*>::reverse_iterator it = lq.rbegin(); it!= lq.rend(); ++it) {
+    if(lm.find(in->addr) == lm.end())
+      return ret;
+    set<DynamicNode*, DynamicNodePointerCompare> &s = lm.at(in->addr);
+    for(auto it = s.begin(); it!= s.end(); ++it) {
       DynamicNode *d = *it;
-      if(*d < *in) // d is older than in
-        break;
-      if(d->speculated && d->n->typeInstr == LD && d->addr == in->addr) {
+      if(*in < *d)
+        continue;
+      if(d->speculated) {
         d->speculated = false;
         ret.push_back(d);
       }
@@ -736,6 +755,7 @@ void GlobalStats::print() {
   cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";
   cout << "lsq3 : " << sim->lsq.count[0] << " / " << sim->lsq.count[1] << " / " << sim->lsq.count[2] << " / " << sim->lsq.count[3] << "\n";
   cout << "misspec: " << sim->stats.num_misspec << "\n";
+  cout << "spec; "<< sim->stats.num_speculated << " / " << "forward " << sim->stats.num_forwarded << " / " << "spec forward " << sim->stats.num_speculated_forwarded << "\n";
   for(int i=0; i<8; i++)
     cout << "Memory Event: " << memory_events[i] << "\n";
 }
