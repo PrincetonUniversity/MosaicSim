@@ -16,6 +16,18 @@ Testing/
 # Workloads Internal
 workloads/test/int/
 workloads/test/output/
+workloads/parboil/spmv/int
+workloads/parboil/spmv/output
+workloads/shoc/gemm/int
+workloads/shoc/gemm/output
+workloads/shoc/scan/int
+workloads/shoc/scan/output
+workloads/shoc/sort/int
+workloads/shoc/sort/output
+workloads/shoc/stencil/int
+workloads/shoc/stencil/output
+workloads/shoc/triad/int
+workloads/shoc/triad/output
 
 # Pre-compiler generated files.
 CMakeCache.txt
