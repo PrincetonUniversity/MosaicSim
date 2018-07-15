@@ -65,7 +65,7 @@ void Simulator::process_memory() {
 }
 
 bool Simulator::process_cycle() {
-  if(cfg.vInputLevel > 0)
+  //if(cfg.vInputLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
     curr = Clock::now();

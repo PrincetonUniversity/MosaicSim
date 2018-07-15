@@ -231,21 +231,21 @@ void Cache::execute(DynamicNode* d) {
   if(!ideal)
     res = fc->access(dramaddr/size_of_cacheline);
   if (res) {                
-    d->print("Cache Hit", 0);
+    d->print("Cache Hit", 1);
     d->handleMemoryReturn();
     stat.update("cache_hit");
   }
   else {
     to_send.push_back(d);
-    d->print("Cache Miss", 0);
+    d->print("Cache Miss", 1);
     stat.update("cache_miss");
   }
 }
 
 void Cache::addTransaction(DynamicNode *d) {
-  d->print("Cache Transaction Added", 0);
+  d->print("Cache Transaction Added", 1);
   stat.update("cache_access");
-  pq.push(make_pair(d, cycles+latency));   
+  pq.push(make_pair(d, cycles+latency));
 }   
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {

@@ -70,16 +70,7 @@ public:
 extern Statistics stat;
 
 typedef pair<DynamicNode*, uint64_t> Operator;
-struct OpCompare {
-  friend bool operator< (const Operator &l, const Operator &r) {
-    if(l.second < r.second) 
-      return true;
-    else if(l.second == r.second)
-      return true;
-    else
-      return false;
-  }
-};
+
 class DynamicNode {
 public:
   Node *n;
@@ -117,6 +108,16 @@ struct DynamicNodePointerCompare {
   }
 };
 
+struct OpCompare {
+  bool operator() (const Operator &l, const Operator &r) const {
+    if(l.second > r.second) 
+      return true;
+    else if (l.second == r.second)
+      return (*(r.first) < *(l.first));
+    else
+      return false;
+  }
+};
 class Context {
 public:
   bool live;
@@ -135,8 +136,7 @@ public:
   std::set<DynamicNode*, DynamicNodePointerCompare> completed_nodes;
   std::set<DynamicNode*, DynamicNodePointerCompare> nodes_to_complete;
 
-  typedef pair<DynamicNode*, uint64_t> Op;
-  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
+  priority_queue<Operator, vector<Operator>, OpCompare> pq;
 
   Context(int id, Simulator* sim) : live(false), id(id), sim(sim) {}
   Context* getNextContext();
@@ -177,7 +177,7 @@ public:
   DRAMSimInterface *memInterface;
   vector<DynamicNode*> to_send;
   vector<uint64_t> to_evict;
-  priority_queue<Operator, vector<Operator>, less<vector<Operator>::value_type> > pq;
+  priority_queue<Operator, vector<Operator>, OpCompare> pq;
   
   uint64_t cycles = 0;
   int size_of_cacheline = 64;

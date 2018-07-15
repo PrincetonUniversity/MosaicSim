@@ -32,7 +32,7 @@ int main(int argc, char const *argv[]) {
   if (argc == 4) {
     string v(argv[3]);
     if (v == "-v")
-       cfg.vInputLevel = 1;
+       cfg.vInputLevel = 2;
   }
 
   Reader r; 

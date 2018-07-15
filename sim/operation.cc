@@ -188,13 +188,13 @@ std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
   return os;
 }
 void DynamicNode::print(string str, int level) {
-  if( level < cfg.vInputLevel )
+  if( level < cfg.vInputLevel)
     cout << (*this) << str << "\n";
 }
 
 void DynamicNode::handleMemoryReturn() {
-  print("Memory Data Ready", 0);
-  print(to_string(outstanding_accesses), 0);
+  print("Memory Data Ready", 1);
+  print(to_string(outstanding_accesses), 1);
   if(type == LD) {
     if(cfg.mem_speculate) {
       if(outstanding_accesses > 0)
@@ -280,15 +280,15 @@ bool DynamicNode::issueMemNode() {
   speculated = speculate;
   if (type == LD) {
     if(forwardRes == 1) { 
-      print("Retrieves Forwarded Data", 0);
+      print("Retrieves Forwarded Data", 1);
       c->insertQ(this);
     }
     else if(forwardRes == 0 && cfg.mem_speculate) { 
-      print("Retrieves Speculatively Forwarded Data", 0);
+      print("Retrieves Speculatively Forwarded Data", 1);
       c->speculated_set.insert(this);
     }
     else {
-      print("Access Memory Hierarchy", 0);
+      print("Access Memory Hierarchy", 1);
       sim->ports[0]--;
       sim->toMemHierarchy(this);
       if (speculate) {
@@ -297,7 +297,7 @@ bool DynamicNode::issueMemNode() {
     }
   }
   else if (type == ST) {
-    print("Access Memory Hierarchy", 0);
+    print("Access Memory Hierarchy", 1);
     sim->ports[1]--;
     sim->toMemHierarchy(this);
   }
@@ -305,7 +305,7 @@ bool DynamicNode::issueMemNode() {
 }
 
 void DynamicNode::finishNode() {
-  print("Finished Execution", 0);
+  print("Finished Execution", 1);
   c->completed_nodes.insert(this);
   completed = true;
   // Handle Resource limits
@@ -335,7 +335,7 @@ void DynamicNode::finishNode() {
       dst->addr_resolved = true;
     }
     dst->pending_parents--;
-    dst->tryActivate();    
+    dst->tryActivate();
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
