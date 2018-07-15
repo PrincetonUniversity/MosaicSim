@@ -1,6 +1,7 @@
 #include "header.h"
 
 using namespace std;
+
 LoadStoreQ::LoadStoreQ() {
   clear();
 }

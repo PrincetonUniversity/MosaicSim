@@ -46,7 +46,7 @@ public:
   int L1_assoc; 
 };
 
-Config cfg;
+extern Config cfg;
 
 class Node {
 public:
@@ -66,7 +66,6 @@ public:
   std::set<Node*> phi_parents;
   // For Store Nodes
   std::set<Node*> store_addr_dependents;
-
   
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 

@@ -4,23 +4,13 @@
 #include <bitset>
 #include <math.h>
 
-uint64_t extract(int max, int min, uint64_t address) // inclusive
-{
-    uint64_t maxmask = ((uint64_t)1 << (max+1))-1;
-    uint64_t minmask = ((uint64_t)1 << (min))-1;
-    uint64_t mask = maxmask - minmask;
-    uint64_t val = address & mask;
-    if(min > 0)
-      val = val >> (min-1);
-    return val;
-}
-
 struct CacheLine
 {
     uint64_t addr;
     CacheLine* prev;
     CacheLine* next;
 };
+
 class CacheSet
 {
 public:
@@ -118,7 +108,18 @@ public:
     {
       sets.push_back(new CacheSet(assoc));
     }
+  } 
+  uint64_t extract(int max, int min, uint64_t address) // inclusive
+  {
+      uint64_t maxmask = ((uint64_t)1 << (max+1))-1;
+      uint64_t minmask = ((uint64_t)1 << (min))-1;
+      uint64_t mask = maxmask - minmask;
+      uint64_t val = address & mask;
+      if(min > 0)
+        val = val >> (min-1);
+      return val;
   }
+
   bool access(uint64_t address)
   {
     uint64_t setid = extract(log_set_count-1, 0, address);

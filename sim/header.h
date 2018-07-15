@@ -1,6 +1,9 @@
+#ifndef HEADER_H
+#define HEADER_H
+
 #include "include/DRAMSim.h"
 #include "functional_cache.h"
-#include "graphOpt.cc"
+#include "graphOpt.h"
 
 class Simulator;
 class DynamicNode;
@@ -63,7 +66,7 @@ public:
   }
 };
 
-Statistics stat;
+extern Statistics stat;
 
 typedef pair<DynamicNode*, uint64_t> Operator;
 struct OpCompare {
@@ -208,3 +211,42 @@ public:
   void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad);
 };
 
+class Simulator 
+{
+public:
+  Graph g;
+  uint64_t cycles = 0;
+  DRAMSimInterface* memInterface; 
+  Cache* cache;
+  chrono::high_resolution_clock::time_point curr;
+  chrono::high_resolution_clock::time_point last;
+  uint64_t last_processed_contexts;
+
+  vector<Context*> context_list;
+  vector<Context*> live_context;
+  int context_to_create = 0;
+
+  /* Resources / limits */
+  map<TInstr, int> available_FUs;
+  map<BasicBlock*, int> outstanding_contexts;
+  int ports[2]; // ports[0] = loads; ports[1] = stores;
+  
+  /* Profiled */
+  vector<int> cf; // List of basic blocks in "sequential" program order 
+  unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
+  
+  /* Handling External/Phi Dependencies */
+  unordered_map<int, Context*> curr_owner;
+  
+  /* LSQ */
+  LoadStoreQ lsq;
+
+  void initialize();
+  bool createContext();
+  bool process_cycle();
+  void process_memory();
+  void run();
+  void toMemHierarchy(DynamicNode *d);
+};
+
+#endif
