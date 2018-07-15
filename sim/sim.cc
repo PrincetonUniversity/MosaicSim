@@ -109,10 +109,12 @@ bool Simulator::process_cycle() {
       break;
   }
   context_to_create -= context_created;   // some contexts can be left pending for later cycles
-  cache->process_cache();
+  if(cache->process_cache())
+    simulate = true;
+  process_memory();
+
   cycles++;
   cache->cycles++;
-  process_memory();
   return simulate;
 }
 

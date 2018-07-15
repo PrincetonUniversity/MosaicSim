@@ -1,6 +1,6 @@
 #include "header.h"
 using namespace std;
-
+  
 Statistics stat;
 Config cfg;
 
@@ -17,7 +17,7 @@ int main(int argc, char const *argv[]) {
   }
   if(argc >= 3) {
     string cfgname(argv[2]);
-    cfgpath = "../sim/config/" + cfgname;
+    cfgpath = "../sim/config/" + cfgname  +".txt";
   }
   else 
     cfgpath = "../sim/config/default.txt";

@@ -184,7 +184,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
     return false;
 }
 std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
-  os << "[Context-" <<d.c->id <<"] Node" << d.n->name <<" ";
+  os << "[Context-" <<d.c->id <<"] Node - " << d.n->name <<" ";
   return os;
 }
 void DynamicNode::print(string str, int level) {
@@ -193,7 +193,7 @@ void DynamicNode::print(string str, int level) {
 }
 
 void DynamicNode::handleMemoryReturn() {
-  print("Memory Transaction Returns", 0);
+  print("Memory Data Ready", 0);
   print(to_string(outstanding_accesses), 0);
   if(type == LD) {
     if(cfg.mem_speculate) {

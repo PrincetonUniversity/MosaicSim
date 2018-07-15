@@ -197,10 +197,10 @@ std::vector<DynamicNode*> LoadStoreQ::check_speculation (DynamicNode* in) {
   return ret;
 }
 
-void Cache::process_cache() {
+bool Cache::process_cache() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
-      break;
+      break;    
     execute(pq.top().first);
     pq.pop();
   }
@@ -223,15 +223,16 @@ void Cache::process_cache() {
     else
       it++;
   }
+  return (pq.size() > 0);
 }
 void Cache::execute(DynamicNode* d) {
   uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
   bool res = true;
   if(!ideal)
     res = fc->access(dramaddr/size_of_cacheline);
-  if (res) {                  
-    d->handleMemoryReturn();
+  if (res) {                
     d->print("Cache Hit", 0);
+    d->handleMemoryReturn();
     stat.update("cache_hit");
   }
   else {

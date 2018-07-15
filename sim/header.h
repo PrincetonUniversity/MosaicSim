@@ -28,6 +28,7 @@ public:
     registerStat("cache_hit", 1);
     registerStat("cache_miss", 1);
     registerStat("cache_access", 1);
+    registerStat("cache_pending", 1);
     registerStat("cache_evict", 1);
     registerStat("dram_access", 1);
 
@@ -186,7 +187,7 @@ public:
   FunctionalCache *fc;
   Cache(int latency, int size, int assoc, bool ideal): 
     latency(latency), ideal(ideal), fc(new FunctionalCache(size, assoc)) {}
-  void process_cache();
+  bool process_cache();
   void execute(DynamicNode* d);
   void addTransaction(DynamicNode *d);
 };
