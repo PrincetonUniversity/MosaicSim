@@ -65,7 +65,7 @@ void Simulator::process_memory() {
 }
 
 bool Simulator::process_cycle() {
-  //if(cfg.vInputLevel >= 0)
+  if(cfg.vInputLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
     curr = Clock::now();
@@ -83,12 +83,10 @@ bool Simulator::process_cycle() {
   bool simulate = false;
   ports[0] = cfg.load_ports;
   ports[1] = cfg.store_ports;
-  lsq.process();
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();
   }
-  lsq.clear();
   for(auto it = live_context.begin(); it!=live_context.end();) {
     Context *c = *it;
     c->complete();

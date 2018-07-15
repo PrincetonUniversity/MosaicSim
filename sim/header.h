@@ -43,6 +43,9 @@ public:
     registerStat("store_issue_success", 3);
     registerStat("comp_issue_try", 3);
     registerStat("comp_issue_success", 3);
+
+    registerStat("lsq_insert_success", 4);
+    registerStat("lsq_insert_fail", 4);
   }
   int get(string str) {
     return stats.at(str).first;
@@ -99,7 +102,6 @@ public:
   bool issueMemNode();
   bool issueCompNode();
   void finishNode();
-  
 };
 
 struct DynamicNodePointerCompare {
@@ -110,7 +112,7 @@ struct DynamicNodePointerCompare {
 
 struct OpCompare {
   bool operator() (const Operator &l, const Operator &r) const {
-    if(l.second > r.second) 
+    if(r.second < l.second) 
       return true;
     else if (l.second == r.second)
       return (*(r.first) < *(l.first));
@@ -122,7 +124,7 @@ class Context {
 public:
   bool live;
   unsigned int id;
-
+  
   Simulator* sim;
   BasicBlock *bb;
 
@@ -154,14 +156,18 @@ public:
   deque<DynamicNode*> sq;
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> lm;
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> sm;
+  set<DynamicNode*, DynamicNodePointerCompare> us;
+  set<DynamicNode*, DynamicNodePointerCompare> ul;
+
   int size;
-  DynamicNode* unresolved_st;
+  bool set_processed = false;
+  
   set<DynamicNode*,DynamicNodePointerCompare> unresolved_st_set;
-  DynamicNode* unresolved_ld;
+  set<DynamicNode*,DynamicNodePointerCompare> unresolved_ld_set;
+
 
   LoadStoreQ();
-  void process();
-  void clear();
+  void resolveAddress(DynamicNode *d);
   void insert(DynamicNode *d);
   bool checkSize(int num_ld, int num_st);
   bool check_unresolved_load(DynamicNode *in);

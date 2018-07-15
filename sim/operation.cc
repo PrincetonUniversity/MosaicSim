@@ -219,8 +219,10 @@ void DynamicNode::tryActivate() {
     }
     else {
       assert(c->issue_set.find(this) == c->issue_set.end());
-      if(isMem)
+      if(isMem) {
         addr_resolved = true;
+        sim->lsq.resolveAddress(this);
+      }
       c->issue_set.insert(this);
     }
 }
@@ -333,6 +335,7 @@ void DynamicNode::finishNode() {
     DynamicNode *dst = c->nodes.at(*it);
     if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
+      sim->lsq.resolveAddress(dst);
     }
     dst->pending_parents--;
     dst->tryActivate();
@@ -343,6 +346,7 @@ void DynamicNode::finishNode() {
     DynamicNode *dst = external_dependents.at(i);
     if(n->store_addr_dependents.find(n) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
+      sim->lsq.resolveAddress(dst);
     }
     dst->pending_external_parents--;
     dst->tryActivate();

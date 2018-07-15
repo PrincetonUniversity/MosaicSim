@@ -3,43 +3,28 @@
 using namespace std;
 
 LoadStoreQ::LoadStoreQ() {
-  clear();
+}
+void LoadStoreQ::resolveAddress(DynamicNode *d) {
+  if(d->type == LD)
+    unresolved_ld_set.erase(d);
+  else
+    unresolved_st_set.erase(d);
 }
 
-void LoadStoreQ::clear() {
-  unresolved_st_set.clear();
-  unresolved_st = NULL;
-  unresolved_ld = NULL;
-}
-void LoadStoreQ::process() {
-  for(auto it = sq.begin(); it != sq.end(); ++it) {
-    DynamicNode *d = *it;
-    if(!d->addr_resolved) {
-      if(unresolved_st == NULL)
-        unresolved_st = d;
-      unresolved_st_set.insert(d);
-    }
-  }
-  for(auto it = lq.begin(); it != lq.end(); ++it) {
-    DynamicNode *d = *it;
-    if(!d->addr_resolved) {
-      unresolved_ld = d;
-      break;
-    }
-  } 
-}
 void LoadStoreQ::insert(DynamicNode *d) {
   if(d->type == LD) {
     lq.push_back(d);
     if(lm.find(d->addr) == lm.end())
       lm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));
     lm.at(d->addr).insert(d);
+    unresolved_ld_set.insert(d);
   }
   else {
     sq.push_back(d);
     if(sm.find(d->addr) == sm.end())
       sm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));
     sm.at(d->addr).insert(d);
+    unresolved_st_set.insert(d);
   }
 }
 bool LoadStoreQ::checkSize(int num_ld, int num_st) {
@@ -80,23 +65,28 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
         sm.erase(d->addr);
       sq.pop_front();  
     }
+    stat.update("lsq_insert_success");
     return true;
   }
-  else 
+  else {
+    stat.update("lsq_insert_fail");
     return false; 
+  }
 }
 bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
-  if(unresolved_ld == NULL)
+  if(unresolved_ld_set.size() == 0)
     return false;
-  if(*unresolved_ld < *in || *unresolved_ld == *in)
+  DynamicNode *d = *(unresolved_ld_set.begin());
+  if(*d < *in || *d == *in)
     return true;
   else
     return false;
 }
 bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
-  if(unresolved_st == NULL)
+  if(unresolved_st_set.size() == 0)
     return false;
-  if(*unresolved_st < *in || *unresolved_st == *in) {
+  DynamicNode *d = *(unresolved_st_set.begin());
+  if(*d < *in || *d == *in) {
     return true;
   }
   else
