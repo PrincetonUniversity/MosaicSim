@@ -40,6 +40,8 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
         ld_ct++;
       else
         break;
+      if(ld_ct == ld_need)
+        break;
     }
   }
   if(st_need > 0) {
@@ -47,6 +49,8 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
       if((*it)->completed)
         st_ct++;
       else
+        break;
+      if(st_ct == st_need)
         break;
     }
   }
