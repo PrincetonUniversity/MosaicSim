@@ -2,7 +2,6 @@
 [Sim] Gemm Bug (Chirag's experiments)
 [Sim] Detailed resource limits for memory systems
 
-
 ---- Double Check ---- 
 [GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
 [Sim] PHI_Node 0 latency
@@ -10,8 +9,6 @@
 /* Code Improvements */ (Low Priority)
 [Compilation] Chirag / Make a script for easy compilation and run
 [GraphGen] Automatically inline all functions or make it inter-procedural
-[Sim] Improve Node/Graph Print
-[Sim] readGraph does not read instruction name correctly
 
 /* Note */
 
