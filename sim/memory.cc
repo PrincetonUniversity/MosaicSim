@@ -1,10 +1,6 @@
-#include "base.h"
-#include "include/DRAMSim.h"
-#include "functional_cache.h"
 #include "header.h"
 
 using namespace std;
-Statistics stat;
 LoadStoreQ::LoadStoreQ() {
   clear();
 }
@@ -245,7 +241,7 @@ void Cache::execute(DynamicNode* d) {
 }
 
 void Cache::addTransaction(DynamicNode *d) {
-  d->print("Cache Transaction", 0);
+  d->print("Cache Transaction Added", 0);
   stat.update("cache_access");
   pq.push(make_pair(d, cycles+latency));   
 }   

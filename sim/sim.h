@@ -5,7 +5,6 @@ class Simulator
 {
 public:
   Graph g;
-  Config cfg;
   uint64_t cycles = 0;
   DRAMSimInterface* cb; 
   Cache* cache;
@@ -75,7 +74,6 @@ public:
     // Check LSQ Availability
     if(!lsq.checkSize(bb->ld_count, bb->st_count))
       return false;
-
     // check the limit of contexts per BB
     if (cfg.max_active_contexts_BB > 0) {
       if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
@@ -89,7 +87,7 @@ public:
     Context *c = new Context(cid, this);
     context_list.push_back(c);
     live_context.push_back(c);
-    c->initialize(bb, &cfg, next_bbid, prev_bbid);
+    c->initialize(bb, next_bbid, prev_bbid);
     return true;
   }
 

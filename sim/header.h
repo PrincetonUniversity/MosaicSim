@@ -1,32 +1,14 @@
-using namespace std;
+#include "include/DRAMSim.h"
+#include "functional_cache.h"
+#include "graphOpt.cc"
+
 class Simulator;
 class DynamicNode;
 class Context;
 class DRAMSimInterface;
-
-// void GlobalStats::print() {
-//   cout << "** Global Stats **\n";
-//   cout << "num_exec_instr = " << num_exec_instr << endl;
-//   cout << "num_cycles     = " << num_cycles << endl;
-//   cout << "IPC            = " << num_exec_instr / (double)num_cycles << endl;
-//   cout << "num_finished_context = " << num_finished_context << endl;
-//   cout << "L1_hits = " << num_L1_hits << endl;
-//   cout << "L1_misses = " << num_L1_misses << endl;
-//   cout << "L1_hit_rate = " << num_L1_hits / (double)(num_L1_hits+num_L1_misses) << endl;
-//   cout << "MemIssue Try : " << num_mem_issue_try << " / " <<"MemIssuePass : " <<  num_mem_issue_pass << " / " << "CompIssueTry : " << num_comp_issue_try << " / " << "CompIssueSuccess : " <<  num_comp_issue_pass << "\n";
-//   cout << "LD Try : " << num_mem_load_try << " / " <<"LDPass : " <<  num_mem_load_pass << " / " << "StoreTry : " << num_mem_store_try << " / " << "StorePass : " <<  num_mem_store_pass << "\n";
-
-//   cout << "MemAccess : " << num_mem_access << " / " << "DRAM Access : " << num_mem_real << " / DRAM Return : " << num_mem_return << " / " << "MemEvict : " << num_mem_evict <<  "\n";
-//   cout << (double)num_mem_real * 64 / (num_cycles/2) << "GB/s \n"; 
-//   cout << "mem_hold " << num_mem_hold << "\n";
-//   cout << "lsq: " << sim->lsq.invoke[0] << " / " << sim->lsq.invoke[1] << " / " << sim->lsq.invoke[2] << " / " << sim->lsq.invoke[3] << " \n";
-//   cout << "lsq: " << sim->lsq.traverse[0] << " / " << sim->lsq.traverse[1] << " / " << sim->lsq.traverse[2] << " / " << sim->lsq.traverse[3] << " \n";
-//   cout << "lsq3 : " << sim->lsq.count[0] << " / " << sim->lsq.count[1] << " / " << sim->lsq.count[2] << " / " << sim->lsq.count[3] << "\n";
-//   cout << "misspec: " << num_misspec << "\n";
-//   cout << "spec; "<< num_speculated << " / " << "forward " << num_forwarded << " / " << "spec forward " << num_speculated_forwarded << "\n";
-//   for(int i=0; i<8; i++)
-//     cout << "Memory Event: " << memory_events[i] << "\n";
-// }
+class Config;
+class Statistics;
+using namespace std;
 
 class Statistics {
 public:
@@ -81,6 +63,8 @@ public:
   }
 };
 
+Statistics stat;
+
 typedef pair<DynamicNode*, uint64_t> Operator;
 struct OpCompare {
   friend bool operator< (const Operator &l, const Operator &r) {
@@ -97,7 +81,6 @@ public:
   Node *n;
   Context *c;
   Simulator *sim;
-  Config *cfg;
   TInstr type;
   bool issued = false;
   bool completed = false;
@@ -112,15 +95,16 @@ public:
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
 
-  DynamicNode(Node *n, Context *c, Simulator *sim, Config *cfg, uint64_t addr = 0);
+  DynamicNode(Node *n, Context *c, Simulator *sim, uint64_t addr = 0);
   bool operator== (const DynamicNode &in);
   bool operator< (const DynamicNode &in) const;
+  void print(string str, int level = 0);
+  void handleMemoryReturn();
+  void tryActivate(); 
   bool issueMemNode();
   bool issueCompNode();
   void finishNode();
-  void tryActivate(); 
-  void handleMemoryReturn();
-  void print(string str, int level = 0);
+  
 };
 
 struct DynamicNodePointerCompare {
@@ -129,14 +113,12 @@ struct DynamicNodePointerCompare {
   }
 };
 
-
 class Context {
 public:
   bool live;
   unsigned int id;
 
   Simulator* sim;
-  Config *cfg;
   BasicBlock *bb;
 
   int next_bbid;
@@ -156,9 +138,10 @@ public:
   Context* getNextContext();
   Context* getPrevContext();
   void insertQ(DynamicNode *d);
+  void print(string str, int level = 0);
+  void initialize(BasicBlock *bb, int next_bbid, int prev_bbid);
   void process();
   void complete();
-  void initialize(BasicBlock *bb, Config *cfg, int next_bbid, int prev_bbid);
 };
 
 class LoadStoreQ {
@@ -168,9 +151,6 @@ public:
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> lm;
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> sm;
   int size;
-  int invoke[4];
-  int traverse[4];
-  int count[4];
   DynamicNode* unresolved_st;
   set<DynamicNode*,DynamicNodePointerCompare> unresolved_st_set;
   DynamicNode* unresolved_ld;
@@ -210,10 +190,12 @@ public:
 
 class DRAMSimInterface {
 public:
-  unordered_map< uint64_t, queue<DynamicNode*> > outstanding_read_map;
-  DRAMSim::MultiChannelMemorySystem *mem;
   Cache *c;
   bool ideal;
+  
+  unordered_map< uint64_t, queue<DynamicNode*> > outstanding_read_map;
+  DRAMSim::MultiChannelMemorySystem *mem;
+
   DRAMSimInterface(Cache *c, bool ideal) : c(c),ideal(ideal)  {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);

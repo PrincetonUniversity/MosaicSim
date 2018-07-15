@@ -1,7 +1,3 @@
-//=======================================================================
-// Copyright 2018 Princeton University.
-//=======================================================================
-
 #include <iostream>                         
 #include <set>
 #include <map>
@@ -26,7 +22,6 @@ typedef chrono::high_resolution_clock Clock;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
-class Node;
 class Config {
 public:
   // Config parameters
@@ -51,8 +46,17 @@ public:
   int L1_assoc; 
 };
 
+Config cfg;
+
 class Node {
 public:
+
+  int id;
+  TInstr typeInstr;
+  int bbid;
+  std::string name;
+  int lat;
+
   std::set<Node*> dependents;
   std::set<Node*> parents;
   std::set<Node*> external_dependents;
@@ -60,14 +64,9 @@ public:
   std::set<Node*> phi_dependents;
   // For PHI Nodes
   std::set<Node*> phi_parents;
-
   // For Store Nodes
-  std::set<Node*> store_addr_dependents; // store_address_dependents
-  int id;
-  TInstr typeInstr;
-  int bbid;
-  std::string name;
-  int lat;
+  std::set<Node*> store_addr_dependents;
+
   
   Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
             id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
@@ -140,117 +139,7 @@ public:
   std::map<int, Node *> nodes;
   std::map<int, BasicBlock*> bbs;
   ~Graph() { eraseAllNodes(); } 
-  /* Temp */
-
-  bool checkType(Node *n) {
-    if(n->typeInstr == I_ADDSUB || n->typeInstr == FP_ADDSUB || n->typeInstr == LOGICAL || n->typeInstr == CAST)
-      return true;
-    else
-      return false;
-  }
-
-  bool findOptimizableTerminator(Node *init, set<Node*> phis) {
-    std::set<Node*> frontier;
-    std::set<Node*> next_frontier;
-    std::set<Node*> visited;
-    frontier.insert(init);
-    visited.insert(init);
-    while(frontier.size() > 0) {
-      for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
-        Node *n = *fit;
-        for(auto it = n->parents.begin(); it!=n->parents.end(); ++it) {
-          Node *sn = *it;
-          if(sn->typeInstr == PHI && (phis.find(sn) != phis.end()))
-            continue;
-          if(!checkType(sn))
-            return false;
-          else if(visited.find(sn) == visited.end()) {
-            visited.insert(sn);
-            next_frontier.insert(sn);
-          }
-        }
-      }
-      frontier.clear();
-      frontier = next_frontier;
-      next_frontier.clear();
-    }
-    return true;
-  }
-  bool findOptimizablePhi(Node *init) {
-    assert(init->typeInstr == PHI);
-    std::set<Node*> frontier;
-    std::set<Node*> next_frontier;
-    std::set<Node*> visited;
-    for(auto pit = init->phi_parents.begin(); pit!= init->phi_parents.end(); ++pit) {
-      Node *sn = *pit;
-      if(sn->bbid == init->bbid) {
-        if(sn->typeInstr == PHI)
-          assert(false); 
-        if(!checkType(sn)) {
-          return false;
-        }
-        visited.insert(sn);
-        frontier.insert(sn);
-      }
-    }
-    while(frontier.size() > 0) {
-      for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
-        Node *n = *fit;
-        for(auto it = n->parents.begin(); it!=n->parents.end(); ++it) {
-          Node *sn = *it;
-          if(sn->typeInstr == PHI && sn!= init)
-            assert(false);
-          if(sn->typeInstr == PHI && sn == init)
-            continue;
-          if(!checkType(sn)) {
-            return false;
-          }
-          else if(visited.find(sn) == visited.end()) {
-            visited.insert(sn);
-            next_frontier.insert(sn);
-          }
-        }
-      }
-      frontier.clear();
-      frontier = next_frontier;
-      next_frontier.clear();
-    }
-    return true;
-  }
-  void inductionOptimization() {
-    std::set<Node*> phis;
-    std::vector<Node*> terms;
-    for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
-      Node *n = it->second;
-      if(n->typeInstr == PHI) {
-        if(findOptimizablePhi(n)) {
-          cout << "Optimized Phi : " << *n << "\n";
-          phis.insert(n);
-        }
-      }
-    }
-    for(auto it = phis.begin(); it!= phis.end(); ++it) {
-      Node *n = *it;
-      for(auto pit = n->phi_parents.begin(); pit!= n->phi_parents.end(); ++pit) {
-        Node *sn = *pit;
-        if(sn->bbid == n->bbid)
-          sn->eraseDependent(n, PHI_DEP);
-      }
-    }
-    for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
-      Node *n = it->second;
-      if(n->typeInstr == TERMINATOR) {
-        if(findOptimizableTerminator(n, phis)) {
-          for(auto iit = n->parents.begin(); iit != n->parents.end(); ++iit) {
-            Node *sn = *iit;
-            sn->eraseDependent(n, DATA_DEP);
-          }
-          cout << "Optimized Terminator : " << *n << "\n";
-        }
-      }
-    }
-  }
-
+  
   void addBasicBlock(int id) {
     bbs.insert( std::make_pair(id, new BasicBlock(id)) );
   }
@@ -292,7 +181,6 @@ public:
 
   // Print Graph
   friend std::ostream &operator<<(std::ostream &os, Graph &g) {
-    os << "Graph: Total_nodes=" << g.nodes.size() << std::endl;
     for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
       std::cout << it->first << ":" << *it->second <<"\n";
     std::cout << "";
@@ -312,90 +200,6 @@ public:
         tokens.push_back(item);
      }
      return tokens;
-  }
-  void getCfg(int id, int val, Config &cfg) {
-    switch (id) { 
-      case 0:
-        cfg.lsq_size = val; 
-        break;
-      case 1:
-        cfg.cf_mode = val;
-        break;
-      case 2:
-        cfg.mem_speculate = val;
-        break;
-      case 3:
-        cfg.mem_forward = val;
-        break;
-      case 4:
-        cfg.max_active_contexts_BB = val;
-        break;
-      case 5:
-        cfg.ideal_cache = val;
-        break;
-      case 6:
-        cfg.L1_size = val;
-        break;
-      case 7:
-        cfg.load_ports = val;
-        break;
-      case 8:
-        cfg.store_ports = val;
-        break;
-    }
-  }
-  void readCfg(std::string name, Config &cfg) { // TODO: Read config from <filename>
-    string line;
-    string last_line;
-    cout << "CFG: " << name << "\n";
-    ifstream cfile(name);
-    int id = 0;
-    if (cfile.is_open()) {
-      while (getline (cfile,line)) {
-        vector<string> s = split(line, ',');
-        getCfg(id, stoi(s.at(0)), cfg);
-        id++;
-      }
-    }
-    else {
-      cout << "Error opening Config\n";
-      assert(false);
-    }
-    cfile.close();
-    cfg.L1_latency = 1;
-    cfg.L1_assoc = 8;
-    cfg.instr_latency[I_ADDSUB] = 1;
-    cfg.instr_latency[I_MULT] = 3;
-    cfg.instr_latency[I_DIV] = 26;
-    cfg.instr_latency[I_REM] = 1;
-    cfg.instr_latency[FP_ADDSUB] = 1;
-    cfg.instr_latency[FP_MULT] = 3;
-    cfg.instr_latency[FP_DIV] = 26;
-    cfg.instr_latency[FP_REM] = 1;
-    cfg.instr_latency[LOGICAL] = 1;
-    cfg.instr_latency[CAST] = 1;
-    cfg.instr_latency[GEP] = 1;
-    cfg.instr_latency[LD] = -1;
-    cfg.instr_latency[ST] = 1;
-    cfg.instr_latency[TERMINATOR] = 1;
-    cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.num_units[I_ADDSUB] = -1;
-    cfg.num_units[I_MULT] =  -1;
-    cfg.num_units[I_DIV] = -1;
-    cfg.num_units[I_REM] = -1;
-    cfg.num_units[FP_ADDSUB] = -1;
-    cfg.num_units[FP_MULT] = -1;
-    cfg.num_units[FP_DIV] = -1;
-    cfg.num_units[FP_REM] = -1;
-    cfg.num_units[LOGICAL] = -1;
-    cfg.num_units[CAST] = -1;
-    cfg.num_units[GEP] = -1;
-    cfg.num_units[LD] = -1;
-    cfg.num_units[ST] = -1;
-    cfg.num_units[TERMINATOR] = -1;
-    cfg.num_units[PHI] = -1;
-    cfg.outstanding_load_requests = 9999;
-    cfg.outstanding_store_requests = 9999;
   }
   // Read Dynamic Control Flow data from profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
@@ -428,7 +232,7 @@ public:
       cout << "Error opening CF profiling file\n";
       assert(false);
     }
-    cout << "Finished Reading CF -- Total number of contexts : " << cf.size() << "\n";
+    cout <<"[4] Finished Reading CF - Total number of contexts : " << cf.size() << "\n";
     cfile.close();
   }
   // Read Dynamic Memory accesses from profiling file.
@@ -451,10 +255,10 @@ public:
       cout << "Error opening Memory profiling file\n";
       assert(false);
     }
-    cout << "Finished Reading Memory Profile "<< "\n";
+    cout << "[3] Finished Reading Memory Profile "<< "\n";
     cfile.close();
   }
-  void readGraph(std::string name, Graph &g, Config &cfg) {
+  void readGraph(std::string name, Graph &g) {
     ifstream cfile(name);
     if (cfile.is_open()) {
       string temp;
@@ -499,6 +303,91 @@ public:
       assert(false);
     }
     cfile.close();
+    cout << "[2] Finished Reading Graph (" << name << ") \n";
     cout << g << endl;
+  }
+
+  void getCfg(int id, int val) {
+    switch (id) { 
+      case 0:
+        cfg.lsq_size = val; 
+        break;
+      case 1:
+        cfg.cf_mode = val;
+        break;
+      case 2:
+        cfg.mem_speculate = val;
+        break;
+      case 3:
+        cfg.mem_forward = val;
+        break;
+      case 4:
+        cfg.max_active_contexts_BB = val;
+        break;
+      case 5:
+        cfg.ideal_cache = val;
+        break;
+      case 6:
+        cfg.L1_size = val;
+        break;
+      case 7:
+        cfg.load_ports = val;
+        break;
+      case 8:
+        cfg.store_ports = val;
+        break;
+    }
+  }
+  void readCfg(std::string name) {
+    string line;
+    string last_line;
+    ifstream cfile(name);
+    int id = 0;
+    if (cfile.is_open()) {
+      while (getline (cfile,line)) {
+        vector<string> s = split(line, ',');
+        getCfg(id, stoi(s.at(0)));
+        id++;
+      }
+    }
+    else {
+      cout << "Error opening Config\n";
+      assert(false);
+    }
+    cfile.close();
+    cout << "[1] Finished Reading Config File (" << name << ") \n";
+    
+    cfg.L1_latency = 1;
+    cfg.L1_assoc = 8;
+    cfg.instr_latency[I_ADDSUB] = 1;
+    cfg.instr_latency[I_MULT] = 3;
+    cfg.instr_latency[I_DIV] = 26;
+    cfg.instr_latency[I_REM] = 1;
+    cfg.instr_latency[FP_ADDSUB] = 1;
+    cfg.instr_latency[FP_MULT] = 3;
+    cfg.instr_latency[FP_DIV] = 26;
+    cfg.instr_latency[FP_REM] = 1;
+    cfg.instr_latency[LOGICAL] = 1;
+    cfg.instr_latency[CAST] = 1;
+    cfg.instr_latency[GEP] = 1;
+    cfg.instr_latency[LD] = -1;
+    cfg.instr_latency[ST] = 1;
+    cfg.instr_latency[TERMINATOR] = 1;
+    cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
+    cfg.num_units[I_ADDSUB] = -1;
+    cfg.num_units[I_MULT] =  -1;
+    cfg.num_units[I_DIV] = -1;
+    cfg.num_units[I_REM] = -1;
+    cfg.num_units[FP_ADDSUB] = -1;
+    cfg.num_units[FP_MULT] = -1;
+    cfg.num_units[FP_DIV] = -1;
+    cfg.num_units[FP_REM] = -1;
+    cfg.num_units[LOGICAL] = -1;
+    cfg.num_units[CAST] = -1;
+    cfg.num_units[GEP] = -1;
+    cfg.num_units[LD] = -1;
+    cfg.num_units[ST] = -1;
+    cfg.num_units[TERMINATOR] = -1;
+    cfg.num_units[PHI] = -1;
   }
 };
