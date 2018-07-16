@@ -10,7 +10,6 @@ void LoadStoreQ::resolveAddress(DynamicNode *d) {
   else
     unresolved_st_set.erase(d);
 }
-
 void LoadStoreQ::insert(DynamicNode *d) {
   if(d->type == LD) {
     lq.push_back(d);
@@ -235,7 +234,6 @@ void Cache::execute(DynamicNode* d) {
     stat.update("cache_miss");
   }
 }
-
 void Cache::addTransaction(DynamicNode *d) {
   d->print("Cache Transaction Added", 1);
   stat.update("cache_access");

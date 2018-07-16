@@ -1,4 +1,4 @@
-# apollo
+# Pythia
 
 **Uncovering Sources of Speedup for Performance Improvement in Specialized Hardware Accelerators**
 
