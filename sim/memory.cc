@@ -223,7 +223,7 @@ void Cache::execute(DynamicNode* d) {
   uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
   bool res = true;
   if(!ideal)
-    res = fc->access(dramaddr/size_of_cacheline);
+    res = fc->access(dramaddr/size_of_cacheline, d->type==LD);
   if (res) {                
     d->print("Cache Hit", 1);
     d->handleMemoryReturn();

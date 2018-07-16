@@ -3,12 +3,15 @@
 #include <set>
 #include <bitset>
 #include <math.h>
+#include <iostream>
+using namespace std;
 
 struct CacheLine
 {
-    uint64_t addr;
-    CacheLine* prev;
-    CacheLine* next;
+  uint64_t addr;
+  CacheLine* prev;
+  CacheLine* next;
+  bool dirty=false;
 };
 
 class CacheSet
@@ -39,7 +42,7 @@ public:
     delete tail;
     delete [] entries;
   }
-  bool access(uint64_t address)
+  bool access(uint64_t address, bool isLoad)
   {
     CacheLine *c = addr_map[address];
     if(c)
@@ -47,6 +50,8 @@ public:
       // Hit
       deleteNode(c);
       insertFront(c);
+      if(!isLoad)
+        c->dirty = true;
       return true;
     }
     else
@@ -56,15 +61,17 @@ public:
   }
   void insert(uint64_t address, int64_t *evict = NULL)
   {
-    CacheLine *c = addr_map[address];
+    CacheLine *c = addr_map[address];    
     if(freeEntries.size() == 0)
     {
       // Evict
       c = tail->prev;
       deleteNode(c);
       addr_map.erase(c->addr);
-      if(evict)
+    
+      if(evict && c->dirty) {
         *evict = c->addr;
+      }  
     }
     else
     {
@@ -73,6 +80,7 @@ public:
       freeEntries.erase(freeEntries.begin());
     }
     c->addr = address;
+    c->dirty = false;
     addr_map[address] = c;
     insertFront(c);
   }
@@ -120,12 +128,12 @@ public:
       return val;
   }
 
-  bool access(uint64_t address)
+  bool access(uint64_t address, bool isLoad)
   {
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
     CacheSet *c = sets.at(setid);
-    bool res = c->access(tag);
+    bool res = c->access(tag, isLoad);
     return res;
   }
   void insert(uint64_t address, int64_t *evicted = NULL)
