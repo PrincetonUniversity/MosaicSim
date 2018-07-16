@@ -29,11 +29,11 @@ int main(int argc, char const *argv[]) {
   string cname = wlpath + "/output/ctrl.txt";
   
   // enable verbosity level: check for -v in command line
-  cfg.vInputLevel = -1;
+  cfg.verbLevel = -1;
   if (argc == 4) {
     string v(argv[3]);
     if (v == "-v")
-       cfg.vInputLevel = 2;
+       cfg.verbLevel = 2;
   }
 
   Reader r; 

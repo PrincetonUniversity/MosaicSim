@@ -13,16 +13,14 @@ Context* Context::getPrevContext() {
   else
     return NULL;
 }
-
 std::ostream& operator<<(std::ostream &os, Context &c) {
   os << "[Context-" << c.id <<"] ";
   return os;
 }
 void Context::print(string str, int level) {
-  if( level < cfg.vInputLevel )
+  if( level < cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
-
 void Context::insertQ(DynamicNode *d) {
   if(d->n->lat > 0)
     pq.push(make_pair(d, sim->cycles+d->n->lat-1));
@@ -143,8 +141,6 @@ void Context::complete() {
   }
 }
 
-/* Dynamic Node */
-
 DynamicNode::DynamicNode(Node *n, Context *c, Simulator *sim, uint64_t addr) : n(n), c(c), sim(sim) {
   this->addr = addr;
   type = n->typeInstr;
@@ -188,7 +184,7 @@ std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
   return os;
 }
 void DynamicNode::print(string str, int level) {
-  if( level < cfg.vInputLevel)
+  if( level < cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
 

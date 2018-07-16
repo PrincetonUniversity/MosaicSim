@@ -25,7 +25,7 @@ typedef enum {DATA_DEP, PHI_DEP} TEdge;
 class Config {
 public:
   // Config parameters
-  int  vInputLevel; // verbosity level
+  int  verbLevel; // verbosity level
   bool cf_mode; // 0: one at a time / 1: all together
   bool mem_speculate;
   bool mem_forward;
