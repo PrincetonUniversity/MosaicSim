@@ -8,6 +8,7 @@ int main(int argc, char const *argv[]) {
   Simulator sim;
   string wlpath;
   string cfgpath;
+  // set workload path
   if (argc >=2) {
     string in(argv[1]);
     wlpath = in;
@@ -15,6 +16,7 @@ int main(int argc, char const *argv[]) {
   else {
     wlpath = "../workloads/test/";
   }
+  // set config file path
   if(argc >= 3) {
     string cfgname(argv[2]);
     cfgpath = "../sim/config/" + cfgname  +".txt";
@@ -26,9 +28,8 @@ int main(int argc, char const *argv[]) {
   string mname = wlpath + "/output/mem.txt";
   string cname = wlpath + "/output/ctrl.txt";
   
+  // enable verbosity level: check for -v in command line
   cfg.vInputLevel = -1;
-
-  // enable verbosity level: -v
   if (argc == 4) {
     string v(argv[3]);
     if (v == "-v")

@@ -254,7 +254,7 @@ public:
       cout << "Error opening Memory profiling file\n";
       assert(false);
     }
-    cout << "[3] Finished Reading Memory Profile "<< "\n";
+    cout << "[3] Finished Reading Memory Profile (" << name << ")\n";
     cfile.close();
   }
   void readGraph(std::string name, Graph &g) {

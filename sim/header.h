@@ -120,6 +120,7 @@ struct OpCompare {
       return false;
   }
 };
+
 class Context {
 public:
   bool live;
