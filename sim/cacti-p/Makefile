@@ -32,13 +32,13 @@ $(TARGET): $(OBJS)
 		$(CXX) $(OBJS) -o $@ $(INCS) $(CXXFLAGS) $(LIBS) -pthread
 
 libcacti:	$(OBJS)
-	$(AR) -r libcatci.a $(OBJS)
-	cp libcatci.a ../../lib/
+	$(AR) -r catci.a $(OBJS)
+	cp catci.a ../../lib/
 
 %.o: %.cc
 		$(CXX) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	-rm -f *.o _cacti.so cacti.py libcatci.a $(TARGET)
+	-rm -f *.o _cacti.so cacti.py catci.a $(TARGET)
 
 
