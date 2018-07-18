@@ -6,7 +6,7 @@ SHELL = /bin/sh
 ifndef NTHREADS
   NTHREADS = 8
 endif
-
+  
 LIBS =
 INCS = -lm
 
@@ -32,13 +32,14 @@ $(TARGET): $(OBJS)
 		$(CXX) $(OBJS) -o $@ $(INCS) $(CXXFLAGS) $(LIBS) -pthread
 
 libcacti:	$(OBJS)
-	$(AR) -r catci.a $(OBJS)
-	cp catci.a ../../lib/
+	#$(AR) -r cacti.a $(OBJS)
+	$(CXX) $(OBJS) -shared -o libcacti.so
+	cp libcacti.so ../../lib/
 
 %.o: %.cc
-		$(CXX) $(CXXFLAGS) -c $< -o $@
+		$(CXX) -fPIC $(CXXFLAGS) -c $< -o $@
 
 clean:
-	-rm -f *.o _cacti.so cacti.py catci.a $(TARGET)
+	-rm -f *.o *.so cacti.py $(TARGET)
 
 
