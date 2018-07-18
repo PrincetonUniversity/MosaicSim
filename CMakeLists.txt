@@ -6,7 +6,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 # Name of the root directory.
-project(apollo)
+project(pythia)
 
 # Find all of the required configurations needed for LLVM in this project.
 find_package(LLVM REQUIRED CONFIG)

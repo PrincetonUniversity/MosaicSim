@@ -2,8 +2,8 @@
 
 #include <stdlib.h>
 #include <iostream>
-#include "cacti-p/io.h"
-#include "cacti-p/cacti_interface.h"
+#include "../cacti-p/io.h"
+#include "../cacti-p/cacti_interface.h"
 
 #define SINGLE_PORT_SPAD 1
 
