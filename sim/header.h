@@ -203,11 +203,12 @@ class DRAMSimInterface {
 public:
   Cache *c;
   bool ideal;
-  
+  int mem_load_ports;
+  int mem_store_ports;
   unordered_map< uint64_t, queue<DynamicNode*> > outstanding_read_map;
   DRAMSim::MultiChannelMemorySystem *mem;
 
-  DRAMSimInterface(Cache *c, bool ideal) : c(c),ideal(ideal)  {
+  DRAMSimInterface(Cache *c, bool ideal, int mem_load_ports, int mem_store_ports) : c(c),ideal(ideal), mem_load_ports(mem_load_ports), mem_store_ports(mem_store_ports) {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
     mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
@@ -217,6 +218,7 @@ public:
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad);
+  bool willAcceptTransaction(DynamicNode* d, uint64_t addr);
 };
 
 class Simulator 
@@ -237,7 +239,7 @@ public:
   /* Resources / limits */
   map<TInstr, int> available_FUs;
   map<BasicBlock*, int> outstanding_contexts;
-  int ports[2]; // ports[0] = loads; ports[1] = stores;
+  int ports[4]; // ports[0] = cache loads; ports[1] = cache stores; //ports[2] = mem loads; ports[3] = mem stores;
   
   /* Profiled */
   vector<int> cf; // List of basic blocks in "sequential" program order 

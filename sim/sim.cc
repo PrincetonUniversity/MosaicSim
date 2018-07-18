@@ -8,7 +8,7 @@ void Simulator::toMemHierarchy(DynamicNode* d) {
 void Simulator::initialize() {
   // Initialize Resources / Limits
   cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.ideal_cache);
-  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache);
+  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->memInterface = memInterface;
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
@@ -52,7 +52,6 @@ bool Simulator::createContext() {
       return false;
     outstanding_contexts.at(bb)--;
   }
-
   Context *c = new Context(cid, this);
   context_list.push_back(c);
   live_context.push_back(c);
@@ -81,8 +80,10 @@ bool Simulator::process_cycle() {
     last_processed_contexts = 0;
   }
   bool simulate = false;
-  ports[0] = cfg.load_ports;
-  ports[1] = cfg.store_ports;
+  ports[0] = cfg.cache_load_ports;
+  ports[1] = cfg.cache_store_ports;
+  ports[2] = cfg.mem_load_ports;
+  ports[3] = cfg.mem_store_ports;
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();

@@ -200,7 +200,7 @@ bool Cache::process_cache() {
   for(auto it = to_send.begin(); it!= to_send.end();) {
     DynamicNode *d = *it;
     uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
-    if(memInterface->mem->willAcceptTransaction(dramaddr)) {
+    if(memInterface->willAcceptTransaction(d,dramaddr)) {
       memInterface->addTransaction(d, dramaddr, true);
       it = to_send.erase(it);
     }
@@ -267,6 +267,10 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
 }
 void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
   stat.update("dram_access");
+  if(isLoad) 
+    mem_load_ports--;
+  else
+    mem_store_ports--;
   if(d!= NULL) {
     assert(isLoad == true);
     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
@@ -279,4 +283,7 @@ void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad
     assert(isLoad == false);
     mem->addTransaction(true, addr);
   }
+}
+bool DRAMSimInterface::willAcceptTransaction(DynamicNode* d, uint64_t addr) {
+  return mem->willAcceptTransaction(addr) && !(d->type==LD && mem_load_ports==0) && !(d->type==ST && mem_store_ports==0);
 }

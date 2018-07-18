@@ -31,8 +31,10 @@ public:
   bool mem_forward;
   // Resources
   int lsq_size;
-  int load_ports;
-  int store_ports;
+  int cache_load_ports;
+  int cache_store_ports;
+  int mem_load_ports=65536;
+  int mem_store_ports=65536;  
   int outstanding_load_requests;
   int outstanding_store_requests;
   int max_active_contexts_BB;
@@ -330,10 +332,10 @@ public:
         cfg.L1_size = val;
         break;
       case 7:
-        cfg.load_ports = val;
+        cfg.cache_load_ports = val;
         break;
       case 8:
-        cfg.store_ports = val;
+        cfg.cache_store_ports = val;
         break;
     }
   }

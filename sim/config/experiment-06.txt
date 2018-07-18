@@ -5,5 +5,5 @@
 32,max_contexts_per_bb
 0,ideal_cache
 256,l1_size_in_kb
-65536,load_ports
-65536,store_ports
+65536,cache_load_ports
+65536,cache_store_ports
