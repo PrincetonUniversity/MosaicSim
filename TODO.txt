@@ -1,6 +1,7 @@
-[Sim] Dirty Bit
+[Sim] Dirty Bit (implemented)
 [Sim] Gemm Bug (Chirag's experiments)
 [Sim] Detailed resource limits for memory systems
+      (added mem port, todo lsq port, more realistic modeling for reducing )
 
 ---- Double Check ---- 
 [GraphGen/Sim] Induction Variable optimization (remove induction variable dependency)
