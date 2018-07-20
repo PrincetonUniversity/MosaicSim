@@ -89,12 +89,27 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
   if(unresolved_st_set.size() == 0)
     return false;
   DynamicNode *d = *(unresolved_st_set.begin());
+
+  if(cfg.perfect_mem_spec) {
+    for(auto it=unresolved_st_set.begin(); it!=unresolved_st_set.end();it++) {
+      if (*in < **it || *in == **it)       
+        return false;
+      if (in->addr == (*it)->addr)
+        return true;
+    }
+    return false;
+  }
+      
   if(*d < *in || *d == *in) {
     return true;
   }
   else
     return false;
 }
+
+//for perfect, loop through all unresolved stores, if no conflicting
+//address, return false for unresolved
+
 int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
   bool check = check_unresolved_store(in);
   if(check && !speculation_enabled)

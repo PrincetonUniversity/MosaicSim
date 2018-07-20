@@ -224,6 +224,7 @@ public:
 class Simulator 
 {
 public:
+  int issue_count=0; //luwa delete
   Graph g;
   uint64_t cycles = 0;
   DRAMSimInterface* memInterface; 

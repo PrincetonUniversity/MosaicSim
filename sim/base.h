@@ -29,12 +29,13 @@ public:
   bool cf_mode; // 0: one at a time / 1: all together
   bool mem_speculate;
   bool mem_forward;
+  bool perfect_mem_spec;
   // Resources
   int lsq_size;
   int cache_load_ports;
   int cache_store_ports;
   int mem_load_ports=65536;
-  int mem_store_ports=65536;  
+  int mem_store_ports=65536;
   int outstanding_load_requests;
   int outstanding_store_requests;
   int max_active_contexts_BB;
@@ -310,33 +311,36 @@ public:
 
   void getCfg(int id, int val) {
     switch (id) { 
-      case 0:
-        cfg.lsq_size = val; 
-        break;
-      case 1:
-        cfg.cf_mode = val;
-        break;
-      case 2:
-        cfg.mem_speculate = val;
-        break;
-      case 3:
-        cfg.mem_forward = val;
-        break;
-      case 4:
-        cfg.max_active_contexts_BB = val;
-        break;
-      case 5:
-        cfg.ideal_cache = val;
-        break;
-      case 6:
-        cfg.L1_size = val;
-        break;
-      case 7:
-        cfg.cache_load_ports = val;
-        break;
-      case 8:
-        cfg.cache_store_ports = val;
-        break;
+    case 0:
+      cfg.lsq_size = val; 
+      break;
+    case 1:
+      cfg.cf_mode = val;
+      break;
+    case 2:
+      cfg.mem_speculate = val;
+      break;
+    case 3:
+      cfg.mem_forward = val;
+      break;
+    case 4:
+      cfg.max_active_contexts_BB = val;
+      break;
+    case 5:
+      cfg.ideal_cache = val;
+      break;
+    case 6:
+      cfg.L1_size = val;
+      break;
+    case 7:
+      cfg.cache_load_ports = val;
+      break;
+    case 8:
+      cfg.cache_store_ports = val;
+      break;
+    case 9:
+      cfg.perfect_mem_spec = val;
+      break;
     }
   }
   void readCfg(std::string name) {
