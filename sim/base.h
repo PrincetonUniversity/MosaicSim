@@ -339,6 +339,12 @@ public:
       cfg.cache_store_ports = val;
       break;
     case 9:
+      cfg.mem_load_ports = val;
+      break;
+    case 10:
+      cfg.mem_store_ports = val;
+      break;
+    case 11:
       cfg.perfect_mem_spec = val;
       break;
     }

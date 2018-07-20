@@ -7,3 +7,6 @@
 256,l1_size_in_kb
 128,cache_load_ports
 128,cache_store_ports
+40000,mem_load_ports
+40000,mem_store_ports
+0,perfect_mem_spec
