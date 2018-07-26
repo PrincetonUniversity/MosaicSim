@@ -22,7 +22,7 @@ public:
   }
   Statistics() {
     registerStat("cycles", 0);
-    registerStat("instr", 0);
+    registerStat("total_instructions", 0);
     registerStat("contexts", 0);
 
     registerStat("cache_hit", 1);
@@ -62,7 +62,7 @@ public:
     }
   }
   void print() {
-    cout << "IPC : " << (double) get("instr") / get("cycles") << "\n";
+    cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
     cout << "BW : " << (double) get("dram_access") * 64 / get ("cycles") << " GB/s \n";
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       cout << it->first << " : " << it->second.first << "\n";

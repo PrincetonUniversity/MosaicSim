@@ -136,8 +136,9 @@ void Context::complete() {
       sim->outstanding_contexts.at(bb)++;
     }
     print("Finished (BB:" + to_string(bb->id) + ") ", 0);
-    stat.update("instr", completed_nodes.size());   // update GLOBAL Stats
+    // update GLOBAL Stats
     stat.update("contexts");
+    stat.update("total_instructions", completed_nodes.size());
   }
 }
 
@@ -313,15 +314,13 @@ void DynamicNode::finishNode() {
   if ( sim->available_FUs.at(n->typeInstr) != -1 )
     sim->available_FUs.at(n->typeInstr)++; 
 
-  // update activity counters
+  // Update activity counters
   int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
   if (type == LD) 
-    //sim->activity_mem.bytes_read = 1;     
     sim->activity_mem.bytes_read += word_size_bytes;     
   else if (type == ST) 
     sim->activity_mem.bytes_write += word_size_bytes;
-  else
-    sim->activity_FUs.at(type)++;
+  sim->activity_FUs.at(type)++;
 
   // Speculation
   if (cfg.mem_speculate && n->typeInstr == ST) {

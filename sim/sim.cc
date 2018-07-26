@@ -32,11 +32,14 @@ void Simulator::initialize() {
 }
 
 void Simulator::printActivity() {
+  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", 
+  "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
+
   cout << "---Activity-------------------------------------\n";
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
   cout << "Mem_bytes_written: " << activity_mem.bytes_write << "\n";
   for(int i=0; i<NUM_INST_TYPES; i++)
-    cout << "Intr[" << InstrName[i] << "]" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";
+    cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";
 }
 
 bool Simulator::createContext() {
