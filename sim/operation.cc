@@ -125,7 +125,7 @@ void Context::process() {
 }
 
 void Context::complete() {
-  for(auto it = nodes_to_complete.begin(); it!= nodes_to_complete.end(); ++it) {
+  for(auto it = nodes_to_complete.begin(); it != nodes_to_complete.end(); ++it) {
     DynamicNode *d =*it;
     d->finishNode();
   }
@@ -139,6 +139,17 @@ void Context::complete() {
     // update GLOBAL Stats
     stat.update("contexts");
     stat.update("total_instructions", completed_nodes.size());
+
+    // Update activity counters
+    int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
+    for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
+      DynamicNode *d =*it;
+      if (d->type == LD) 
+        sim->activity_mem.bytes_read += word_size_bytes;     
+      else if (d->type == ST) 
+        sim->activity_mem.bytes_write += word_size_bytes;
+      sim->activity_FUs.at(d->type)++;
+    }
   }
 }
 
@@ -313,7 +324,7 @@ void DynamicNode::finishNode() {
   // Handle Resource limits
   if ( sim->available_FUs.at(n->typeInstr) != -1 )
     sim->available_FUs.at(n->typeInstr)++; 
-
+/*
   // Update activity counters
   int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
   if (type == LD) 
@@ -321,7 +332,7 @@ void DynamicNode::finishNode() {
   else if (type == ST) 
     sim->activity_mem.bytes_write += word_size_bytes;
   sim->activity_FUs.at(type)++;
-
+*/
   // Speculation
   if (cfg.mem_speculate && n->typeInstr == ST) {
     auto misspeculated = sim->lsq.check_speculation(this);
