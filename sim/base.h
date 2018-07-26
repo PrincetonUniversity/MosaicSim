@@ -19,7 +19,11 @@
 using namespace std;
 
 typedef chrono::high_resolution_clock Clock;
-typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
+typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, 
+              CAST, GEP, LD, ST, TERMINATOR, PHI} TInstr;
+static const char* InstrName[] = { 
+  "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", 
+  "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
 
 class Config {
@@ -44,9 +48,10 @@ public:
   int num_units[NUM_INST_TYPES];
   // L1 cache
   bool ideal_cache;
-  int L1_latency;
+  int L1_latency;  // cycles
   int L1_size;     // KB
   int L1_assoc; 
+  int L1_linesize; // bytes
 };
 
 extern Config cfg;
@@ -370,6 +375,7 @@ public:
     
     cfg.L1_latency = 1;
     cfg.L1_assoc = 8;
+    cfg.L1_linesize = 64;
     cfg.instr_latency[I_ADDSUB] = 1;
     cfg.instr_latency[I_MULT] = 3;
     cfg.instr_latency[I_DIV] = 26;

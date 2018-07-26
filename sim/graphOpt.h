@@ -1,4 +1,5 @@
 #include "base.h"
+
 class GraphOpt {
 public:
   Graph &g;

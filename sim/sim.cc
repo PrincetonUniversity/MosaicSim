@@ -7,19 +7,36 @@ void Simulator::toMemHierarchy(DynamicNode* d) {
 
 void Simulator::initialize() {
   // Initialize Resources / Limits
-  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.ideal_cache);
+  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->memInterface = memInterface;
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
   }
+  
+  // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
   if (cfg.cf_mode == 0) 
     context_to_create = 1;
   else if (cfg.cf_mode == 1)  
     context_to_create = cf.size();
   else
     assert(false);
+
+  // Initialize Activity counters
+  for(int i=0; i<NUM_INST_TYPES; i++) {
+    activity_FUs.insert(make_pair(static_cast<TInstr>(i), 0));
+  }
+  activity_mem.bytes_read = 0;
+  activity_mem.bytes_write = 0;
+}
+
+void Simulator::printActivity() {
+  cout << "---Activity-------------------------------------\n";
+  cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
+  cout << "Mem_bytes_written: " << activity_mem.bytes_write << "\n";
+  for(int i=0; i<NUM_INST_TYPES; i++)
+    cout << "Intr[" << InstrName[i] << "]" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";
 }
 
 bool Simulator::createContext() {
@@ -124,4 +141,5 @@ void Simulator::run() {
   stat.set("cycles", cycles);
   stat.print();
   memInterface->mem->printStats(true);
+  printActivity();
 }

@@ -187,13 +187,13 @@ public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
   
   uint64_t cycles = 0;
-  int size_of_cacheline = 64;
   int latency;
+  int size_of_cacheline;
   bool ideal;
   
   FunctionalCache *fc;
-  Cache(int latency, int size, int assoc, bool ideal): 
-    latency(latency), ideal(ideal), fc(new FunctionalCache(size, assoc)) {}
+  Cache(int latency, int size, int assoc, int linesize, bool ideal): 
+    latency(latency), size_of_cacheline(linesize), ideal(ideal), fc(new FunctionalCache(size, assoc)) {}
   bool process_cache();
   void execute(DynamicNode* d);
   void addTransaction(DynamicNode *d);
@@ -242,6 +242,13 @@ public:
   map<BasicBlock*, int> outstanding_contexts;
   int ports[4]; // ports[0] = cache loads; ports[1] = cache stores; //ports[2] = mem loads; ports[3] = mem stores;
   
+  /* Activity counters */
+  map<TInstr, int> activity_FUs;
+  struct {
+    int bytes_read;
+    int bytes_write;
+  } activity_mem;
+
   /* Profiled */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
@@ -258,6 +265,7 @@ public:
   void process_memory();
   void run();
   void toMemHierarchy(DynamicNode *d);
+  void printActivity();
 };
 
 #endif

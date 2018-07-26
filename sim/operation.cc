@@ -224,29 +224,30 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  issued = true;
   stat.update("comp_issue_try");
-  // check resource (FU) availability
+  // check for resource (FU) availability
   if (sim->available_FUs.at(n->typeInstr) != -1) {
     if (sim->available_FUs.at(n->typeInstr) == 0)
       return false;
+    else
+      sim->available_FUs.at(n->typeInstr)--;
   }
-  if (sim->available_FUs.at(n->typeInstr) != -1)
-    sim->available_FUs.at(n->typeInstr)--;
   stat.update("comp_issue_success");
+  issued = true;
   return true;
 }
-bool DynamicNode::issueMemNode() {
 
+bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD)
     stat.update("load_issue_try");
   else
     stat.update("store_issue_try");
-  if(sim->ports[0] == 0 && type == LD)
+  // check for enough resources (memory ports)
+  if(type == LD && sim->ports[0] == 0 )
     return false;
-  if(sim->ports[1] == 0 && type == ST)
+  if(type == ST && sim->ports[1] == 0 )
     return false;
   if(type == LD && cfg.mem_forward) {
     forwardRes = sim->lsq.check_forwarding(this);
@@ -270,6 +271,7 @@ bool DynamicNode::issueMemNode() {
     if(!sim->lsq.check_store_issue(this))
       return false;
   }
+  // at this point the memory request will be issued for sure
   issued = true;
   if(type == LD)
     stat.update("load_issue_success");
@@ -306,9 +308,20 @@ void DynamicNode::finishNode() {
   print("Finished Execution", 1);
   c->completed_nodes.insert(this);
   completed = true;
+
   // Handle Resource limits
   if ( sim->available_FUs.at(n->typeInstr) != -1 )
     sim->available_FUs.at(n->typeInstr)++; 
+
+  // update activity counters
+  int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
+  if (type == LD) 
+    //sim->activity_mem.bytes_read = 1;     
+    sim->activity_mem.bytes_read += word_size_bytes;     
+  else if (type == ST) 
+    sim->activity_mem.bytes_write += word_size_bytes;
+  else
+    sim->activity_FUs.at(type)++;
 
   // Speculation
   if (cfg.mem_speculate && n->typeInstr == ST) {
