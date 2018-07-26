@@ -324,15 +324,7 @@ void DynamicNode::finishNode() {
   // Handle Resource limits
   if ( sim->available_FUs.at(n->typeInstr) != -1 )
     sim->available_FUs.at(n->typeInstr)++; 
-/*
-  // Update activity counters
-  int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
-  if (type == LD) 
-    sim->activity_mem.bytes_read += word_size_bytes;     
-  else if (type == ST) 
-    sim->activity_mem.bytes_write += word_size_bytes;
-  sim->activity_FUs.at(type)++;
-*/
+
   // Speculation
   if (cfg.mem_speculate && n->typeInstr == ST) {
     auto misspeculated = sim->lsq.check_speculation(this);
