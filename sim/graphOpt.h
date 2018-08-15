@@ -54,6 +54,8 @@ public:
         frontier.insert(sn);
       }
     }
+    if(frontier.size() == 0)
+      return false;
     while(frontier.size() > 0) {
       for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
         Node *n = *fit;
