@@ -11,6 +11,7 @@ class Context;
 class DRAMSimInterface;
 class Config;
 class Statistics;
+class Digestor;
 using namespace std;
 
 class Statistics {
@@ -286,16 +287,62 @@ public:
   
   /* LSQ */
   LoadStoreQ lsq;
-
+  Digestor* digestor;
   Simulator();
   Simulator(string name);  
-  void initialize(Cache* cache, DRAMSimInterface* memInterface, Interconnect* global_intercon);
+  void initialize();
   bool createContext();
   bool process_cycle();
   void process_memory();
   void run();
   void toMemHierarchy(DynamicNode *d);
   void printActivity();
+};
+
+class Digestor {
+public:  
+  vector<Simulator*> all_sims;
+  Interconnect* intercon;
+  Cache* cache;
+  DRAMSimInterface* memInterface;
+  
+  Digestor(vector<Simulator*> sims_list, Cache* shared_cache, DRAMSimInterface* memoryInterface, Interconnect* interconnect) {
+    all_sims=sims_list; cache=shared_cache; intercon=interconnect; memInterface=memoryInterface;
+  }
+
+  void run() {
+    bool simulate=true;
+    vector<Simulator*> live_sims=all_sims;
+    while(simulate) {
+      //cout << "Cycle count: " <<  cyclecount;
+      vector<Simulator*> next_sims;
+      simulate=false;
+      for (auto it=live_sims.begin(); it!=live_sims.end(); ++it) {
+        Simulator* sim=*it;
+        cout << sim->name << endl;
+        //cout << "Cycles: " << stat.get("cycles") << endl;
+        if(sim->process_cycle()) {
+          next_sims.push_back(sim);
+          simulate=true;
+        }
+        else {        
+          stat.set("cycles", sim->cycles);                       }
+      }
+      intercon->cycles++;
+      live_sims=next_sims;
+      next_sims.clear();
+    }
+    
+    for (auto it=all_sims.begin(); it!=all_sims.end(); it++) {
+      Simulator* sim=*it;
+      sim->printActivity(); 
+    }
+    
+    cout << "----------------GLOBAL STATS--------------\n";
+    stat.print();
+    //cout << "-------------MEM DATA---------------\n";
+    memInterface->mem->printStats(true);
+  }  
 };
 
 #endif

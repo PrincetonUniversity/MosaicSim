@@ -8,12 +8,13 @@ void Simulator::toMemHierarchy(DynamicNode* d) {
   cache->addTransaction(d);
 }
 
-void Simulator::initialize(Cache* init_cache, DRAMSimInterface* init_memInterface, Interconnect* global_intercon) {
+void Simulator::initialize() {
   // Initialize Resources / Limits
-  cache=init_cache;
-  memInterface=init_memInterface;
-  intercon=global_intercon;
-  
+
+  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
+  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  cache->memInterface = memInterface;  
+    
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
