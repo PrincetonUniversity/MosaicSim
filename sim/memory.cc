@@ -281,7 +281,6 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
     cout << id << addr << clock_cycle;
 }
 void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
-  stat.update("dram_access");
   if(isLoad) 
     mem_load_ports--;
   else
@@ -291,12 +290,16 @@ void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad
     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
       outstanding_read_map.insert(make_pair(addr, queue<DynamicNode*>()));
       mem->addTransaction(false, addr);
+      stat.update("dram_access");
+
     }
     outstanding_read_map.at(addr).push(d);  
   }
   else {
     assert(isLoad == false);
     mem->addTransaction(true, addr);
+    stat.update("dram_access");
+
   }
 }
 bool DRAMSimInterface::willAcceptTransaction(DynamicNode* d, uint64_t addr) {
