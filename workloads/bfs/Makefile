@@ -2,24 +2,24 @@
 NAME     = bfs
 
 # Initial compiler settings to create the human-readable bitcode file.
-CXX      = clang
-CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
-CXXSRC   = $(NAME).cpp
+CXX      = clang++
+CXXFLAGS = -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+CXXSRC   = $(NAME).c
 CXXBC    = int/$(NAME).ll
 
 # Linker settings to hook in the tracer.
 LL       = llvm-link
-LLSRC    = ../../../tools/tracer.llvm
+LLSRC    = ../../tools/tracer.llvm
 LLDST    = int/$(NAME)-integrated.ll
 
 # Optimizer settings to load in profiling and graph-generating tools.
 OPT      = opt
 OPTFLAGS = -instnamer -always-inline
-OPTLIB1  = ../../../lib/libRecordDynamicInfo.so
+OPTLIB1  = ../../lib/libRecordDynamicInfo.so
 OPTPASS1 = -recorddynamicinfo
 OPTSRC1  = $(LLDST)
 OPTED    = int/$(NAME)-pass.ll
-OPTLIB2  = ../../../lib/libGraphGen.so
+OPTLIB2  = ../../lib/libGraphGen.so
 OPTPASS2 = -graphgen
 OPTSRC2  = $(LLDST)
 
