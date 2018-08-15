@@ -1,15 +1,19 @@
 #include "header.h"
 using namespace std;
 
+Simulator::Simulator() {}
+Simulator::Simulator(string name):name(name) {}
+
 void Simulator::toMemHierarchy(DynamicNode* d) {
   cache->addTransaction(d);
 }
 
-void Simulator::initialize() {
+void Simulator::initialize(Cache* init_cache, DRAMSimInterface* init_memInterface, Interconnect* global_intercon) {
   // Initialize Resources / Limits
-  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
-  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  cache->memInterface = memInterface;
+  cache=init_cache;
+  memInterface=init_memInterface;
+  intercon=global_intercon;
+  
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
@@ -35,7 +39,7 @@ void Simulator::printActivity() {
   std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", 
   "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
 
-  cout << "---Activity-------------------------------------\n";
+  cout << "------Simulator " << name << " ---Activity-----------------------\n";
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
   cout << "Mem_bytes_written: " << activity_mem.bytes_write << "\n";
   for(int i=0; i<NUM_INST_TYPES; i++)

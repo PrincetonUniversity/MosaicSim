@@ -199,6 +199,32 @@ public:
   void addTransaction(DynamicNode *d);
 };
 
+
+class Interconnect {
+public:
+  priority_queue<Operator, vector<Operator>, OpCompare> pq;
+  uint64_t cycles=0;
+  int latency=2;
+  
+  void process() {
+    while(pq.size()>0) {
+      if(pq.top().second > cycles) {
+        break;
+      }      
+      execute(pq.top().first);
+    }
+    cycles++;
+  }
+
+  void execute(DynamicNode* d) {
+    d->c->insertQ(d);
+  }
+
+  void insert(DynamicNode* d) {
+    pq.push(make_pair(d,cycles+latency));    
+  }
+};
+
 class DRAMSimInterface {
 public:
   Cache *c;
@@ -225,9 +251,11 @@ class Simulator
 {
 public:
   int issue_count=0; //luwa delete
+  string name; 
   Graph g;
   uint64_t cycles = 0;
-  DRAMSimInterface* memInterface; 
+  DRAMSimInterface* memInterface;
+  Interconnect* intercon;
   Cache* cache;
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
@@ -259,7 +287,9 @@ public:
   /* LSQ */
   LoadStoreQ lsq;
 
-  void initialize();
+  Simulator();
+  Simulator(string name);  
+  void initialize(Cache* cache, DRAMSimInterface* memInterface, Interconnect* global_intercon);
   bool createContext();
   bool process_cycle();
   void process_memory();
