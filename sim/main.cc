@@ -12,25 +12,18 @@ int dig_main(char const *argv[]) {
   string cfgpath = "../sim/config/" + cfgname  +".txt";
   Reader r;    
   r.readCfg(cfgpath);
-
-  vector<Simulator*> all_sims;
-  Interconnect* intercon = new Interconnect();
-  Cache* cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
-  DRAMSimInterface* memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  cache->memInterface = memInterface;
-  
-  Digestor* digestor=new Digestor(all_sims, cache, memInterface, intercon);
+    
+  Digestor* digestor=new Digestor();
   
   int arg_index=4;
   for (int i=0; i<num_cores; i++) {
     string name;
-    if (i==0)
+    if (i%2==0)
       name="Supply";
     else
       name="Compute";
-    Simulator* sim = new Simulator(name);
-    digestor->all_sims.push_back(sim);
-    
+    Simulator* sim = new Simulator();
+    sim->name=name;
     string wlpath(argv[arg_index]);
     string cname = wlpath + "/output/ctrl.txt";     
     cout << cfgname << endl;
@@ -46,10 +39,12 @@ int dig_main(char const *argv[]) {
     cout << "[5] Initialization Complete \n";
     
     sim->initialize();
+    sim->digestor=digestor;
+    sim->has_digestor=true;
     sim->cache=digestor->cache;
-    sim->memInterface=memInterface;
-    sim->intercon=intercon;
-    
+    sim->memInterface=digestor->memInterface;
+    sim->intercon=digestor->intercon;    
+    digestor->all_sims.push_back(sim);
     arg_index++;
   }
   

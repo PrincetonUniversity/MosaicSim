@@ -186,7 +186,7 @@ public:
   vector<DynamicNode*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
-  
+  int ports[4]; // ports[0] = cache loads; ports[1] = cache stores; //ports[2] = mem loads; ports[3] = mem stores;
   uint64_t cycles = 0;
   int latency;
   int size_of_cacheline;
@@ -258,6 +258,8 @@ public:
   DRAMSimInterface* memInterface;
   Interconnect* intercon;
   Cache* cache;
+  Digestor* digestor;
+  bool has_digestor=false;
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
   uint64_t last_processed_contexts;
@@ -269,7 +271,7 @@ public:
   /* Resources / limits */
   map<TInstr, int> available_FUs;
   map<BasicBlock*, int> outstanding_contexts;
-  int ports[4]; // ports[0] = cache loads; ports[1] = cache stores; //ports[2] = mem loads; ports[3] = mem stores;
+  
   
   /* Activity counters */
   map<TInstr, int> activity_FUs;
@@ -287,9 +289,6 @@ public:
   
   /* LSQ */
   LoadStoreQ lsq;
-  Digestor* digestor;
-  Simulator();
-  Simulator(string name);  
   void initialize();
   bool createContext();
   bool process_cycle();
@@ -305,9 +304,17 @@ public:
   Interconnect* intercon;
   Cache* cache;
   DRAMSimInterface* memInterface;
+
   
-  Digestor(vector<Simulator*> sims_list, Cache* shared_cache, DRAMSimInterface* memoryInterface, Interconnect* interconnect) {
-    all_sims=sims_list; cache=shared_cache; intercon=interconnect; memInterface=memoryInterface;
+  Digestor() {        
+    intercon = new Interconnect();
+    cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
+    memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+    cache->memInterface = memInterface;
+    cache->ports[0] = cfg.cache_load_ports;
+    cache->ports[1] = cfg.cache_store_ports;
+    cache->ports[2] = cfg.mem_load_ports;
+    cache->ports[3] = cfg.mem_store_ports;
   }
 
   void run() {
@@ -326,8 +333,12 @@ public:
           simulate=true;
         }
         else {        
-          stat.set("cycles", sim->cycles);                       }
+          stat.set("cycles", sim->cycles);
+        }
       }
+      if(cache->process_cache())
+        simulate = true;
+      memInterface->mem->update();
       intercon->cycles++;
       live_sims=next_sims;
       next_sims.clear();

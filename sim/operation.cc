@@ -257,9 +257,9 @@ bool DynamicNode::issueMemNode() {
   else
     stat.update("store_issue_try");
   // check for enough resources (memory ports)
-  if(type == LD && sim->ports[0] == 0 )
+  if(type == LD && sim->cache->ports[0] == 0 )
     return false;
-  if(type == ST && sim->ports[1] == 0 )
+  if(type == ST && sim->cache->ports[1] == 0 )
     return false;
   if(type == LD && cfg.mem_forward) {
     forwardRes = sim->lsq.check_forwarding(this);
@@ -301,7 +301,7 @@ bool DynamicNode::issueMemNode() {
     }
     else {
       print("Access Memory Hierarchy", 1);
-      sim->ports[0]--;
+      sim->cache->ports[0]--;
       sim->toMemHierarchy(this);
       if (speculate) {
         outstanding_accesses++;
@@ -310,7 +310,7 @@ bool DynamicNode::issueMemNode() {
   }
   else if (type == ST) {
     print("Access Memory Hierarchy", 1);
-    sim->ports[1]--;
+    sim->cache->ports[1]--;
     sim->toMemHierarchy(this);
   }
   return true;

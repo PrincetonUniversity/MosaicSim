@@ -1,9 +1,6 @@
 #include "header.h"
 using namespace std;
 
-Simulator::Simulator() {}
-Simulator::Simulator(string name):name(name) {}
-
 void Simulator::toMemHierarchy(DynamicNode* d) {
   cache->addTransaction(d);
 }
@@ -40,11 +37,12 @@ void Simulator::printActivity() {
   std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", 
   "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
 
-  cout << "------Simulator " << name << " ---Activity-----------------------\n";
+  cout << "-----------Simulator " << name << " Activity-----------\n";
+  cout << "Cycles: " << cycles << endl;
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
   cout << "Mem_bytes_written: " << activity_mem.bytes_write << "\n";
   for(int i=0; i<NUM_INST_TYPES; i++)
-    cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";
+    cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";  
 }
 
 bool Simulator::createContext() {
@@ -105,10 +103,6 @@ bool Simulator::process_cycle() {
     last_processed_contexts = 0;
   }
   bool simulate = false;
-  ports[0] = cfg.cache_load_ports;
-  ports[1] = cfg.cache_store_ports;
-  ports[2] = cfg.mem_load_ports;
-  ports[3] = cfg.mem_store_ports;
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();
@@ -133,12 +127,16 @@ bool Simulator::process_cycle() {
       break;
   }
   context_to_create -= context_created;   // some contexts can be left pending for later cycles
-  if(cache->process_cache())
-    simulate = true;
-  process_memory();
 
+  if(!has_digestor) {
+    if(cache->process_cache())
+      simulate = true;
+    process_memory();
+  }
+  //otherwise, digestor handles those
+  
   cycles++;
-  cache->cycles++;
+  //cache->cycles++; now done at end of process_cache()
   return simulate;
 }
 

@@ -231,7 +231,12 @@ bool Cache::process_cache() {
     else
       it++;
   }
-  return (pq.size() > 0);
+  cycles++;
+  ports[0] = cfg.cache_load_ports;
+  ports[1] = cfg.cache_store_ports;
+  ports[2] = cfg.mem_load_ports;
+  ports[3] = cfg.mem_store_ports;
+  return (pq.size() > 0);  
 }
 void Cache::execute(DynamicNode* d) {
   uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
