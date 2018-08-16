@@ -44,27 +44,30 @@ public:
     std::set<Node*> visited;
     for(auto pit = init->phi_parents.begin(); pit!= init->phi_parents.end(); ++pit) {
       Node *sn = *pit;
-      if(sn->bbid == init->bbid) {
-        if(sn->typeInstr == PHI)
-          assert(false); 
-        if(!checkType(sn)) {
-          return false;
-        }
-        visited.insert(sn);
-        frontier.insert(sn);
+      //if(sn->bbid == init->bbid) {
+      if(!checkType(sn)) {
+        return false;
       }
+      visited.insert(sn);
+      frontier.insert(sn);
+      //}
     }
-    if(frontier.size() == 0)
-      return false;
     while(frontier.size() > 0) {
       for(auto fit = frontier.begin(); fit != frontier.end(); ++fit) {
         Node *n = *fit;
+        if(n->external_parents.size() > 0) {
+          cout << "Has External Parents : " << n->external_parents.size() << "\n";
+          return false;
+        }
+        if(n->phi_parents.size() >= 2) {
+          cout << "Has Phi Parents : " << n->phi_parents.size() << "\n";
+          return false;
+        }
+        if(n->phi_parents.size() == 1 && (*(n->phi_parents.begin()))->bbid != init->bbid) {
+          cout << "Has Non-trivial Phi Parent : "<< *(n->phi_parents.begin()) << "\n";
+        }
         for(auto it = n->parents.begin(); it!=n->parents.end(); ++it) {
           Node *sn = *it;
-          if(sn->typeInstr == PHI && sn!= init)
-            assert(false);
-          if(sn->typeInstr == PHI && sn == init)
-            continue;
           if(!checkType(sn)) {
             return false;
           }
@@ -96,8 +99,10 @@ public:
       Node *n = *it;
       for(auto pit = n->phi_parents.begin(); pit!= n->phi_parents.end(); ++pit) {
         Node *sn = *pit;
-        if(sn->bbid == n->bbid)
+        //if(sn->bbid == n->bbid) {
+          cout << "Erasing Dependent : " << *n << " - " << *sn << "\n";
           sn->eraseDependent(n, PHI_DEP);
+        //}
       }
     }
     for(auto it = g.nodes.begin(); it!= g.nodes.end(); ++it) {

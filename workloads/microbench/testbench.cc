@@ -1,25 +1,34 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define SIZE 2000
+#define SIZE 8000
 #define inliner __attribute__((always_inline))
 using namespace std;
+#define MODE1
+#ifdef MODE1
 void _kernel_test(int (&arr)[SIZE]) {
   int loc = 0;
-  int dummy  = 0;
+  #pragma clang loop unroll(disable)
   while(loc < SIZE) {
-    /*if(arr[loc] == 1) {
+    if(arr[loc] == 1) {
       arr[loc] = 2;
       loc = loc + 2;
     }
     else {
       loc = loc + 1;
-    }*/
-    if(arr[loc] == 1)
-      arr[loc] = 2;
-    loc++;
+    }
   }
 }
+#endif
+#ifdef MODE2
+void _kernel_test(int (&arr)[SIZE]) {
+  #pragma clang loop unroll(disable)
+  for(int i=0; i<SIZE; i++) {
+    if(arr[i] == 1)
+      arr[i] = 2;
+  }
+}
+#endif
 
 int main()
 {
