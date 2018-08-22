@@ -259,6 +259,7 @@ public:
   Interconnect* intercon;
   Cache* cache;
   Digestor* digestor;
+  Statistics local_stat;
   bool has_digestor=false;
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
@@ -334,6 +335,7 @@ public:
         }
         else {        
           stat.set("cycles", sim->cycles);
+          sim->local_stat.set("cycles", sim->cycles);
         }
       }
       if(cache->process_cache())
@@ -346,7 +348,10 @@ public:
     
     for (auto it=all_sims.begin(); it!=all_sims.end(); it++) {
       Simulator* sim=*it;
-      sim->printActivity(); 
+      cout << "----------------" << sim->name << " LOCAL STATS--------------\n";
+      sim->printActivity();
+      cout << "----------------" << sim->name << " General Stats--------------\n";
+      sim->local_stat.print();      
     }
     
     cout << "----------------GLOBAL STATS--------------\n";

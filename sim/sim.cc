@@ -92,11 +92,13 @@ bool Simulator::process_cycle() {
   if(cycles % 100000 == 0 && cycles !=0) {
     curr = Clock::now();
     uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
-    cout << "Simulation Speed: " << ((double)(stat.get("contexts") - last_processed_contexts)) / tdiff << " contexts per ms \n";
-    last_processed_contexts = stat.get("contexts");
+    
+    cout << name << " Simulation Speed: " << ((double)(local_stat.get("contexts") - last_processed_contexts)) / tdiff << " contexts per ms \n";
+    last_processed_contexts = local_stat.get("contexts");
     last = curr;
     stat.set("cycles", cycles);
-    stat.print();
+    local_stat.set("cycles", cycles);
+    local_stat.print();
   }
   else if(cycles == 0) {
     last = Clock::now();

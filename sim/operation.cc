@@ -139,6 +139,9 @@ void Context::complete() {
     // update GLOBAL Stats
     stat.update("contexts");
     stat.update("total_instructions", completed_nodes.size());
+    // update LOCAL Stats
+    sim->local_stat.update("contexts");
+    sim->local_stat.update("total_instructions", completed_nodes.size());
 
     // Update activity counters
     int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
@@ -237,6 +240,7 @@ void DynamicNode::tryActivate() {
 
 bool DynamicNode::issueCompNode() {
   stat.update("comp_issue_try");
+  sim->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
   if (sim->available_FUs.at(n->typeInstr) != -1) {
     if (sim->available_FUs.at(n->typeInstr) == 0)
@@ -245,6 +249,7 @@ bool DynamicNode::issueCompNode() {
       sim->available_FUs.at(n->typeInstr)--;
   }
   stat.update("comp_issue_success");
+  sim->local_stat.update("comp_issue_success");
   issued = true;
   return true;
 }
@@ -252,10 +257,14 @@ bool DynamicNode::issueCompNode() {
 bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
-  if(type == LD)
+  if(type == LD) {
     stat.update("load_issue_try");
-  else
+    sim->local_stat.update("load_issue_try");
+  }
+  else {
     stat.update("store_issue_try");
+    sim->local_stat.update("store_issue_try");
+  }
   // check for enough resources (memory ports)
   if(type == LD && sim->cache->ports[0] == 0 )
     return false;
@@ -265,15 +274,19 @@ bool DynamicNode::issueMemNode() {
     forwardRes = sim->lsq.check_forwarding(this);
     if(forwardRes == 0 && cfg.mem_speculate) {
       stat.update("speculatively_forwarded");
+      sim->local_stat.update("speculatively_forwarded");
       speculate = true;
     }
-    else if(forwardRes == 1)
+    else if(forwardRes == 1) {
       stat.update("forwarded");
+      sim->local_stat.update("forwarded");
+    }
   }
   if(type == LD && forwardRes == -1) {
     int res = sim->lsq.check_load_issue(this, cfg.mem_speculate);
     if(res == 0) {
       stat.update("speculated");
+      sim->local_stat.update("speculated");
       speculate = true;
     }
     else if(res == -1)
@@ -285,10 +298,14 @@ bool DynamicNode::issueMemNode() {
   }
   // at this point the memory request will be issued for sure
   issued = true;
-  if(type == LD)
+  if(type == LD) {
     stat.update("load_issue_success");
-  else
+    sim->local_stat.update("load_issue_success");
+  }
+  else {
     stat.update("store_issue_success");
+    sim->local_stat.update("store_issue_success");
+  }
   speculated = speculate;
   if (type == LD) {
     if(forwardRes == 1) { 
@@ -331,6 +348,7 @@ void DynamicNode::finishNode() {
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
       stat.update("misspeculated");
+      sim->local_stat.update("misspeculated");
       misspeculated.at(i)->issued = false;
       misspeculated.at(i)->completed = false;
       misspeculated.at(i)->tryActivate();
