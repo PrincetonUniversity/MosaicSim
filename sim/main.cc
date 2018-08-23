@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include "sim.h"
-#include "graphOpt.h"
+#include "graph/GraphOpt.h"
 
 using namespace std;
   

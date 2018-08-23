@@ -3,9 +3,7 @@
 #include <sstream> 
 #include "assert.h"
 
-#define UNUSED 0
 using namespace std;
-
 
 class Reader {
 public:

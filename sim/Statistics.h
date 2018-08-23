@@ -2,9 +2,7 @@
 #define STAT_H
 #include <iostream>
 #include <map>
-
 using namespace std;
-
 
 class Statistics {
 public:

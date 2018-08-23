@@ -3,11 +3,12 @@
 #include "Cache.h"
 #include "../executionModel/DynamicNode.h"
 using namespace std;
+#define UNUSED 0
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
-  //if(UNUSED)
-  //  cout << id << clock_cycle;
+  if(UNUSED)
+    cout << id << clock_cycle;
   queue<DynamicNode*> &q = outstanding_read_map.at(addr);
   while(q.size() > 0) {
     DynamicNode* d = q.front();  
@@ -26,8 +27,8 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     outstanding_read_map.erase(addr);
 }
 void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-  //if(UNUSED)
-  //  cout << id << addr << clock_cycle;
+  if(UNUSED)
+    cout << id << addr << clock_cycle;
 }
 void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
   if(isLoad) 
