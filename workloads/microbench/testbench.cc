@@ -4,8 +4,9 @@
 #define SIZE 8000
 #define inliner __attribute__((always_inline))
 using namespace std;
-#define MODE1
-#ifdef MODE1
+//#define MODE2
+#define MODE3
+#ifdef CTRLSPEC_VARIANT
 void _kernel_test(int (&arr)[SIZE]) {
   int loc = 0;
   #pragma clang loop unroll(disable)
@@ -20,7 +21,7 @@ void _kernel_test(int (&arr)[SIZE]) {
   }
 }
 #endif
-#ifdef MODE2
+#ifdef CTRLSPEC
 void _kernel_test(int (&arr)[SIZE]) {
   #pragma clang loop unroll(disable)
   for(int i=0; i<SIZE; i++) {
@@ -30,6 +31,14 @@ void _kernel_test(int (&arr)[SIZE]) {
 }
 #endif
 
+#ifdef MEMSPEC
+void _kernel_test(int (&arr)[SIZE]) {
+  #pragma clang loop unroll(disable)
+  for(int i=0; i<SIZE; i++) {
+    arr[arr[i]] = 2;
+  }
+}
+#endif
 int main()
 {
   int arr[SIZE];

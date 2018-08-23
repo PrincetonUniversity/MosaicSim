@@ -82,6 +82,8 @@ public:
         dest->parents.insert(this);
       }
       else {
+        if(dest->typeInstr == PHI)
+          assert(false);
         external_dependents.insert(dest);
         dest->external_parents.insert(this);
       }
