@@ -1,9 +1,10 @@
-#include "header.h"
-
 using namespace std;
+#include "../executionModel/DynamicNode.h"
+#include "LoadStoreQ.h"
 
 LoadStoreQ::LoadStoreQ() {
 }
+
 void LoadStoreQ::resolveAddress(DynamicNode *d) {
   if(d->type == LD)
     unresolved_ld_set.erase(d);
@@ -26,6 +27,7 @@ void LoadStoreQ::insert(DynamicNode *d) {
     unresolved_st_set.insert(d);
   }
 }
+
 bool LoadStoreQ::checkSize(int num_ld, int num_st) {
   int ld_need = lq.size() + num_ld - size;
   int st_need = sq.size() + num_st - size; 
@@ -76,6 +78,7 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
     return false; 
   }
 }
+
 bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
   if(unresolved_ld_set.size() == 0)
     return false;
@@ -85,6 +88,7 @@ bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
   else
     return false;
 }
+
 bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
   if(unresolved_st_set.size() == 0)
     return false;
@@ -130,6 +134,7 @@ int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
   }
   return 1;
 }
+
 bool LoadStoreQ::check_store_issue(DynamicNode *in) {
   bool skipStore = false;
   bool skipLoad = false;
@@ -163,6 +168,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
   }
   return true;
 }
+
 int LoadStoreQ::check_forwarding (DynamicNode* in) {
   bool speculative = false;    
   if(sm.find(in->addr) == sm.end())
@@ -188,6 +194,7 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
     return -1;
   return -1;
 }
+
 std::vector<DynamicNode*> LoadStoreQ::check_speculation (DynamicNode* in) {
   std::vector<DynamicNode*> ret;
   if(lm.find(in->addr) == lm.end())
@@ -203,110 +210,4 @@ std::vector<DynamicNode*> LoadStoreQ::check_speculation (DynamicNode* in) {
     }
   }
   return ret;
-}
-
-bool Cache::process_cache() {
-  while(pq.size() > 0) {
-    if(pq.top().second > cycles)
-      break;    
-    execute(pq.top().first);
-    pq.pop();
-  }
-  for(auto it = to_send.begin(); it!= to_send.end();) {
-    DynamicNode *d = *it;
-    uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
-    if(memInterface->willAcceptTransaction(d,dramaddr)) {
-      memInterface->addTransaction(d, dramaddr, true);
-      it = to_send.erase(it);
-    }
-    else
-      it++;
-  }
-  for(auto it = to_evict.begin(); it!= to_evict.end();) {
-    uint64_t eAddr = *it;
-    if(memInterface->mem->willAcceptTransaction(eAddr)) {
-      memInterface->addTransaction(NULL, eAddr, false);
-      it = to_evict.erase(it);
-    }
-    else
-      it++;
-  }
-  cycles++;
-  ports[0] = cfg.cache_load_ports;
-  ports[1] = cfg.cache_store_ports;
-  ports[2] = cfg.mem_load_ports;
-  ports[3] = cfg.mem_store_ports;
-  return (pq.size() > 0);  
-}
-void Cache::execute(DynamicNode* d) {
-  uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
-  bool res = true;
-  if(!ideal)
-    res = fc->access(dramaddr/size_of_cacheline, d->type==LD);
-  if (res) {                
-    d->print("Cache Hit", 1);
-    d->handleMemoryReturn();
-    stat.update("cache_hit");
-  }
-  else {
-    to_send.push_back(d);
-    d->print("Cache Miss", 1);
-    stat.update("cache_miss");
-  }
-}
-void Cache::addTransaction(DynamicNode *d) {
-  d->print("Cache Transaction Added", 1);
-  stat.update("cache_access");
-  pq.push(make_pair(d, cycles+latency));
-}   
-
-void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-  assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
-  if(UNUSED)
-    cout << id << clock_cycle;
-  queue<DynamicNode*> &q = outstanding_read_map.at(addr);
-  while(q.size() > 0) {
-    DynamicNode* d = q.front();  
-    d->handleMemoryReturn();
-    q.pop();
-  }
-  int64_t evictedAddr = -1;
-  if(!ideal)
-    c->fc->insert(addr/64, &evictedAddr);
-  if(evictedAddr!=-1) {
-    assert(evictedAddr >= 0);
-    stat.update("cache_evict");
-    c->to_evict.push_back(evictedAddr*64);
-  }
-  if(q.size() == 0)
-    outstanding_read_map.erase(addr);
-}
-void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-  if(UNUSED)
-    cout << id << addr << clock_cycle;
-}
-void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
-  if(isLoad) 
-    mem_load_ports--;
-  else
-    mem_store_ports--;
-  if(d!= NULL) {
-    assert(isLoad == true);
-    if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
-      outstanding_read_map.insert(make_pair(addr, queue<DynamicNode*>()));
-      mem->addTransaction(false, addr);
-      stat.update("dram_access");
-
-    }
-    outstanding_read_map.at(addr).push(d);  
-  }
-  else {
-    assert(isLoad == false);
-    mem->addTransaction(true, addr);
-    stat.update("dram_access");
-
-  }
-}
-bool DRAMSimInterface::willAcceptTransaction(DynamicNode* d, uint64_t addr) {
-  return mem->willAcceptTransaction(addr) && !(d->type==LD && mem_load_ports==0) && !(d->type==ST && mem_store_ports==0);
 }

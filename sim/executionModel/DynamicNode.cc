@@ -1,4 +1,5 @@
-#include "header.h"
+#include "DynamicNode.h"
+#include "../sim.h"
 using namespace std;
 
 Context* Context::getNextContext() {

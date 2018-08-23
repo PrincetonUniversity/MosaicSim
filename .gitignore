@@ -28,6 +28,10 @@ workloads/shoc/stencil/int
 workloads/shoc/stencil/output
 workloads/shoc/triad/int
 workloads/shoc/triad/output
+workloads/bfs/output
+workloads/microbench/output
+workloads/bfs/int
+workloads/microbench/int
 
 # Pre-compiler generated files.
 CMakeCache.txt

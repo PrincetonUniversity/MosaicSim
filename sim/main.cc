@@ -1,4 +1,8 @@
-#include "header.h"
+#include <iostream>
+#include <string>
+#include "sim.h"
+#include "graphOpt.h"
+
 using namespace std;
   
 Statistics stat;

@@ -1,4 +1,4 @@
-#include "header.h"
+#include "sim.h"
 using namespace std;
 
 void Simulator::toMemHierarchy(DynamicNode* d) {
