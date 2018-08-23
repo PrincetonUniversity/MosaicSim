@@ -22,8 +22,22 @@ public:
   std::set<Node*> phi_dependents;
   std::set<Node*> phi_parents;
   std::set<Node*> store_addr_dependents;
-  Node(int id, TInstr typeInstr, int bbid, std::string name, int lat): 
-            id(id), typeInstr(typeInstr), bbid(bbid), name(name), lat (lat) {} 
+  bool isSupp() {
+    return (name.find("Supply")!=string::npos);
+  }
+  
+  bool isComp() {
+    return (name.find("Compute")!=string::npos);
+  }
+
+  Node(int id, TInstr typeInstr, int bbid, std::string node_name, int lat): 
+    id(id), typeInstr(typeInstr), bbid(bbid), name(node_name), lat (lat) {    
+    if (typeInstr==I_ADDSUB && node_name.find("197")!=string::npos)
+      name="Compute";    
+    if (typeInstr==I_ADDSUB && node_name.find("199")!=string::npos)
+      name="Supply";
+  }
+  
   void addDependent(Node *dest, TEdge type);
   void eraseDependent(Node *dest, TEdge type);
   friend std::ostream &operator<<(std::ostream &os, Node &n);

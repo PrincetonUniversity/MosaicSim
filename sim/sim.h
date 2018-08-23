@@ -31,6 +31,7 @@ public:
   uint64_t cycles = 0;
   DRAMSimInterface* memInterface;
   Interconnect* intercon;
+  queue<DynamicNode*> inputQ;
   Cache* cache;
   Digestor* digestor;
   Statistics local_stat;
@@ -78,23 +79,9 @@ public:
   uint64_t cycles=0;
   int latency=2;
   
-  void process() {
-    while(pq.size()>0) {
-      if(pq.top().second > cycles) {
-        break;
-      }      
-      execute(pq.top().first);
-    }
-    cycles++;
-  }
-
-  void execute(DynamicNode* d) {
-    d->c->insertQ(d);
-  }
-
-  void insert(DynamicNode* d) {
-    pq.push(make_pair(d,cycles+latency));    
-  }
+  void process();
+  void execute(DynamicNode* d);
+  void insert(DynamicNode* d);
 };
 
 class Digestor {
@@ -137,7 +124,7 @@ public:
       if(cache->process_cache())
         simulate = true;
       memInterface->mem->update();
-      intercon->cycles++;
+      intercon->process();
       live_sims=next_sims;
       next_sims.clear();
     }

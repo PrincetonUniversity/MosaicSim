@@ -1,6 +1,31 @@
 #include "sim.h"
 using namespace std;
 
+void Interconnect::process() {
+  while(pq.size()>0) {
+    if(pq.top().second > cycles) {
+      break;
+    }      
+    execute(pq.top().first);
+    pq.pop();
+  }
+  cycles++;
+}
+
+void Interconnect::execute(DynamicNode* d) {
+  vector<Simulator*> sims=d->sim->digestor->all_sims;
+  for (auto it=sims.begin(); it!=sims.end(); ++it) {
+    Simulator* sim=*it;
+    if (!(sim->name.compare("Compute"))) {
+      sim->inputQ.push(d);      
+    }    
+  }
+}
+
+void Interconnect::insert(DynamicNode* d) {
+  pq.push(make_pair(d,cycles+latency));    
+}
+
 void Simulator::toMemHierarchy(DynamicNode* d) {
   cache->addTransaction(d);
 }

@@ -240,6 +240,25 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
+  
+  if (n->isComp()) {
+    if(sim->inputQ.empty()) {      
+      return false;
+    }
+    else {
+      
+      sim->inputQ.pop();
+      cout << "Received " << n->name << " " << n->id << " In Context: " << c->id << endl;;
+      return true;
+    }    
+  } 
+  
+  if (n->isSupp()) {
+    sim->digestor->intercon->insert(this);
+    cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
+    return true;
+  }
+  
   stat.update("comp_issue_try");
   sim->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
