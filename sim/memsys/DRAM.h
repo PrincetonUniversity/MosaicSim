@@ -6,7 +6,6 @@
 #include "../common.h"
 #include "../include/DRAMSim.h"
 class Cache;
-//class DynamicNode;
 
 using namespace std;
 

@@ -20,10 +20,6 @@ void Core::accessComplete(Transaction *t) {
 }
 void Core::initialize(int id) {
   // Initialize Resources / Limits
-
-  //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
-  //memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  //cache->memInterface = memInterface;  
   this->id = id;
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
@@ -137,7 +133,7 @@ bool Core::process() {
     simulate = true;
   int context_created = 0;
   for (int i=0; i<context_to_create; i++) {
-    if ( createContext() ) {
+    if (createContext()) {
       simulate = true;
       context_created++;
     }

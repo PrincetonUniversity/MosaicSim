@@ -48,14 +48,14 @@ void Simulator::accessComplete(Transaction *t) {
   core->accessComplete(t);
 } 
 void Simulator::run() {
-  int res = 0;
-  while(res > 0) {
-    res = 0;
+  int simulate = 1;
+  while(simulate > 0) {
+    simulate = 0;
     for (auto it=cores.begin(); it!=cores.end(); ++it) {
       Core* core = *it;
-      res += core->process();
+      simulate += core->process();
     }
-    res += cache->process();
+    simulate += cache->process();
     memInterface->process();
     intercon->process();
   }

@@ -39,7 +39,6 @@ void Cache::execute(Transaction* t) {
     res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
   if (res) {                
     //d->print("Cache Hit", 1);
-    //d->handleMemoryReturn();
     sim->accessComplete(t);
     stat.update("cache_hit");
   }

@@ -286,9 +286,9 @@ bool DynamicNode::issueMemNode() {
     core->local_stat.update("store_issue_try");
   }
   // check for enough resources (memory ports)
-  if(type == LD && core->cache->load_ports == 0 )
+  if(type == LD && core->cache->load_ports == 0)
     return false;
-  if(type == ST && core->cache->store_ports == 0 )
+  if(type == ST && core->cache->store_ports == 0)
     return false;
   if(type == LD && cfg.mem_forward) {
     forwardRes = core->lsq.check_forwarding(this);
