@@ -1,3 +1,4 @@
+#include "../core/DynamicNode.h"
 #include "Cache.h"
 #include "DRAM.h"
 bool Cache::process_cache() {

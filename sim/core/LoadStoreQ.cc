@@ -1,5 +1,4 @@
-using namespace std;
-#include "../executionModel/DynamicNode.h"
+#include "../core/DynamicNode.h"
 #include "LoadStoreQ.h"
 
 LoadStoreQ::LoadStoreQ() {

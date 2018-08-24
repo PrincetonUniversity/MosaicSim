@@ -50,12 +50,12 @@ void BasicBlock::addInst(Node* n) {
 }
 
 void Graph::addBasicBlock(int id) {
-  bbs.insert( std::make_pair(id, new BasicBlock(id)) );
+  bbs.insert( make_pair(id, new BasicBlock(id)) );
 }
 
-void Graph::addNode(int id, TInstr type, int bbid, std::string name, int lat) {
+void Graph::addNode(int id, TInstr type, int bbid, string name, int lat) {
   Node *n = new Node(id, type, bbid, name, lat);
-  nodes.insert(std::make_pair(n->id, n));
+  nodes.insert(make_pair(n->id, n));
   assert( bbs.find(bbid) != bbs.end() );
   bbs.at(bbid)->addInst(n);
 }
@@ -75,7 +75,7 @@ void Graph::eraseNode(Node *n) {
 }
 
 void Graph::eraseAllNodes() { 
-  for ( std::map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
+  for ( map<int, Node *>::iterator it = nodes.begin(); it != nodes.end(); ++it )
     eraseNode(it->second);
 }
 
@@ -88,14 +88,14 @@ void Graph::eraseDependent(Node *src, Node *dest, TEdge type) {
 }
 
 // Print Node
-std::ostream& operator<<(std::ostream &os, Node &n) {
+ostream& operator<<(ostream &os, Node &n) {
   os << "[" << n.name << "]";
   return os;
 }
 // Print Graph
-std::ostream& operator<<(std::ostream &os, Graph &g) {
-  for (std::map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
-    std::cout << it->first << ":" << *it->second << "\n";
-  std::cout << "";
+ostream& operator<<(ostream &os, Graph &g) {
+  for (map<int, Node *>::iterator it = g.nodes.begin(); it != g.nodes.end(); ++it)
+    cout << it->first << ":" << *it->second << "\n";
+  cout << "";
   return os;
 }

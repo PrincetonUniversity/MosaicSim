@@ -14,7 +14,7 @@ Context* Context::getPrevContext() {
   else
     return NULL;
 }
-std::ostream& operator<<(std::ostream &os, Context &c) {
+ostream& operator<<(ostream &os, Context &c) {
   os << "[Context-" << c.id <<"] ";
   return os;
 }
@@ -195,7 +195,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
   else
     return false;
 }
-std::ostream& operator<<(std::ostream &os, DynamicNode &d) {
+ostream& operator<<(ostream &os, DynamicNode &d) {
   os << "[Context-" <<d.c->id <<"] Node - " << d.n->name <<" ";
   return os;
 }

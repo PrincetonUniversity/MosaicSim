@@ -3,22 +3,10 @@
 #include <vector>
 #include <queue>
 #include "FunctionalCache.h"
-#include "../executionModel/DynamicNode.h"
+#include "../core/DynamicNode.h"
 using namespace std;
 
 class DRAMSimInterface;
-
-// struct OpCompare {
-//   bool operator() (const Operator &l, const Operator &r) const {
-//     if(r.second < l.second) 
-//       return true;
-//     else if (l.second == r.second)
-//       return (*(r.first) < *(l.first));
-//     else
-//       return false;
-//   }
-// };
-
 class Cache {
 public:
   DRAMSimInterface *memInterface;

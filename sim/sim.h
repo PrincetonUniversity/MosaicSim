@@ -4,12 +4,11 @@
 #include <queue>
 #include <chrono>
 #include "common.h"
-#include "executionModel/DynamicNode.h"
+#include "core/DynamicNode.h"
+#include "core/LoadStoreQ.h"
 #include "graph/Graph.h"
-#include "memsys/LoadStoreQ.h"
 #include "memsys/Cache.h"
 #include "memsys/DRAM.h"
-#include "base.h"
 
 using namespace std;
 

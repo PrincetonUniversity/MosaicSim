@@ -76,40 +76,6 @@ public:
     }
     cfile.close();
     cout << "[1] Finished Reading Config File (" << name << ") \n";
-    
-    cfg.L1_latency = 1;
-    cfg.L1_assoc = 8;
-    cfg.L1_linesize = 64;
-    cfg.instr_latency[I_ADDSUB] = 1;
-    cfg.instr_latency[I_MULT] = 3;
-    cfg.instr_latency[I_DIV] = 26;
-    cfg.instr_latency[I_REM] = 1;
-    cfg.instr_latency[FP_ADDSUB] = 1;
-    cfg.instr_latency[FP_MULT] = 3;
-    cfg.instr_latency[FP_DIV] = 26;
-    cfg.instr_latency[FP_REM] = 1;
-    cfg.instr_latency[LOGICAL] = 1;
-    cfg.instr_latency[CAST] = 1;
-    cfg.instr_latency[GEP] = 1;
-    cfg.instr_latency[LD] = -1;
-    cfg.instr_latency[ST] = 1;
-    cfg.instr_latency[TERMINATOR] = 1;
-    cfg.instr_latency[PHI] = 1;     // JLA: should it be 0 ?
-    cfg.num_units[I_ADDSUB] = -1;
-    cfg.num_units[I_MULT] =  -1;
-    cfg.num_units[I_DIV] = -1;
-    cfg.num_units[I_REM] = -1;
-    cfg.num_units[FP_ADDSUB] = -1;
-    cfg.num_units[FP_MULT] = -1;
-    cfg.num_units[FP_DIV] = -1;
-    cfg.num_units[FP_REM] = -1;
-    cfg.num_units[LOGICAL] = -1;
-    cfg.num_units[CAST] = -1;
-    cfg.num_units[GEP] = -1;
-    cfg.num_units[LD] = -1;
-    cfg.num_units[ST] = -1;
-    cfg.num_units[TERMINATOR] = -1;
-    cfg.num_units[PHI] = -1;
   }
 
   void readGraph(std::string name, Graph &g) {

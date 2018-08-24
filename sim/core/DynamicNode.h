@@ -1,10 +1,12 @@
 #ifndef DYNAMICNODE_H
 #define DYNAMICNODE_H
-using namespace std;
 #include <map>
 #include <set>
 #include <queue>
 #include "../graph/Graph.h"
+
+using namespace std;
+
 class Graph;
 class BasicBlock;
 class Node;
@@ -12,7 +14,6 @@ class Simulator;
 class DynamicNode;
 class Context;
 typedef pair<DynamicNode*, uint64_t> Operator;
-
 
 class DynamicNode {
 public:
@@ -73,12 +74,12 @@ public:
   int next_bbid;
   int prev_bbid;
 
-  std::map<Node*, DynamicNode*> nodes;
-  std::set<DynamicNode*, DynamicNodePointerCompare> issue_set;
-  std::set<DynamicNode*, DynamicNodePointerCompare> speculated_set;
-  std::set<DynamicNode*, DynamicNodePointerCompare> next_issue_set;
-  std::set<DynamicNode*, DynamicNodePointerCompare> completed_nodes;
-  std::set<DynamicNode*, DynamicNodePointerCompare> nodes_to_complete;
+  map<Node*, DynamicNode*> nodes;
+  set<DynamicNode*, DynamicNodePointerCompare> issue_set;
+  set<DynamicNode*, DynamicNodePointerCompare> speculated_set;
+  set<DynamicNode*, DynamicNodePointerCompare> next_issue_set;
+  set<DynamicNode*, DynamicNodePointerCompare> completed_nodes;
+  set<DynamicNode*, DynamicNodePointerCompare> nodes_to_complete;
 
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
 

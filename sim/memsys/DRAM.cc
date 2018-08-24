@@ -1,7 +1,6 @@
-#include "../common.h"
 #include "DRAM.h"
 #include "Cache.h"
-#include "../executionModel/DynamicNode.h"
+#include "../core/DynamicNode.h"
 using namespace std;
 #define UNUSED 0
 

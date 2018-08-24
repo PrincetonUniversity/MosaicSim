@@ -7,8 +7,8 @@
 #include <queue>
 #include <set>
 #include "assert.h"
-#include "Config.h"
-#include "Statistics.h"
+#include "misc/Config.h"
+#include "misc/Statistics.h"
 
 class Config;
 class Statistics;
