@@ -2,6 +2,9 @@
 #include "memsys/Cache.h"
 #include "memsys/DRAM.h"
 #include "core/Core.h"
+#include "misc/Reader.h"
+#include "graph/GraphOpt.h"
+#include "core/Core.h"
 using namespace std;
 
 void Interconnect::process() {
@@ -16,7 +19,7 @@ void Interconnect::process() {
 }
 
 void Interconnect::execute(DynamicNode* d) {
-  vector<Core*> sims=d->sim->digestor->all_sims;
+  vector<Core*> sims=d->sim->simulator->cores;
   for (auto it=sims.begin(); it!=sims.end(); ++it) {
     Core* sim=*it;
     if (!(sim->name.compare("Compute"))) {
@@ -30,7 +33,7 @@ void Interconnect::insert(DynamicNode* d) {
 }
 
 
-Digestor::Digestor() {        
+Simulator::Simulator() {        
   intercon = new Interconnect();
   cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
@@ -41,34 +44,22 @@ Digestor::Digestor() {
   cache->ports[3] = cfg.mem_store_ports;
 }
 
-void Digestor::run() {
-  bool simulate=true;
-  vector<Core*> live_sims=all_sims;
-  while(simulate) {
-    vector<Core*> next_sims;
-    simulate=false;
-    for (auto it=live_sims.begin(); it!=live_sims.end(); ++it) {
-      Core* sim=*it;
-      cout << sim->name << endl;
-      if(sim->process_cycle()) {
-        next_sims.push_back(sim);
-        simulate=true;
-      }
-      else {        
-        stat.set("cycles", sim->cycles);
-        sim->local_stat.set("cycles", sim->cycles);
-      }
+void Simulator::run() {
+  int res = 0;
+  while(res > 0) {
+    res = 0;
+    for (auto it=cores.begin(); it!=cores.end(); ++it) {
+      Core* sim = *it;
+      res += sim->process();
     }
-    if(cache->process_cache())
-      simulate = true;
-    memInterface->mem->update();
+    res += cache->process();
+    memInterface->process();
     intercon->process();
-    live_sims=next_sims;
-    next_sims.clear();
   }
-  
-  for (auto it=all_sims.begin(); it!=all_sims.end(); it++) {
+  for (auto it=cores.begin(); it!=cores.end(); it++) {
     Core* sim=*it;
+    stat.set("cycles", sim->cycles);
+    sim->local_stat.set("cycles", sim->cycles);
     cout << "----------------" << sim->name << " LOCAL STATS--------------\n";
     sim->printActivity();
     cout << "----------------" << sim->name << " General Stats--------------\n";
@@ -77,6 +68,34 @@ void Digestor::run() {
   
   cout << "----------------GLOBAL STATS--------------\n";
   stat.print();
-  //cout << "-------------MEM DATA---------------\n";
   memInterface->mem->printStats(true);
+}
+void Simulator::registerCore(string wlpath) {
+  string name = "Pythia Core";
+  // if (i%2==0)
+  //   name="Supply";
+  // else
+  //   name="Compute";
+  string cname = wlpath + "/output/ctrl.txt";     
+  string gname = wlpath + "/output/graphOutput.txt";
+  string mname = wlpath + "/output/mem.txt";   
+  
+  Core* sim = new Core();
+  sim->name=name;
+  Reader r;
+  r.readGraph(gname, sim->g);
+  r.readProfMemory(mname , sim->memory);
+  r.readProfCF(cname, sim->cf);
+  
+  GraphOpt opt(sim->g);
+  opt.inductionOptimization();
+  
+  sim->initialize();
+  sim->simulator=this;
+  sim->has_simulator=true;
+  sim->cache = cache;
+  sim->memInterface = memInterface;
+  sim->intercon = intercon;    
+  cores.push_back(sim);
+  
 }

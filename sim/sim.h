@@ -1,6 +1,7 @@
 #ifndef SIM_H
 #define SIM_H
 #include <chrono>
+#include "common.h"
 #include "core/DynamicNode.h"
 using namespace std;
 
@@ -20,15 +21,16 @@ public:
   void insert(DynamicNode* d);
 };
 
-class Digestor {
+class Simulator {
 public:  
-  vector<Core*> all_sims;
+  vector<Core*> cores;
   Interconnect* intercon;
   Cache* cache;
   DRAMSimInterface* memInterface;
  
-  Digestor();
+  Simulator();
   void run();
+  void registerCore(string wlpath);
 };
 
 #endif

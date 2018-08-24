@@ -1,11 +1,17 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+#include <string>
+#include <vector>
+using namespace std;
 
 #define NUM_INST_TYPES 15
-
 class Config {
 public:
   Config();
+  void read(string name);
+  vector<string> split(const string &s, char delim);
+  void getCfg(int id, int val);
+
   // Config parameters
   int  verbLevel; // verbosity level
   bool cf_mode; // 0: one at a time / 1: all together
@@ -30,6 +36,7 @@ public:
   int L1_size;     // KB
   int L1_assoc; 
   int L1_linesize; // bytes
+
 };
 
 #endif

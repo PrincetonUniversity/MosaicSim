@@ -17,66 +17,6 @@ public:
      }
      return tokens;
   }
-  
-  void getCfg(int id, int val) {
-    switch (id) { 
-    case 0:
-      cfg.lsq_size = val; 
-      break;
-    case 1:
-      cfg.cf_mode = val;
-      break;
-    case 2:
-      cfg.mem_speculate = val;
-      break;
-    case 3:
-      cfg.mem_forward = val;
-      break;
-    case 4:
-      cfg.max_active_contexts_BB = val;
-      break;
-    case 5:
-      cfg.ideal_cache = val;
-      break;
-    case 6:
-      cfg.L1_size = val;
-      break;
-    case 7:
-      cfg.cache_load_ports = val;
-      break;
-    case 8:
-      cfg.cache_store_ports = val;
-      break;
-    case 9:
-      cfg.mem_load_ports = val;
-      break;
-    case 10:
-      cfg.mem_store_ports = val;
-      break;
-    case 11:
-      cfg.perfect_mem_spec = val;
-      break;
-    }
-  }
-  void readCfg(std::string name) {
-    string line;
-    string last_line;
-    ifstream cfile(name);
-    int id = 0;
-    if (cfile.is_open()) {
-      while (getline (cfile,line)) {
-        vector<string> s = split(line, ',');
-        getCfg(id, stoi(s.at(0)));
-        id++;
-      }
-    }
-    else {
-      cout << "Error opening Config\n";
-      assert(false);
-    }
-    cfile.close();
-    cout << "[1] Finished Reading Config File (" << name << ") \n";
-  }
 
   void readGraph(std::string name, Graph &g) {
     ifstream cfile(name);

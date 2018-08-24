@@ -22,7 +22,7 @@ public:
   FunctionalCache *fc;
   Cache(int latency, int size, int assoc, int linesize, bool ideal): 
     latency(latency), size_of_cacheline(linesize), ideal(ideal), fc(new FunctionalCache(size, assoc)) {}
-  bool process_cache();
+  bool process();
   void execute(DynamicNode* d);
   void addTransaction(DynamicNode *d);
 };

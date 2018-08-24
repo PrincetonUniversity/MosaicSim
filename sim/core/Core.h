@@ -11,11 +11,10 @@ using namespace std;
 class DyanmicNode;
 class Graph;
 class Interconnect;
-class Digestor;
+class Simulator;
 class Context;
 class DRAMSimInterface;
 class Cache;
-
 
 typedef chrono::high_resolution_clock Clock;
 
@@ -29,9 +28,9 @@ public:
   Interconnect* intercon;
   queue<DynamicNode*> inputQ;
   Cache* cache;
-  Digestor* digestor;
+  Simulator* simulator;
   Statistics local_stat;
-  bool has_digestor=false;
+  bool has_simulator=false;
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
   uint64_t last_processed_contexts;
@@ -62,9 +61,7 @@ public:
   LoadStoreQ lsq;
   void initialize();
   bool createContext();
-  bool process_cycle();
-  void process_memory();
-  void run();
+  bool process();
   void toMemHierarchy(DynamicNode *d);
   void printActivity();
 };

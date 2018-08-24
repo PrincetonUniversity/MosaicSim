@@ -83,11 +83,11 @@ bool Core::createContext() {
   return true;
 }
 
-void Core::process_memory() {
-  memInterface->mem->update();
-}
+// void Core::process_memory() {
+//   memInterface->mem->update();
+// }
 
-bool Core::process_cycle() {
+bool Core::process() {
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
@@ -130,25 +130,6 @@ bool Core::process_cycle() {
       break;
   }
   context_to_create -= context_created;   // some contexts can be left pending for later cycles
-
-  if(!has_digestor) {
-    if(cache->process_cache())
-      simulate = true;
-    process_memory();
-  }
-  //otherwise, digestor handles those
-  
   cycles++;
-  //cache->cycles++; now done at end of process_cache()
   return simulate;
-}
-
-void Core::run() {
-  bool simulate = true;
-  while (simulate)
-    simulate = process_cycle();
-  stat.set("cycles", cycles);
-  stat.print();
-  memInterface->mem->printStats(true);
-  printActivity();
 }

@@ -1,4 +1,4 @@
-#include "../core/DynamicNode.h"
+#include "DynamicNode.h"
 #include "LoadStoreQ.h"
 
 LoadStoreQ::LoadStoreQ() {

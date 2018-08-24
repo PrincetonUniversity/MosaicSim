@@ -28,6 +28,9 @@ public:
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void addTransaction(DynamicNode* d, uint64_t addr, bool isLoad);
-  bool willAcceptTransaction(DynamicNode* d, uint64_t addr);
+  bool willAcceptTransaction(DynamicNode* d, uint64_t addr);\
+  void process() {
+    mem->update();
+  }
 };
 #endif

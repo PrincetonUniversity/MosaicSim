@@ -1,7 +1,7 @@
 #include "../core/DynamicNode.h"
 #include "Cache.h"
 #include "DRAM.h"
-bool Cache::process_cache() {
+bool Cache::process() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
       break;    
