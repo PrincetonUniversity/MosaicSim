@@ -19,7 +19,7 @@ class DynamicNode {
 public:
   Node *n;
   Context *c;
-  Core *sim;
+  Core *core;
   TInstr type;
   bool issued = false;
   bool completed = false;
@@ -34,7 +34,7 @@ public:
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
 
-  DynamicNode(Node *n, Context *c, Core *sim, uint64_t addr = 0);
+  DynamicNode(Node *n, Context *c, Core *core, uint64_t addr = 0);
   bool operator== (const DynamicNode &in);
   bool operator< (const DynamicNode &in) const;
   void print(string str, int level = 0);
@@ -68,7 +68,7 @@ public:
   bool live;
   unsigned int id;
   
-  Core* sim;
+  Core* core;
   BasicBlock *bb;
 
   int next_bbid;
@@ -83,7 +83,7 @@ public:
 
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
 
-  Context(int id, Core* sim) : live(false), id(id), sim(sim) {}
+  Context(int id, Core* core) : live(false), id(id), core(core) {}
   Context* getNextContext();
   Context* getPrevContext();
   void insertQ(DynamicNode *d);

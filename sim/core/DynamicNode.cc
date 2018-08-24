@@ -1,18 +1,17 @@
 #include "DynamicNode.h"
 #include "Core.h"
 #include "../memsys/Cache.h"
-//#include "../sim.h"
 using namespace std;
 
 Context* Context::getNextContext() {
-  if(sim->context_list.size() > id+1)
-    return sim->context_list.at(id+1);
+  if(core->context_list.size() > id+1)
+    return core->context_list.at(id+1);
   else
     return NULL;
 }
 Context* Context::getPrevContext() {
   if(id != 0)
-    return sim->context_list.at(id-1);
+    return core->context_list.at(id-1);
   else
     return NULL;
 }
@@ -26,9 +25,9 @@ void Context::print(string str, int level) {
 }
 void Context::insertQ(DynamicNode *d) {
   if(d->n->lat > 0)
-    pq.push(make_pair(d, sim->cycles+d->n->lat-1));
+    pq.push(make_pair(d, core->cycles+d->n->lat-1));
   else
-    pq.push(make_pair(d, sim->cycles));
+    pq.push(make_pair(d, core->cycles));
 }
 void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   this->bb = bb;
@@ -39,20 +38,20 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     if(n->typeInstr == ST || n->typeInstr == LD) {
-      assert(sim->memory.find(n->id) !=sim->memory.end());
-      DynamicNode *d = new DynamicNode(n, this, sim, sim->memory.at(n->id).front());
+      assert(core->memory.find(n->id) !=core->memory.end());
+      DynamicNode *d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       nodes.insert(make_pair(n,d));
-      sim->memory.at(n->id).pop();
-      sim->lsq.insert(d);
+      core->memory.at(n->id).pop();
+      core->lsq.insert(d);
     }
     else
-      nodes.insert(make_pair(n, new DynamicNode(n, this, sim)));  
+      nodes.insert(make_pair(n, new DynamicNode(n, this, core)));  
   }
 
-  if(sim->curr_owner.find(bb->id) == sim->curr_owner.end())
-    sim->curr_owner.insert(make_pair(bb->id,this));
+  if(core->curr_owner.find(bb->id) == core->curr_owner.end())
+    core->curr_owner.insert(make_pair(bb->id,this));
   else
-    sim->curr_owner.at(bb->id) = this;
+    core->curr_owner.at(bb->id) = this;
 
   // Initialize External Edges
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
@@ -71,7 +70,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     if (d->n->external_parents.size() > 0) {
       for (auto it = d->n->external_parents.begin(); it != d->n->external_parents.end(); ++it) {
         Node *src = *it;
-        Context *cc = sim->curr_owner.at(src->bbid);
+        Context *cc = core->curr_owner.at(src->bbid);
         DynamicNode *dsrc = cc->nodes.at(src);
         if(dsrc->completed)
           d->pending_external_parents--;
@@ -107,7 +106,7 @@ void Context::process() {
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
-    if(cfg.mem_speculate && d->type == LD && d->speculated && sim->lsq.check_unresolved_store(d)) {
+    if(cfg.mem_speculate && d->type == LD && d->speculated && core->lsq.check_unresolved_store(d)) {
       ++it;
     }
     else {
@@ -116,7 +115,7 @@ void Context::process() {
     }
   }
   while(pq.size() > 0) {
-    if(pq.top().second > sim->cycles)
+    if(pq.top().second > core->cycles)
       break;
     DynamicNode *d = pq.top().first;
     nodes_to_complete.insert(d);
@@ -136,30 +135,30 @@ void Context::complete() {
   if (completed_nodes.size() == bb->inst_count) {
     live = false;
     if (cfg.max_active_contexts_BB > 0) {
-      sim->outstanding_contexts.at(bb)++;
+      core->outstanding_contexts.at(bb)++;
     }
     print("Finished (BB:" + to_string(bb->id) + ") ", 0);
     // update GLOBAL Stats
     stat.update("contexts");
     stat.update("total_instructions", completed_nodes.size());
     // update LOCAL Stats
-    sim->local_stat.update("contexts");
-    sim->local_stat.update("total_instructions", completed_nodes.size());
+    core->local_stat.update("contexts");
+    core->local_stat.update("total_instructions", completed_nodes.size());
 
     // Update activity counters
     int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;
       if (d->type == LD) 
-        sim->activity_mem.bytes_read += word_size_bytes;     
+        core->activity_mem.bytes_read += word_size_bytes;     
       else if (d->type == ST) 
-        sim->activity_mem.bytes_write += word_size_bytes;
-      sim->activity_FUs.at(d->type)++;
+        core->activity_mem.bytes_write += word_size_bytes;
+      core->activity_FUs.at(d->type)++;
     }
   }
 }
 
-DynamicNode::DynamicNode(Node *n, Context *c, Core *sim, uint64_t addr) : n(n), c(c), sim(sim) {
+DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n), c(c), core(core) {
   this->addr = addr;
   type = n->typeInstr;
   if(type == PHI) {
@@ -229,13 +228,13 @@ void DynamicNode::tryActivate() {
       c->completed_nodes.insert(this);
       completed = true;
       if (cfg.cf_mode == 0 && type == TERMINATOR)
-        sim->context_to_create++;
+        core->context_to_create++;
     }
     else {
       assert(c->issue_set.find(this) == c->issue_set.end());
       if(isMem) {
         addr_resolved = true;
-        sim->lsq.resolveAddress(this);
+        core->lsq.resolveAddress(this);
       }
       c->issue_set.insert(this);
     }
@@ -244,34 +243,33 @@ void DynamicNode::tryActivate() {
 bool DynamicNode::issueCompNode() {
   // TJH: The following code is a hack
   /*if (n->isComp()) {
-    if(sim->inputQ.empty()) {      
+    if(core->inputQ.empty()) {      
       return false;
     }
     else {
-      
-      sim->inputQ.pop();
+      core->inputQ.pop();
       cout << "Received " << n->name << " " << n->id << " In Context: " << c->id << endl;;
       return true;
     }    
   } 
   
   if (n->isSupp()) {
-    sim->digestor->intercon->insert(this);
+    core->digestor->intercon->insert(this);
     cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
     return true;
   }*/
   
   stat.update("comp_issue_try");
-  sim->local_stat.update("comp_issue_try");
+  core->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
-  if (sim->available_FUs.at(n->typeInstr) != -1) {
-    if (sim->available_FUs.at(n->typeInstr) == 0)
+  if (core->available_FUs.at(n->typeInstr) != -1) {
+    if (core->available_FUs.at(n->typeInstr) == 0)
       return false;
     else
-      sim->available_FUs.at(n->typeInstr)--;
+      core->available_FUs.at(n->typeInstr)--;
   }
   stat.update("comp_issue_success");
-  sim->local_stat.update("comp_issue_success");
+  core->local_stat.update("comp_issue_success");
   issued = true;
   return true;
 }
@@ -281,52 +279,52 @@ bool DynamicNode::issueMemNode() {
   int forwardRes = -1;
   if(type == LD) {
     stat.update("load_issue_try");
-    sim->local_stat.update("load_issue_try");
+    core->local_stat.update("load_issue_try");
   }
   else {
     stat.update("store_issue_try");
-    sim->local_stat.update("store_issue_try");
+    core->local_stat.update("store_issue_try");
   }
   // check for enough resources (memory ports)
-  if(type == LD && sim->cache->ports[0] == 0 )
+  if(type == LD && core->cache->load_ports == 0 )
     return false;
-  if(type == ST && sim->cache->ports[1] == 0 )
+  if(type == ST && core->cache->store_ports == 0 )
     return false;
   if(type == LD && cfg.mem_forward) {
-    forwardRes = sim->lsq.check_forwarding(this);
+    forwardRes = core->lsq.check_forwarding(this);
     if(forwardRes == 0 && cfg.mem_speculate) {
       stat.update("speculatively_forwarded");
-      sim->local_stat.update("speculatively_forwarded");
+      core->local_stat.update("speculatively_forwarded");
       speculate = true;
     }
     else if(forwardRes == 1) {
       stat.update("forwarded");
-      sim->local_stat.update("forwarded");
+      core->local_stat.update("forwarded");
     }
   }
   if(type == LD && forwardRes == -1) {
-    int res = sim->lsq.check_load_issue(this, cfg.mem_speculate);
+    int res = core->lsq.check_load_issue(this, cfg.mem_speculate);
     if(res == 0) {
       stat.update("speculated");
-      sim->local_stat.update("speculated");
+      core->local_stat.update("speculated");
       speculate = true;
     }
     else if(res == -1)
       return false;
   }
   else if(type == ST) {
-    if(!sim->lsq.check_store_issue(this))
+    if(!core->lsq.check_store_issue(this))
       return false;
   }
   // at this point the memory request will be issued for sure
   issued = true;
   if(type == LD) {
     stat.update("load_issue_success");
-    sim->local_stat.update("load_issue_success");
+    core->local_stat.update("load_issue_success");
   }
   else {
     stat.update("store_issue_success");
-    sim->local_stat.update("store_issue_success");
+    core->local_stat.update("store_issue_success");
   }
   speculated = speculate;
   if (type == LD) {
@@ -340,8 +338,7 @@ bool DynamicNode::issueMemNode() {
     }
     else {
       print("Access Memory Hierarchy", 1);
-      sim->cache->ports[0]--;
-      sim->toMemHierarchy(this);
+      core->access(this);
       if (speculate) {
         outstanding_accesses++;
       }
@@ -349,8 +346,7 @@ bool DynamicNode::issueMemNode() {
   }
   else if (type == ST) {
     print("Access Memory Hierarchy", 1);
-    sim->cache->ports[1]--;
-    sim->toMemHierarchy(this);
+    core->access(this);
   }
   return true;
 }
@@ -361,16 +357,16 @@ void DynamicNode::finishNode() {
   completed = true;
 
   // Handle Resource limits
-  if ( sim->available_FUs.at(n->typeInstr) != -1 )
-    sim->available_FUs.at(n->typeInstr)++; 
+  if ( core->available_FUs.at(n->typeInstr) != -1 )
+    core->available_FUs.at(n->typeInstr)++; 
 
   // Speculation
   if (cfg.mem_speculate && n->typeInstr == ST) {
-    auto misspeculated = sim->lsq.check_speculation(this);
+    auto misspeculated = core->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
       stat.update("misspeculated");
-      sim->local_stat.update("misspeculated");
+      core->local_stat.update("misspeculated");
       misspeculated.at(i)->issued = false;
       misspeculated.at(i)->completed = false;
       misspeculated.at(i)->tryActivate();
@@ -386,7 +382,7 @@ void DynamicNode::finishNode() {
     DynamicNode *dst = c->nodes.at(*it);
     if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
-      sim->lsq.resolveAddress(dst);
+      core->lsq.resolveAddress(dst);
     }
     dst->pending_parents--;
     dst->tryActivate();
@@ -397,7 +393,7 @@ void DynamicNode::finishNode() {
     DynamicNode *dst = external_dependents.at(i);
     if(n->store_addr_dependents.find(n) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
-      sim->lsq.resolveAddress(dst);
+      core->lsq.resolveAddress(dst);
     }
     dst->pending_external_parents--;
     dst->tryActivate();

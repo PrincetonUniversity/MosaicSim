@@ -9,10 +9,10 @@ bool Cache::process() {
     pq.pop();
   }
   for(auto it = to_send.begin(); it!= to_send.end();) {
-    DynamicNode *d = *it;
-    uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
-    if(memInterface->willAcceptTransaction(d,dramaddr)) {
-      memInterface->addTransaction(d, dramaddr, true);
+    Transaction *t = *it;
+    uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
+    if(memInterface->willAcceptTransaction(dramaddr, true)) {
+      memInterface->addTransaction(t, dramaddr, true);
       it = to_send.erase(it);
     }
     else
@@ -20,7 +20,7 @@ bool Cache::process() {
   }
   for(auto it = to_evict.begin(); it!= to_evict.end();) {
     uint64_t eAddr = *it;
-    if(memInterface->mem->willAcceptTransaction(eAddr)) {
+    if(memInterface->willAcceptTransaction(eAddr, false)) {
       memInterface->addTransaction(NULL, eAddr, false);
       it = to_evict.erase(it);
     }
@@ -28,30 +28,36 @@ bool Cache::process() {
       it++;
   }
   cycles++;
-  ports[0] = cfg.cache_load_ports;
-  ports[1] = cfg.cache_store_ports;
-  ports[2] = cfg.mem_load_ports;
-  ports[3] = cfg.mem_store_ports;
+  free_load_ports = load_ports;
+  free_store_ports = store_ports;
   return (pq.size() > 0);  
 }
-void Cache::execute(DynamicNode* d) {
-  uint64_t dramaddr = d->addr/size_of_cacheline * size_of_cacheline;
+void Cache::execute(Transaction* t) {
+  uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
   bool res = true;
   if(!ideal)
-    res = fc->access(dramaddr/size_of_cacheline, d->type==LD);
+    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
   if (res) {                
-    d->print("Cache Hit", 1);
-    d->handleMemoryReturn();
+    //d->print("Cache Hit", 1);
+    //d->handleMemoryReturn();
+    sim->accessComplete(t);
     stat.update("cache_hit");
   }
   else {
-    to_send.push_back(d);
-    d->print("Cache Miss", 1);
+    to_send.push_back(t);
+    //d->print("Cache Miss", 1);
     stat.update("cache_miss");
   }
 }
-void Cache::addTransaction(DynamicNode *d) {
-  d->print("Cache Transaction Added", 1);
+void Cache::addTransaction(Transaction *t) {
+  //d->print("Cache Transaction Added", 1);
   stat.update("cache_access");
-  pq.push(make_pair(d, cycles+latency));
+  if(t->isLoad)
+    free_load_ports--;
+  else
+    free_store_ports--;
+  pq.push(make_pair(t, cycles+latency));
 }   
+void Cache::TransactionComplete(Transaction *t) {
+  sim->accessComplete(t);
+}

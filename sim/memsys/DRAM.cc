@@ -1,6 +1,5 @@
 #include "DRAM.h"
 #include "Cache.h"
-#include "../core/DynamicNode.h"
 using namespace std;
 #define UNUSED 0
 
@@ -8,10 +7,10 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
   if(UNUSED)
     cout << id << clock_cycle;
-  queue<DynamicNode*> &q = outstanding_read_map.at(addr);
+  queue<Transaction*> &q = outstanding_read_map.at(addr);
   while(q.size() > 0) {
-    DynamicNode* d = q.front();  
-    d->handleMemoryReturn();
+    Transaction* t = q.front();  
+    c->TransactionComplete(t);
     q.pop();
   }
   int64_t evictedAddr = -1;
@@ -29,15 +28,15 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
   if(UNUSED)
     cout << id << addr << clock_cycle;
 }
-void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad) {
+void DRAMSimInterface::addTransaction(Transaction* d, uint64_t addr, bool isLoad) {
   if(isLoad) 
-    mem_load_ports--;
+    free_load_ports--;
   else
-    mem_store_ports--;
+    free_store_ports--;
   if(d!= NULL) {
     assert(isLoad == true);
     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
-      outstanding_read_map.insert(make_pair(addr, queue<DynamicNode*>()));
+      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));
       mem->addTransaction(false, addr);
       stat.update("dram_access");
     }
@@ -49,6 +48,8 @@ void DRAMSimInterface::addTransaction(DynamicNode* d, uint64_t addr, bool isLoad
     stat.update("dram_access");
   }
 }
-bool DRAMSimInterface::willAcceptTransaction(DynamicNode* d, uint64_t addr) {
-  return mem->willAcceptTransaction(addr) && !(d->type==LD && mem_load_ports==0) && !(d->type==ST && mem_store_ports==0);
+bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
+  if((free_load_ports == 0 && isLoad) || (free_store_ports == 0 && !isLoad))
+    return false;
+  return mem->willAcceptTransaction(addr);
 }

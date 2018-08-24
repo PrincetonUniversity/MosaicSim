@@ -2,6 +2,7 @@
 #define CORE_H
 
 #include "../common.h"
+#include "../sim.h"
 #include "../graph/Graph.h"
 #include "LoadStoreQ.h"
 #include <string>
@@ -22,15 +23,17 @@ class Core
 {
 public:
   string name; 
+  int id;
   Graph g;
   uint64_t cycles = 0;
   DRAMSimInterface* memInterface;
   Interconnect* intercon;
-  queue<DynamicNode*> inputQ;
+  //queue<DynamicNode*> inputQ;
   Cache* cache;
-  Simulator* simulator;
+
+  Simulator* master;
   Statistics local_stat;
-  bool has_simulator=false;
+
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
   uint64_t last_processed_contexts;
@@ -54,15 +57,18 @@ public:
   vector<int> cf; // List of basic blocks in "sequential" program order 
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   
+  unordered_map<uint64_t, DynamicNode*> access_tracker;
+  queue<int> tracker_id;
   /* Handling External/Phi Dependencies */
   unordered_map<int, Context*> curr_owner;
   
   /* LSQ */
   LoadStoreQ lsq;
-  void initialize();
+  void initialize(int id);
   bool createContext();
   bool process();
-  void toMemHierarchy(DynamicNode *d);
+  void access(DynamicNode *d);
+  void accessComplete(Transaction *t);
   void printActivity();
 };
 #endif

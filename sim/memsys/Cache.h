@@ -2,29 +2,39 @@
 #define CACHE_H
 #include <vector>
 #include <queue>
+#include "../common.h"
 #include "FunctionalCache.h"
-#include "../core/DynamicNode.h"
+#include "../sim.h"
+//#include "../core/DynamicNode.h"
 using namespace std;
 
 class DRAMSimInterface;
 class Cache {
 public:
+  Simulator *sim;
   DRAMSimInterface *memInterface;
-  vector<DynamicNode*> to_send;
+  vector<Transaction*> to_send;
   vector<uint64_t> to_evict;
-  priority_queue<Operator, vector<Operator>, OpCompare> pq;
-  int ports[4]; // ports[0] = cache loads; ports[1] = cache stores; //ports[2] = mem loads; ports[3] = mem stores;
+  priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
+  int load_ports;
+  int store_ports;
+  int free_load_ports;
+  int free_store_ports;
   uint64_t cycles = 0;
   int latency;
   int size_of_cacheline;
   bool ideal;
   
   FunctionalCache *fc;
-  Cache(int latency, int size, int assoc, int linesize, bool ideal): 
-    latency(latency), size_of_cacheline(linesize), ideal(ideal), fc(new FunctionalCache(size, assoc)) {}
+  Cache(int latency, int size, int assoc, int linesize, int load_ports, int store_ports, bool ideal): 
+    latency(latency), size_of_cacheline(linesize), ideal(ideal), fc(new FunctionalCache(size, assoc)) {
+      free_load_ports = load_ports;
+      free_store_ports = store_ports;
+    }
   bool process();
-  void execute(DynamicNode* d);
-  void addTransaction(DynamicNode *d);
+  void execute(Transaction* t);
+  void addTransaction(Transaction *t);
+  void TransactionComplete(Transaction *t);
 };
 
 #endif

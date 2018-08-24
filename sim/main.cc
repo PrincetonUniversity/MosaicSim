@@ -24,7 +24,7 @@ int main(int argc, char const *argv[]) {
   int arg_index=4;
   for (int i=0; i<num_cores; i++) {
     string wlpath(argv[arg_index]);
-    simulator->registerCore(wlpath);
+    simulator->registerCore(wlpath, i);
     arg_index++;
   }
   cfg.verbLevel = -1;

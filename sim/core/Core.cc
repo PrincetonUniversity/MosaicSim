@@ -2,17 +2,29 @@
 #include "Core.h"
 #include "../memsys/Cache.h"
 #include "../memsys/DRAM.h"
-void Core::toMemHierarchy(DynamicNode* d) {
-  cache->addTransaction(d);
+#define ID_POOL 1000000
+void Core::access(DynamicNode* d) {
+  int tid = tracker_id.front();
+  tracker_id.pop();
+  access_tracker.insert(make_pair(tid, d));
+  Transaction *t = new Transaction(tid, id, d->addr, d->type == LD);
+  master->access(t);
 }
-
-void Core::initialize() {
+void Core::accessComplete(Transaction *t) {
+  int tid = t->id;
+  DynamicNode *d = access_tracker.at(tid);
+  access_tracker.erase(tid);
+  tracker_id.push(tid);
+  delete t;
+  d->handleMemoryReturn();
+}
+void Core::initialize(int id) {
   // Initialize Resources / Limits
 
-  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
-  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  cache->memInterface = memInterface;  
-    
+  //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.ideal_cache);
+  //memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  //cache->memInterface = memInterface;  
+  this->id = id;
   lsq.size = cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
@@ -29,6 +41,9 @@ void Core::initialize() {
   // Initialize Activity counters
   for(int i=0; i<NUM_INST_TYPES; i++) {
     activity_FUs.insert(make_pair(static_cast<TInstr>(i), 0));
+  }
+  for(int i=0; i<ID_POOL; i++) {
+    tracker_id.push(i);
   }
   activity_mem.bytes_read = 0;
   activity_mem.bytes_write = 0;

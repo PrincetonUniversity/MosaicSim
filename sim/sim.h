@@ -27,10 +27,12 @@ public:
   Interconnect* intercon;
   Cache* cache;
   DRAMSimInterface* memInterface;
- 
+  
   Simulator();
   void run();
-  void registerCore(string wlpath);
+  void access(Transaction *t);
+  void accessComplete(Transaction *t);
+  void registerCore(string wlpath, int id);
 };
 
 #endif
