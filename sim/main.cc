@@ -3,7 +3,7 @@
 #include "sim.h"
 #include "misc/reader.h"
 #include "graph/GraphOpt.h"
-
+#include "core/Core.h"
 using namespace std;
   
 Statistics stat;
@@ -27,7 +27,7 @@ int dig_main(char const *argv[]) {
       name="Supply";
     else
       name="Compute";
-    Simulator* sim = new Simulator();
+    Core* sim = new Core();
     sim->name=name;
     string wlpath(argv[arg_index]);
     string cname = wlpath + "/output/ctrl.txt";     
@@ -58,7 +58,7 @@ int dig_main(char const *argv[]) {
 }
 
 int main(int argc, char const *argv[]) {
-  Simulator sim;
+  Core sim;
   string wlpath;
   string cfgpath;
   // set workload path

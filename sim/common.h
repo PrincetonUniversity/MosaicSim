@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <queue>
 #include <set>
+#include <cstdint>
 #include "assert.h"
 #include "misc/Config.h"
 #include "misc/Statistics.h"

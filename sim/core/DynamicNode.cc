@@ -1,5 +1,7 @@
 #include "DynamicNode.h"
-#include "../sim.h"
+#include "Core.h"
+#include "../memsys/Cache.h"
+//#include "../sim.h"
 using namespace std;
 
 Context* Context::getNextContext() {
@@ -157,7 +159,7 @@ void Context::complete() {
   }
 }
 
-DynamicNode::DynamicNode(Node *n, Context *c, Simulator *sim, uint64_t addr) : n(n), c(c), sim(sim) {
+DynamicNode::DynamicNode(Node *n, Context *c, Core *sim, uint64_t addr) : n(n), c(c), sim(sim) {
   this->addr = addr;
   type = n->typeInstr;
   if(type == PHI) {
@@ -240,8 +242,8 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  
-  if (n->isComp()) {
+  // TJH: The following code is a hack
+  /*if (n->isComp()) {
     if(sim->inputQ.empty()) {      
       return false;
     }
@@ -257,7 +259,7 @@ bool DynamicNode::issueCompNode() {
     sim->digestor->intercon->insert(this);
     cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
     return true;
-  }
+  }*/
   
   stat.update("comp_issue_try");
   sim->local_stat.update("comp_issue_try");
