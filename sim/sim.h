@@ -30,6 +30,7 @@ public:
   
   Simulator();
   void run();
+  bool canAccess(bool isLoad);
   void access(Transaction *t);
   void accessComplete(Transaction *t);
   void registerCore(string wlpath, int id);

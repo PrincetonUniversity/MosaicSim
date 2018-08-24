@@ -26,10 +26,8 @@ public:
   int id;
   Graph g;
   uint64_t cycles = 0;
-  DRAMSimInterface* memInterface;
   Interconnect* intercon;
   //queue<DynamicNode*> inputQ;
-  Cache* cache;
 
   Simulator* master;
   Statistics local_stat;
@@ -67,6 +65,7 @@ public:
   void initialize(int id);
   bool createContext();
   bool process();
+  bool canAccess(bool isLoad);
   void access(DynamicNode *d);
   void accessComplete(Transaction *t);
   void printActivity();

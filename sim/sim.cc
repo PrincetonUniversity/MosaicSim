@@ -40,6 +40,12 @@ Simulator::Simulator() {
   cache->sim = this;
   cache->memInterface = memInterface;
 }
+bool Simulator::canAccess(bool isLoad) {
+  if(isLoad)
+    return cache->free_load_ports > 0;
+  else
+    return cache->free_store_ports > 0;
+}
 void Simulator::access(Transaction *t) {
   cache->addTransaction(t);
 }
@@ -95,8 +101,6 @@ void Simulator::registerCore(string wlpath, int id) {
   
   core->initialize(id);
   core->master=this;
-  core->cache = cache;
-  core->memInterface = memInterface;
   core->intercon = intercon;    
   cores.push_back(core);
   

@@ -1,8 +1,10 @@
 #include "DynamicNode.h"
 #include "Core.h"
 #include "../memsys/Cache.h"
-#include "../memsys/DRAM.h"
 #define ID_POOL 1000000
+bool Core::canAccess(bool isLoad) {
+  return master->canAccess(isLoad);
+}
 void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
   tracker_id.pop();
@@ -93,10 +95,6 @@ bool Core::createContext() {
   c->initialize(bb, next_bbid, prev_bbid);
   return true;
 }
-
-// void Core::process_memory() {
-//   memInterface->mem->update();
-// }
 
 bool Core::process() {
   if(cfg.verbLevel >= 0)
