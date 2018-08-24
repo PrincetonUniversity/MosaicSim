@@ -1,4 +1,4 @@
-#include "power_func.h"
+#include "aladdin_power_model.h"
 
 void getRegisterPowerArea(float cycle_time,
                           float* internal_power_per_bit,

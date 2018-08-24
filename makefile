@@ -1,7 +1,7 @@
 # Wrap around CMake and create the Ninja build files.
 all:
 	cmake -G Ninja -Bbuild -H.
-	cd sim/cacti-p && make 
+	cd sim/power_model/cacti-p && make 
 # Clean up the CMake and Ninja build files.
 clean:
 	find . -name "*.a"            -type f -delete
