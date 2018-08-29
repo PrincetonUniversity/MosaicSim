@@ -68,5 +68,6 @@ public:
   void access(DynamicNode *d);
   void accessComplete(Transaction *t);
   void printActivity();
+  string instrToStr(TInstr instr);
 };
 #endif

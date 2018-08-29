@@ -2,12 +2,16 @@
 #define STAT_H
 #include <iostream>
 #include <map>
+#include "../common.h"
+
 using namespace std;
 
 class Statistics {
 public:
+     
   map<string, pair<int, int>> stats;
   int num_types = 4;
+   
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
   }
@@ -22,7 +26,9 @@ public:
     registerStat("cache_pending", 1);
     registerStat("cache_evict", 1);
     registerStat("dram_access", 1);
-
+    registerStat("bytes_read",1);
+    registerStat("bytes_write",1);
+    
     registerStat("speculated", 2);
     registerStat("misspeculated", 2);
     registerStat("forwarded", 2);

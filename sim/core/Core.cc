@@ -38,19 +38,22 @@ void Core::initialize(int id) {
 
   // Initialize Activity counters
   for(int i=0; i<NUM_INST_TYPES; i++) {
-    activity_FUs.insert(make_pair(static_cast<TInstr>(i), 0));
-  }
+    local_stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);
+    stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);}   
+  
   for(int i=0; i<ID_POOL; i++) {
     tracker_id.push(i);
   }
-  activity_mem.bytes_read = 0;
-  activity_mem.bytes_write = 0;
+}
+
+string Core::instrToStr(TInstr instr) {
+  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
+  return InstrName[instr];
 }
 
 void Core::printActivity() {
-  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", 
-  "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
-
+  
+  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
   cout << "-----------Simulator " << name << " Activity-----------\n";
   cout << "Cycles: " << cycles << endl;
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";

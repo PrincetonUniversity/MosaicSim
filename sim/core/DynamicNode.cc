@@ -146,14 +146,20 @@ void Context::complete() {
     core->local_stat.update("total_instructions", completed_nodes.size());
 
     // Update activity counters
-    int word_size_bytes = 4;  // TODO: allow different sizes. Now, word_size is a constant
+    
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;
-      if (d->type == LD) 
-        core->activity_mem.bytes_read += word_size_bytes;     
-      else if (d->type == ST) 
-        core->activity_mem.bytes_write += word_size_bytes;
-      core->activity_FUs.at(d->type)++;
+      if (d->type == LD) {
+        stat.update("bytes_read", word_size_bytes);
+        core->local_stat.update("bytes_read", word_size_bytes);
+      }
+      
+      else if (d->type == ST) {
+        stat.update("bytes_write", word_size_bytes);
+        core->local_stat.update("bytes_write", word_size_bytes);
+      } 
+      stat.update(core->instrToStr(d->type));
+      core->local_stat.update(core->instrToStr(d->type));
     }
   }
 }

@@ -69,8 +69,8 @@ void Simulator::run() {
     Core* core=*it;
     stat.set("cycles", core->cycles);
     core->local_stat.set("cycles", core->cycles);
-    cout << "----------------" << core->name << " LOCAL STATS--------------\n";
-    core->printActivity();
+    //cout << "----------------" << core->name << " LOCAL STATS--------------\n";
+    //core->printActivity();
     cout << "----------------" << core->name << " General Stats--------------\n";
     core->local_stat.print();      
   }
