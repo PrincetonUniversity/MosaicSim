@@ -19,8 +19,7 @@ class Cache;
 
 typedef chrono::high_resolution_clock Clock;
 
-class Core 
-{
+class Core {
 public:
   string name; 
   int id;

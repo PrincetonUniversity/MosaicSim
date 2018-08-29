@@ -33,7 +33,7 @@ $(TARGET): $(OBJS)
 
 libcacti:	$(OBJS)
 	$(CXX) $(OBJS) -shared -o libcacti.so
-	cp libcacti.so ../../lib/
+	cp libcacti.so ../../../lib/
 
 %.o: %.cc
 		$(CXX) -fPIC $(CXXFLAGS) -c $< -o $@
