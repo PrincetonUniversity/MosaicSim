@@ -26,9 +26,9 @@ int main(int argc, char const *argv[]) {
   
   cfgpath = "../sim/config/" + cfgname+".txt";
   cfg.read(cfgpath);
-  string gname = wlpath + "/output/graphOutput.txt";
-  string mname = wlpath + "/output/mem.txt";
-  string cname = wlpath + "/output/ctrl.txt";
+  // string gname = wlpath + "/output/graphOutput.txt";
+  // string mname = wlpath + "/output/mem.txt";
+  // string cname = wlpath + "/output/ctrl.txt";
   Simulator* simulator=new Simulator();
   
   if(test) {

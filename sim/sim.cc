@@ -92,8 +92,8 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   r.readProfMemory(mname , core->memory);
   r.readProfCF(cname, core->cf);
   
-  GraphOpt opt(core->g);
-  opt.inductionOptimization();
+  //GraphOpt opt(core->g);
+  //opt.inductionOptimization();
   
   core->initialize(id);
   core->master=this;

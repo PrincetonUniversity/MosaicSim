@@ -1,11 +1,11 @@
 #include <iostream>
 #include <stdlib.h>
 
-#define ARRAY_SIZE 100
+#define ARRAY_SIZE 500
 void _kernel_testbench(int*  __restrict__ a, int* __restrict__ b, int * __restrict__ c)
 {
   #pragma clang loop unroll(disable)
-  for(int i=0; i<10; i++) {
+  for(int i=0; i<ARRAY_SIZE; i++) {
       a[i] = b[i]+ c[i];
   } 
 }

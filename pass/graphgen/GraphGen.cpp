@@ -1,6 +1,10 @@
 #include <cassert>
 #include <fstream>
 #include "Graph.h"
+#include "llvm/Analysis/LoopInfo.h"
+#include "llvm/Analysis/ScalarEvolution.h"
+#include "llvm/Analysis/ScalarEvolutionExpressions.h"
+
 #define KERNEL_STR "_kernel_"
 using namespace apollo;
 class GraphGen : public FunctionPass {
@@ -9,11 +13,15 @@ public:
   Graph depGraph;
   std::map<Value*,Node*> nodeMap;
   std::map<Instruction*, Instruction*> store_to_addr;
+  LoopInfo *LI;
+  ScalarEvolution *SE;
+
   GraphGen(): FunctionPass(ID) { }
   virtual bool runOnFunction(Function &func) override;
   virtual StringRef getPassName() const override;
   void getAnalysisUsage(AnalysisUsage &au) const override;
   bool isKernelFunction(Function &func);
+  void analyzeLoop();
   void constructGraph(Function &func);
   void addDataEdges(Function &func);
   void addPhiEdges(Function &func);
@@ -33,18 +41,62 @@ bool GraphGen::isKernelFunction(Function &func) {
 }
 
 void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
+  au.addRequired<ScalarEvolutionWrapperPass>();
+  au.addRequired<LoopInfoWrapperPass>();
   au.setPreservesAll();
 }
 bool GraphGen::runOnFunction(Function &func) {
+  LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
+  SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
+
   if (isKernelFunction(func)) {
     constructGraph(func);
     addDataEdges(func);
     addControlEdges(func);
     addPhiEdges(func);
+    analyzeLoop();
     visualize();
     exportGraph();
   }
   return false;
+}
+void GraphGen::analyzeLoop() {
+  for(Loop *L : *LI) {
+    PHINode *p = L->getCanonicalInductionVariable();
+    Instruction *inst = dyn_cast<Instruction>(p);
+    Node *n = nodeMap[inst];
+
+    errs() << "(Canonical) Induction Variable : "<< *inst << "\n";
+    std::vector<Instruction*> frontier;
+    std::vector<Instruction*> next_frontier;
+    std::set<Instruction*> processed;
+    frontier.push_back(inst);
+    processed.insert(inst);
+    while(frontier.size() > 0) {
+      for(int i=0; i<frontier.size(); i++) {
+        Instruction *curr = frontier.at(i);
+        for (User *U : curr->users()) {
+          if (Instruction *child = dyn_cast<Instruction>(U)) {
+            depGraph.removeEdge(nodeMap[curr], nodeMap[child], Edge_Data);
+          }
+          if(processed.find(curr) == processed.end()) {
+            next_frontier.push_back(curr);
+            processed.insert(curr);
+          }
+        }
+      }
+      frontier.clear();
+      frontier = next_frontier;
+      next_frontier.clear();
+    }
+    for (int i = 0; i < p->getNumIncomingValues(); i++) {
+      Value *v = p->getIncomingValue(i);
+      if(isa<Instruction>(v)) {
+        auto phisrc =  nodeMap.at(v);
+        depGraph.removeEdge(phisrc, n, Edge_Phi);
+      }
+    }
+  }
 }
 void GraphGen::constructGraph(Function &func) {
   int uid =0;
@@ -249,6 +301,7 @@ void GraphGen::exportGraph() {
         }
       }
     }
+    /* Store to Addr Edges */
     for(std::map<Instruction*, Instruction*>::iterator it = store_to_addr.begin(); it != store_to_addr.end(); ++it) {
       Node *src = nodeMap.at(it->first);
       Node *dst = nodeMap.at(it->second);

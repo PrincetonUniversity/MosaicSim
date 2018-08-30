@@ -106,10 +106,7 @@ public:
 
   void addEdge(Node *u, Node *v, EdgeType ek);
   void addNode(Node *u);
-  //void clear();
-  //void removeNode(Node *v);
-  //void removeEdge(Node *u, Node *v);
-  //void eraseConnections(Node *v, EdgeMap em);
+  void removeEdge(Node *u, Node *v, EdgeType ek);
 };
 
 void Graph::addNode(Node *u) {
@@ -142,64 +139,27 @@ void Graph::addEdge(Node *u, Node *v, EdgeType ek) {
       break;
   }
 }
-}
-/*
 
-void Graph::clear() {
-  adjList.clear();
-  controlEdges.clear();
-  dataEdges.clear();
-  memoryEdges.clear();
-  phiEdges.clear();
-}
 
-void Graph::eraseConnections(Node *v, EdgeMap em) {
-  for (const auto &entry : em) {
-    auto adjs = entry.second;
-    adjs.erase(v);
-  }
-  em.erase(v);
-}
-void Graph::removeNode(Node *v) {
-  if(v->type == Node_Instruction) {
-    for(int i=0; i<i_nodes.size(); i++) {
-      if(i_nodes.at(i) == v) {
-        i_nodes.erase(i_nodes.begin() + i);
-        break;
-      }
-    }
-  }
-  else if(v->type == Node_BasicBlock) {
-    for(int i=0; i<bb_nodes.size(); i++) {
-      if(bb_nodes.at(i) == v) {
-        bb_nodes.erase(bb_nodes.begin() + i);
-        break;
-      }
-    }
-  }
-  for(int i=0; i<nodes.size(); i++) {
-    if(nodes.at(i) == v) {
-      nodes.erase(nodes.begin() + i);
+void Graph::removeEdge(Node *u, Node *v, EdgeType ek) {
+  switch(ek) {
+    case Edge_Control:
+      controlEdges[u].erase(v);
       break;
-    }
+    case Edge_Data:
+      dataEdges[u].erase(v);
+      num_export_edges--;
+      break;
+    case Edge_Memory:
+      memoryEdges[u].erase(v);
+      break;
+    case Edge_Phi:
+      phiEdges[u].erase(v);
+      num_export_edges--;
+      break;
+    default:
+      assert(false);
+      break;
   }
-  for (const auto &entry : adjList) {
-    auto adjs = entry.second;
-    adjs.erase(v);
-  }
-  adjList.erase(v);
-  eraseConnections(v, controlEdges);
-  eraseConnections(v, dataEdges);
-  eraseConnections(v, memoryEdges);
-  eraseConnections(v, phiEdges);
 }
-
-void Graph::removeEdge(Node *u, Node *v) {
-  adjList.at(u).erase(v);
-  controlEdges.at(u).erase(v);
-  dataEdges.at(u).erase(v);
-  memoryEdges.at(u).erase(v);
-  phiEdges.at(u).erase(v);
 }
-
-*/
