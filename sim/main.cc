@@ -32,13 +32,15 @@ int main(int argc, char const *argv[]) {
   Simulator* simulator=new Simulator();
   
   if(test) {
-    simulator->registerCore("../workloads/test", 0);
+    simulator->registerCore("../workloads/test", cfgname, 0);
   }
   else {
     int arg_index=4;
     for (int i=0; i<num_cores; i++) {
       string wlpath(argv[arg_index]);
-      simulator->registerCore(wlpath, i);
+      arg_index++;
+      string cfgname(argv[arg_index]);
+      simulator->registerCore(wlpath, cfgname, i);
       arg_index++;
     }
     cfg.verbLevel = -1;

@@ -15,7 +15,7 @@ public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
   uint64_t cycles=0;
   int latency=2;
-  
+  Config config; 
   void process();
   void execute(DynamicNode* d);
   void insert(DynamicNode* d);
@@ -33,7 +33,7 @@ public:
   bool canAccess(bool isLoad);
   void access(Transaction *t);
   void accessComplete(Transaction *t);
-  void registerCore(string wlpath, int id);
+  void registerCore(string wlpath, string cfgname, int id);
 };
 
 #endif

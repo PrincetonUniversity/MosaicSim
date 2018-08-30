@@ -28,6 +28,7 @@ public:
   Interconnect* intercon;
   //queue<DynamicNode*> inputQ;
 
+  Config local_cfg; 
   Simulator* master;
   Statistics local_stat;
 
@@ -60,7 +61,7 @@ public:
   unordered_map<int, Context*> curr_owner;
   
   /* LSQ */
-  LoadStoreQ lsq;
+  LoadStoreQ lsq=LoadStoreQ(this);
   void initialize(int id);
   bool createContext();
   bool process();

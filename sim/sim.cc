@@ -77,17 +77,15 @@ void Simulator::run() {
   stat.print();
   memInterface->mem->printStats(true);
 }
-void Simulator::registerCore(string wlpath, int id) {
+void Simulator::registerCore(string wlpath, string cfgname, int id) {
   string name = "Pythia Core";
-  // if (i%2==0)
-  //   name="Supply";
-  // else
-  //   name="Compute";
+  string cfgpath = "../sim/config/" + cfgname+".txt";
   string cname = wlpath + "/output/ctrl.txt";     
   string gname = wlpath + "/output/graphOutput.txt";
   string mname = wlpath + "/output/mem.txt";   
   
   Core* core = new Core();
+  core->local_cfg.read(cfgpath);
   core->name=name;
   Reader r;
   r.readGraph(gname, core->g);
@@ -100,6 +98,5 @@ void Simulator::registerCore(string wlpath, int id) {
   core->initialize(id);
   core->master=this;
   core->intercon = intercon;    
-  cores.push_back(core);
-  
+  cores.push_back(core);  
 }

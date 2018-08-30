@@ -23,15 +23,15 @@ void Core::accessComplete(Transaction *t) {
 void Core::initialize(int id) {
   // Initialize Resources / Limits
   this->id = id;
-  lsq.size = cfg.lsq_size;
+  lsq.size = local_cfg.lsq_size;
   for(int i=0; i<NUM_INST_TYPES; i++) {
-    available_FUs.insert(make_pair(static_cast<TInstr>(i), cfg.num_units[i]));
+    available_FUs.insert(make_pair(static_cast<TInstr>(i), local_cfg.num_units[i]));
   }
   
   // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
-  if (cfg.cf_mode == 0) 
+  if (local_cfg.cf_mode == 0) 
     context_to_create = 1;
-  else if (cfg.cf_mode == 1)  
+  else if (local_cfg.cf_mode == 1)  
     context_to_create = cf.size();
   else
     assert(false);
@@ -84,9 +84,9 @@ bool Core::createContext() {
   if(!lsq.checkSize(bb->ld_count, bb->st_count))
     return false;
   // check the limit of contexts per BB
-  if (cfg.max_active_contexts_BB > 0) {
+  if (local_cfg.max_active_contexts_BB > 0) {
     if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
-      outstanding_contexts.insert(make_pair(bb, cfg.max_active_contexts_BB));
+      outstanding_contexts.insert(make_pair(bb, local_cfg.max_active_contexts_BB));
     }
     else if(outstanding_contexts.at(bb) == 0)
       return false;
@@ -100,7 +100,7 @@ bool Core::createContext() {
 }
 
 bool Core::process() {
-  if(cfg.verbLevel >= 0)
+  if(local_cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
     curr = Clock::now();

@@ -5,9 +5,11 @@ using namespace std;
 
 class DynamicNode;
 class DynamicNodePointerCompare;
+class Core;
 
 class LoadStoreQ {
 public:
+  Core* core;
   deque<DynamicNode*> lq;
   deque<DynamicNode*> sq;
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> lm;
@@ -20,7 +22,7 @@ public:
   int size;
   bool set_processed = false;
 
-  LoadStoreQ();
+  LoadStoreQ(Core* thecore);
   void resolveAddress(DynamicNode *d);
   void insert(DynamicNode *d);
   bool checkSize(int num_ld, int num_st);

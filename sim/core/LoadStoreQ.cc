@@ -1,7 +1,9 @@
 #include "DynamicNode.h"
 #include "LoadStoreQ.h"
+#include "Core.h"
 
-LoadStoreQ::LoadStoreQ() {
+LoadStoreQ::LoadStoreQ(Core* thecore) {
+  core=thecore;
 }
 
 void LoadStoreQ::resolveAddress(DynamicNode *d) {
@@ -93,7 +95,7 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
     return false;
   DynamicNode *d = *(unresolved_st_set.begin());
 
-  if(cfg.perfect_mem_spec) {
+  if(core->local_cfg.perfect_mem_spec) {
     for(auto it=unresolved_st_set.begin(); it!=unresolved_st_set.end();it++) {
       if (*in < **it || *in == **it)       
         return false;

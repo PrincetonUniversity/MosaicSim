@@ -20,7 +20,7 @@ ostream& operator<<(ostream &os, Context &c) {
   return os;
 }
 void Context::print(string str, int level) {
-  if( level < cfg.verbLevel )
+  if( level < core->local_cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
 void Context::insertQ(DynamicNode *d) {
@@ -106,7 +106,7 @@ void Context::process() {
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
-    if(cfg.mem_speculate && d->type == LD && d->speculated && core->lsq.check_unresolved_store(d)) {
+    if(core->local_cfg.mem_speculate && d->type == LD && d->speculated && core->lsq.check_unresolved_store(d)) {
       ++it;
     }
     else {
@@ -131,14 +131,17 @@ void Context::complete() {
     DynamicNode *d =*it;
     d->finishNode();
   }
+  
   nodes_to_complete.clear();
   if (completed_nodes.size() == bb->inst_count) {
-    live = false;
-    if (cfg.max_active_contexts_BB > 0) {
+    live = false;   
+    if (core->local_cfg.max_active_contexts_BB > 0) {
+      
       core->outstanding_contexts.at(bb)++;
+      
     }
     print("Finished (BB:" + to_string(bb->id) + ") ", 0);
-    // update GLOBAL Stats
+    // update GLOBAL Stats    
     stat.update("contexts");
     stat.update("total_instructions", completed_nodes.size());
     // update LOCAL Stats
@@ -207,7 +210,7 @@ ostream& operator<<(ostream &os, DynamicNode &d) {
   return os;
 }
 void DynamicNode::print(string str, int level) {
-  if( level < cfg.verbLevel )
+  if( level < core->local_cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
 
@@ -215,7 +218,7 @@ void DynamicNode::handleMemoryReturn() {
   print("Memory Data Ready", 1);
   print(to_string(outstanding_accesses), 1);
   if(type == LD) {
-    if(cfg.mem_speculate) {
+    if(core->local_cfg.mem_speculate) {
       if(outstanding_accesses > 0)
         outstanding_accesses--;
       if(outstanding_accesses != 0) 
@@ -233,7 +236,7 @@ void DynamicNode::tryActivate() {
     if(type == TERMINATOR) {
       c->completed_nodes.insert(this);
       completed = true;
-      if (cfg.cf_mode == 0 && type == TERMINATOR)
+      if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
         core->context_to_create++;
     }
     else {
@@ -294,9 +297,9 @@ bool DynamicNode::issueMemNode() {
   // FIXME
   if(!core->canAccess(type == LD))
     return false;
-  if(type == LD && cfg.mem_forward) {
+  if(type == LD && core->local_cfg.mem_forward) {
     forwardRes = core->lsq.check_forwarding(this);
-    if(forwardRes == 0 && cfg.mem_speculate) {
+    if(forwardRes == 0 && core->local_cfg.mem_speculate) {
       stat.update("speculatively_forwarded");
       core->local_stat.update("speculatively_forwarded");
       speculate = true;
@@ -307,7 +310,7 @@ bool DynamicNode::issueMemNode() {
     }
   }
   if(type == LD && forwardRes == -1) {
-    int res = core->lsq.check_load_issue(this, cfg.mem_speculate);
+    int res = core->lsq.check_load_issue(this, core->local_cfg.mem_speculate);
     if(res == 0) {
       stat.update("speculated");
       core->local_stat.update("speculated");
@@ -336,7 +339,7 @@ bool DynamicNode::issueMemNode() {
       print("Retrieves Forwarded Data", 1);
       c->insertQ(this);
     }
-    else if(forwardRes == 0 && cfg.mem_speculate) { 
+    else if(forwardRes == 0 && core->local_cfg.mem_speculate) { 
       print("Retrieves Speculatively Forwarded Data", 1);
       c->speculated_set.insert(this);
     }
@@ -365,7 +368,7 @@ void DynamicNode::finishNode() {
     core->available_FUs.at(n->typeInstr)++; 
 
   // Speculation
-  if (cfg.mem_speculate && n->typeInstr == ST) {
+  if (core->local_cfg.mem_speculate && n->typeInstr == ST) {
     auto misspeculated = core->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
