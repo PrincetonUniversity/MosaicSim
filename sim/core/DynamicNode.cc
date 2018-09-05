@@ -20,7 +20,7 @@ ostream& operator<<(ostream &os, Context &c) {
   return os;
 }
 void Context::print(string str, int level) {
-  if( level < core->local_cfg.verbLevel )
+  if( level < cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
 void Context::insertQ(DynamicNode *d) {
@@ -210,7 +210,7 @@ ostream& operator<<(ostream &os, DynamicNode &d) {
   return os;
 }
 void DynamicNode::print(string str, int level) {
-  if( level < core->local_cfg.verbLevel )
+  if( level < cfg.verbLevel )
     cout << (*this) << str << "\n";
 }
 
@@ -229,8 +229,9 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-    if(pending_parents > 0 || pending_external_parents > 0)
+    if(pending_parents > 0 || pending_external_parents > 0) {
       return;
+    }
     if(issued || completed)
       assert(false);
     if(type == TERMINATOR) {

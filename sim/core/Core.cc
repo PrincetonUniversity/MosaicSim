@@ -35,7 +35,6 @@ void Core::initialize(int id) {
     context_to_create = cf.size();
   else
     assert(false);
-
   // Initialize Activity counters
   for(int i=0; i<NUM_INST_TYPES; i++) {
     local_stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);
@@ -66,7 +65,6 @@ bool Core::createContext() {
   unsigned int cid = context_list.size();
   if (cf.size() == cid) // reached end of <cf> so no more contexts to create
     return false;
-
   // set "current", "prev", "next" BB ids.
   int bbid = cf.at(cid);
   int next_bbid, prev_bbid;
@@ -96,11 +94,12 @@ bool Core::createContext() {
   context_list.push_back(c);
   live_context.push_back(c);
   c->initialize(bb, next_bbid, prev_bbid);
+
   return true;
 }
 
 bool Core::process() {
-  if(local_cfg.verbLevel >= 0)
+  if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
     curr = Clock::now();
@@ -133,6 +132,7 @@ bool Core::process() {
   if(live_context.size() > 0)
     simulate = true;
   int context_created = 0;
+
   for (int i=0; i<context_to_create; i++) {
     if (createContext()) {
       simulate = true;
