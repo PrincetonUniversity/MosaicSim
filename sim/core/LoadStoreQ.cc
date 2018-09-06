@@ -154,7 +154,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
       if(*in < *d || *d == *in)
         break;
       else if(!d->completed)
-        return -1;
+        return 0;
     }
   }
   if(!skipLoad) {
@@ -164,7 +164,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
       if(*in < *d)
         break;
       else if(!d->completed)
-        return -1;
+        return 0;
     }
   }
   return true;
