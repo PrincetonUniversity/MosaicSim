@@ -1,9 +1,14 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
+#include <iostream>
+#include <fstream>
+#include <sstream> 
+#include <vector>
+#include <string>
 #define SIZE 1000
 #define inliner __attribute__((always_inline))
-
+using namespace std;
 struct queue {
     int items[SIZE];
     int front;
@@ -126,19 +131,40 @@ void _kernel_bfs(struct Graph* graph, struct queue* q, int startVertex) {
     }
   }
 }
+vector<string> split(const string &s, char delim) {
+     stringstream ss(s);
+     string item;
+     vector<string> tokens;
+     while (getline(ss, item, delim)) {
+        tokens.push_back(item);
+     }
+     return tokens;
+  }
 
 int main()
 {
-    struct Graph* graph = createGraph(6);
-    addEdge(graph, 0, 1);
-    addEdge(graph, 0, 2);
-    addEdge(graph, 1, 2);
-    addEdge(graph, 1, 4);
-    addEdge(graph, 1, 3);
-    addEdge(graph, 2, 4);
-    addEdge(graph, 3, 4);
-    struct queue* q = createQueue();
-    _kernel_bfs(graph, q, 0);
- 
-    return 0;
+  struct Graph* graph = createGraph(348);
+  ifstream cfile("testgraph.txt");
+  string line;
+
+  if (cfile.is_open()) {
+    int numLine = 5038;
+    for (int i=0; i<numLine; i++) {
+     getline(cfile,line);
+     vector<string> s = split(line, ' ');
+     addEdge(graph, stoi(s.at(0)), stoi(s.at(1)));
+    }
+  }
+  // }
+  // addEdge(graph, 0, 1);
+  // addEdge(graph, 0, 2);
+  // addEdge(graph, 1, 2);
+  // addEdge(graph, 1, 4);
+  // addEdge(graph, 1, 3);
+  // addEdge(graph, 2, 4);
+  // addEdge(graph, 3, 4);
+  struct queue* q = createQueue();
+  _kernel_bfs(graph, q, 3);
+
+  return 0;
 }

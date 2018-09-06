@@ -84,8 +84,7 @@ void Config::getCfg(int id, int val) {
   case 10:
     mem_store_ports = val;
     break;
-  case 11:
-    perfect_mem_spec = val;
+  default:
     break;
   }
 }

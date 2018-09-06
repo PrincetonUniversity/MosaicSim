@@ -18,7 +18,6 @@ public:
   bool cf_mode; // 0: one at a time / 1: all together
   bool mem_speculate;
   bool mem_forward;
-  bool perfect_mem_spec;
   // Resources
   int lsq_size;
   int cache_load_ports;

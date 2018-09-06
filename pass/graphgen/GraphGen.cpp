@@ -63,39 +63,42 @@ bool GraphGen::runOnFunction(Function &func) {
 void GraphGen::analyzeLoop() {
   for(Loop *L : *LI) {
     PHINode *p = L->getCanonicalInductionVariable();
-    Instruction *inst = dyn_cast<Instruction>(p);
-    Node *n = nodeMap[inst];
+    if(p!=NULL) {
+      Instruction *inst = dyn_cast<Instruction>(p);
+      Node *n = nodeMap[inst];
 
-    errs() << "(Canonical) Induction Variable : "<< *inst << "\n";
-    std::vector<Instruction*> frontier;
-    std::vector<Instruction*> next_frontier;
-    std::set<Instruction*> processed;
-    frontier.push_back(inst);
-    processed.insert(inst);
-    while(frontier.size() > 0) {
-      for(int i=0; i<frontier.size(); i++) {
-        Instruction *curr = frontier.at(i);
-        for (User *U : curr->users()) {
-          if (Instruction *child = dyn_cast<Instruction>(U)) {
-            depGraph.removeEdge(nodeMap[curr], nodeMap[child], Edge_Data);
-          }
-          if(processed.find(curr) == processed.end()) {
-            next_frontier.push_back(curr);
-            processed.insert(curr);
+      errs() << "(Canonical) Induction Variable : "<< *inst << "\n";
+      std::vector<Instruction*> frontier;
+      std::vector<Instruction*> next_frontier;
+      std::set<Instruction*> processed;
+      frontier.push_back(inst);
+      processed.insert(inst);
+      while(frontier.size() > 0) {
+        for(int i=0; i<frontier.size(); i++) {
+          Instruction *curr = frontier.at(i);
+          for (User *U : curr->users()) {
+            if (Instruction *child = dyn_cast<Instruction>(U)) {
+              depGraph.removeEdge(nodeMap[curr], nodeMap[child], Edge_Data);
+            }
+            if(processed.find(curr) == processed.end()) {
+              next_frontier.push_back(curr);
+              processed.insert(curr);
+            }
           }
         }
+        frontier.clear();
+        frontier = next_frontier;
+        next_frontier.clear();
       }
-      frontier.clear();
-      frontier = next_frontier;
-      next_frontier.clear();
-    }
-    for (int i = 0; i < p->getNumIncomingValues(); i++) {
-      Value *v = p->getIncomingValue(i);
-      if(isa<Instruction>(v)) {
-        auto phisrc =  nodeMap.at(v);
-        depGraph.removeEdge(phisrc, n, Edge_Phi);
+      for (int i = 0; i < p->getNumIncomingValues(); i++) {
+        Value *v = p->getIncomingValue(i);
+        if(isa<Instruction>(v)) {
+          auto phisrc =  nodeMap.at(v);
+          depGraph.removeEdge(phisrc, n, Edge_Phi);
+        }
       }
     }
+    
   }
 }
 void GraphGen::constructGraph(Function &func) {
@@ -177,6 +180,7 @@ void GraphGen::addPhiEdges(Function &func) {
 
 void GraphGen::visualize() {
   std::ofstream fout;
+  errs() << "[GraphGen] Start Visuzliation \n";
   std::string gname = "int/graphDiagram";
   const char *file = (gname + ".dot").c_str();
   fout.open(file);
@@ -274,6 +278,7 @@ void GraphGen::visualize() {
   fout << "t3->t4 [style=invis];\n";
   fout << "}\n";
   fout << "}\n";
+  errs() << "[GraphGen] Finished Visuzliation \n";
 }
 void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");

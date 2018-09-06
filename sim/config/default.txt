@@ -1,6 +1,6 @@
 99999,lsq_size
 1,cf_mode
-0,mem_speculate
+1,mem_speculate
 0,mem_forward
 99999,max_contexts_per_bb
 0,ideal_cache
@@ -9,4 +9,3 @@
 99999,cache_store_ports
 99999,mem_load_ports
 99999,mem_store_ports
-0,perfect_mem_spec

@@ -95,7 +95,7 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
     return false;
   DynamicNode *d = *(unresolved_st_set.begin());
 
-  if(core->local_cfg.perfect_mem_spec) {
+  if(core->local_cfg.mem_speculate) {
     for(auto it=unresolved_st_set.begin(); it!=unresolved_st_set.end();it++) {
       if (*in < **it || *in == **it)       
         return false;
