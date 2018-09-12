@@ -38,6 +38,8 @@ Config::Config() {
   num_units[ST] = -1;
   num_units[TERMINATOR] = -1;
   num_units[PHI] = -1;
+  num_units[SEND] = -1;
+  num_units[RECV] = -1;
 }
 
 vector<string> Config::split(const string &s, char delim) {

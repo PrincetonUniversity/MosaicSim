@@ -268,6 +268,8 @@ bool DynamicNode::issueCompNode() {
     cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
     return true;
   }*/
+
+  
   
   stat.update("comp_issue_try");
   core->local_stat.update("comp_issue_try");
