@@ -26,6 +26,7 @@ public:
   void addDataEdges(Function &func);
   void addPhiEdges(Function &func);
   void addControlEdges(Function &func);
+  void detectComm(Function &func);
   void exportGraph();
   void visualize();
 };
@@ -54,11 +55,38 @@ bool GraphGen::runOnFunction(Function &func) {
     addDataEdges(func);
     addControlEdges(func);
     addPhiEdges(func);
+    detectComm(func);
     analyzeLoop();
     visualize();
     exportGraph();
   }
   return false;
+}
+
+void GraphGen::detectComm(Function &func) {
+  int id = 0;
+  for (auto &bb : func) {
+    for (auto &inst : bb) {
+      Instruction *i = &(inst);
+      Node *n = nodeMap[i];
+      if (CallInst *cinst = dyn_cast<CallInst>(&inst)) {
+        for (Use &use : inst.operands()) {
+          Value *v = use.get();
+          if(Function *f = dyn_cast<Function>(v)) {
+            errs() << "Call Instruction : "<< f->getName() << "\n";
+            if(f->getName() == "_Z4sendi") {
+              errs() << "[SEND]"<< *i << "\n";
+              n->itype = SEND;
+            }
+            else if(f->getName() == "_Z4recvv") {
+              errs() << "[RECV]"<< *i << "\n";
+              n->itype = RECV;
+            }
+          }
+        }
+      }
+    }
+  }
 }
 void GraphGen::analyzeLoop() {
   for(Loop *L : *LI) {

@@ -15,7 +15,7 @@
 
 using namespace llvm;
 namespace apollo {
-enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, INVALID};
+enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, INVALID};
 
 enum EdgeType {
   Edge_Control,
@@ -76,6 +76,8 @@ public:
         itype = TERMINATOR;
       else if(op == Instruction::PHI)
         itype = PHI;
+      else if(op == Instruction::Call)
+        itype = INVALID;
       else
         assert(false); //alloca, atomicCmpXchg, atomicRMW, Fence, Select, Call, VAArg, vector instructions
     }
