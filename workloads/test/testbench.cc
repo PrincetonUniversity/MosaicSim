@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <queue>
 
-#define ARRAY_SIZE 500
+#define ARRAY_SIZE 100
 // void _kernel_testbench(int*  __restrict__ a, int* __restrict__ b, int * __restrict__ c)
 // {
 //   #pragma clang loop unroll(disable)

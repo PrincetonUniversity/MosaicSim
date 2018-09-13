@@ -11,7 +11,6 @@ using namespace std;
 
 class DyanmicNode;
 class Graph;
-class Interconnect;
 class Simulator;
 class Context;
 class DRAMSimInterface;
@@ -25,7 +24,6 @@ public:
   int id;
   Graph g;
   uint64_t cycles = 0;
-  Interconnect* intercon;
   //queue<DynamicNode*> inputQ;
 
   Config local_cfg; 

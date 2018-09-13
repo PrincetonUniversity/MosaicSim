@@ -23,21 +23,9 @@ public:
   set<Node*> phi_dependents;
   set<Node*> phi_parents;
   set<Node*> store_addr_dependents;
-  bool isSupp() {
-    return (name.find("Supply")!=string::npos);
-  }
-  
-  bool isComp() {
-    return (name.find("Compute")!=string::npos);
-  }
 
   Node(int id, TInstr typeInstr, int bbid, string node_name, int lat): 
-    id(id), typeInstr(typeInstr), bbid(bbid), name(node_name), lat (lat) {    
-    if (typeInstr==I_ADDSUB && node_name.find("197")!=string::npos)
-      name="Compute";    
-    if (typeInstr==I_ADDSUB && node_name.find("199")!=string::npos)
-      name="Supply";
-  }
+    id(id), typeInstr(typeInstr), bbid(bbid), name(node_name), lat (lat) {}
   
   void addDependent(Node *dest, TEdge type);
   void eraseDependent(Node *dest, TEdge type);

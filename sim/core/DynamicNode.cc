@@ -92,6 +92,8 @@ void Context::process() {
     assert(!d->issued);
     if(d->isMem)
       res = d->issueMemNode();
+    else if (d->isDESC)
+      res = d->issueDESCNode();
     else
       res = d->issueCompNode();
     if(!res) {
@@ -99,7 +101,7 @@ void Context::process() {
       next_issue_set.insert(d);
     }
     else {
-      if(d->type != LD)
+      if(d->type != LD && !d->isDESC)
         insertQ(d);
       d->print("Issue Succesful",0);
     }
@@ -190,7 +192,13 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     isMem = false;
   else
     isMem = true;
+  
+  if(n->typeInstr==SEND || n->typeInstr==RECV)
+    isDESC = true;
+  else
+    isDESC = false;  
 }
+
 bool DynamicNode::operator== (const DynamicNode &in) {
   if(c->id == in.c->id && n->id == in.n->id)
     return true;
@@ -268,9 +276,6 @@ bool DynamicNode::issueCompNode() {
     cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
     return true;
   }*/
-
-  
-  
   stat.update("comp_issue_try");
   core->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
@@ -286,7 +291,7 @@ bool DynamicNode::issueCompNode() {
   return true;
 }
 
-bool DynamicNode::issueMemNode() {
+bool DynamicNode::issueMemNode() {  
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD) {
@@ -359,6 +364,12 @@ bool DynamicNode::issueMemNode() {
     core->access(this);
   }
   return true;
+}
+
+bool DynamicNode::issueDESCNode() {
+  issued = true;
+  core->access(this);
+  return true;  
 }
 
 void DynamicNode::finishNode() {

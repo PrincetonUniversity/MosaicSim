@@ -7,45 +7,62 @@
 #include "core/Core.h"
 using namespace std;
 
-void Interconnect::process() {
-  while(pq.size()>0) {
-    if(pq.top().second > cycles) {
+void DESCQ::process() {  
+  while(true) {        
+    if(!supply_q.empty() && supply_q.front().second <= cycles) {
+      execute(supply_q.front().first);
+      supply_q.pop_front();
+      supply_count++;
+    }
+    else
       break;
-    }      
-    execute(pq.top().first);
-    pq.pop();
+  }
+
+  while(true) {
+    if (supply_count==0) {
+      break;
+    }
+    if(!consume_q.empty() && consume_q.front().second <= cycles) {
+      execute(consume_q.front().first);
+      consume_q.pop_front();
+      supply_count--;
+    }
+    else
+      break;
   }
   cycles++;
 }
 
-void Interconnect::execute(DynamicNode* d) {
-  /*vector<Core*> cores=d->core->master->cores;
-  for (auto it=cores.begin(); it!=cores.end(); ++it) {
-    Core* core=*it;
-    if (!(core->name.compare("Compute"))) {
-      core->inputQ.push(d);      
-    }    
-  }*/
+void DESCQ::execute(DynamicNode* d) {
+  d->c->insertQ(d);
 }
 
-void Interconnect::insert(DynamicNode* d) {
-  pq.push(make_pair(d,cycles+latency));    
+void DESCQ::insert(DynamicNode* d) {
+  if(d->n->typeInstr==SEND)
+    supply_q.push_back(make_pair(d, cycles+latency));
+  else if(d->n->typeInstr==RECV) 
+    consume_q.push_back(make_pair(d, cycles+latency)); 
 }
-
 
 Simulator::Simulator() {        
-  intercon = new Interconnect();
+  descq = new DESCQ();
   cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
   cache->memInterface = memInterface;
 }
+
 bool Simulator::canAccess(bool isLoad) {
   if(isLoad)
     return cache->free_load_ports > 0;
   else
     return cache->free_store_ports > 0;
 }
+
+void Simulator::issueDESC(DynamicNode *d) {
+  descq->insert(d);
+}
+
 void Simulator::access(Transaction *t) {
   cache->addTransaction(t);
 }
@@ -63,7 +80,7 @@ void Simulator::run() {
     }
     simulate += cache->process();
     memInterface->process();
-    intercon->process();
+    descq->process();
   }
   for (auto it=cores.begin(); it!=cores.end(); it++) {
     Core* core=*it;
@@ -97,6 +114,5 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   
   core->initialize(id);
   core->master=this;
-  core->intercon = intercon;    
   cores.push_back(core);  
 }

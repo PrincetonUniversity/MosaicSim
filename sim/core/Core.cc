@@ -6,12 +6,19 @@ bool Core::canAccess(bool isLoad) {
   return master->canAccess(isLoad);
 }
 void Core::access(DynamicNode* d) {
+  if (d->isDESC) {
+    master->issueDESC(d);
+    return;
+  }
+  
   int tid = tracker_id.front();
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
   Transaction *t = new Transaction(tid, id, d->addr, d->type == LD);
   master->access(t);
 }
+
+
 void Core::accessComplete(Transaction *t) {
   int tid = t->id;
   DynamicNode *d = access_tracker.at(tid);

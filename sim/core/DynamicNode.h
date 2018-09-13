@@ -24,6 +24,7 @@ public:
   bool issued = false;
   bool completed = false;
   bool isMem;
+  bool isDESC;
   /* Memory */
   uint64_t addr;
   bool addr_resolved = false;
@@ -42,6 +43,7 @@ public:
   void tryActivate(); 
   bool issueMemNode();
   bool issueCompNode();
+  bool issueDESCNode();
   void finishNode();
 };
 
