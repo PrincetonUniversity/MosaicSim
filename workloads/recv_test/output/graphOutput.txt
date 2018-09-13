@@ -1,0 +1,21 @@
+3
+11
+7
+0,13,0,  br label %for.body
+1,13,1,  ret void
+2,14,2,  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body ]
+3,16,2,  %call = tail call i32 @_Z4recvv()
+4,16,2,  %call1 = tail call i32 @_Z4recvv()
+5,0,2,  %add = add nsw i32 %call1, %call
+6,10,2,  %arrayidx = getelementptr inbounds i32, i32* %a, i64 %indvars.iv
+7,12,2,  store i32 %add, i32* %arrayidx, align 4, !tbaa !2
+8,0,2,  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+9,8,2,  %exitcond = icmp eq i64 %indvars.iv.next, 100
+10,13,2,  br i1 %exitcond, label %for.cond.cleanup, label %for.body, !llvm.loop !6
+3,5,0
+4,5,0
+5,7,0
+6,7,0
+8,9,0
+9,10,0
+7,6,-1

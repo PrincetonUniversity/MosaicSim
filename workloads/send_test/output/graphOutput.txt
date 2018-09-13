@@ -1,0 +1,21 @@
+3
+12
+6
+0,13,0,  br label %for.body
+1,13,1,  ret void
+2,14,2,  %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body ]
+3,10,2,  %arrayidx = getelementptr inbounds i32, i32* %b, i64 %indvars.iv
+4,11,2,  %tmp = load i32, i32* %arrayidx, align 4, !tbaa !2
+5,15,2,  tail call void @_Z4sendi(i32 %tmp)
+6,10,2,  %arrayidx2 = getelementptr inbounds i32, i32* %c, i64 %indvars.iv
+7,11,2,  %tmp1 = load i32, i32* %arrayidx2, align 4, !tbaa !2
+8,15,2,  tail call void @_Z4sendi(i32 %tmp1)
+9,0,2,  %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
+10,8,2,  %exitcond = icmp eq i64 %indvars.iv.next, 100
+11,13,2,  br i1 %exitcond, label %for.cond.cleanup, label %for.body, !llvm.loop !6
+3,4,0
+4,5,0
+6,7,0
+7,8,0
+9,10,0
+10,11,0
