@@ -7,41 +7,47 @@
 #include "core/Core.h"
 using namespace std;
 
-void DESCQ::process() {  
-  while(true) {        
-    if(!supply_q.empty() && supply_q.front().second <= cycles) {
-      execute(supply_q.front().first);
-      supply_q.pop_front();
-      supply_count++;
-    }
-    else
-      break;
-  }
-
+void DESCQ::process() {
+  vector<DynamicNode*> failed_nodes;
   while(true) {
-    if (supply_count==0) {
+    if (pq.empty() || pq.top().second > cycles)
       break;
+    else {
+      if(!execute(pq.top().first))
+        failed_nodes.push_back(pq.top().first);
+      pq.pop();
     }
-    if(!consume_q.empty() && consume_q.front().second <= cycles) {
-      execute(consume_q.front().first);
-      consume_q.pop_front();
-      supply_count--;
-    }
-    else
-      break;
+  }
+  for(auto& d:failed_nodes) {
+    pq.push(make_pair(d,cycles));
   }
   cycles++;
 }
 
-void DESCQ::execute(DynamicNode* d) {
-  d->c->insertQ(d);
+bool DESCQ::execute(DynamicNode* d) {
+  bool can_complete=true;
+  assert(!supply_q.empty());
+  for(auto dit=supply_q.begin(); dit!=supply_q.end(); ++dit) {
+    DynamicNode* curr_supp=*dit;
+    
+    if(d<curr_supp) {
+      break;
+    }
+    if (curr_supp<d && curr_supp->completed==false) { 
+      can_complete=false;
+      break;
+    }
+  }
+  
+  if (can_complete) {
+    d->c->insertQ(d);
+    return true;
+  }
+  return false;
 }
 
 void DESCQ::insert(DynamicNode* d) {
-  if(d->n->typeInstr==SEND)
-    supply_q.push_back(make_pair(d, cycles+latency));
-  else if(d->n->typeInstr==RECV) 
-    consume_q.push_back(make_pair(d, cycles+latency)); 
+  pq.push(make_pair(d,cycles+latency));
 }
 
 Simulator::Simulator() {        
@@ -59,8 +65,12 @@ bool Simulator::canAccess(bool isLoad) {
     return cache->free_store_ports > 0;
 }
 
-void Simulator::issueDESC(DynamicNode *d) {
+void Simulator::issueDESC(DynamicNode* d) {
   descq->insert(d);
+}
+
+void Simulator::orderDESC(DynamicNode* d) {
+  descq->supply_q.push_back(d);
 }
 
 void Simulator::access(Transaction *t) {

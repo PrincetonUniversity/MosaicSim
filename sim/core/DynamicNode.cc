@@ -44,6 +44,11 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       core->memory.at(n->id).pop();
       core->lsq.insert(d);
     }
+    else if(n->typeInstr == SEND) {
+      DynamicNode* d = new DynamicNode(n, this, core);
+      nodes.insert(make_pair(n,d));
+      core->master->orderDESC(d);
+    } 
     else
       nodes.insert(make_pair(n, new DynamicNode(n, this, core)));  
   }
@@ -371,6 +376,7 @@ bool DynamicNode::issueDESCNode() {
   core->access(this);
   return true;  
 }
+
 
 void DynamicNode::finishNode() {
   print("Finished Execution", 1);
