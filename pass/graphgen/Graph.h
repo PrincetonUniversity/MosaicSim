@@ -15,7 +15,7 @@
 
 using namespace llvm;
 namespace apollo {
-enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, INVALID};
+enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, INVALID};
 
 enum EdgeType {
   Edge_Control,

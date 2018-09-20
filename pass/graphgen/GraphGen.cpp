@@ -82,6 +82,14 @@ void GraphGen::detectComm(Function &func) {
               errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
+            if(f->getName() == "_Z4staddr") {
+              errs() << "[STADDR]"<< *i << "\n";
+              n->itype = STADDR;
+            }
+            else if(f->getName() == "_Z4stval") {
+              errs() << "[STVAL]"<< *i << "\n";
+              n->itype = STVAL;
+            }
           }
         }
       }

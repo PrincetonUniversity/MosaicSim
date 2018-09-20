@@ -6,7 +6,7 @@ using namespace std;
 
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, 
-              CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, INVALID} TInstr;
+              CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, INVALID} TInstr;
 
 
 class Node {
