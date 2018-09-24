@@ -10,7 +10,7 @@ using namespace std;
 void DESCQ::process() {
   vector<DynamicNode*> failed_nodes;
   while(true) {
-    if (pq.empty() || pq.top().second > cycles)
+    if (pq.empty() || pq.top().second >= cycles)
       break;
     else {
       if(!execute(pq.top().first))
@@ -26,7 +26,7 @@ void DESCQ::process() {
 
 bool DESCQ::execute(DynamicNode* d) {
   bool can_complete=true;
-  assert(!supply_q.empty());
+  
   for(auto dit=supply_q.begin(); dit!=supply_q.end(); ++dit) {
     DynamicNode* curr_supp=*dit;
     
