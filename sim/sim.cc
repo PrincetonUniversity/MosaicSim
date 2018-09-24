@@ -12,11 +12,12 @@ void DESCQ::process() {
   while(true) {
     if (pq.empty() || pq.top().second >= cycles)
       break;
-    else {
-      if(!execute(pq.top().first))
-        failed_nodes.push_back(pq.top().first);
-      pq.pop();
+    
+    if(!execute(pq.top().first)) {
+      failed_nodes.push_back(pq.top().first);
     }
+    pq.pop();
+    
   }
   for(auto& d:failed_nodes) {
     pq.push(make_pair(d,cycles));
@@ -28,15 +29,17 @@ bool DESCQ::execute(DynamicNode* d) {
   bool can_complete=true;
   
   for(auto dit=supply_q.begin(); dit!=supply_q.end(); ++dit) {
+
     DynamicNode* curr_supp=*dit;
-    
-    if(d<curr_supp) {
-      break;
+   
+    if(*d < *curr_supp || *d == *curr_supp) {
+       break;     
     }
-    if (curr_supp<d && curr_supp->completed==false) { 
+
+    if (*curr_supp < *d && curr_supp->completed==false) { 
       can_complete=false;
       break;
-    }
+    }    
   }
   
   if (can_complete) {
