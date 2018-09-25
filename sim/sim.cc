@@ -42,11 +42,8 @@ bool DESCQ::execute(DynamicNode* d) {
 
   if (can_complete) {
     d->c->insertQ(d);
-    string stmt = "DESC to COMPLETE Node ID: " + to_string(d->n->id);
-    d->print(stmt,0);
     return true;
   }
-
   return false;
 }
 

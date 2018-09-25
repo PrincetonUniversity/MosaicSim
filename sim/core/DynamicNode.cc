@@ -219,7 +219,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
     return false;
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
-  os << "[Context-" <<d.c->id <<"] Node - " << d.n->name <<" ";
+  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id <<"] [Node: " << d.n->id << " ] [Instruction: " << d.n->name <<"] ";
   return os;
 }
 void DynamicNode::print(string str, int level) {
