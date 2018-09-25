@@ -26,24 +26,21 @@ void DESCQ::process() {
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  bool can_complete=false;
   int predecessor_send=d->desc_id-1;
 
   if (d->n->typeInstr==SEND) { //make sure sends complete in instr order
     if (predecessor_send<0 || supply_map.at(predecessor_send)->completed) {
-      can_complete=true;
+      d->c->insertQ(d);
+      return true;
     }
   }
   else { //make sure recvs complete after corresponding send
     if (supply_map.at(d->desc_id)->completed) {
-      can_complete=true;      
+      d->c->insertQ(d);
+      return true;      
     }
   }
 
-  if (can_complete) {
-    d->c->insertQ(d);
-    return true;
-  }
   return false;
 }
 
