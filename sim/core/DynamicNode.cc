@@ -44,11 +44,10 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       core->memory.at(n->id).pop();
       core->lsq.insert(d);
     }
-    else if(n->typeInstr == SEND) {
+    else if(n->typeInstr == SEND || n->typeInstr == RECV) {
       DynamicNode* d = new DynamicNode(n, this, core);
       nodes.insert(make_pair(n,d));
       core->master->orderDESC(d);
-      cout << "2face CID: " << this->id << " NID: " << n->id <<endl;
     } 
     else
       nodes.insert(make_pair(n, new DynamicNode(n, this, core)));  

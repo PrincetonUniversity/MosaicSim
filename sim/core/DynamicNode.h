@@ -25,6 +25,7 @@ public:
   bool completed = false;
   bool isMem;
   bool isDESC;
+  int desc_id;
   /* Memory */
   uint64_t addr;
   bool addr_resolved = false;

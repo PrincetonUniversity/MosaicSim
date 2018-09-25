@@ -26,26 +26,27 @@ void DESCQ::process() {
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  bool can_complete=true;
-  
-  for(auto dit=supply_q.begin(); dit!=supply_q.end(); ++dit) {
+  bool can_complete=false;
+  int predecessor_send=d->desc_id-1;
 
-    DynamicNode* curr_supp=*dit;
-   
-    if(*d < *curr_supp || *d == *curr_supp) {
-       break;     
+  if (d->n->typeInstr==SEND) { //make sure sends complete in instr order
+    if (predecessor_send<0 || supply_map.at(predecessor_send)->completed) {
+      can_complete=true;
     }
-
-    if (*curr_supp < *d && curr_supp->completed==false) { 
-      can_complete=false;
-      break;
-    }    
   }
-  
+  else { //make sure recvs complete after corresponding send
+    if (supply_map.at(d->desc_id)->completed) {
+      can_complete=true;      
+    }
+  }
+
   if (can_complete) {
     d->c->insertQ(d);
+    string stmt = "DESC to COMPLETE Node ID: " + to_string(d->n->id);
+    d->print(stmt,0);
     return true;
   }
+
   return false;
 }
 
@@ -73,7 +74,16 @@ void Simulator::issueDESC(DynamicNode* d) {
 }
 
 void Simulator::orderDESC(DynamicNode* d) {
-  descq->supply_q.push_back(d);
+  if(d->n->typeInstr == SEND) {
+      descq->supply_q.push_back(d);
+      descq->supply_map.insert(make_pair(descq->last_supply_id,d));
+      d->desc_id=descq->last_supply_id;
+      descq->last_supply_id++;
+  }
+  else {
+     d->desc_id=descq->last_consume_id;
+     descq->last_consume_id++;
+  }
 }
 
 void Simulator::access(Transaction *t) {
