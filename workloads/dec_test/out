@@ -1,0 +1,71 @@
+clang-7: warning: treating 'c-header' input as 'c++-header' when in C++ mode, this behavior is deprecated [-Wdeprecated]
+decouple.h:37:6: error: use of undeclared identifier 'inet_pton'
+  if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
+     ^
+decouple.h:56:3: error: use of undeclared identifier 'read'; did you mean 'readv'?
+  read(desc_sock, desc_buffer_rec, 1024);
+  ^~~~
+  readv
+/usr/include/sys/uio.h:40:16: note: 'readv' declared here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+               ^
+decouple.h:56:19: error: cannot initialize a parameter of type 'const struct iovec *' with an lvalue of type 'char [1024]'
+  read(desc_sock, desc_buffer_rec, 1024);
+                  ^~~~~~~~~~~~~~~
+/usr/include/sys/uio.h:40:53: note: passing argument to parameter '__iovec' here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+                                                    ^
+decouple.h:76:3: error: use of undeclared identifier 'write'; did you mean 'writev'?
+  write(desc_sock, &converted, sizeof(converted));
+  ^~~~~
+  writev
+/usr/include/sys/uio.h:51:16: note: 'writev' declared here
+extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
+               ^
+decouple.h:76:20: error: cannot initialize a parameter of type 'const struct iovec *' with an rvalue of type 'int *'
+  write(desc_sock, &converted, sizeof(converted));
+                   ^~~~~~~~~~
+/usr/include/sys/uio.h:51:54: note: passing argument to parameter '__iovec' here
+extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
+                                                     ^
+decouple.h:88:3: error: use of undeclared identifier 'read'; did you mean 'readv'?
+  read(desc_sock, &to_store, sizeof(to_store));
+  ^~~~
+  readv
+/usr/include/sys/uio.h:40:16: note: 'readv' declared here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+               ^
+decouple.h:88:19: error: cannot initialize a parameter of type 'const struct iovec *' with an rvalue of type 'int *'
+  read(desc_sock, &to_store, sizeof(to_store));
+                  ^~~~~~~~~
+/usr/include/sys/uio.h:40:53: note: passing argument to parameter '__iovec' here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+                                                    ^
+decouple.h:98:3: error: use of undeclared identifier 'read'; did you mean 'readv'?
+  read(desc_sock, &to_ret, sizeof(to_ret));
+  ^~~~
+  readv
+/usr/include/sys/uio.h:40:16: note: 'readv' declared here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+               ^
+decouple.h:98:19: error: cannot initialize a parameter of type 'const struct iovec *' with an rvalue of type 'int *'
+  read(desc_sock, &to_ret, sizeof(to_ret));
+                  ^~~~~~~
+/usr/include/sys/uio.h:40:53: note: passing argument to parameter '__iovec' here
+extern ssize_t readv (int __fd, const struct iovec *__iovec, int __count)
+                                                    ^
+decouple.h:107:3: error: use of undeclared identifier 'write'; did you mean 'writev'?
+  write(desc_sock, &to_send, sizeof(to_send));
+  ^~~~~
+  writev
+/usr/include/sys/uio.h:51:16: note: 'writev' declared here
+extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
+               ^
+decouple.h:107:20: error: cannot initialize a parameter of type 'const struct iovec *' with an rvalue of type 'int *'
+  write(desc_sock, &to_send, sizeof(to_send));
+                   ^~~~~~~~
+/usr/include/sys/uio.h:51:54: note: passing argument to parameter '__iovec' here
+extern ssize_t writev (int __fd, const struct iovec *__iovec, int __count)
+                                                     ^
+11 errors generated.
+make: *** [dectest] Error 1
