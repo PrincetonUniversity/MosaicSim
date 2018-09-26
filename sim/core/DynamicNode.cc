@@ -224,7 +224,7 @@ ostream& operator<<(ostream &os, DynamicNode &d) {
     descid=" [DESC ID: " + to_string(d.desc_id) + "]";
   }
   
-  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << " ] [Instruction: " << d.n->name <<"] ";
+  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << "] [Instruction: " << d.n->name <<"] ";
   return os;
 }
 void DynamicNode::print(string str, int level) {
