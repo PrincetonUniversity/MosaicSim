@@ -26,13 +26,13 @@ void DESCQ::process() {
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  int predecessor_send=d->desc_id-1;
+  //int predecessor_send=d->desc_id-1;
 
-  if (d->n->typeInstr==SEND) { //make sure sends complete in instr order
-    if (predecessor_send<0 || supply_map.at(predecessor_send)->completed) {
+  if (d->n->typeInstr==SEND) { //sends can commit out of order
+    //if (predecessor_send<0 || supply_map.at(predecessor_send)->completed) {
       d->c->insertQ(d);
       return true;
-    }
+      // }
   }
   else { //make sure recvs complete after corresponding send
     if (supply_map.at(d->desc_id)->completed) {
