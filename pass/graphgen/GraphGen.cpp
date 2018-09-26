@@ -74,19 +74,19 @@ void GraphGen::detectComm(Function &func) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
             errs() << "Call Instruction : "<< f->getName() << "\n";
-            if(f->getName() == "_Z4sendi") {
+            if(f->getName() == "_Z16desc_produce_i32Pi") {
               errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
-            else if(f->getName() == "_Z4recvv") {
+            else if(f->getName() == "_Z16desc_consume_i32v") {
               errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
-            if(f->getName() == "_Z4staddr") {
+            if(f->getName() == "_Z19desc_store_addr_i32Pi") {
               errs() << "[STADDR]"<< *i << "\n";
               n->itype = STADDR;
             }
-            else if(f->getName() == "_Z4stval") {
+            else if(f->getName() == "_Z18desc_store_val_i32i") {
               errs() << "[STVAL]"<< *i << "\n";
               n->itype = STVAL;
             }
