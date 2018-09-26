@@ -219,7 +219,12 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
     return false;
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
-  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id <<"] [Node: " << d.n->id << " ] [Instruction: " << d.n->name <<"] ";
+  string descid;
+  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV) {
+    descid=" [DESC ID: " + to_string(d.desc_id) + "]";
+  }
+  
+  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << " ] [Instruction: " << d.n->name <<"] ";
   return os;
 }
 void DynamicNode::print(string str, int level) {
