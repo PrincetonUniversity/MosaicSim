@@ -1,5 +1,5 @@
 #include "stdio.h"
-#include "decouple.h"
+#include "../decouple.h"
 
 void desc_kernel_add(int *a, int *b, int *c) {
 
