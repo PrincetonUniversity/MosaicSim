@@ -2,7 +2,7 @@ CC=clang++
 NAME1=compute
 NAME2=supply
 dectest:
-	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o decouple.llvm decouple.h
+	#$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o decouple.llvm decouple.h
 	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int1/$(NAME1).llvm $(NAME1).c
 	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int2/$(NAME2).llvm $(NAME2).c
 
@@ -14,8 +14,8 @@ dectest:
 	opt -S -instnamer -loops -load ../../lib/libGraphGen.so -graphgen int1/$(NAME1)-integrated.llvm > /dev/null
 	opt -S -instnamer -loops -load ../../lib/libGraphGen.so -graphgen int2/$(NAME2)-integrated.llvm > /dev/null
 
-	dot -Tpng int1/graphDiagram.dot -o output1/graphDiagram.png
-	dot -Tpng int2/graphDiagram.dot -o output2/graphDiagram.png
+	#dot -Tpng int1/graphDiagram.dot -o output1/graphDiagram.png
+	#dot -Tpng int2/graphDiagram.dot -o output2/graphDiagram.png
 
 	llc -filetype=obj int1/$(NAME1)-pass.llvm -o int1/$(NAME1).o
 	llc -filetype=obj int2/$(NAME2)-pass.llvm -o int2/$(NAME2).o
@@ -25,7 +25,7 @@ dectest:
 
 	$(CC) int1/$(NAME1).o -o $(NAME1)-profile.out
 	$(CC) int2/$(NAME2).o -o $(NAME2)-profile.out
-
+	$(CC) -O3 server.c -o server.out
 	#./$(NAME1)-profile.out
 clean: 
 	rm -f $(NAME)

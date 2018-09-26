@@ -78,7 +78,7 @@ void GraphGen::detectComm(Function &func) {
               errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
-            else if(f->getName() == " _Z16desc_consume_i32v") {
+            else if(f->getName() == "_Z16desc_consume_i32v") {
               errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
