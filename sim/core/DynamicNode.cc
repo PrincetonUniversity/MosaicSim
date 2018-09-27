@@ -361,7 +361,7 @@ bool DynamicNode::issueMemNode() {
 
 bool DynamicNode::issueDESCNode() {
   issued = true;
-  core->access(this);
+  core->communicate(this);
   return true;  
 }
 
