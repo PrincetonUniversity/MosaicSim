@@ -220,7 +220,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
   string descid;
-  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV) {
+  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR) {
     descid=" [DESC ID: " + to_string(d.desc_id) + "]";
   }
   
