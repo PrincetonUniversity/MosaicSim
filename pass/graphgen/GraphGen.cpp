@@ -74,7 +74,7 @@ void GraphGen::detectComm(Function &func) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
             errs() << "Call Instruction : "<< f->getName() << "\n";
-            if(f->getName() == "_Z16desc_produce_i32Pi") {
+            if(f->getName() == "_Z16desc_produce_i32i") {
               errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
