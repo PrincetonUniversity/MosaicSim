@@ -36,8 +36,10 @@ workloads/bfs/output
 workloads/microbench/output
 workloads/bfs/int
 workloads/microbench/int
-workloads/dec_test/int1
-workloads/dec_test/int2
+workloads/dec_test/compute/int
+workloads/dec_test/supply/int
+workloads/dec_test/supply/output
+workloads/dec_test/compute/output
 
 # Pre-compiler generated files.
 CMakeCache.txt

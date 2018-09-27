@@ -2,26 +2,34 @@
 #include "../decouple.h"
 
 void desc_kernel_add(int *a, int *b, int *c) {
+  for(int i=0; i<100; i++) {
 
-  //load A and B  
-  desc_produce_i32(a); //int reg_a = *a;
-  desc_produce_i32(b); //int reg_b = *b;
+    //load A and B  
+    int val1 = a[i];
+    int val2 = b[i];
+    desc_produce_i32(a[i]); //int reg_a = *a;
+    desc_produce_i32(b[i]); //int reg_b = *b;
 
-  //Do the addition
-  //int val = reg_a + reg_b;
+    //Do the addition
+    //int val = reg_a + reg_b;
 
-  //Store the result
-  desc_store_addr_i32(c); //*c = val;
+    //Store the result
+    desc_store_addr_i32(&c[i]); //*c = val;
+  }
 }
 
 
 int main() {
   desc_init(SUPPLY);
-  int a = 5, b = 6, c = 0;
+  int a[100], b[100], c[100];
+  for(int i=0; i<100; i++) {
+    a[i] = i;
+    b[i] = i*2;
+    c[i] = 0;
+  }  
+  desc_kernel_add(a, b, c);
   
-  desc_kernel_add(&a, &b, &c);
-  
-  printf("got the value %d\n", c);
+  printf("got the value %d\n", c[99]);
   
   return 0;
 }

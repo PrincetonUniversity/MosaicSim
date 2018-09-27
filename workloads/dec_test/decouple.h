@@ -3,7 +3,8 @@
 #include <sys/socket.h> 
 #include <string.h>
 #include <unistd.h>
-#include <netinet/in.h> 
+#include <arpa/inet.h>
+#include <netinet/in.h>
 
 #define PORT 8080
 
@@ -35,10 +36,10 @@ int desc_init(int option) {
   serv_addr.sin_port = htons(PORT); 
   
   // Convert IPv4 and IPv6 addresses from text to binary form 
-  // if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
-  //   printf("\nInvalid address/ Address not supported \n"); 
-  //   return -1; 
-  // } 
+  if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
+    printf("\nInvalid address/ Address not supported \n"); 
+    return -1; 
+  } 
   
   if (connect(desc_sock, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) { 
     printf("\nConnection Failed \n"); 
@@ -55,7 +56,7 @@ int desc_init(int option) {
   // Tell the server who we are and wait for a response
   send(desc_sock, desc_buffer_send, 1024, 0);
   read(desc_sock, desc_buffer_rec, 1024);
-  
+  return 0;
 }
 
 void desc_cleanup() {
@@ -65,13 +66,13 @@ void desc_join() {
 }
 
 // For the access slice
-void desc_produce_i32(int *x) {
+void desc_produce_i32(int x) {
 
   //Signal what type of interaction
   strcpy(desc_buffer_send, PROD_CON_TYPE);
   send(desc_sock, desc_buffer_send, 1024, 0);
 
-  int to_send = *x;
+  int to_send = x;
   int converted = htonl(to_send);
   //Figure out how to send integer
   write(desc_sock, &converted, sizeof(converted));
