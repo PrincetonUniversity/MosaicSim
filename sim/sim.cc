@@ -72,7 +72,7 @@ bool Simulator::canAccess(bool isLoad) {
     return cache->free_store_ports > 0;
 }
 
-void Simulator::issueDESC(DynamicNode* d) {
+void Simulator::communicate(DynamicNode* d) {
   descq->insert(d);
 }
 

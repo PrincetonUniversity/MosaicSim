@@ -269,23 +269,6 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  // TJH: The following code is a hack
-  /*if (n->isComp()) {
-    if(core->inputQ.empty()) {      
-      return false;
-    }
-    else {
-      core->inputQ.pop();
-      cout << "Received " << n->name << " " << n->id << " In Context: " << c->id << endl;;
-      return true;
-    }    
-  } 
-  
-  if (n->isSupp()) {
-    core->digestor->intercon->insert(this);
-    cout << "Supplied " << n->name <<" " << n->id << " In Context: " << c->id << endl;
-    return true;
-  }*/
   stat.update("comp_issue_try");
   core->local_stat.update("comp_issue_try");
   // check for resource (FU) availability

@@ -39,7 +39,7 @@ public:
   DRAMSimInterface* memInterface;
   
   Simulator();
-  void issueDESC(DynamicNode* d);
+  void communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();
   bool canAccess(bool isLoad);

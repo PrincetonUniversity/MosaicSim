@@ -65,6 +65,7 @@ public:
   bool process();
   bool canAccess(bool isLoad);
   void access(DynamicNode *d);
+  void communicate(DynamicNode *d);
   void accessComplete(Transaction *t);
   void printActivity();
   string instrToStr(TInstr instr);

@@ -5,12 +5,10 @@
 bool Core::canAccess(bool isLoad) {
   return master->canAccess(isLoad);
 }
+void Core::communicate(DynamicNode *d) {
+  master->communicate(d);
+}
 void Core::access(DynamicNode* d) {
-  if (d->isDESC) {
-    master->issueDESC(d);
-    return;
-  }
-  
   int tid = tracker_id.front();
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
