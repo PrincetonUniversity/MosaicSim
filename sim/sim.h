@@ -29,6 +29,8 @@ public:
   void process();
   bool execute(DynamicNode* d);
   void insert(DynamicNode* d);
+  set<int> debug_send_set;
+  set<int> debug_stval_set;
 };
 
 class Simulator {

@@ -26,17 +26,22 @@ void DESCQ::process() {
 
 bool DESCQ::execute(DynamicNode* d) {
   //int predecessor_send=d->desc_id-1; 
-  if (d->n->typeInstr==SEND || d->n->typeInstr==STVAL) { //sends can commit out of order
+  if (d->n->typeInstr==SEND) { //sends can commit out of order
     d->c->insertQ(d);
-    return true;
-    
+    debug_send_set.insert(d->desc_id);
+    return true;    
+  }
+  else if (d->n->typeInstr==STVAL) { //sends can commit out of order
+    d->c->insertQ(d);
+    debug_stval_set.insert(d->desc_id); 
+    return true;    
   }
   else if (d->n->typeInstr==RECV) { //make sure recvs complete after corresponding send
     if(send_map.find(d->desc_id)==send_map.end()) {
       return false;
     }
     else if (send_map.at(d->desc_id)->completed) {
-      d->c->insertQ(d);
+      d->c->insertQ(d);      
       return true;      
     }
   }
@@ -46,7 +51,7 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     else if (stval_map.at(d->desc_id)->completed) {
-      d->c->insertQ(d);
+      d->c->insertQ(d);      
       return true;      
     }
   }

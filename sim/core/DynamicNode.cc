@@ -368,6 +368,11 @@ bool DynamicNode::issueDESCNode() {
 
 void DynamicNode::finishNode() {
   print("Finished Execution", 1);
+  if(n->typeInstr==RECV)
+    assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+  if(n->typeInstr==STADDR)
+    assert(core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+           
   c->completed_nodes.insert(this);
   completed = true;
 
