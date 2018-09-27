@@ -59,7 +59,7 @@ string Core::instrToStr(TInstr instr) {
 
 void Core::printActivity() {
   
-  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI"};
+  std::string InstrName[] =  { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "INVALID"};
   cout << "-----------Simulator " << name << " Activity-----------\n";
   cout << "Cycles: " << cycles << endl;
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";

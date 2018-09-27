@@ -12,7 +12,7 @@ void DESCQ::process() {
   while(true) {
     if (pq.empty() || pq.top().second >= cycles)
       break;
-    
+   
     if(!execute(pq.top().first)) {
       failed_nodes.push_back(pq.top().first);
     }
@@ -26,7 +26,7 @@ void DESCQ::process() {
 
 bool DESCQ::execute(DynamicNode* d) {
   //int predecessor_send=d->desc_id-1; 
-  if (d->n->typeInstr==SEND || d->n->typeInstr==STVAL) { //sends can commit out of order    
+  if (d->n->typeInstr==SEND || d->n->typeInstr==STVAL) { //sends can commit out of order
     d->c->insertQ(d);
     return true;
     
