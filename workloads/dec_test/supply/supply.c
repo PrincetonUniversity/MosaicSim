@@ -1,5 +1,6 @@
 #include "stdio.h"
 #include "../decouple.h"
+#include <iostream>
 
 void desc_kernel_add(int *a, int *b, int *c) {
   for(int i=0; i<100; i++) {
@@ -19,8 +20,9 @@ void desc_kernel_add(int *a, int *b, int *c) {
 }
 
 
-int main() {
-  desc_init(SUPPLY);
+int main(int argc, char const *argv[]) {
+  printf("port : %d \n", std::stoi(argv[1]));
+  desc_init(SUPPLY,  std::stoi(argv[1]));
   int a[100], b[100], c[100];
   for(int i=0; i<100; i++) {
     a[i] = i;

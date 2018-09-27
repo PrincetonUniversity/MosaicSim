@@ -12,8 +12,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <iostream>
 #include "decouple.h"
-#define PORT 8080
 
 int supply_sock, compute_sock;
 char buffer_rec[1024] = {0};
@@ -25,7 +25,9 @@ int main(int argc, char const *argv[])
     struct sockaddr_in address; 
     int opt = 1; 
     int addrlen = sizeof(address); 
-
+    int portnum = 8080;
+    if(argc == 2)
+      portnum = std::stoi(argv[1]);
     char *hello = "Hello from server"; 
        
     // Creating socket file descriptor 
@@ -44,7 +46,7 @@ int main(int argc, char const *argv[])
     } 
     address.sin_family = AF_INET; 
     address.sin_addr.s_addr = INADDR_ANY; 
-    address.sin_port = htons( PORT ); 
+    address.sin_port = htons( portnum ); 
        
     // Forcefully attaching socket to the port 8080 
     if (bind(server_fd, (struct sockaddr *)&address,  

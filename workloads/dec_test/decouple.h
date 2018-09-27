@@ -6,8 +6,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#define PORT 8080
-
 int desc_sock = 0;
 
 char desc_buffer_send[1024] = {0};
@@ -22,7 +20,7 @@ char desc_buffer_rec[1024] = {0};
 #define PROD_CON_TYPE "PROD_CON_TYPE\0"
 #define STORE_TYPE "STORE_TYPE\0"
 
-int desc_init(int option) {
+int desc_init(int option, int portnum) {
   struct sockaddr_in address; 
   struct sockaddr_in serv_addr; 
   if ((desc_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
@@ -33,7 +31,7 @@ int desc_init(int option) {
   memset(&serv_addr, '0', sizeof(serv_addr)); 
   
   serv_addr.sin_family = AF_INET; 
-  serv_addr.sin_port = htons(PORT); 
+  serv_addr.sin_port = htons(portnum); 
   
   // Convert IPv4 and IPv6 addresses from text to binary form 
   if(inet_pton(AF_INET, "127.0.0.1", &serv_addr.sin_addr)<=0) { 
