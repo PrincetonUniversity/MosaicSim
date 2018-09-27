@@ -44,7 +44,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       core->memory.at(n->id).pop();
       core->lsq.insert(d);
     }
-    else if(n->typeInstr == SEND || n->typeInstr == RECV) {
+    else if(n->typeInstr == SEND || n->typeInstr == RECV || n->typeInstr == STADDR || n->typeInstr == STVAL) {
       DynamicNode* d = new DynamicNode(n, this, core);
       nodes.insert(make_pair(n,d));
       core->master->orderDESC(d);
@@ -198,7 +198,7 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
   else
     isMem = true;
   
-  if(n->typeInstr==SEND || n->typeInstr==RECV)
+  if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL)
     isDESC = true;
   else
     isDESC = false;  

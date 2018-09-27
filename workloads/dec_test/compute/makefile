@@ -2,6 +2,9 @@ CC=clang++
 NAME1=compute
 NAME2=supply
 compute:
+	mkdir -p int
+	mkdir -p output
+	touch output/mem.txt
 	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME1).llvm $(NAME1).c
 	llvm-link -S ../../../tools/tracer.llvm int/$(NAME1).llvm -o int/$(NAME1)-integrated.llvm
 	opt -S -instnamer -load ../../../lib/libRecordDynamicInfo.so -recorddynamicinfo int/$(NAME1)-integrated.llvm -o int/$(NAME1)-pass.llvm

@@ -16,8 +16,7 @@ void DESCQ::process() {
     if(!execute(pq.top().first)) {
       failed_nodes.push_back(pq.top().first);
     }
-    pq.pop();
-    
+    pq.pop();    
   }
   for(auto& d:failed_nodes) {
     pq.push(make_pair(d,cycles));
@@ -26,21 +25,31 @@ void DESCQ::process() {
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  //int predecessor_send=d->desc_id-1;
-
-  if (d->n->typeInstr==SEND) { //sends can commit out of order
-    //if (predecessor_send<0 || supply_map.at(predecessor_send)->completed) {
-      d->c->insertQ(d);
-      return true;
-      // }
+  //int predecessor_send=d->desc_id-1; 
+  if (d->n->typeInstr==SEND || d->n->typeInstr==STVAL) { //sends can commit out of order    
+    d->c->insertQ(d);
+    return true;
+    
   }
-  else { //make sure recvs complete after corresponding send
-    if (supply_map.at(d->desc_id)->completed) {
+  else if (d->n->typeInstr==RECV) { //make sure recvs complete after corresponding send
+    if(send_map.find(d->desc_id)==send_map.end()) {
+      return false;
+    }
+    else if (send_map.at(d->desc_id)->completed) {
       d->c->insertQ(d);
       return true;      
     }
   }
 
+  else if (d->n->typeInstr==STADDR) { //make sure staddrs complete after corresponding send
+    if(stval_map.find(d->desc_id)==stval_map.end()) {
+      return false;
+    }
+    else if (stval_map.at(d->desc_id)->completed) {
+      d->c->insertQ(d);
+      return true;      
+    }
+  }
   return false;
 }
 
@@ -68,15 +77,23 @@ void Simulator::issueDESC(DynamicNode* d) {
 }
 
 void Simulator::orderDESC(DynamicNode* d) {
-  if(d->n->typeInstr == SEND) {
-      descq->supply_q.push_back(d);
-      descq->supply_map.insert(make_pair(descq->last_supply_id,d));
-      d->desc_id=descq->last_supply_id;
-      descq->last_supply_id++;
+  if(d->n->typeInstr == SEND) {     
+      descq->send_map.insert(make_pair(descq->last_send_id,d));
+      d->desc_id=descq->last_send_id;
+      descq->last_send_id++;
   }
-  else {
-     d->desc_id=descq->last_consume_id;
-     descq->last_consume_id++;
+  else if(d->n->typeInstr == STVAL) {
+      descq->stval_map.insert(make_pair(descq->last_stval_id,d));
+      d->desc_id=descq->last_stval_id;
+      descq->last_stval_id++;
+  }
+  else if (d->n->typeInstr == RECV) {
+     d->desc_id=descq->last_recv_id;
+     descq->last_recv_id++;
+  }
+  else if (d->n->typeInstr == STADDR) {
+    d->desc_id=descq->last_staddr_id;
+    descq->last_staddr_id++;
   }
 }
 

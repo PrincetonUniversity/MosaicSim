@@ -13,6 +13,8 @@ compute:
 	$(CC) -g -o $(NAME1)-test.out $(NAME1).c
 
 supply:
+	mkdir -p int
+	mkdir -p output
 	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME2).llvm $(NAME2).c
 	llvm-link -S ../../../tools/tracer.llvm int/$(NAME2).llvm -o int/$(NAME2)-integrated.llvm
 	opt -S -instnamer -load ../../../lib/libRecordDynamicInfo.so -recorddynamicinfo int/$(NAME2)-integrated.llvm -o int/$(NAME2)-pass.llvm

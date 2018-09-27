@@ -15,11 +15,14 @@ public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
   deque<DynamicNode*> supply_q;
   deque<DynamicNode*> consume_q;
-  map<int,DynamicNode*> supply_map;
+  map<int,DynamicNode*> send_map;
+  map<int,DynamicNode*> stval_map;
   map<DynamicNode*, uint64_t> final_cycle; 
   uint64_t cycles=0;
-  int last_supply_id;
-  int last_consume_id;
+  int last_send_id;
+  int last_stval_id;
+  int last_recv_id;
+  int last_staddr_id;
   int latency=2;
   uint64_t supply_count=0;
   Config config; 

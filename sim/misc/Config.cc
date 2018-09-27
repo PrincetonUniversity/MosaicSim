@@ -23,6 +23,10 @@ Config::Config() {
   instr_latency[ST] = 1;
   instr_latency[TERMINATOR] = 1;
   instr_latency[PHI] = 1;     // JLA: should it be 0 ?
+  instr_latency[SEND] = 1;
+  instr_latency[RECV] = 1;
+  instr_latency[STADDR] = 1;
+  instr_latency[STVAL] = 1;
   num_units[I_ADDSUB] = -1;
   num_units[I_MULT] =  -1;
   num_units[I_DIV] = -1;
@@ -40,6 +44,9 @@ Config::Config() {
   num_units[PHI] = -1;
   num_units[SEND] = -1;
   num_units[RECV] = -1;
+  num_units[STADDR] = -1;
+  num_units[STVAL] = -1;
+  num_units[INVALID] = -1;
 }
 
 vector<string> Config::split(const string &s, char delim) {
