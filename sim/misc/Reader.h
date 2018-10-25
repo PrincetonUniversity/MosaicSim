@@ -2,6 +2,10 @@
 #include <fstream>
 #include <sstream> 
 #include "assert.h"
+#include <regex>
+
+#include <boost/algorithm/string.hpp>
+
 
 using namespace std;
 
@@ -19,20 +23,35 @@ public:
   }
 
   void readGraph(std::string name, Graph &g) {
+    cout<< "Entered readgraph \n" ;
     ifstream cfile(name);
+    cout << "Opened file: " << name << endl ;
     if (cfile.is_open()) {
       string temp;
       getline(cfile,temp);
-      int numBB = stoi(temp);
+      int numBB = stoi(temp);  
       getline(cfile,temp);
       int numNode = stoi(temp);
+
       getline(cfile,temp);
+      
       int numEdge = stoi(temp);
       string line;
       for (int i=0; i<numBB; i++)
         g.addBasicBlock(i);
-      for (int i=0; i<numNode; i++) {
+
+      
+      while (true) {        
         getline(cfile,line);
+        //sime
+        string stripped_line = line;
+        boost::trim_left(stripped_line);
+        //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
+        if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
+          cout << "BAD LINE: " << line << endl;
+          continue;
+        }
+        
         vector<string> s = split(line, ',');
         int id = stoi(s.at(0));
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
@@ -42,9 +61,26 @@ public:
           name += s.at(i);     
         name = name.substr(2, name.size()-2);
         g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
+        if(id+1==numNode) {
+          cout << "ID "<< (id+1) << endl;
+          cout << "Num Nodes " << numNode << endl;
+          break;
+        }
       }
-      for (int i=0; i<numEdge; i++) {
+      cout << "Done with Nodes " << endl;
+      int i=0;
+      while (i<numEdge) {
+        cout << "edge iter: " <<i << endl;
+
         getline(cfile,line);
+        cout << line << endl;
+        string stripped_line = line;
+        boost::trim_left(stripped_line);
+        //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
+        /*if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
+          cout << "BAD LINE: " << line << endl;
+          continue;
+          }*/
         vector<string> s = split(line, ',');
         int edgeT = stoi(s.at(2));
         if(edgeT >= 0) {
@@ -54,6 +90,7 @@ public:
         else if (edgeT == -1) {
           g.getNode(stoi(s.at(1)))->store_addr_dependents.insert(g.getNode(stoi(s.at(0))));
         }
+        i++;
       }
       if (getline(cfile,line))
         assert(false);
@@ -106,7 +143,7 @@ public:
         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
           cout << last_bbid << " / " << s.at(1) << "\n";
           cout << last_line << " / " << line << "\n";
-          assert(false);
+          assert(false); 
         }
         if (!init) {
           cf.push_back(stoi(s.at(1)));

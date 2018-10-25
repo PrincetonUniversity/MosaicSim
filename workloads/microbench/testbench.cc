@@ -6,6 +6,7 @@
 using namespace std;
 //#define MODE2
 #define MODE3
+#define MEMSPEC
 #ifdef CTRLSPEC_VARIANT
 void _kernel_test(int (&arr)[SIZE]) {
   int loc = 0;

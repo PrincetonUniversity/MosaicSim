@@ -3,10 +3,10 @@
 # run.sh
 
 # --------------------------------------------------------------------------------
-# Run on small synthetic graphs (up to ~20 seconds, depending on query)
+#Run on small synthetic graphs (up to ~20 seconds, depending on query)
 
 mkdir -p {_data,_results}
-wget --header "Authorization:$TOKEN" https://hiveprogram.com/data/_v1/graphqube/synthetic.tar.gz
+scp portal.cs.princeton.edu:/n/fs/sdhdatasets/graphqube/synthetic.tar.gz .
 tar -xzvf synthetic.tar.gz && rm synthetic.tar.gz
 mv synthetic _data/synthetic
 
@@ -33,7 +33,7 @@ time ./cpp/main \
 # Run on wikipedia graph (< 1 second)
 
 mkdir -p {_data,_results}
-wget --header "Authorization:$TOKEN" https://hiveprogram.com/data/_v1/graphqube/wiki.tar.gz
+scp portal.cs.princeton.edu:/n/fs/sdhdatasets/graphqube/wiki.tar.gz .
 tar -xzvf wiki.tar.gz && rm wiki.tar.gz
 mv wiki _data/wiki
 

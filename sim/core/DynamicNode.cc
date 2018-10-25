@@ -38,6 +38,13 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     if(n->typeInstr == ST || n->typeInstr == LD) {
+      if(core->memory.find(n->id)==core->memory.end()) {
+        cout << "Assertion about to fail for: " << n->name << endl;
+        
+      }
+      else {
+        //cout << "Apparently it works for some \n";
+      }
       assert(core->memory.find(n->id) !=core->memory.end());
       DynamicNode *d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       nodes.insert(make_pair(n,d));

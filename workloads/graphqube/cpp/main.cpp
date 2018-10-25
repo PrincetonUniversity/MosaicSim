@@ -4,7 +4,7 @@
     TODO:
         The hasher probably has too many collisions
 */
-#define inliner __attribute__((always_inline))
+
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -224,7 +224,56 @@ vector<Candidate*> get_initial_candidates(Query& query, Row& row) {
     return initial_cands;
 }
 
-vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
+vector<Candidate*> enter_new_candidate(Candidate* cand, vector<Candidate*> out_cands, int q_src, int q_trg, int r_trg, float new_weight, int new_num_uncovered_edges, vector<Candidate*>* new_cand_ptr, int verbose) {
+  Candidate* new_cand = new Candidate;
+  
+  new_cand->edges = cand->edges;
+  new_cand->edges.insert(pair<int,int>(q_src, q_trg));
+  new_cand->edges.insert(pair<int,int>(q_trg, q_src));
+  
+  new_cand->nodes = cand->nodes;
+  new_cand->nodes.insert(pair<int,int>(q_trg, r_trg));
+  
+  new_cand->weight = new_weight;
+  new_cand->num_uncovered_edges = cand->num_uncovered_edges - 1;
+  
+  if(verbose) {
+    cout << "new_cand: ";
+    for(auto it = new_cand->nodes.cbegin(); it != new_cand->nodes.cend(); ++it) {
+      cout << "(" << it->first << ": " << it->second << ") ";
+    }
+    cout << " " << new_cand->num_uncovered_edges << endl;
+  }
+  
+  if(new_num_uncovered_edges == 0) {
+    out_cands.push_back(new_cand);
+  } else {
+    new_cand_ptr->push_back(new_cand);
+  }
+  
+  return out_cands;
+} 
+
+ //find the 1st edge that's not in candidate but whose src node is in candidate's nodes
+int* get_query_ref_instance (Query& query, Candidate* cand) {
+  int* query_array=new int[4]();
+  for(auto &q_edge : query.edges) {
+    if(cand->edges.find(q_edge) == cand->edges.end()) {
+      if(cand->nodes.find(q_edge.first) != cand->nodes.end()) {
+        int r_src = cand->nodes[q_edge.first];
+        int q_src = q_edge.first;
+        int q_trg = q_edge.second;
+        int q_trg_type = query.types[q_trg];
+        query_array[0] = r_src;  query_array[1]=q_src; query_array[2]=q_trg; query_array[3]=q_trg_type;
+        
+        break;
+      }
+    }
+  }
+  return query_array;
+}
+
+vector<Candidate*> _kernel_expand_candidate(Query& query, Reference& reference, \
         vector<Candidate*>& initial_cands, const float max_weight, candidate_heap& top_k) {
     
     vector<Candidate*> new_cands;
@@ -252,22 +301,11 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
                   
             int r_src, q_src, q_trg, q_trg_type;
             
+            int* query_array=get_query_ref_instance(query, cand);
+            
+            r_src=query_array[0]; q_src=query_array[1]; q_trg=query_array[2]; q_trg_type=query_array[3];
             int flag = 0;
-            for(auto &q_edge : query.edges) {
-              //candidate (from query) doesn't yet have the edge
-              if(cand->edges.find(q_edge) == cand->edges.end()) {
-                //candidate does have the node from the query
-                    if(cand->nodes.find(q_edge.first) != cand->nodes.end()) {
-                        r_src = cand->nodes[q_edge.first];
-                        q_src = q_edge.first;
-                        q_trg = q_edge.second;
-                        q_trg_type = query.types[q_trg];
-                        flag = 1;
-                        break;
-                    }
-                }
-            }
-                        
+                                   
             int q_trg_current, q_trg_new;
             if(reference.neibs[r_src].find(q_trg_type) != reference.neibs[r_src].end()) {
                 
@@ -299,31 +337,7 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
                             float upper_bound = new_weight + max_weight * new_num_uncovered_edges;
                             
                             if(upper_bound > top_k.top()->weight) {
-                                Candidate* new_cand = new Candidate;
-                                
-                                new_cand->edges = cand->edges;
-                                new_cand->edges.insert(pair<int,int>(q_src, q_trg));
-                                new_cand->edges.insert(pair<int,int>(q_trg, q_src));
-                                
-                                new_cand->nodes = cand->nodes;
-                                new_cand->nodes.insert(pair<int,int>(q_trg, r_trg));
-                                
-                                new_cand->weight = new_weight;
-                                new_cand->num_uncovered_edges = cand->num_uncovered_edges - 1;
-
-                                if(verbose) {
-                                    cout << "new_cand: ";
-                                    for(auto it = new_cand->nodes.cbegin(); it != new_cand->nodes.cend(); ++it) {
-                                        cout << "(" << it->first << ": " << it->second << ") ";
-                                    }
-                                    cout << " " << new_cand->num_uncovered_edges << endl;
-                                }
-                                
-                                if(new_num_uncovered_edges == 0) {
-                                    out_cands.push_back(new_cand);
-                                } else {
-                                    new_cand_ptr->push_back(new_cand);
-                                }
+                              out_cands=enter_new_candidate(cand, out_cands, q_src, q_trg, r_trg, new_weight, new_num_uncovered_edges, new_cand_ptr, verbose);
                             }
                         }
                     }
@@ -359,6 +373,25 @@ template<typename T> void print_queue(T& q) {
     }
     for(int i = 0; i < 50; ++i) {cout << "--";};
     cout << endl << "total_weight: " << total_weight << endl;
+}
+
+
+void load_rows(vector<Row>* row_vector, string edge_path, int num_edges) {
+  ifstream infile(edge_path, ifstream::in);
+  string line;
+  for (int i=0; i < num_edges; i++) {
+    Row row={};
+    getline(infile, line);
+    istringstream iss(line);
+    iss >> row.src;
+    iss >> row.trg;
+    iss >> row.weight;
+    iss >> row.src_type;
+    iss >> row.trg_type;
+    iss >> row.edge_type;
+    row_vector->push_back(row);
+  }
+  cout << "size of vector is " << row_vector->size() << endl;  
 }
 
 
@@ -398,44 +431,25 @@ int main(int argc, char **argv) {
     // --
     // Run
     
-    string line;
-    ifstream infile(edge_path, ifstream::in);
-    Row row = {};
-    
     int counter = 0;
     clock_t start = clock();
 
-    vector<Row> rows;
-
+    
+    vector<Row>* row_vector = new vector<Row>();
+    load_rows(row_vector, edge_path, reference.num_edges);
+    vector<Row>::iterator row_it=row_vector->begin();
+    
     while(true) {
-      Row row={};
-      getline(infile, line);
-      istringstream iss(line);
-      iss >> row.src;
-      iss >> row.trg;
-      iss >> row.weight;
-      iss >> row.src_type;
-      iss >> row.trg_type;
-      iss >> row.edge_type;
-
-      rows.push_back(row);
       
-      counter++;
-      if(counter == reference.num_edges) {
-        break;
-      }
-    }
-    
-    
-    for(auto& row: rows) {
-    
+        Row row=*row_it;
+             
         if(row.weight * query.num_edges < top_k.top()->weight) {
             break;
         }
         
         vector<Candidate*> initial_candidates, out_cands; 
         initial_candidates = get_initial_candidates(query, row);
-        out_cands = expand_candidate(query, reference, initial_candidates, row.weight, top_k);
+        out_cands = _kernel_expand_candidate(query, reference, initial_candidates, row.weight, top_k);
         
         reference.visited.insert(pair<int,int>(row.src, row.trg));
         reference.visited.insert(pair<int,int>(row.trg, row.src));
@@ -448,6 +462,12 @@ int main(int argc, char **argv) {
                 top_k.push(out_cand);
             }
         }
+        
+        counter++;
+        if(counter == reference.num_edges) {
+            break;
+        }
+        ++row_it;
     }
     
     print_queue(top_k);

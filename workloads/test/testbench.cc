@@ -21,6 +21,15 @@ int __attribute__ ((noinline)) recv() {
   comm_buffer.pop();
   return val;
 }
+
+int randfunc(int myint, int* a) {
+  for (int i=1; i<ARRAY_SIZE; i++) {
+    a[i]=a[i-1];
+  }
+  return a[ARRAY_SIZE-1];
+
+}
+
 void _kernel_testbench(int*  __restrict__ a, int* __restrict__ b, int * __restrict__ c)
 {
   #pragma clang loop unroll(disable)

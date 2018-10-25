@@ -80,8 +80,7 @@ public:
         itype = INVALID;
       else {
         itype = INVALID;
-        errs() << "WARNING, UNKNOWN INSTRUCTION: \n";// << inst->getName().str() << " instruction.\n";
-        inst->dump();
+        errs() << "WARNING: " << inst->getName().str() << " instruction.\n";
         //assert(false); //alloca, atomicCmpXchg, atomicRMW, Fence, Select, Call, VAArg, vector instructions
       }
     }
