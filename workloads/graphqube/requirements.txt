@@ -1,4 +1,0 @@
-numpy==1.14.0
-pandas==0.22.0
-networkx==2.1
-tqdm==4.19.7
