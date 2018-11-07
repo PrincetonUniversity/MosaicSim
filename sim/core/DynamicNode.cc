@@ -37,27 +37,31 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   // Initialize Context Structures
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
+    DynamicNode* d;
     if(n->typeInstr == ST || n->typeInstr == LD) {
       if(core->memory.find(n->id)==core->memory.end()) {
-        cout << "Assertion about to fail for: " << n->name << endl;
-        
+        cout << "Assertion about to fail for: " << n->name << endl;        
       }
       else {
         //cout << "Apparently it works for some \n";
       }
       assert(core->memory.find(n->id) !=core->memory.end());
-      DynamicNode *d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
+      d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
       core->lsq.insert(d);
     }
-    else if(n->typeInstr == SEND || n->typeInstr == RECV || n->typeInstr == STADDR || n->typeInstr == STVAL) {
-      DynamicNode* d = new DynamicNode(n, this, core);
-      nodes.insert(make_pair(n,d));
-      core->master->orderDESC(d);
-    } 
-    else
-      nodes.insert(make_pair(n, new DynamicNode(n, this, core)));  
+    else {
+      d = new DynamicNode(n, this, core);
+      if(n->typeInstr == SEND || n->typeInstr == RECV || n->typeInstr == STADDR || n->typeInstr == STVAL) {
+        nodes.insert(make_pair(n,d));
+        core->master->orderDESC(d);
+      } 
+      else {
+        nodes.insert(make_pair(n, d));
+      }     
+    }
+    core->window.insertDN(d);
   }
 
   if(core->curr_owner.find(bb->id) == core->curr_owner.end())
@@ -98,9 +102,12 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
 }
 
 void Context::process() {
+  //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
   for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
     DynamicNode *d = *it;
     bool res = false;
+    //if(core->window.issueMap.at(d)==0)
+    //assert(false);
     assert(!d->issued);
     if(d->isMem)
       res = d->issueMemNode();
@@ -113,8 +120,9 @@ void Context::process() {
       next_issue_set.insert(d);
     }
     else {
-      if(d->type != LD && !d->isDESC)
-        insertQ(d);
+      if(d->type != LD && !d->isDESC) {
+        insertQ(d);        
+      }
       d->print("Issue Succesful",0);
     }
   }
@@ -177,6 +185,7 @@ void Context::complete() {
       } 
       stat.update(core->instrToStr(d->type));
       core->local_stat.update(core->instrToStr(d->type));
+      
     }
   }
 }
@@ -254,28 +263,30 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-    if(pending_parents > 0 || pending_external_parents > 0) {
-      return;
+  if(pending_parents > 0 || pending_external_parents > 0)  {    
+    return;
+  }
+  if(issued || completed)
+    assert(false);
+  if(type == TERMINATOR) {
+    c->completed_nodes.insert(this);
+    completed = true;
+    if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
+      core->context_to_create++;
+  }
+  else {
+    assert(c->issue_set.find(this) == c->issue_set.end());
+    if(isMem) {
+      addr_resolved = true;
+      core->lsq.resolveAddress(this);
     }
-    if(issued || completed)
-      assert(false);
-    if(type == TERMINATOR) {
-      c->completed_nodes.insert(this);
-      completed = true;
-      if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
-        core->context_to_create++;
-    }
-    else {
-      assert(c->issue_set.find(this) == c->issue_set.end());
-      if(isMem) {
-        addr_resolved = true;
-        core->lsq.resolveAddress(this);
-      }
-      c->issue_set.insert(this);
-    }
+    c->issue_set.insert(this);
+  }
 }
 
 bool DynamicNode::issueCompNode() {
+  if(!core->window.canIssue(this))
+    return false;
   stat.update("comp_issue_try");
   core->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
@@ -291,7 +302,9 @@ bool DynamicNode::issueCompNode() {
   return true;
 }
 
-bool DynamicNode::issueMemNode() {  
+bool DynamicNode::issueMemNode() {
+  if(!core->window.canIssue(this))
+    return false;
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD) {
@@ -367,19 +380,19 @@ bool DynamicNode::issueMemNode() {
 }
 
 bool DynamicNode::issueDESCNode() {
+  if(!core->window.canIssue(this))
+    return false;
   issued = true;
   core->communicate(this);
   return true;  
 }
 
 
-void DynamicNode::finishNode() {
-  print("Finished Execution", 1);
+void DynamicNode::finishNode() {  
   if(n->typeInstr==RECV)
     assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());
   if(n->typeInstr==STADDR)
     assert(core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
-           
   c->completed_nodes.insert(this);
   completed = true;
 

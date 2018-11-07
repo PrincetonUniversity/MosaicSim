@@ -1,6 +1,5 @@
 #ifndef CORE_H
 #define CORE_H
-
 #include "../common.h"
 #include "../sim.h"
 #include "../graph/Graph.h"
@@ -18,6 +17,25 @@ class Cache;
 
 typedef chrono::high_resolution_clock Clock;
 
+struct DNPointerLT {
+    bool operator()(const DynamicNode* a, const DynamicNode* b) const {
+        return *a < *b;
+    }
+};
+
+class IssueWindow {
+public:
+  map<DynamicNode*, uint64_t, DNPointerLT> issueMap;
+  vector<DynamicNode*> issueQ;
+  uint64_t max_size=1;
+  uint64_t window_start=0;
+  uint64_t curr_index=0;
+  uint64_t window_end=max_size-1;
+  void insertDN(DynamicNode* d);
+  bool canIssue(DynamicNode* d);
+  void shift();
+};
+
 class Core {
 public:
   string name; 
@@ -25,7 +43,7 @@ public:
   Graph g;
   uint64_t cycles = 0;
   //queue<DynamicNode*> inputQ;
-
+  IssueWindow window;
   Config local_cfg; 
   Simulator* master;
   Statistics local_stat;

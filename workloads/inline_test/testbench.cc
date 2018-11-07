@@ -67,12 +67,13 @@ using namespace std;
 // }
 
 int helper(int myint, int* a) {
-  vector<int> myvec;
+  //vector<int> myvec;
   for (int i=1; i<ARRAY_SIZE; i++) {
     a[i]=a[i-1]*2;
-    myvec.push_back(a[i]);
+    //myvec.push_back(a[i]);
   }  
-  return myvec.at(a[ARRAY_SIZE-1]);
+  //return myvec.at(a[ARRAY_SIZE-1]);
+  return a[ARRAY_SIZE-1];
 }
 
 int randfunc(int myint, int* a) {

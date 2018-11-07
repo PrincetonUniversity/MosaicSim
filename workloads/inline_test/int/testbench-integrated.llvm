@@ -32,10 +32,6 @@ target triple = "x86_64-unknown-linux-gnu"
 %"class.std::num_put" = type { %"class.std::locale::facet.base", [4 x i8] }
 %"class.std::ios_base::Init" = type { i8 }
 %struct.__va_list_tag = type { i32, i32, i8*, i8* }
-%"class.std::move_iterator" = type { i32* }
-%"class.std::vector" = type { %"struct.std::_Vector_base" }
-%"struct.std::_Vector_base" = type { %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl" }
-%"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl" = type { i32*, i32*, i32* }
 
 @f1 = dso_local global %"class.std::basic_ofstream" zeroinitializer, align 8
 @f2 = dso_local global %"class.std::basic_ofstream" zeroinitializer, align 8
@@ -55,8 +51,6 @@ target triple = "x86_64-unknown-linux-gnu"
 @.str.11 = private unnamed_addr constant [3 x i8] c"S,\00", align 1
 @.str.13 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
 @_ZStL8__ioinit.2 = internal global %"class.std::ios_base::Init" zeroinitializer, align 1
-@.str.1 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
-@.str.12 = private unnamed_addr constant [28 x i8] c"vector::_M_emplace_back_aux\00", align 1
 @_ZSt4cout = external dso_local global %"class.std::basic_ostream", align 8
 
 ; Function Attrs: uwtable
@@ -88,7 +82,7 @@ declare dso_local void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.s
 ; Function Attrs: noinline uwtable
 define dso_local void @_Z11printBranchPciS_S_(i8* %name, i32 %cond, i8* %n1, i8* %n2) local_unnamed_addr #5 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #14
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
@@ -184,7 +178,7 @@ declare dso_local i64 @strlen(i8* nocapture) local_unnamed_addr #7
 ; Function Attrs: noinline uwtable
 define dso_local void @_Z12printuBranchPcS_(i8* %name, i8* %n1) local_unnamed_addr #5 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #14
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
@@ -211,11 +205,11 @@ if.else.i:                                        ; preds = %if.then
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
-  %call.i.i11 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #14
+  %call.i.i11 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #15
   br i1 %call.i.i11, label %if.end4, label %if.then3
 
 if.then3:                                         ; preds = %if.end
-  tail call void @__assert_fail(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.6, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.7, i64 0, i64 0), i32 27, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__PRETTY_FUNCTION__._Z12printuBranchPcS_, i64 0, i64 0)) #15
+  tail call void @__assert_fail(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.6, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.7, i64 0, i64 0), i32 27, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__PRETTY_FUNCTION__._Z12printuBranchPcS_, i64 0, i64 0)) #16
   unreachable
 
 if.end4:                                          ; preds = %if.end
@@ -277,7 +271,7 @@ declare dso_local void @__assert_fail(i8*, i8*, i32, i8*) local_unnamed_addr #8
 ; Function Attrs: noinline uwtable
 define dso_local void @_Z8printMemPcbxi(i8* %name, i1 zeroext %type, i64 %addr, i32 %size) local_unnamed_addr #5 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1, i32 2)) #14
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1, i32 2)) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
@@ -382,7 +376,7 @@ declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%
 define dso_local void @_Z7printSwPciS_iz(i8* %name, i32 %value, i8* %def, i32 %n, ...) local_unnamed_addr #5 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) {
 entry:
   %vl = alloca [1 x %struct.__va_list_tag], align 16
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #14
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
@@ -519,7 +513,7 @@ cond.true.i.i:                                    ; preds = %if.else.i68
   br i1 %cmp.i.i.i.i, label %if.then.i.i.i.i, label %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i
 
 if.then.i.i.i.i:                                  ; preds = %cond.true.i.i
-  invoke void @_ZSt17__throw_bad_allocv() #16
+  invoke void @_ZSt17__throw_bad_allocv() #17
           to label %.noexc71 unwind label %lpad.loopexit.split-lp
 
 .noexc71:                                         ; preds = %if.then.i.i.i.i
@@ -595,7 +589,7 @@ cond.true.i.i92:                                  ; preds = %if.else.i78
   br i1 %cmp.i.i.i.i91, label %if.then.i.i.i.i93, label %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
 
 if.then.i.i.i.i93:                                ; preds = %cond.true.i.i92
-  invoke void @_ZSt17__throw_bad_allocv() #16
+  invoke void @_ZSt17__throw_bad_allocv() #17
           to label %.noexc115 unwind label %lpad.loopexit.split-lp
 
 .noexc115:                                        ; preds = %if.then.i.i.i.i93
@@ -679,7 +673,7 @@ if.then30:                                        ; preds = %invoke.cont27
   br i1 %cmp.i.i123, label %35, label %if.then.i.i124
 
 if.then.i.i124:                                   ; preds = %if.then30
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.13, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i122) #16
+  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.13, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i122) #17
           to label %.noexc126 unwind label %lpad26
 
 .noexc126:                                        ; preds = %if.then.i.i124
@@ -852,379 +846,39 @@ entry:
   ret void
 }
 
-; Function Attrs: noinline uwtable
-define dso_local i32 @_Z6helperiPi(i32 %myint, i32* %a) local_unnamed_addr #5 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) {
+; Function Attrs: noinline norecurse nounwind uwtable
+define dso_local i32 @_Z6helperiPi(i32 %myint, i32* nocapture %a) local_unnamed_addr #13 {
 entry:
-  %retval.i1.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i1.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %retval.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__n.addr.i.i.i = alloca i64, align 8
-  %ref.tmp.i.i.i = alloca i64, align 8
-  %myvec = alloca %"class.std::vector", align 8
-  %0 = bitcast %"class.std::vector"* %myvec to i8*
-  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %0) #3
-  %1 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %_M_impl.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %1, i64 0, i32 0
-  %2 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i to %"class.std::ios_base::Init"*
-  %3 = bitcast %"class.std::ios_base::Init"* %2 to %"class.std::ios_base::Init"*
-  %4 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i to i8*
-  call void @llvm.memset.p0i8.i64(i8* align 8 %4, i8 0, i64 24, i1 false) #3
+  %.pre = load i32, i32* %a, align 4, !tbaa !15
   br label %for.body
 
-for.cond.cleanup:                                 ; preds = %for.inc
-  %arrayidx5 = getelementptr inbounds i32, i32* %a, i64 99
-  %5 = load i32, i32* %arrayidx5, align 4, !tbaa !15
-  %conv = sext i32 %5 to i64
-  %_M_finish.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %6 = bitcast i32** %_M_finish.i.i.i to i64*
-  %7 = load i64, i64* %6, align 8, !tbaa !17
-  %8 = bitcast %"class.std::vector"* %myvec to i64*
-  %9 = load i64, i64* %8, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i = sub i64 %7, %9
-  %sub.ptr.div.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i, 2
-  %cmp.i.i = icmp ugt i64 %sub.ptr.div.i.i.i, %conv
-  br i1 %cmp.i.i, label %_ZNSt6vectorIiSaIiEE2atEm.exit, label %if.then.i.i
+for.cond.cleanup:                                 ; preds = %for.body
+  %arrayidx3 = getelementptr inbounds i32, i32* %a, i64 99
+  %0 = load i32, i32* %arrayidx3, align 4, !tbaa !15
+  ret i32 %0
 
-if.then.i.i:                                      ; preds = %for.cond.cleanup
-  %_M_finish.i1.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %10 = bitcast i32** %_M_finish.i1.i.i to i64*
-  %11 = load i64, i64* %10, align 8, !tbaa !17
-  %12 = bitcast %"class.std::vector"* %myvec to i64*
-  %13 = load i64, i64* %12, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i = sub i64 %11, %13
-  %sub.ptr.div.i3.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i, 2
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.1, i64 0, i64 0), i64 %conv, i64 %sub.ptr.div.i3.i.i) #16
-          to label %.noexc unwind label %lpad6
-
-.noexc:                                           ; preds = %if.then.i.i
-  unreachable
-
-_ZNSt6vectorIiSaIiEE2atEm.exit:                   ; preds = %for.cond.cleanup
-  %_M_start.i.i1 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 0
-  %14 = load i32*, i32** %_M_start.i.i1, align 8, !tbaa !20
-  %add.ptr.i.i = getelementptr inbounds i32, i32* %14, i64 %conv
-  br label %invoke.cont7
-
-for.body:                                         ; preds = %for.inc, %entry
-  %indvars.iv = phi i64 [ 1, %entry ], [ %indvars.iv.next, %for.inc ]
-  %15 = add nsw i64 %indvars.iv, -1
-  %arrayidx = getelementptr inbounds i32, i32* %a, i64 %15
-  %16 = load i32, i32* %arrayidx, align 4, !tbaa !15
-  %mul = shl nsw i32 %16, 1
+for.body:                                         ; preds = %for.body, %entry
+  %1 = phi i32 [ %.pre, %entry ], [ %mul.2, %for.body ]
+  %indvars.iv = phi i64 [ 1, %entry ], [ %indvars.iv.next.2, %for.body ]
+  %mul = shl nsw i32 %1, 1
   %arrayidx2 = getelementptr inbounds i32, i32* %a, i64 %indvars.iv
   store i32 %mul, i32* %arrayidx2, align 4, !tbaa !15
-  %_M_finish.i2 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %17 = load i32*, i32** %_M_finish.i2, align 8, !tbaa !17
-  %_M_end_of_storage.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 2
-  %18 = load i32*, i32** %_M_end_of_storage.i, align 8, !tbaa !21
-  %cmp.i = icmp eq i32* %17, %18
-  br i1 %cmp.i, label %if.else.i, label %if.then.i
-
-if.then.i:                                        ; preds = %for.body
-  %19 = bitcast %"class.std::vector"* %myvec to %"class.std::ios_base::Init"*
-  %20 = bitcast %"class.std::ios_base::Init"* %19 to %"class.std::ios_base::Init"*
-  %21 = load i32, i32* %arrayidx2, align 4, !tbaa !15
-  store i32 %21, i32* %17, align 4, !tbaa !15
-  %22 = load i32*, i32** %_M_finish.i2, align 8, !tbaa !17
-  %incdec.ptr.i = getelementptr inbounds i32, i32* %22, i64 1
-  store i32* %incdec.ptr.i, i32** %_M_finish.i2, align 8, !tbaa !17
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit
-
-if.else.i:                                        ; preds = %for.body
-  %23 = bitcast i64* %__n.addr.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %23)
-  store i64 1, i64* %__n.addr.i.i.i, align 8, !tbaa !22
-  %24 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %25 = bitcast %"struct.std::_Vector_base"* %24 to %"class.std::ios_base::Init"*
-  %26 = bitcast %"class.std::ios_base::Init"* %25 to %"class.std::ios_base::Init"*
-  %_M_finish.i7.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %27 = bitcast i32** %_M_finish.i7.i.i.i to i64*
-  %28 = load i64, i64* %27, align 8, !tbaa !17
-  %29 = bitcast %"class.std::vector"* %myvec to i64*
-  %30 = load i64, i64* %29, align 8, !tbaa !20
-  %sub.ptr.sub.i8.i.i.i = sub i64 %28, %30
-  %sub.ptr.div.i9.i.i.i = ashr exact i64 %sub.ptr.sub.i8.i.i.i, 2
-  %sub.i.i.i = sub i64 4611686018427387903, %sub.ptr.div.i9.i.i.i
-  %cmp.i.i.i = icmp ult i64 %sub.i.i.i, 1
-  br i1 %cmp.i.i.i, label %if.then.i.i.i3, label %if.end.i.i.i
-
-if.then.i.i.i3:                                   ; preds = %if.else.i
-  invoke void @_ZSt20__throw_length_errorPKc(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.12, i64 0, i64 0)) #16
-          to label %.noexc13 unwind label %lpad
-
-.noexc13:                                         ; preds = %if.then.i.i.i3
-  unreachable
-
-if.end.i.i.i:                                     ; preds = %if.else.i
-  %_M_finish.i4.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %31 = bitcast i32** %_M_finish.i4.i.i.i to i64*
-  %32 = load i64, i64* %31, align 8, !tbaa !17
-  %33 = bitcast %"class.std::vector"* %myvec to i64*
-  %34 = load i64, i64* %33, align 8, !tbaa !20
-  %sub.ptr.sub.i5.i.i.i = sub i64 %32, %34
-  %sub.ptr.div.i6.i.i.i = ashr exact i64 %sub.ptr.sub.i5.i.i.i, 2
-  %35 = bitcast i64* %ref.tmp.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %35) #3
-  %_M_finish.i1.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %36 = bitcast i32** %_M_finish.i1.i.i.i to i64*
-  %37 = load i64, i64* %36, align 8, !tbaa !17
-  %38 = bitcast %"class.std::vector"* %myvec to i64*
-  %39 = load i64, i64* %38, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i.i = sub i64 %37, %39
-  %sub.ptr.div.i3.i.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i.i, 2
-  store i64 %sub.ptr.div.i3.i.i.i, i64* %ref.tmp.i.i.i, align 8, !tbaa !22
-  %40 = load i64, i64* %ref.tmp.i.i.i, align 8, !tbaa !22
-  %41 = load i64, i64* %__n.addr.i.i.i, align 8, !tbaa !22
-  %cmp.i.i.i.i = icmp ult i64 %40, %41
-  %__b.__a.i.i.i.i = select i1 %cmp.i.i.i.i, i64* %__n.addr.i.i.i, i64* %ref.tmp.i.i.i
-  %42 = load i64, i64* %__b.__a.i.i.i.i, align 8, !tbaa !22
-  %add.i.i.i = add i64 %42, %sub.ptr.div.i6.i.i.i
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %35) #3
-  %_M_finish.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %43 = bitcast i32** %_M_finish.i.i.i.i to i64*
-  %44 = load i64, i64* %43, align 8, !tbaa !17
-  %45 = bitcast %"class.std::vector"* %myvec to i64*
-  %46 = load i64, i64* %45, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i.i = sub i64 %44, %46
-  %sub.ptr.div.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i, 2
-  %cmp7.i.i.i = icmp ult i64 %add.i.i.i, %sub.ptr.div.i.i.i.i
-  br i1 %cmp7.i.i.i, label %cond.true.i.i.i, label %lor.lhs.false.i.i.i
-
-lor.lhs.false.i.i.i:                              ; preds = %if.end.i.i.i
-  %47 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %48 = bitcast %"struct.std::_Vector_base"* %47 to %"class.std::ios_base::Init"*
-  %49 = bitcast %"class.std::ios_base::Init"* %48 to %"class.std::ios_base::Init"*
-  %cmp9.i.i.i = icmp ugt i64 %add.i.i.i, 4611686018427387903
-  br i1 %cmp9.i.i.i, label %cond.true.i.i.i, label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i
-
-cond.true.i.i.i:                                  ; preds = %lor.lhs.false.i.i.i, %if.end.i.i.i
-  %50 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %51 = bitcast %"struct.std::_Vector_base"* %50 to %"class.std::ios_base::Init"*
-  %52 = bitcast %"class.std::ios_base::Init"* %51 to %"class.std::ios_base::Init"*
-  br label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i
-
-_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i: ; preds = %cond.true.i.i.i, %lor.lhs.false.i.i.i
-  %cond.i.i.i = phi i64 [ 4611686018427387903, %cond.true.i.i.i ], [ %add.i.i.i, %lor.lhs.false.i.i.i ]
-  %53 = bitcast i64* %__n.addr.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %53)
-  %54 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %cmp.i1.i.i = icmp eq i64 %cond.i.i.i, 0
-  br i1 %cmp.i1.i.i, label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i, label %cond.true.i2.i.i
-
-cond.true.i2.i.i:                                 ; preds = %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i
-  %55 = bitcast %"struct.std::_Vector_base"* %54 to %"class.std::ios_base::Init"*
-  %56 = bitcast %"class.std::ios_base::Init"* %55 to %"class.std::ios_base::Init"*
-  %cmp.i.i.i.i.i = icmp ult i64 4611686018427387903, %cond.i.i.i
-  br i1 %cmp.i.i.i.i.i, label %if.then.i.i.i.i.i, label %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i
-
-if.then.i.i.i.i.i:                                ; preds = %cond.true.i2.i.i
-  invoke void @_ZSt17__throw_bad_allocv() #16
-          to label %.noexc14 unwind label %lpad
-
-.noexc14:                                         ; preds = %if.then.i.i.i.i.i
-  unreachable
-
-_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i: ; preds = %cond.true.i2.i.i
-  %mul.i.i.i.i.i = shl i64 %cond.i.i.i, 2
-  %call2.i.i.i.i.i15 = invoke i8* @_Znwm(i64 %mul.i.i.i.i.i)
-          to label %call2.i.i.i.i.i.noexc unwind label %lpad
-
-call2.i.i.i.i.i.noexc:                            ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i
-  %57 = bitcast i8* %call2.i.i.i.i.i15 to i32*
-  br label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i
-
-_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i: ; preds = %call2.i.i.i.i.i.noexc, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i
-  %cond.i3.i.i = phi i32* [ %57, %call2.i.i.i.i.i.noexc ], [ null, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i ]
-  %58 = bitcast %"class.std::vector"* %myvec to %"class.std::ios_base::Init"*
-  %_M_finish.i.i.i4 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %59 = bitcast i32** %_M_finish.i.i.i4 to i64*
-  %60 = load i64, i64* %59, align 8, !tbaa !17
-  %61 = bitcast %"class.std::vector"* %myvec to i64*
-  %62 = load i64, i64* %61, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i5 = sub i64 %60, %62
-  %sub.ptr.div.i.i.i6 = ashr exact i64 %sub.ptr.sub.i.i.i5, 2
-  %add.ptr.i.i7 = getelementptr inbounds i32, i32* %cond.i3.i.i, i64 %sub.ptr.div.i.i.i6
-  %63 = bitcast %"class.std::ios_base::Init"* %58 to %"class.std::ios_base::Init"*
-  %64 = load i32, i32* %arrayidx2, align 4, !tbaa !15
-  store i32 %64, i32* %add.ptr.i.i7, align 4, !tbaa !15
-  %_M_start.i.i8 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 0
-  %65 = load i32*, i32** %_M_start.i.i8, align 8, !tbaa !20
-  %_M_finish.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %66 = load i32*, i32** %_M_finish.i.i, align 8, !tbaa !17
-  %67 = bitcast %"struct.std::_Vector_base"* %54 to %"class.std::ios_base::Init"*
-  %68 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %68)
-  %_M_current.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i, i64 0, i32 0
-  store i32* %65, i32** %_M_current.i.i.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i, i64 0, i32 0
-  %69 = load i32*, i32** %coerce.dive.i.i.i.i, align 8
-  %70 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %70)
-  %71 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %71)
-  %_M_current.i.i2.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i, i64 0, i32 0
-  store i32* %66, i32** %_M_current.i.i2.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i3.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i, i64 0, i32 0
-  %72 = load i32*, i32** %coerce.dive.i3.i.i.i, align 8
-  %73 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %73)
-  %74 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %74)
-  %coerce.dive.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %69, i32** %coerce.dive.i.i.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  %75 = load i32*, i32** %_M_current.i.i.i.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %76 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %76)
-  %77 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %77)
-  %coerce.dive.i.i2.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %72, i32** %coerce.dive.i.i2.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i3.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i, i64 0, i32 0
-  %78 = load i32*, i32** %_M_current.i.i.i3.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %79 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %79)
-  %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %78 to i64
-  %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %75 to i64
-  %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i = sub i64 %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i, %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i
-  %sub.ptr.div.i.i.i.i.i.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i, 2
-  %tobool.i.i.i.i.i.i.i.i.i.i = icmp eq i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i, 0
-  br i1 %tobool.i.i.i.i.i.i.i.i.i.i, label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i, label %if.then.i.i.i.i.i.i.i.i.i.i
-
-if.then.i.i.i.i.i.i.i.i.i.i:                      ; preds = %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i
-  %80 = bitcast i32* %cond.i3.i.i to i8*
-  %81 = bitcast i32* %75 to i8*
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 4 %80, i8* align 4 %81, i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i, i1 false) #3
-  br label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i
-
-_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i: ; preds = %if.then.i.i.i.i.i.i.i.i.i.i, %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i
-  %add.ptr.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i, i64 %sub.ptr.div.i.i.i.i.i.i.i.i.i.i
-  %incdec.ptr.i.i = getelementptr inbounds i32, i32* %add.ptr.i.i.i.i.i.i.i.i.i.i, i64 1
-  %82 = load i32*, i32** %_M_start.i.i8, align 8, !tbaa !20
-  %83 = load i32*, i32** %_M_finish.i.i, align 8, !tbaa !17
-  %84 = bitcast %"struct.std::_Vector_base"* %54 to %"class.std::ios_base::Init"*
-  %85 = load i32*, i32** %_M_start.i.i8, align 8, !tbaa !20
-  %_M_end_of_storage.i.i9 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 2
-  %86 = bitcast i32** %_M_end_of_storage.i.i9 to i64*
-  %87 = load i64, i64* %86, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i10 = ptrtoint i32* %85 to i64
-  %sub.ptr.sub.i.i11 = sub i64 %87, %sub.ptr.rhs.cast.i.i10
-  %sub.ptr.div.i.i12 = ashr exact i64 %sub.ptr.sub.i.i11, 2
-  %tobool.i9.i.i = icmp eq i32* %85, null
-  br i1 %tobool.i9.i.i, label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i, label %if.then.i10.i.i
-
-if.then.i10.i.i:                                  ; preds = %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i
-  %88 = bitcast %"struct.std::_Vector_base"* %54 to %"class.std::ios_base::Init"*
-  %89 = bitcast %"class.std::ios_base::Init"* %88 to %"class.std::ios_base::Init"*
-  %90 = bitcast i32* %85 to i8*
-  call void @_ZdlPv(i8* %90) #3
-  br label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i
-
-_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i: ; preds = %if.then.i10.i.i, %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i
-  store i32* %cond.i3.i.i, i32** %_M_start.i.i8, align 8, !tbaa !20
-  store i32* %incdec.ptr.i.i, i32** %_M_finish.i.i, align 8, !tbaa !17
-  %add.ptr33.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i, i64 %cond.i.i.i
-  store i32* %add.ptr33.i.i, i32** %_M_end_of_storage.i.i9, align 8, !tbaa !21
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit
-
-_ZNSt6vectorIiSaIiEE9push_backERKi.exit:          ; preds = %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i, %if.then.i
-  br label %for.inc
-
-for.inc:                                          ; preds = %_ZNSt6vectorIiSaIiEE9push_backERKi.exit
   %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
-  %cmp = icmp ult i64 %indvars.iv.next, 100
-  br i1 %cmp, label %for.body, label %for.cond.cleanup
-
-lpad:                                             ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i, %if.then.i.i.i.i.i, %if.then.i.i.i3
-  %91 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup
-
-invoke.cont7:                                     ; preds = %_ZNSt6vectorIiSaIiEE2atEm.exit
-  %92 = load i32, i32* %add.ptr.i.i, align 4, !tbaa !15
-  %93 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %_M_start.i16 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 0
-  %94 = load i32*, i32** %_M_start.i16, align 8, !tbaa !20
-  %_M_finish.i17 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %95 = load i32*, i32** %_M_finish.i17, align 8, !tbaa !17
-  %96 = bitcast %"struct.std::_Vector_base"* %93 to %"class.std::ios_base::Init"*
-  %_M_start.i.i18 = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %93, i64 0, i32 0, i32 0
-  %97 = load i32*, i32** %_M_start.i.i18, align 8, !tbaa !20
-  %_M_end_of_storage.i.i19 = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %93, i64 0, i32 0, i32 2
-  %98 = bitcast i32** %_M_end_of_storage.i.i19 to i64*
-  %99 = load i64, i64* %98, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i20 = ptrtoint i32* %97 to i64
-  %sub.ptr.sub.i.i21 = sub i64 %99, %sub.ptr.rhs.cast.i.i20
-  %sub.ptr.div.i.i22 = ashr exact i64 %sub.ptr.sub.i.i21, 2
-  %tobool.i.i.i23 = icmp eq i32* %97, null
-  br i1 %tobool.i.i.i23, label %_ZNSt6vectorIiSaIiEED2Ev.exit25, label %if.then.i.i.i24
-
-if.then.i.i.i24:                                  ; preds = %invoke.cont7
-  %100 = bitcast %"struct.std::_Vector_base"* %93 to %"class.std::ios_base::Init"*
-  %101 = bitcast %"class.std::ios_base::Init"* %100 to %"class.std::ios_base::Init"*
-  %102 = bitcast i32* %97 to i8*
-  call void @_ZdlPv(i8* %102) #3
-  br label %_ZNSt6vectorIiSaIiEED2Ev.exit25
-
-_ZNSt6vectorIiSaIiEED2Ev.exit25:                  ; preds = %if.then.i.i.i24, %invoke.cont7
-  %103 = bitcast %"struct.std::_Vector_base"* %93 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
-  ret i32 %92
-
-lpad6:                                            ; preds = %if.then.i.i
-  %104 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup
-
-ehcleanup:                                        ; preds = %lpad6, %lpad
-  %.sink21 = phi { i8*, i32 } [ %104, %lpad6 ], [ %91, %lpad ]
-  %105 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0
-  %_M_start.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 0
-  %106 = load i32*, i32** %_M_start.i, align 8, !tbaa !20
-  %_M_finish.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec, i64 0, i32 0, i32 0, i32 1
-  %107 = load i32*, i32** %_M_finish.i, align 8, !tbaa !17
-  %108 = bitcast %"struct.std::_Vector_base"* %105 to %"class.std::ios_base::Init"*
-  %_M_start.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %105, i64 0, i32 0, i32 0
-  %109 = load i32*, i32** %_M_start.i.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %105, i64 0, i32 0, i32 2
-  %110 = bitcast i32** %_M_end_of_storage.i.i to i64*
-  %111 = load i64, i64* %110, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i = ptrtoint i32* %109 to i64
-  %sub.ptr.sub.i.i = sub i64 %111, %sub.ptr.rhs.cast.i.i
-  %sub.ptr.div.i.i = ashr exact i64 %sub.ptr.sub.i.i, 2
-  %tobool.i.i.i = icmp eq i32* %109, null
-  br i1 %tobool.i.i.i, label %_ZNSt6vectorIiSaIiEED2Ev.exit, label %if.then.i.i.i
-
-if.then.i.i.i:                                    ; preds = %ehcleanup
-  %112 = bitcast %"struct.std::_Vector_base"* %105 to %"class.std::ios_base::Init"*
-  %113 = bitcast %"class.std::ios_base::Init"* %112 to %"class.std::ios_base::Init"*
-  %114 = bitcast i32* %109 to i8*
-  call void @_ZdlPv(i8* %114) #3
-  br label %_ZNSt6vectorIiSaIiEED2Ev.exit
-
-_ZNSt6vectorIiSaIiEED2Ev.exit:                    ; preds = %if.then.i.i.i, %ehcleanup
-  %115 = bitcast %"struct.std::_Vector_base"* %105 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
-  resume { i8*, i32 } %.sink21
+  %mul.1 = shl i32 %1, 2
+  %arrayidx2.1 = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next
+  store i32 %mul.1, i32* %arrayidx2.1, align 4, !tbaa !15
+  %indvars.iv.next.1 = add nuw nsw i64 %indvars.iv, 2
+  %mul.2 = shl i32 %1, 3
+  %arrayidx2.2 = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next.1
+  store i32 %mul.2, i32* %arrayidx2.2, align 4, !tbaa !15
+  %indvars.iv.next.2 = add nuw nsw i64 %indvars.iv, 3
+  %exitcond.2 = icmp eq i64 %indvars.iv.next.2, 100
+  br i1 %exitcond.2, label %for.cond.cleanup, label %for.body
 }
 
-; Function Attrs: argmemonly nounwind
-declare void @llvm.memset.p0i8.i64(i8* nocapture writeonly, i8, i64, i1) #9
-
-; Function Attrs: noreturn
-declare dso_local void @_ZSt20__throw_length_errorPKc(i8*) local_unnamed_addr #10
-
-; Function Attrs: noinline uwtable
-define dso_local i32 @_Z8randfunciPi(i32 %myint, i32* %a) local_unnamed_addr #5 personality i32 (...)* @__gxx_personality_v0 {
+; Function Attrs: noinline norecurse nounwind uwtable
+define dso_local i32 @_Z8randfunciPi(i32 %myint, i32* nocapture %a) local_unnamed_addr #13 {
 entry:
-  %retval.i1.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i1.i.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i.i.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %retval.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__n.addr.i.i.i.i = alloca i64, align 8
-  %ref.tmp.i.i.i.i = alloca i64, align 8
-  %myvec.i = alloca %"class.std::vector", align 8
   %.pre = load i32, i32* %a, align 4, !tbaa !15
   %arrayidx2 = getelementptr inbounds i32, i32* %a, i64 1
   store i32 %.pre, i32* %arrayidx2, align 4, !tbaa !15
@@ -1424,359 +1078,38 @@ entry:
   store i32 %.pre, i32* %arrayidx2.97, align 4, !tbaa !15
   %arrayidx2.98 = getelementptr inbounds i32, i32* %a, i64 99
   store i32 %.pre, i32* %arrayidx2.98, align 4, !tbaa !15
-  %0 = bitcast %"class.std::vector"* %myvec.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %0) #3
-  %1 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %_M_impl.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %1, i64 0, i32 0
-  %2 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i.i to %"class.std::ios_base::Init"*
-  %3 = bitcast %"class.std::ios_base::Init"* %2 to %"class.std::ios_base::Init"*
-  %4 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i.i to i8*
-  call void @llvm.memset.p0i8.i64(i8* align 8 %4, i8 0, i64 24, i1 false) #3
+  %.pre.i = load i32, i32* %a, align 4, !tbaa !15
   br label %for.body.i
 
-for.cond.cleanup.i:                               ; preds = %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i
-  %arrayidx5.i = getelementptr inbounds i32, i32* %a, i64 99
-  %5 = load i32, i32* %arrayidx5.i, align 4, !tbaa !15
-  %conv.i = sext i32 %5 to i64
-  %_M_finish.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %6 = bitcast i32** %_M_finish.i.i.i.i to i64*
-  %7 = load i64, i64* %6, align 8, !tbaa !17
-  %8 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %9 = load i64, i64* %8, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i.i = sub i64 %7, %9
-  %sub.ptr.div.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i, 2
-  %cmp.i.i.i = icmp ugt i64 %sub.ptr.div.i.i.i.i, %conv.i
-  br i1 %cmp.i.i.i, label %_ZNSt6vectorIiSaIiEE2atEm.exit.i, label %if.then.i.i.i
-
-if.then.i.i.i:                                    ; preds = %for.cond.cleanup.i
-  %_M_finish.i1.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %10 = bitcast i32** %_M_finish.i1.i.i.i to i64*
-  %11 = load i64, i64* %10, align 8, !tbaa !17
-  %12 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %13 = load i64, i64* %12, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i.i = sub i64 %11, %13
-  %sub.ptr.div.i3.i.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i.i, 2
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.1, i64 0, i64 0), i64 %conv.i, i64 %sub.ptr.div.i3.i.i.i) #16
-          to label %.noexc.i unwind label %lpad6.i
-
-.noexc.i:                                         ; preds = %if.then.i.i.i
-  unreachable
-
-_ZNSt6vectorIiSaIiEE2atEm.exit.i:                 ; preds = %for.cond.cleanup.i
-  %_M_start.i.i1.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 0
-  %14 = load i32*, i32** %_M_start.i.i1.i, align 8, !tbaa !20
-  %add.ptr.i.i.i = getelementptr inbounds i32, i32* %14, i64 %conv.i
-  %15 = load i32, i32* %add.ptr.i.i.i, align 4, !tbaa !15
-  %16 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %_M_start.i16.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 0
-  %17 = load i32*, i32** %_M_start.i16.i, align 8, !tbaa !20
-  %_M_finish.i17.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %18 = load i32*, i32** %_M_finish.i17.i, align 8, !tbaa !17
-  %19 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  %_M_start.i.i18.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %16, i64 0, i32 0, i32 0
-  %20 = load i32*, i32** %_M_start.i.i18.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i19.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %16, i64 0, i32 0, i32 2
-  %21 = bitcast i32** %_M_end_of_storage.i.i19.i to i64*
-  %22 = load i64, i64* %21, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i20.i = ptrtoint i32* %20 to i64
-  %sub.ptr.sub.i.i21.i = sub i64 %22, %sub.ptr.rhs.cast.i.i20.i
-  %sub.ptr.div.i.i22.i = ashr exact i64 %sub.ptr.sub.i.i21.i, 2
-  %tobool.i.i.i23.i = icmp eq i32* %20, null
-  br i1 %tobool.i.i.i23.i, label %_Z6helperiPi.exit, label %if.then.i.i.i24.i
-
-for.body.i:                                       ; preds = %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i, %entry
-  %indvars.iv.i = phi i64 [ 1, %entry ], [ %indvars.iv.next.i, %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i ]
-  %23 = add nsw i64 %indvars.iv.i, -1
-  %arrayidx.i = getelementptr inbounds i32, i32* %a, i64 %23
-  %24 = load i32, i32* %arrayidx.i, align 4, !tbaa !15
-  %mul.i = shl nsw i32 %24, 1
+for.body.i:                                       ; preds = %for.body.i, %entry
+  %0 = phi i32 [ %.pre.i, %entry ], [ %mul.2.i, %for.body.i ]
+  %indvars.iv.i = phi i64 [ 1, %entry ], [ %indvars.iv.next.2.i, %for.body.i ]
+  %mul.i = shl nsw i32 %0, 1
   %arrayidx2.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.i
   store i32 %mul.i, i32* %arrayidx2.i, align 4, !tbaa !15
-  %_M_finish.i2.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %25 = load i32*, i32** %_M_finish.i2.i, align 8, !tbaa !17
-  %_M_end_of_storage.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 2
-  %26 = load i32*, i32** %_M_end_of_storage.i.i, align 8, !tbaa !21
-  %cmp.i.i = icmp eq i32* %25, %26
-  br i1 %cmp.i.i, label %if.else.i.i, label %if.then.i.i
-
-if.then.i.i:                                      ; preds = %for.body.i
-  %27 = bitcast %"class.std::vector"* %myvec.i to %"class.std::ios_base::Init"*
-  %28 = bitcast %"class.std::ios_base::Init"* %27 to %"class.std::ios_base::Init"*
-  %29 = load i32, i32* %arrayidx2.i, align 4, !tbaa !15
-  store i32 %29, i32* %25, align 4, !tbaa !15
-  %30 = load i32*, i32** %_M_finish.i2.i, align 8, !tbaa !17
-  %incdec.ptr.i.i = getelementptr inbounds i32, i32* %30, i64 1
-  store i32* %incdec.ptr.i.i, i32** %_M_finish.i2.i, align 8, !tbaa !17
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i
-
-if.else.i.i:                                      ; preds = %for.body.i
-  %31 = bitcast i64* %__n.addr.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %31)
-  store i64 1, i64* %__n.addr.i.i.i.i, align 8, !tbaa !22
-  %32 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %33 = bitcast %"struct.std::_Vector_base"* %32 to %"class.std::ios_base::Init"*
-  %34 = bitcast %"class.std::ios_base::Init"* %33 to %"class.std::ios_base::Init"*
-  %_M_finish.i7.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %35 = bitcast i32** %_M_finish.i7.i.i.i.i to i64*
-  %36 = load i64, i64* %35, align 8, !tbaa !17
-  %37 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %38 = load i64, i64* %37, align 8, !tbaa !20
-  %sub.ptr.sub.i8.i.i.i.i = sub i64 %36, %38
-  %sub.ptr.div.i9.i.i.i.i = ashr exact i64 %sub.ptr.sub.i8.i.i.i.i, 2
-  %sub.i.i.i.i = sub i64 4611686018427387903, %sub.ptr.div.i9.i.i.i.i
-  %cmp.i.i.i.i = icmp ult i64 %sub.i.i.i.i, 1
-  br i1 %cmp.i.i.i.i, label %if.then.i.i.i3.i, label %if.end.i.i.i.i
-
-if.then.i.i.i3.i:                                 ; preds = %if.else.i.i
-  invoke void @_ZSt20__throw_length_errorPKc(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.12, i64 0, i64 0)) #16
-          to label %.noexc13.i unwind label %lpad.i
-
-.noexc13.i:                                       ; preds = %if.then.i.i.i3.i
-  unreachable
-
-if.end.i.i.i.i:                                   ; preds = %if.else.i.i
-  %_M_finish.i4.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %39 = bitcast i32** %_M_finish.i4.i.i.i.i to i64*
-  %40 = load i64, i64* %39, align 8, !tbaa !17
-  %41 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %42 = load i64, i64* %41, align 8, !tbaa !20
-  %sub.ptr.sub.i5.i.i.i.i = sub i64 %40, %42
-  %sub.ptr.div.i6.i.i.i.i = ashr exact i64 %sub.ptr.sub.i5.i.i.i.i, 2
-  %43 = bitcast i64* %ref.tmp.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %43) #3
-  %_M_finish.i1.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %44 = bitcast i32** %_M_finish.i1.i.i.i.i to i64*
-  %45 = load i64, i64* %44, align 8, !tbaa !17
-  %46 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %47 = load i64, i64* %46, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i.i.i = sub i64 %45, %47
-  %sub.ptr.div.i3.i.i.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i.i.i, 2
-  store i64 %sub.ptr.div.i3.i.i.i.i, i64* %ref.tmp.i.i.i.i, align 8, !tbaa !22
-  %48 = load i64, i64* %ref.tmp.i.i.i.i, align 8, !tbaa !22
-  %49 = load i64, i64* %__n.addr.i.i.i.i, align 8, !tbaa !22
-  %cmp.i.i.i.i.i = icmp ult i64 %48, %49
-  %__b.__a.i.i.i.i.i = select i1 %cmp.i.i.i.i.i, i64* %__n.addr.i.i.i.i, i64* %ref.tmp.i.i.i.i
-  %50 = load i64, i64* %__b.__a.i.i.i.i.i, align 8, !tbaa !22
-  %add.i.i.i.i = add i64 %50, %sub.ptr.div.i6.i.i.i.i
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %43) #3
-  %_M_finish.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %51 = bitcast i32** %_M_finish.i.i.i.i.i to i64*
-  %52 = load i64, i64* %51, align 8, !tbaa !17
-  %53 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %54 = load i64, i64* %53, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i.i.i = sub i64 %52, %54
-  %sub.ptr.div.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i, 2
-  %cmp7.i.i.i.i = icmp ult i64 %add.i.i.i.i, %sub.ptr.div.i.i.i.i.i
-  br i1 %cmp7.i.i.i.i, label %cond.true.i.i.i.i, label %lor.lhs.false.i.i.i.i
-
-lor.lhs.false.i.i.i.i:                            ; preds = %if.end.i.i.i.i
-  %55 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %56 = bitcast %"struct.std::_Vector_base"* %55 to %"class.std::ios_base::Init"*
-  %57 = bitcast %"class.std::ios_base::Init"* %56 to %"class.std::ios_base::Init"*
-  %cmp9.i.i.i.i = icmp ugt i64 %add.i.i.i.i, 4611686018427387903
-  br i1 %cmp9.i.i.i.i, label %cond.true.i.i.i.i, label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i
-
-cond.true.i.i.i.i:                                ; preds = %lor.lhs.false.i.i.i.i, %if.end.i.i.i.i
-  %58 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %59 = bitcast %"struct.std::_Vector_base"* %58 to %"class.std::ios_base::Init"*
-  %60 = bitcast %"class.std::ios_base::Init"* %59 to %"class.std::ios_base::Init"*
-  br label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i
-
-_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i: ; preds = %cond.true.i.i.i.i, %lor.lhs.false.i.i.i.i
-  %cond.i.i.i.i = phi i64 [ 4611686018427387903, %cond.true.i.i.i.i ], [ %add.i.i.i.i, %lor.lhs.false.i.i.i.i ]
-  %61 = bitcast i64* %__n.addr.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %61)
-  %62 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %cmp.i1.i.i.i = icmp eq i64 %cond.i.i.i.i, 0
-  br i1 %cmp.i1.i.i.i, label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i, label %cond.true.i2.i.i.i
-
-cond.true.i2.i.i.i:                               ; preds = %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i
-  %63 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %64 = bitcast %"class.std::ios_base::Init"* %63 to %"class.std::ios_base::Init"*
-  %cmp.i.i.i.i.i.i = icmp ult i64 4611686018427387903, %cond.i.i.i.i
-  br i1 %cmp.i.i.i.i.i.i, label %if.then.i.i.i.i.i.i, label %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i
-
-if.then.i.i.i.i.i.i:                              ; preds = %cond.true.i2.i.i.i
-  invoke void @_ZSt17__throw_bad_allocv() #16
-          to label %.noexc14.i unwind label %lpad.i
-
-.noexc14.i:                                       ; preds = %if.then.i.i.i.i.i.i
-  unreachable
-
-_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i: ; preds = %cond.true.i2.i.i.i
-  %mul.i.i.i.i.i.i = shl i64 %cond.i.i.i.i, 2
-  %call2.i.i.i.i.i15.i = invoke i8* @_Znwm(i64 %mul.i.i.i.i.i.i)
-          to label %call2.i.i.i.i.i.noexc.i unwind label %lpad.i
-
-call2.i.i.i.i.i.noexc.i:                          ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i
-  %65 = bitcast i8* %call2.i.i.i.i.i15.i to i32*
-  br label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i
-
-_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i: ; preds = %call2.i.i.i.i.i.noexc.i, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i
-  %cond.i3.i.i.i = phi i32* [ %65, %call2.i.i.i.i.i.noexc.i ], [ null, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i ]
-  %66 = bitcast %"class.std::vector"* %myvec.i to %"class.std::ios_base::Init"*
-  %_M_finish.i.i.i4.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %67 = bitcast i32** %_M_finish.i.i.i4.i to i64*
-  %68 = load i64, i64* %67, align 8, !tbaa !17
-  %69 = bitcast %"class.std::vector"* %myvec.i to i64*
-  %70 = load i64, i64* %69, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i5.i = sub i64 %68, %70
-  %sub.ptr.div.i.i.i6.i = ashr exact i64 %sub.ptr.sub.i.i.i5.i, 2
-  %add.ptr.i.i7.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i, i64 %sub.ptr.div.i.i.i6.i
-  %71 = bitcast %"class.std::ios_base::Init"* %66 to %"class.std::ios_base::Init"*
-  %72 = load i32, i32* %arrayidx2.i, align 4, !tbaa !15
-  store i32 %72, i32* %add.ptr.i.i7.i, align 4, !tbaa !15
-  %_M_start.i.i8.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 0
-  %73 = load i32*, i32** %_M_start.i.i8.i, align 8, !tbaa !20
-  %_M_finish.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %74 = load i32*, i32** %_M_finish.i.i.i, align 8, !tbaa !17
-  %75 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %76 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %76)
-  %_M_current.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i.i, i64 0, i32 0
-  store i32* %73, i32** %_M_current.i.i.i.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i.i, i64 0, i32 0
-  %77 = load i32*, i32** %coerce.dive.i.i.i.i.i, align 8
-  %78 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %78)
-  %79 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %79)
-  %_M_current.i.i2.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i.i, i64 0, i32 0
-  store i32* %74, i32** %_M_current.i.i2.i.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i3.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i.i, i64 0, i32 0
-  %80 = load i32*, i32** %coerce.dive.i3.i.i.i.i, align 8
-  %81 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %81)
-  %82 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %82)
-  %coerce.dive.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %77, i32** %coerce.dive.i.i.i.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  %83 = load i32*, i32** %_M_current.i.i.i.i.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %84 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %84)
-  %85 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %85)
-  %coerce.dive.i.i2.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %80, i32** %coerce.dive.i.i2.i.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i3.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i, i64 0, i32 0
-  %86 = load i32*, i32** %_M_current.i.i.i3.i.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %87 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %87)
-  %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %86 to i64
-  %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %83 to i64
-  %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i = sub i64 %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i.i, %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i.i
-  %sub.ptr.div.i.i.i.i.i.i.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i, 2
-  %tobool.i.i.i.i.i.i.i.i.i.i.i = icmp eq i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i, 0
-  br i1 %tobool.i.i.i.i.i.i.i.i.i.i.i, label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i, label %if.then.i.i.i.i.i.i.i.i.i.i.i
-
-if.then.i.i.i.i.i.i.i.i.i.i.i:                    ; preds = %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i
-  %88 = bitcast i32* %cond.i3.i.i.i to i8*
-  %89 = bitcast i32* %83 to i8*
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 4 %88, i8* align 4 %89, i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i, i1 false) #3
-  br label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i
-
-_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i: ; preds = %if.then.i.i.i.i.i.i.i.i.i.i.i, %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i
-  %add.ptr.i.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i, i64 %sub.ptr.div.i.i.i.i.i.i.i.i.i.i.i
-  %incdec.ptr.i.i.i = getelementptr inbounds i32, i32* %add.ptr.i.i.i.i.i.i.i.i.i.i.i, i64 1
-  %90 = load i32*, i32** %_M_start.i.i8.i, align 8, !tbaa !20
-  %91 = load i32*, i32** %_M_finish.i.i.i, align 8, !tbaa !17
-  %92 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %93 = load i32*, i32** %_M_start.i.i8.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i9.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 2
-  %94 = bitcast i32** %_M_end_of_storage.i.i9.i to i64*
-  %95 = load i64, i64* %94, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i10.i = ptrtoint i32* %93 to i64
-  %sub.ptr.sub.i.i11.i = sub i64 %95, %sub.ptr.rhs.cast.i.i10.i
-  %sub.ptr.div.i.i12.i = ashr exact i64 %sub.ptr.sub.i.i11.i, 2
-  %tobool.i9.i.i.i = icmp eq i32* %93, null
-  br i1 %tobool.i9.i.i.i, label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i, label %if.then.i10.i.i.i
-
-if.then.i10.i.i.i:                                ; preds = %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i
-  %96 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %97 = bitcast %"class.std::ios_base::Init"* %96 to %"class.std::ios_base::Init"*
-  %98 = bitcast i32* %93 to i8*
-  call void @_ZdlPv(i8* %98) #3
-  br label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i
-
-_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i: ; preds = %if.then.i10.i.i.i, %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i
-  store i32* %cond.i3.i.i.i, i32** %_M_start.i.i8.i, align 8, !tbaa !20
-  store i32* %incdec.ptr.i.i.i, i32** %_M_finish.i.i.i, align 8, !tbaa !17
-  %add.ptr33.i.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i, i64 %cond.i.i.i.i
-  store i32* %add.ptr33.i.i.i, i32** %_M_end_of_storage.i.i9.i, align 8, !tbaa !21
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i
-
-_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i:        ; preds = %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i, %if.then.i.i
   %indvars.iv.next.i = add nuw nsw i64 %indvars.iv.i, 1
-  %cmp.i = icmp ult i64 %indvars.iv.next.i, 100
-  br i1 %cmp.i, label %for.body.i, label %for.cond.cleanup.i
+  %mul.1.i = shl i32 %0, 2
+  %arrayidx2.1.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next.i
+  store i32 %mul.1.i, i32* %arrayidx2.1.i, align 4, !tbaa !15
+  %indvars.iv.next.1.i = add nuw nsw i64 %indvars.iv.i, 2
+  %mul.2.i = shl i32 %0, 3
+  %arrayidx2.2.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next.1.i
+  store i32 %mul.2.i, i32* %arrayidx2.2.i, align 4, !tbaa !15
+  %indvars.iv.next.2.i = add nuw nsw i64 %indvars.iv.i, 3
+  %exitcond.2.i = icmp eq i64 %indvars.iv.next.2.i, 100
+  br i1 %exitcond.2.i, label %_Z6helperiPi.exit, label %for.body.i
 
-lpad.i:                                           ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i, %if.then.i.i.i.i.i.i, %if.then.i.i.i3.i
-  %99 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup.i
-
-if.then.i.i.i24.i:                                ; preds = %_ZNSt6vectorIiSaIiEE2atEm.exit.i
-  %100 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  %101 = bitcast %"class.std::ios_base::Init"* %100 to %"class.std::ios_base::Init"*
-  %102 = bitcast i32* %20 to i8*
-  call void @_ZdlPv(i8* %102) #3
-  br label %_Z6helperiPi.exit
-
-lpad6.i:                                          ; preds = %if.then.i.i.i
-  %103 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup.i
-
-ehcleanup.i:                                      ; preds = %lpad6.i, %lpad.i
-  %.sink21.i = phi { i8*, i32 } [ %103, %lpad6.i ], [ %99, %lpad.i ]
-  %104 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0
-  %_M_start.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 0
-  %105 = load i32*, i32** %_M_start.i.i, align 8, !tbaa !20
-  %_M_finish.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i, i64 0, i32 0, i32 0, i32 1
-  %106 = load i32*, i32** %_M_finish.i.i, align 8, !tbaa !17
-  %107 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  %_M_start.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %104, i64 0, i32 0, i32 0
-  %108 = load i32*, i32** %_M_start.i.i.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %104, i64 0, i32 0, i32 2
-  %109 = bitcast i32** %_M_end_of_storage.i.i.i to i64*
-  %110 = load i64, i64* %109, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i.i = ptrtoint i32* %108 to i64
-  %sub.ptr.sub.i.i.i = sub i64 %110, %sub.ptr.rhs.cast.i.i.i
-  %sub.ptr.div.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i, 2
-  %tobool.i.i.i.i = icmp eq i32* %108, null
-  br i1 %tobool.i.i.i.i, label %_ZNSt6vectorIiSaIiEED2Ev.exit.i, label %if.then.i.i.i.i
-
-if.then.i.i.i.i:                                  ; preds = %ehcleanup.i
-  %111 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  %112 = bitcast %"class.std::ios_base::Init"* %111 to %"class.std::ios_base::Init"*
-  %113 = bitcast i32* %108 to i8*
-  call void @_ZdlPv(i8* %113) #3
-  br label %_ZNSt6vectorIiSaIiEED2Ev.exit.i
-
-_ZNSt6vectorIiSaIiEED2Ev.exit.i:                  ; preds = %if.then.i.i.i.i, %ehcleanup.i
-  %114 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
-  resume { i8*, i32 } %.sink21.i
-
-_Z6helperiPi.exit:                                ; preds = %if.then.i.i.i24.i, %_ZNSt6vectorIiSaIiEE2atEm.exit.i
-  %115 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
+_Z6helperiPi.exit:                                ; preds = %for.body.i
+  %arrayidx3.i = getelementptr inbounds i32, i32* %a, i64 99
+  %1 = load i32, i32* %arrayidx3.i, align 4, !tbaa !15
   %arrayidx3 = getelementptr inbounds i32, i32* %a, i64 99
-  %116 = load i32, i32* %arrayidx3, align 4, !tbaa !15
-  ret i32 %116
+  %2 = load i32, i32* %arrayidx3, align 4, !tbaa !15
+  ret i32 %2
 }
 
 ; Function Attrs: noinline uwtable
-define dso_local void @_Z17_kernel_testbenchPi(i32* %a) local_unnamed_addr #5 personality i32 (...)* @__gxx_personality_v0 {
+define dso_local void @_Z17_kernel_testbenchPi(i32* nocapture %a) local_unnamed_addr #5 {
 entry:
-  %retval.i1.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i1.i.i.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__it.i.i.i.i.i.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %retval.i.i.i.i.i.i = alloca %"class.std::move_iterator", align 8
-  %__n.addr.i.i.i.i.i = alloca i64, align 8
-  %ref.tmp.i.i.i.i.i = alloca i64, align 8
-  %myvec.i.i = alloca %"class.std::vector", align 8
   br label %for.body
 
 for.cond.cleanup:                                 ; preds = %for.body
@@ -1979,363 +1312,49 @@ for.cond.cleanup:                                 ; preds = %for.body
   store i32 %.pre.i, i32* %arrayidx2.97.i, align 4, !tbaa !15
   %arrayidx2.98.i = getelementptr inbounds i32, i32* %a, i64 99
   store i32 %.pre.i, i32* %arrayidx2.98.i, align 4, !tbaa !15
-  %0 = bitcast %"class.std::vector"* %myvec.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %0) #3
-  %1 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %_M_impl.i.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %1, i64 0, i32 0
-  %2 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i.i.i to %"class.std::ios_base::Init"*
-  %3 = bitcast %"class.std::ios_base::Init"* %2 to %"class.std::ios_base::Init"*
-  %4 = bitcast %"struct.std::_Vector_base<int, std::allocator<int> >::_Vector_impl"* %_M_impl.i.i.i.i to i8*
-  call void @llvm.memset.p0i8.i64(i8* align 8 %4, i8 0, i64 24, i1 false) #3
+  %.pre.i.i = load i32, i32* %a, align 4, !tbaa !15
   br label %for.body.i.i
 
-for.cond.cleanup.i.i:                             ; preds = %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i
-  %arrayidx5.i.i = getelementptr inbounds i32, i32* %a, i64 99
-  %5 = load i32, i32* %arrayidx5.i.i, align 4, !tbaa !15
-  %conv.i.i = sext i32 %5 to i64
-  %_M_finish.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %6 = bitcast i32** %_M_finish.i.i.i.i.i to i64*
-  %7 = load i64, i64* %6, align 8, !tbaa !17
-  %8 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %9 = load i64, i64* %8, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i.i.i = sub i64 %7, %9
-  %sub.ptr.div.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i, 2
-  %cmp.i.i.i.i = icmp ugt i64 %sub.ptr.div.i.i.i.i.i, %conv.i.i
-  br i1 %cmp.i.i.i.i, label %_ZNSt6vectorIiSaIiEE2atEm.exit.i.i, label %if.then.i.i.i.i
-
-if.then.i.i.i.i:                                  ; preds = %for.cond.cleanup.i.i
-  %_M_finish.i1.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %10 = bitcast i32** %_M_finish.i1.i.i.i.i to i64*
-  %11 = load i64, i64* %10, align 8, !tbaa !17
-  %12 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %13 = load i64, i64* %12, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i.i.i = sub i64 %11, %13
-  %sub.ptr.div.i3.i.i.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i.i.i, 2
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.1, i64 0, i64 0), i64 %conv.i.i, i64 %sub.ptr.div.i3.i.i.i.i) #16
-          to label %.noexc.i.i unwind label %lpad6.i.i
-
-.noexc.i.i:                                       ; preds = %if.then.i.i.i.i
-  unreachable
-
-_ZNSt6vectorIiSaIiEE2atEm.exit.i.i:               ; preds = %for.cond.cleanup.i.i
-  %_M_start.i.i1.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 0
-  %14 = load i32*, i32** %_M_start.i.i1.i.i, align 8, !tbaa !20
-  %add.ptr.i.i.i.i = getelementptr inbounds i32, i32* %14, i64 %conv.i.i
-  %15 = load i32, i32* %add.ptr.i.i.i.i, align 4, !tbaa !15
-  %16 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %_M_start.i16.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 0
-  %17 = load i32*, i32** %_M_start.i16.i.i, align 8, !tbaa !20
-  %_M_finish.i17.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %18 = load i32*, i32** %_M_finish.i17.i.i, align 8, !tbaa !17
-  %19 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  %_M_start.i.i18.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %16, i64 0, i32 0, i32 0
-  %20 = load i32*, i32** %_M_start.i.i18.i.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i19.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %16, i64 0, i32 0, i32 2
-  %21 = bitcast i32** %_M_end_of_storage.i.i19.i.i to i64*
-  %22 = load i64, i64* %21, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i20.i.i = ptrtoint i32* %20 to i64
-  %sub.ptr.sub.i.i21.i.i = sub i64 %22, %sub.ptr.rhs.cast.i.i20.i.i
-  %sub.ptr.div.i.i22.i.i = ashr exact i64 %sub.ptr.sub.i.i21.i.i, 2
-  %tobool.i.i.i23.i.i = icmp eq i32* %20, null
-  br i1 %tobool.i.i.i23.i.i, label %_Z8randfunciPi.exit, label %if.then.i.i.i24.i.i
-
-for.body.i.i:                                     ; preds = %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i, %for.cond.cleanup
-  %indvars.iv.i.i = phi i64 [ 1, %for.cond.cleanup ], [ %indvars.iv.next.i.i, %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i ]
-  %23 = add nsw i64 %indvars.iv.i.i, -1
-  %arrayidx.i.i = getelementptr inbounds i32, i32* %a, i64 %23
-  %24 = load i32, i32* %arrayidx.i.i, align 4, !tbaa !15
-  %mul.i.i = shl nsw i32 %24, 1
+for.body.i.i:                                     ; preds = %for.body.i.i, %for.cond.cleanup
+  %0 = phi i32 [ %.pre.i.i, %for.cond.cleanup ], [ %mul.2.i.i, %for.body.i.i ]
+  %indvars.iv.i.i = phi i64 [ 1, %for.cond.cleanup ], [ %indvars.iv.next.2.i.i, %for.body.i.i ]
+  %mul.i.i = shl nsw i32 %0, 1
   %arrayidx2.i.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.i.i
   store i32 %mul.i.i, i32* %arrayidx2.i.i, align 4, !tbaa !15
-  %_M_finish.i2.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %25 = load i32*, i32** %_M_finish.i2.i.i, align 8, !tbaa !17
-  %_M_end_of_storage.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 2
-  %26 = load i32*, i32** %_M_end_of_storage.i.i.i, align 8, !tbaa !21
-  %cmp.i.i.i = icmp eq i32* %25, %26
-  br i1 %cmp.i.i.i, label %if.else.i.i.i, label %if.then.i.i.i
-
-if.then.i.i.i:                                    ; preds = %for.body.i.i
-  %27 = bitcast %"class.std::vector"* %myvec.i.i to %"class.std::ios_base::Init"*
-  %28 = bitcast %"class.std::ios_base::Init"* %27 to %"class.std::ios_base::Init"*
-  %29 = load i32, i32* %arrayidx2.i.i, align 4, !tbaa !15
-  store i32 %29, i32* %25, align 4, !tbaa !15
-  %30 = load i32*, i32** %_M_finish.i2.i.i, align 8, !tbaa !17
-  %incdec.ptr.i.i.i = getelementptr inbounds i32, i32* %30, i64 1
-  store i32* %incdec.ptr.i.i.i, i32** %_M_finish.i2.i.i, align 8, !tbaa !17
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i
-
-if.else.i.i.i:                                    ; preds = %for.body.i.i
-  %31 = bitcast i64* %__n.addr.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %31)
-  store i64 1, i64* %__n.addr.i.i.i.i.i, align 8, !tbaa !22
-  %32 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %33 = bitcast %"struct.std::_Vector_base"* %32 to %"class.std::ios_base::Init"*
-  %34 = bitcast %"class.std::ios_base::Init"* %33 to %"class.std::ios_base::Init"*
-  %_M_finish.i7.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %35 = bitcast i32** %_M_finish.i7.i.i.i.i.i to i64*
-  %36 = load i64, i64* %35, align 8, !tbaa !17
-  %37 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %38 = load i64, i64* %37, align 8, !tbaa !20
-  %sub.ptr.sub.i8.i.i.i.i.i = sub i64 %36, %38
-  %sub.ptr.div.i9.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i8.i.i.i.i.i, 2
-  %sub.i.i.i.i.i = sub i64 4611686018427387903, %sub.ptr.div.i9.i.i.i.i.i
-  %cmp.i.i.i.i.i = icmp ult i64 %sub.i.i.i.i.i, 1
-  br i1 %cmp.i.i.i.i.i, label %if.then.i.i.i3.i.i, label %if.end.i.i.i.i.i
-
-if.then.i.i.i3.i.i:                               ; preds = %if.else.i.i.i
-  invoke void @_ZSt20__throw_length_errorPKc(i8* getelementptr inbounds ([28 x i8], [28 x i8]* @.str.12, i64 0, i64 0)) #16
-          to label %.noexc13.i.i unwind label %lpad.i.i
-
-.noexc13.i.i:                                     ; preds = %if.then.i.i.i3.i.i
-  unreachable
-
-if.end.i.i.i.i.i:                                 ; preds = %if.else.i.i.i
-  %_M_finish.i4.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %39 = bitcast i32** %_M_finish.i4.i.i.i.i.i to i64*
-  %40 = load i64, i64* %39, align 8, !tbaa !17
-  %41 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %42 = load i64, i64* %41, align 8, !tbaa !20
-  %sub.ptr.sub.i5.i.i.i.i.i = sub i64 %40, %42
-  %sub.ptr.div.i6.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i5.i.i.i.i.i, 2
-  %43 = bitcast i64* %ref.tmp.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %43) #3
-  %_M_finish.i1.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %44 = bitcast i32** %_M_finish.i1.i.i.i.i.i to i64*
-  %45 = load i64, i64* %44, align 8, !tbaa !17
-  %46 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %47 = load i64, i64* %46, align 8, !tbaa !20
-  %sub.ptr.sub.i2.i.i.i.i.i = sub i64 %45, %47
-  %sub.ptr.div.i3.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i2.i.i.i.i.i, 2
-  store i64 %sub.ptr.div.i3.i.i.i.i.i, i64* %ref.tmp.i.i.i.i.i, align 8, !tbaa !22
-  %48 = load i64, i64* %ref.tmp.i.i.i.i.i, align 8, !tbaa !22
-  %49 = load i64, i64* %__n.addr.i.i.i.i.i, align 8, !tbaa !22
-  %cmp.i.i.i.i.i.i = icmp ult i64 %48, %49
-  %__b.__a.i.i.i.i.i.i = select i1 %cmp.i.i.i.i.i.i, i64* %__n.addr.i.i.i.i.i, i64* %ref.tmp.i.i.i.i.i
-  %50 = load i64, i64* %__b.__a.i.i.i.i.i.i, align 8, !tbaa !22
-  %add.i.i.i.i.i = add i64 %50, %sub.ptr.div.i6.i.i.i.i.i
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %43) #3
-  %_M_finish.i.i.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %51 = bitcast i32** %_M_finish.i.i.i.i.i.i to i64*
-  %52 = load i64, i64* %51, align 8, !tbaa !17
-  %53 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %54 = load i64, i64* %53, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i.i.i.i = sub i64 %52, %54
-  %sub.ptr.div.i.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i.i, 2
-  %cmp7.i.i.i.i.i = icmp ult i64 %add.i.i.i.i.i, %sub.ptr.div.i.i.i.i.i.i
-  br i1 %cmp7.i.i.i.i.i, label %cond.true.i.i.i.i.i, label %lor.lhs.false.i.i.i.i.i
-
-lor.lhs.false.i.i.i.i.i:                          ; preds = %if.end.i.i.i.i.i
-  %55 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %56 = bitcast %"struct.std::_Vector_base"* %55 to %"class.std::ios_base::Init"*
-  %57 = bitcast %"class.std::ios_base::Init"* %56 to %"class.std::ios_base::Init"*
-  %cmp9.i.i.i.i.i = icmp ugt i64 %add.i.i.i.i.i, 4611686018427387903
-  br i1 %cmp9.i.i.i.i.i, label %cond.true.i.i.i.i.i, label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i
-
-cond.true.i.i.i.i.i:                              ; preds = %lor.lhs.false.i.i.i.i.i, %if.end.i.i.i.i.i
-  %58 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %59 = bitcast %"struct.std::_Vector_base"* %58 to %"class.std::ios_base::Init"*
-  %60 = bitcast %"class.std::ios_base::Init"* %59 to %"class.std::ios_base::Init"*
-  br label %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i
-
-_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i: ; preds = %cond.true.i.i.i.i.i, %lor.lhs.false.i.i.i.i.i
-  %cond.i.i.i.i.i = phi i64 [ 4611686018427387903, %cond.true.i.i.i.i.i ], [ %add.i.i.i.i.i, %lor.lhs.false.i.i.i.i.i ]
-  %61 = bitcast i64* %__n.addr.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %61)
-  %62 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %cmp.i1.i.i.i.i = icmp eq i64 %cond.i.i.i.i.i, 0
-  br i1 %cmp.i1.i.i.i.i, label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i.i, label %cond.true.i2.i.i.i.i
-
-cond.true.i2.i.i.i.i:                             ; preds = %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i
-  %63 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %64 = bitcast %"class.std::ios_base::Init"* %63 to %"class.std::ios_base::Init"*
-  %cmp.i.i.i.i.i.i.i = icmp ult i64 4611686018427387903, %cond.i.i.i.i.i
-  br i1 %cmp.i.i.i.i.i.i.i, label %if.then.i.i.i.i.i.i.i, label %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i.i
-
-if.then.i.i.i.i.i.i.i:                            ; preds = %cond.true.i2.i.i.i.i
-  invoke void @_ZSt17__throw_bad_allocv() #16
-          to label %.noexc14.i.i unwind label %lpad.i.i
-
-.noexc14.i.i:                                     ; preds = %if.then.i.i.i.i.i.i.i
-  unreachable
-
-_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i.i: ; preds = %cond.true.i2.i.i.i.i
-  %mul.i.i.i.i.i.i.i = shl i64 %cond.i.i.i.i.i, 2
-  %call2.i.i.i.i.i15.i.i = invoke i8* @_Znwm(i64 %mul.i.i.i.i.i.i.i)
-          to label %call2.i.i.i.i.i.noexc.i.i unwind label %lpad.i.i
-
-call2.i.i.i.i.i.noexc.i.i:                        ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i.i
-  %65 = bitcast i8* %call2.i.i.i.i.i15.i.i to i32*
-  br label %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i.i
-
-_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i.i: ; preds = %call2.i.i.i.i.i.noexc.i.i, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i
-  %cond.i3.i.i.i.i = phi i32* [ %65, %call2.i.i.i.i.i.noexc.i.i ], [ null, %_ZNKSt6vectorIiSaIiEE12_M_check_lenEmPKc.exit.i.i.i.i ]
-  %66 = bitcast %"class.std::vector"* %myvec.i.i to %"class.std::ios_base::Init"*
-  %_M_finish.i.i.i4.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %67 = bitcast i32** %_M_finish.i.i.i4.i.i to i64*
-  %68 = load i64, i64* %67, align 8, !tbaa !17
-  %69 = bitcast %"class.std::vector"* %myvec.i.i to i64*
-  %70 = load i64, i64* %69, align 8, !tbaa !20
-  %sub.ptr.sub.i.i.i5.i.i = sub i64 %68, %70
-  %sub.ptr.div.i.i.i6.i.i = ashr exact i64 %sub.ptr.sub.i.i.i5.i.i, 2
-  %add.ptr.i.i7.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i.i, i64 %sub.ptr.div.i.i.i6.i.i
-  %71 = bitcast %"class.std::ios_base::Init"* %66 to %"class.std::ios_base::Init"*
-  %72 = load i32, i32* %arrayidx2.i.i, align 4, !tbaa !15
-  store i32 %72, i32* %add.ptr.i.i7.i.i, align 4, !tbaa !15
-  %_M_start.i.i8.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 0
-  %73 = load i32*, i32** %_M_start.i.i8.i.i, align 8, !tbaa !20
-  %_M_finish.i.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %74 = load i32*, i32** %_M_finish.i.i.i.i, align 8, !tbaa !17
-  %75 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %76 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %76)
-  %_M_current.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %73, i32** %_M_current.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i.i.i.i.i.i, i64 0, i32 0
-  %77 = load i32*, i32** %coerce.dive.i.i.i.i.i.i, align 8
-  %78 = bitcast %"class.std::move_iterator"* %retval.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %78)
-  %79 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %79)
-  %_M_current.i.i2.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i.i.i, i64 0, i32 0
-  store i32* %74, i32** %_M_current.i.i2.i.i.i.i.i, align 8, !tbaa !23
-  %coerce.dive.i3.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %retval.i1.i.i.i.i.i, i64 0, i32 0
-  %80 = load i32*, i32** %coerce.dive.i3.i.i.i.i.i, align 8
-  %81 = bitcast %"class.std::move_iterator"* %retval.i1.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %81)
-  %82 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %82)
-  %coerce.dive.i.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %77, i32** %coerce.dive.i.i.i.i.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  %83 = load i32*, i32** %_M_current.i.i.i.i.i.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %84 = bitcast %"class.std::move_iterator"* %__it.i.i.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %84)
-  %85 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* %85)
-  %coerce.dive.i.i2.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  store i32* %80, i32** %coerce.dive.i.i2.i.i.i.i.i.i.i.i.i, align 8
-  %_M_current.i.i.i3.i.i.i.i.i.i.i.i.i = getelementptr inbounds %"class.std::move_iterator", %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i.i, i64 0, i32 0
-  %86 = load i32*, i32** %_M_current.i.i.i3.i.i.i.i.i.i.i.i.i, align 8, !tbaa !23
-  %87 = bitcast %"class.std::move_iterator"* %__it.i.i1.i.i.i.i.i.i.i.i.i to i8*
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* %87)
-  %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %86 to i64
-  %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i.i.i = ptrtoint i32* %83 to i64
-  %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i.i = sub i64 %sub.ptr.lhs.cast.i.i.i.i.i.i.i.i.i.i.i.i, %sub.ptr.rhs.cast.i.i.i.i.i.i.i.i.i.i.i.i
-  %sub.ptr.div.i.i.i.i.i.i.i.i.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i.i, 2
-  %tobool.i.i.i.i.i.i.i.i.i.i.i.i = icmp eq i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i.i, 0
-  br i1 %tobool.i.i.i.i.i.i.i.i.i.i.i.i, label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i.i, label %if.then.i.i.i.i.i.i.i.i.i.i.i.i
-
-if.then.i.i.i.i.i.i.i.i.i.i.i.i:                  ; preds = %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i.i
-  %88 = bitcast i32* %cond.i3.i.i.i.i to i8*
-  %89 = bitcast i32* %83 to i8*
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 4 %88, i8* align 4 %89, i64 %sub.ptr.sub.i.i.i.i.i.i.i.i.i.i.i.i, i1 false) #3
-  br label %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i.i
-
-_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i.i: ; preds = %if.then.i.i.i.i.i.i.i.i.i.i.i.i, %_ZNSt12_Vector_baseIiSaIiEE11_M_allocateEm.exit.i.i.i.i
-  %add.ptr.i.i.i.i.i.i.i.i.i.i.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i.i, i64 %sub.ptr.div.i.i.i.i.i.i.i.i.i.i.i.i
-  %incdec.ptr.i.i.i.i = getelementptr inbounds i32, i32* %add.ptr.i.i.i.i.i.i.i.i.i.i.i.i, i64 1
-  %90 = load i32*, i32** %_M_start.i.i8.i.i, align 8, !tbaa !20
-  %91 = load i32*, i32** %_M_finish.i.i.i.i, align 8, !tbaa !17
-  %92 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %93 = load i32*, i32** %_M_start.i.i8.i.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i9.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 2
-  %94 = bitcast i32** %_M_end_of_storage.i.i9.i.i to i64*
-  %95 = load i64, i64* %94, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i10.i.i = ptrtoint i32* %93 to i64
-  %sub.ptr.sub.i.i11.i.i = sub i64 %95, %sub.ptr.rhs.cast.i.i10.i.i
-  %sub.ptr.div.i.i12.i.i = ashr exact i64 %sub.ptr.sub.i.i11.i.i, 2
-  %tobool.i9.i.i.i.i = icmp eq i32* %93, null
-  br i1 %tobool.i9.i.i.i.i, label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i.i, label %if.then.i10.i.i.i.i
-
-if.then.i10.i.i.i.i:                              ; preds = %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i.i
-  %96 = bitcast %"struct.std::_Vector_base"* %62 to %"class.std::ios_base::Init"*
-  %97 = bitcast %"class.std::ios_base::Init"* %96 to %"class.std::ios_base::Init"*
-  %98 = bitcast i32* %93 to i8*
-  call void @_ZdlPv(i8* %98) #3
-  br label %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i.i
-
-_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i.i: ; preds = %if.then.i10.i.i.i.i, %_ZSt34__uninitialized_move_if_noexcept_aIPiS0_SaIiEET0_T_S3_S2_RT1_.exit.i.i.i.i
-  store i32* %cond.i3.i.i.i.i, i32** %_M_start.i.i8.i.i, align 8, !tbaa !20
-  store i32* %incdec.ptr.i.i.i.i, i32** %_M_finish.i.i.i.i, align 8, !tbaa !17
-  %add.ptr33.i.i.i.i = getelementptr inbounds i32, i32* %cond.i3.i.i.i.i, i64 %cond.i.i.i.i.i
-  store i32* %add.ptr33.i.i.i.i, i32** %_M_end_of_storage.i.i9.i.i, align 8, !tbaa !21
-  br label %_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i
-
-_ZNSt6vectorIiSaIiEE9push_backERKi.exit.i.i:      ; preds = %_ZNSt6vectorIiSaIiEE19_M_emplace_back_auxIJRKiEEEvDpOT_.exit.i.i.i, %if.then.i.i.i
   %indvars.iv.next.i.i = add nuw nsw i64 %indvars.iv.i.i, 1
-  %cmp.i.i = icmp ult i64 %indvars.iv.next.i.i, 100
-  br i1 %cmp.i.i, label %for.body.i.i, label %for.cond.cleanup.i.i
+  %mul.1.i.i = shl i32 %0, 2
+  %arrayidx2.1.i.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next.i.i
+  store i32 %mul.1.i.i, i32* %arrayidx2.1.i.i, align 4, !tbaa !15
+  %indvars.iv.next.1.i.i = add nuw nsw i64 %indvars.iv.i.i, 2
+  %mul.2.i.i = shl i32 %0, 3
+  %arrayidx2.2.i.i = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next.1.i.i
+  store i32 %mul.2.i.i, i32* %arrayidx2.2.i.i, align 4, !tbaa !15
+  %indvars.iv.next.2.i.i = add nuw nsw i64 %indvars.iv.i.i, 3
+  %exitcond.2.i.i = icmp eq i64 %indvars.iv.next.2.i.i, 100
+  br i1 %exitcond.2.i.i, label %_Z8randfunciPi.exit, label %for.body.i.i
 
-lpad.i.i:                                         ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i.i.i.i, %if.then.i.i.i.i.i.i.i, %if.then.i.i.i3.i.i
-  %99 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup.i.i
-
-if.then.i.i.i24.i.i:                              ; preds = %_ZNSt6vectorIiSaIiEE2atEm.exit.i.i
-  %100 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  %101 = bitcast %"class.std::ios_base::Init"* %100 to %"class.std::ios_base::Init"*
-  %102 = bitcast i32* %20 to i8*
-  call void @_ZdlPv(i8* %102) #3
-  br label %_Z8randfunciPi.exit
-
-lpad6.i.i:                                        ; preds = %if.then.i.i.i.i
-  %103 = landingpad { i8*, i32 }
-          cleanup
-  br label %ehcleanup.i.i
-
-ehcleanup.i.i:                                    ; preds = %lpad6.i.i, %lpad.i.i
-  %.sink21.i.i = phi { i8*, i32 } [ %103, %lpad6.i.i ], [ %99, %lpad.i.i ]
-  %104 = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0
-  %_M_start.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 0
-  %105 = load i32*, i32** %_M_start.i.i.i, align 8, !tbaa !20
-  %_M_finish.i.i.i = getelementptr inbounds %"class.std::vector", %"class.std::vector"* %myvec.i.i, i64 0, i32 0, i32 0, i32 1
-  %106 = load i32*, i32** %_M_finish.i.i.i, align 8, !tbaa !17
-  %107 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  %_M_start.i.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %104, i64 0, i32 0, i32 0
-  %108 = load i32*, i32** %_M_start.i.i.i.i, align 8, !tbaa !20
-  %_M_end_of_storage.i.i.i.i = getelementptr inbounds %"struct.std::_Vector_base", %"struct.std::_Vector_base"* %104, i64 0, i32 0, i32 2
-  %109 = bitcast i32** %_M_end_of_storage.i.i.i.i to i64*
-  %110 = load i64, i64* %109, align 8, !tbaa !21
-  %sub.ptr.rhs.cast.i.i.i.i = ptrtoint i32* %108 to i64
-  %sub.ptr.sub.i.i.i.i = sub i64 %110, %sub.ptr.rhs.cast.i.i.i.i
-  %sub.ptr.div.i.i.i.i = ashr exact i64 %sub.ptr.sub.i.i.i.i, 2
-  %tobool.i.i.i.i.i = icmp eq i32* %108, null
-  br i1 %tobool.i.i.i.i.i, label %_ZNSt6vectorIiSaIiEED2Ev.exit.i.i, label %if.then.i.i.i.i.i
-
-if.then.i.i.i.i.i:                                ; preds = %ehcleanup.i.i
-  %111 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  %112 = bitcast %"class.std::ios_base::Init"* %111 to %"class.std::ios_base::Init"*
-  %113 = bitcast i32* %108 to i8*
-  call void @_ZdlPv(i8* %113) #3
-  br label %_ZNSt6vectorIiSaIiEED2Ev.exit.i.i
-
-_ZNSt6vectorIiSaIiEED2Ev.exit.i.i:                ; preds = %if.then.i.i.i.i.i, %ehcleanup.i.i
-  %114 = bitcast %"struct.std::_Vector_base"* %104 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
-  resume { i8*, i32 } %.sink21.i.i
-
-_Z8randfunciPi.exit:                              ; preds = %if.then.i.i.i24.i.i, %_ZNSt6vectorIiSaIiEE2atEm.exit.i.i
-  %115 = bitcast %"struct.std::_Vector_base"* %16 to %"class.std::ios_base::Init"*
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
+_Z8randfunciPi.exit:                              ; preds = %for.body.i.i
+  %arrayidx3.i.i = getelementptr inbounds i32, i32* %a, i64 99
+  %1 = load i32, i32* %arrayidx3.i.i, align 4, !tbaa !15
   %arrayidx3.i = getelementptr inbounds i32, i32* %a, i64 99
-  %116 = load i32, i32* %arrayidx3.i, align 4, !tbaa !15
+  %2 = load i32, i32* %arrayidx3.i, align 4, !tbaa !15
   %arrayidx3 = getelementptr inbounds i32, i32* %a, i64 99
-  %117 = load i32, i32* %arrayidx3, align 4, !tbaa !15
-  %call4 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull @_ZSt4cout, i32 %117)
+  %3 = load i32, i32* %arrayidx3, align 4, !tbaa !15
+  %call4 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull @_ZSt4cout, i32 %3)
   %call5 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call4, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
   ret void
 
 for.body:                                         ; preds = %for.body, %entry
   %indvars.iv = phi i64 [ 0, %entry ], [ %indvars.iv.next, %for.body ]
-  %118 = add nsw i64 %indvars.iv, -1
-  %arrayidx = getelementptr inbounds i32, i32* %a, i64 %118
-  %119 = load i32, i32* %arrayidx, align 4, !tbaa !15
-  %mul = shl nsw i32 %119, 1
+  %4 = add nsw i64 %indvars.iv, -1
+  %arrayidx = getelementptr inbounds i32, i32* %a, i64 %4
+  %5 = load i32, i32* %arrayidx, align 4, !tbaa !15
+  %mul = shl nsw i32 %5, 1
   %indvars.iv.next = add nuw nsw i64 %indvars.iv, 1
   %arrayidx2 = getelementptr inbounds i32, i32* %a, i64 %indvars.iv.next
   store i32 %mul, i32* %arrayidx2, align 4, !tbaa !15
   %exitcond = icmp eq i64 %indvars.iv.next, 10
-  br i1 %exitcond, label %for.cond.cleanup, label %for.body, !llvm.loop !25
+  br i1 %exitcond, label %for.cond.cleanup, label %for.body, !llvm.loop !17
 }
 
 ; Function Attrs: noinline uwtable
@@ -2345,7 +1364,7 @@ declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZSt4endlIc
 declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"*, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)*) local_unnamed_addr #5 align 2
 
 ; Function Attrs: noinline norecurse uwtable
-define dso_local i32 @main() local_unnamed_addr #13 {
+define dso_local i32 @main() local_unnamed_addr #14 {
 entry:
   %a = alloca [100 x i32], align 16
   tail call void @srand(i32 7) #3
@@ -2391,10 +1410,11 @@ attributes #9 = { argmemonly nounwind }
 attributes #10 = { noreturn "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #11 = { nobuiltin "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #12 = { nobuiltin nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #13 = { noinline norecurse uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #14 = { nounwind readonly }
-attributes #15 = { noreturn nounwind }
-attributes #16 = { noreturn }
+attributes #13 = { noinline norecurse nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #14 = { noinline norecurse uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #15 = { nounwind readonly }
+attributes #16 = { noreturn nounwind }
+attributes #17 = { noreturn }
 
 !llvm.ident = !{!0, !0}
 !llvm.module.flags = !{!1}
@@ -2416,13 +1436,5 @@ attributes #16 = { noreturn }
 !14 = !{!"_ZTSSt6locale", !11, i64 0}
 !15 = !{!13, !13, i64 0}
 !16 = !{!11, !11, i64 0}
-!17 = !{!18, !11, i64 8}
-!18 = !{!"_ZTSSt12_Vector_baseIiSaIiEE", !19, i64 0}
-!19 = !{!"_ZTSNSt12_Vector_baseIiSaIiEE12_Vector_implE", !11, i64 0, !11, i64 8, !11, i64 16}
-!20 = !{!18, !11, i64 0}
-!21 = !{!18, !11, i64 16}
-!22 = !{!7, !7, i64 0}
-!23 = !{!24, !11, i64 0}
-!24 = !{!"_ZTSSt13move_iteratorIPiE", !11, i64 0}
-!25 = distinct !{!25, !26}
-!26 = !{!"llvm.loop.unroll.disable"}
+!17 = distinct !{!17, !18}
+!18 = !{!"llvm.loop.unroll.disable"}

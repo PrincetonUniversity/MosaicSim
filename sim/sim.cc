@@ -11,8 +11,7 @@ void DESCQ::process() {
   vector<DynamicNode*> failed_nodes;
   while(true) {
     if (pq.empty() || pq.top().second >= cycles)
-      break;
-   
+      break;   
     if(!execute(pq.top().first)) {
       failed_nodes.push_back(pq.top().first);
     }

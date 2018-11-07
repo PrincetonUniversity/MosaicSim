@@ -16,6 +16,31 @@ void Core::access(DynamicNode* d) {
   master->access(t);
 }
 
+void IssueWindow::insertDN(DynamicNode* d) {
+  issueMap.insert(make_pair(d,curr_index));
+  cout << curr_index; 
+  //d->print(" InsertedDN: ", -50);
+  curr_index++;
+}
+
+bool IssueWindow::canIssue(DynamicNode* d) {
+  assert(issueMap.find(d)!=issueMap.end());
+  uint64_t position=issueMap.at(d);
+  return position>=window_start && position<=window_end;
+}
+
+void IssueWindow::shift() {
+  for(auto it=issueMap.begin(); it!=issueMap.end(); ++it) {
+    if (it->second==window_start && it->first->completed) { //oldest instn in window
+      window_start++;
+      window_end++;
+      issueMap.erase(it);      
+    }
+    else {
+      break;
+    }
+  }
+}
 
 void Core::accessComplete(Transaction *t) {
   int tid = t->id;
@@ -104,6 +129,7 @@ bool Core::createContext() {
 }
 
 bool Core::process() {
+  window.shift();
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
