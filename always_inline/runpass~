@@ -1,1 +1,0 @@
-opt -S -load build/libAlwaysInlinerPass.so -whatever testbench.ll -o testbench2.ll
