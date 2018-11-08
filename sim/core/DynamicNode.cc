@@ -105,25 +105,34 @@ void Context::process() {
   //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
   for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
     DynamicNode *d = *it;
-    bool res = false;
-    //if(core->window.issueMap.at(d)==0)
-    //assert(false);
+    bool res = core->window.canIssue(d);
+
     assert(!d->issued);
-    if(d->isMem)
-      res = d->issueMemNode();
+    if(d->type == TERMINATOR && res) {    
+      d->c->completed_nodes.insert(d);
+      d->completed = true;
+      if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
+        core->context_to_create++;     
+    }
+    else if(d->isMem)
+      res = res && d->issueMemNode();
     else if (d->isDESC)
-      res = d->issueDESCNode();
+      res = res && d->issueDESCNode();
     else
-      res = d->issueCompNode();
+      res = res && d->issueCompNode();
+    
     if(!res) {
       d->print("Issue Failed", 0);
       next_issue_set.insert(d);
     }
     else {
+      core->window.issue();
       if(d->type != LD && !d->isDESC) {
         insertQ(d);        
       }
       d->print("Issue Succesful",0);
+      //cout << "Cycle: " << core->cycles;
+      //d->print("Issue Succesful",-2); //luwa test
     }
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
@@ -184,8 +193,7 @@ void Context::complete() {
         core->local_stat.update("bytes_write", word_size_bytes);
       } 
       stat.update(core->instrToStr(d->type));
-      core->local_stat.update(core->instrToStr(d->type));
-      
+      core->local_stat.update(core->instrToStr(d->type));      
     }
   }
 }
@@ -268,11 +276,11 @@ void DynamicNode::tryActivate() {
   }
   if(issued || completed)
     assert(false);
-  if(type == TERMINATOR) {
+  if(type == TERMINATOR && core->window.canIssue(this)) {    
     c->completed_nodes.insert(this);
     completed = true;
     if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
-      core->context_to_create++;
+      core->context_to_create++;       
   }
   else {
     assert(c->issue_set.find(this) == c->issue_set.end());
@@ -285,8 +293,6 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  if(!core->window.canIssue(this))
-    return false;
   stat.update("comp_issue_try");
   core->local_stat.update("comp_issue_try");
   // check for resource (FU) availability
@@ -303,8 +309,7 @@ bool DynamicNode::issueCompNode() {
 }
 
 bool DynamicNode::issueMemNode() {
-  if(!core->window.canIssue(this))
-    return false;
+  
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD) {
@@ -380,15 +385,15 @@ bool DynamicNode::issueMemNode() {
 }
 
 bool DynamicNode::issueDESCNode() {
-  if(!core->window.canIssue(this))
-    return false;
   issued = true;
   core->communicate(this);
   return true;  
 }
 
 
-void DynamicNode::finishNode() {  
+void DynamicNode::finishNode() {
+  //cout << "Cycle: " << core->cycles; //luwa test
+  //this->print("Node Completed",-2); //luwa test
   if(n->typeInstr==RECV)
     assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());
   if(n->typeInstr==STADDR)

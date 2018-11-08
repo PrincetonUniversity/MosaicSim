@@ -26,20 +26,34 @@ void IssueWindow::insertDN(DynamicNode* d) {
 bool IssueWindow::canIssue(DynamicNode* d) {
   assert(issueMap.find(d)!=issueMap.end());
   uint64_t position=issueMap.at(d);
-  return position>=window_start && position<=window_end;
+  return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
-void IssueWindow::shift() {
+void IssueWindow::process() {
+  issueCount=0;
+  vector<DynamicNode*> eraseVector;
   for(auto it=issueMap.begin(); it!=issueMap.end(); ++it) {
-    if (it->second==window_start && it->first->completed) { //oldest instn in window
-      window_start++;
-      window_end++;
-      issueMap.erase(it);      
+    if (it->first->completed) { 
+      //(*it).first->print("completed node", -2); //luwa test
+     
+      window_start=it->second+1;
+      window_end=(window_size+window_start)-1;
+      eraseVector.push_back(it->first);
     }
     else {
       break;
     }
   }
+  
+  for (auto it=eraseVector.end(); it!=eraseVector.end(); ++it) {
+    issueMap.erase(*it);
+  }
+  //cout << "Win start: " << window_start << " Win end: " << window_end << endl; //luwa test
+}
+
+void IssueWindow::issue() {
+  assert(issueCount<=issueWidth);
+  issueCount++;
 }
 
 void Core::accessComplete(Transaction *t) {
@@ -129,7 +143,7 @@ bool Core::createContext() {
 }
 
 bool Core::process() {
-  window.shift();
+  window.process();
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
@@ -152,9 +166,16 @@ bool Core::process() {
     Context *c = *it;
     c->process();
   }
+ 
   for(auto it = live_context.begin(); it!=live_context.end();) {
+    
     Context *c = *it;
     c->complete();
+    
+    if(it!=live_context.begin()) {   
+      assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
+    }
+    
     if(c->live)
       it++;
     else

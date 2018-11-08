@@ -1,5 +1,5 @@
 99999,lsq_size
-1,cf_mode
+0,cf_mode
 0,mem_speculate
 0,mem_forward
 99999,max_contexts_per_bb

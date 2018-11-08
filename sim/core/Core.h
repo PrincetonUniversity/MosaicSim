@@ -27,13 +27,16 @@ class IssueWindow {
 public:
   map<DynamicNode*, uint64_t, DNPointerLT> issueMap;
   vector<DynamicNode*> issueQ;
-  uint64_t max_size=1;
+  uint64_t window_size=1;
   uint64_t window_start=0;
   uint64_t curr_index=0;
-  uint64_t window_end=max_size-1;
+  uint64_t window_end=window_size-1;
+  int issueWidth=1;
+  int issueCount=0;
   void insertDN(DynamicNode* d);
   bool canIssue(DynamicNode* d);
-  void shift();
+  void process();
+  void issue();
 };
 
 class Core {
