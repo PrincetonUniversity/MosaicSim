@@ -86,10 +86,10 @@ int randfunc(int myint, int* a) {
 }
 
 void _kernel_testbench(int* a) {
-  //vector<int> myvec;
+vector<int> myvec;
 #pragma clang loop unroll(disable)  
   for(int i=0; i<10; i++) {
-    //myvec.push_back(43211234);
+    myvec.push_back(43211234);
     //a[square_mod(a[i], ARRAY_SIZE,a)] = 2;
     a[i+1]=2*a[i-1];
   }

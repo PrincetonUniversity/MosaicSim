@@ -69,33 +69,26 @@ struct RecordDynamicInfo : public ModulePass {
   int findBID(BasicBlock *bb)
   {
     return bb_id_table.at(bb);
-    /*
-    Function *f = bb->getParent();
-    int id = 0;
-    for (BasicBlock &B : *f)  {
-      BasicBlock *curb = &(B);
-      if(bb == curb)
-        return id;
-      id++;
-    }*/
-    //return -1;
   }
   int findID(Instruction *ins)
   {
     return id_table.at(ins);
-    /*
-    Function *F = ins->getParent()->getParent();
-    int ct = 0;
-    for (inst_iterator iI = inst_begin(*F), iE = inst_end(*F);iI != iE; iI++) {
-        Instruction *inst = &(*iI);
-        if(ins == inst)
-          return ct;
-        ct++;
-    }*/
-    //return -1;
   }
   bool isFoI(Function &F) {
     return (F.getName().str().find(KERNEL_STR) != std::string::npos);
+  }
+  void printInvoke(InvokeInst *pi) {
+    IRBuilder<> Builder(pi);
+    LLVMContext& ctx = mod->getContext();
+    BasicBlock *bb = pi->getNormalDest();
+    std::string temp= std::to_string(findBID(bb));
+    StringRef p = temp;
+    errs() << "[invoke] " << *pi << " - " << p << "\n";
+    std::string bbname = std::to_string(findBID(pi->getParent()));
+    Value *name = Builder.CreateGlobalStringPtr(bbname);
+    Value *name1= Builder.CreateGlobalStringPtr(p);
+    Value* args[] = {name, name1};
+    CallInst* cI = Builder.CreateCall(printuBR, args);
   }
   void printBranch(BranchInst *pi, int conditional) {  
     IRBuilder<> Builder(pi);
@@ -220,6 +213,8 @@ struct RecordDynamicInfo : public ModulePass {
           printMemory(inst);
         else if(auto *sI = dyn_cast<StoreInst>(inst))
           printMemory(inst);
+        else if(auto *iI = dyn_cast<InvokeInst>(inst))
+          printInvoke(iI);
         else if(auto *tI = dyn_cast<TerminatorInst>(inst))
           errs() << "[WARNING] Terminator Instruction not handled : " << *inst <<"\n";
     }
