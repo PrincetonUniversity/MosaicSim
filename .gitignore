@@ -40,7 +40,8 @@ workloads/dec_test/compute/int
 workloads/dec_test/supply/int
 workloads/dec_test/supply/output
 workloads/dec_test/compute/output
-
+workloads/inline_test/int/
+workloads/inline_test/output/
 # Pre-compiler generated files.
 CMakeCache.txt
 *.cmake
