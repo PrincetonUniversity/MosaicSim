@@ -1,0 +1,4 @@
+src	trg	weight	src_type	trg_type	edge_type
+0	1	0	7	3	3#7
+0	2	0	7	7	7#7
+1	2	0	3	7	3#7

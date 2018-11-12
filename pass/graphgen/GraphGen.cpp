@@ -38,7 +38,7 @@ StringRef GraphGen::getPassName() const {
 }
 
 bool GraphGen::isKernelFunction(Function &func) {
-  return (func.getName().str().find("square_mod") != std::string::npos) || (func.getName().str().find(KERNEL_STR) != std::string::npos); //luwa test, must change!
+  return (func.getName().str().find(KERNEL_STR) != std::string::npos); 
 }
 
 void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
@@ -74,7 +74,7 @@ void GraphGen::detectComm(Function &func) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
-            errs() << "Call Instruction : "<< f->getName() << "\n";
+            //errs() << "Call Instruction : "<< f->getName() << "\n";
             if(f->getName() == "_Z16desc_produce_i32i") {
               errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
@@ -352,7 +352,7 @@ void GraphGen::exportGraph() {
     }
     if(ect != numEdge) {
       errs() << "Ect : " << ect << " / " << numEdge <<"\n";
-      //assert(false); //luwa check this error
+      assert(false); 
     }
   }
 }

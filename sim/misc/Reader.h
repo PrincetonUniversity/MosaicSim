@@ -48,7 +48,7 @@ public:
         boost::trim_left(stripped_line);
         //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
         if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
-          cout << "BAD LINE: " << line << endl;
+          //cout << "BAD LINE: " << line << endl;
           continue;
         }
         
@@ -62,12 +62,12 @@ public:
         name = name.substr(2, name.size()-2);
         g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
         if(id+1==numNode) {
-          cout << "ID "<< (id+1) << endl;
-          cout << "Num Nodes " << numNode << endl;
+          //cout << "ID "<< (id+1) << endl;
+          //cout << "Num Nodes " << numNode << endl;
           break;
         }
       }
-      cout << "Done with Nodes " << endl;
+      //cout << "Done with Nodes " << endl;
       int i=0;
       while (i<numEdge) {
         cout << "edge iter: " <<i << endl;
@@ -82,7 +82,24 @@ public:
           continue;
           }*/
         vector<string> s = split(line, ',');
-        int edgeT = stoi(s.at(2));
+
+        // if(i==6789 || i==6788) {
+        //   cout << i << " At the failing edge \n";
+        //   cout << line << endl;
+        // }
+        int edgeT;
+
+        edgeT = stoi(s.at(2));
+        /*
+        try {
+          edgeT = stoi(s.at(2));
+        }
+        catch (...) {
+          cout << "Reached end because of: " << line << endl;
+          break;
+          }*/
+        
+        
         if(edgeT >= 0) {
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
           g.addDependent(g.getNode(stoi(s.at(0))), g.getNode(stoi(s.at(1))), type);
@@ -92,6 +109,7 @@ public:
         }
         i++;
       }
+      cout << "Done reading edgelist \n";
       if (getline(cfile,line))
         assert(false);
     }
