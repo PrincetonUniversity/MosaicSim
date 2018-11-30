@@ -1,0 +1,5 @@
+
+# create server
+gcc server.c -o server
+
+gcc -c stubs.c -o stubs.o
