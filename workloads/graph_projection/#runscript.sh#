@@ -1,0 +1,9 @@
+#!/bin/bash
+
+./graph_projection --num-vertices 258820 --num-edges 1999999 --edgelistfile _generated_data/rmat200k
+
+./graph_projection --num-vertices 129604 --num-edges 1000000 --edgelistfile _generated_data/rmat100k
+
+./graph_projection --num-vertices 519751 --num-edges 4999999 --edgelistfile _generated_data/rmat500k
+
+
