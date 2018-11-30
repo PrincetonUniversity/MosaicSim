@@ -137,8 +137,14 @@ void Graph::addEdge(Node *u, Node *v, EdgeType ek) {
       memoryEdges[u].insert(v);
       break;
     case Edge_Phi:
-      phiEdges[u].insert(v);
-      num_export_edges++;
+      if(phiEdges[u].find(v)!=phiEdges[u].end()) {
+        errs() << "edge already there: "<< v->name << " from: \n";
+        errs() << u << "\n";
+          }
+      else {
+        phiEdges[u].insert(v);
+        num_export_edges++;
+      }
       break;
     default:
       assert(false);
@@ -147,8 +153,8 @@ void Graph::addEdge(Node *u, Node *v, EdgeType ek) {
 }
 
 
-void Graph::removeEdge(Node *u, Node *v, EdgeType ek) {
-  switch(ek) {
+  void Graph::removeEdge(Node *u, Node *v, EdgeType ek) {
+    switch(ek) {
     case Edge_Control:
       controlEdges[u].erase(v);
       break;
@@ -166,6 +172,6 @@ void Graph::removeEdge(Node *u, Node *v, EdgeType ek) {
     default:
       assert(false);
       break;
+    }
   }
-}
 }

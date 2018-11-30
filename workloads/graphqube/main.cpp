@@ -450,7 +450,7 @@ int main(int argc, char **argv) {
         vector<Candidate*> initial_candidates, out_cands; 
         initial_candidates = get_initial_candidates(query, row);
         out_cands = _kernel_expand_candidate(query, reference, initial_candidates, row.weight, top_k);
-        
+        return 0;
         reference.visited.insert(pair<int,int>(row.src, row.trg));
         reference.visited.insert(pair<int,int>(row.trg, row.src));
                        

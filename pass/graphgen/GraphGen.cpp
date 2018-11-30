@@ -147,17 +147,21 @@ void GraphGen::constructGraph(Function &func) {
     nodeMap[b] = n;
     uid++;
   }
+  long tot_inst=0;
   int id = 0;
   for (auto &bb : func) {
     for (auto &inst : bb) {
+      tot_inst++;
       Instruction *i = &(inst);
       if (StoreInst *stinst = dyn_cast<StoreInst>(&inst)) {
         Value *pv = stinst->getPointerOperand();
         if(Instruction *ipv = dyn_cast<Instruction>(pv)) {
-          store_to_addr.insert(std::make_pair(stinst, ipv));
+          store_to_addr.insert(std::make_pair(stinst, ipv));          
         }
-        else
-          assert(false);
+        else {
+          errs() << "[WARNING] Store operand not from instruction: " << *pv << "\n";
+          //assert(false);
+        }
       }
       Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
       depGraph.addNode(n);
@@ -166,6 +170,7 @@ void GraphGen::constructGraph(Function &func) {
       uid++;
     }
   }
+ 
 }
 void GraphGen::addDataEdges(Function &func) {
   for (auto &bb : func) {
@@ -183,7 +188,7 @@ void GraphGen::addDataEdges(Function &func) {
     }
   }
 }
-
+//luwahere, maybe there are some edges with the new control instructions for exceptions, etc that aren't being added
 void GraphGen::addControlEdges(Function &func) {
   for (auto &bb : func) {
     TerminatorInst* term = bb.getTerminator();
@@ -321,6 +326,7 @@ void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");
   if (cfile.is_open()) {
     int numEdge = depGraph.num_export_edges  + store_to_addr.size();
+    
     cfile << depGraph.bb_nodes.size() << "\n";
     cfile << depGraph.i_nodes.size() << "\n";
     cfile << numEdge << "\n";
@@ -329,7 +335,10 @@ void GraphGen::exportGraph() {
       cfile << n->id << "," << static_cast<int>(n->itype) << "," << n->bb_id << "," << n->name << "\n";
     }
     int ect = 0;
+    int extra =0;
+    long inode_count=0;
     for(auto &src : depGraph.i_nodes) {
+      inode_count++;
       if(depGraph.dataEdges.find(src) != depGraph.dataEdges.end()) {
         for(auto &dst: depGraph.dataEdges.at(src)) {
           cfile << src->id << "," << dst->id << ",0\n";
@@ -342,7 +351,10 @@ void GraphGen::exportGraph() {
           ect++;
         }
       }
+
     }
+    
+    
     /* Store to Addr Edges */
     for(std::map<Instruction*, Instruction*>::iterator it = store_to_addr.begin(); it != store_to_addr.end(); ++it) {
       Node *src = nodeMap.at(it->first);
@@ -351,7 +363,7 @@ void GraphGen::exportGraph() {
       ect++;
     }
     if(ect != numEdge) {
-      errs() << "Ect : " << ect << " / " << numEdge <<"\n";
+      errs() << "Ect : " << ect << " / NumEdge: " << numEdge <<"\n";
       assert(false); 
     }
   }

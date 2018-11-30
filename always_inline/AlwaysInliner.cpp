@@ -48,7 +48,7 @@ void setInlineSet(Function* F, std::set<Function*>* inlineSet) {
         Instruction* Inst = &I;
         Function *f = ((CallInst*)Inst)->getCalledFunction();
         //errs() << "CALLED FUNCTION: " << f->getName() << "\n";
-        if (!f->isDeclaration()  &&  isInlineViable(*f)) {
+        if (!f->isDeclaration()  /*&&  isInlineViable(*f)*/) {
           inlineSet->insert(f);          
         }
         else {
@@ -235,7 +235,7 @@ InlineCost AlwaysInlinerLegacyPass::getInlineCost(CallSite CS) {
    // Only inline direct calls to functions with always-inline attributes
    // that are viable for inlining. FIXME: We shouldn't even get here for
    // declarations.
-  if (Callee && !Callee->isDeclaration() && isInlineViable(*Callee) && isKernelDescendant(Callee))
+  if (Callee && !Callee->isDeclaration() /*&& isInlineViable(*Callee)*/ && isKernelDescendant(Callee))
     return InlineCost::getAlways();
   else {
     //errs() << "really couldn't inline \n";
