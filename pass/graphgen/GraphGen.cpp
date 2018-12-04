@@ -74,20 +74,19 @@ void GraphGen::detectComm(Function &func) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
-            //errs() << "Call Instruction : "<< f->getName() << "\n";
-            if(f->getName() == "_Z16desc_produce_i32i") {
+            if(f->getName().str().find("desc_supply_produce") != std::string::npos) {
               errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
-            else if(f->getName() == "_Z16desc_consume_i32v") {
+            else if(f->getName().str().find( "desc_compute_consume") != std::string::npos) {
               errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
-            if(f->getName() == "_Z19desc_store_addr_i32Pi") {
+            else if (f->getName().str().find("desc_supply_consume") != std::string::npos) {
               errs() << "[STADDR]"<< *i << "\n";
               n->itype = STADDR;
             }
-            else if(f->getName() == "_Z18desc_store_val_i32i") {
+            else if (f->getName().str().find("desc_compute_produce") != std::string::npos) {
               errs() << "[STVAL]"<< *i << "\n";
               n->itype = STVAL;
             }

@@ -18,7 +18,6 @@ void Core::access(DynamicNode* d) {
 
 void IssueWindow::insertDN(DynamicNode* d) {
   issueMap.insert(make_pair(d,curr_index));
-  cout << curr_index; 
   //d->print(" InsertedDN: ", -50);
   curr_index++;
 }

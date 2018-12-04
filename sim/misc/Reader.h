@@ -70,10 +70,10 @@ public:
       //cout << "Done with Nodes " << endl;
       int i=0;
       while (i<numEdge) {
-        cout << "edge iter: " <<i << endl;
+        //cout << "edge iter: " <<i << endl;
 
         getline(cfile,line);
-        cout << line << endl;
+        //cout << line << endl;
         string stripped_line = line;
         boost::trim_left(stripped_line);
         //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
