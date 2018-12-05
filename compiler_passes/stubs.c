@@ -15,6 +15,17 @@ int ID = 0;
 char desc_buffer_send[1024] = {0};
 char desc_buffer_rec[1024] = {0};
 
+typedef union {
+  int i;
+  float f;
+ } fi32;
+
+typedef union {
+  uint64_t i;
+  double f;
+ } fi64;
+
+
 
 char desc_compute_consume_i8() {
   assert(0);
@@ -43,6 +54,18 @@ void * desc_compute_consume_ptr() {
   return tmp;  
 }
 
+float desc_compute_consume_float() {
+  fi32 tmp;
+  tmp.i = desc_compute_consume_i32();
+  return tmp.f;
+}
+
+double desc_compute_consume_double() {
+  fi64 tmp;
+  tmp.i = desc_compute_consume_i64();
+  return tmp.f;
+}
+
 void desc_compute_produce_i8(char x) {
   assert(0);
 }
@@ -64,6 +87,17 @@ void desc_compute_produce_ptr(void *x) {
   write(desc_sock, &to_send, sizeof(to_send));
 }
 
+void desc_compute_produce_float(float x) {
+  fi32 tmp;
+  tmp.f = x;
+  desc_compute_produce_i32(tmp.i);
+}
+
+void desc_compute_produce_double(double x) {
+  fi64 tmp;
+  tmp.f = x;
+  desc_compute_produce_i64(tmp.i);
+}
 
 // Supply
 
@@ -95,6 +129,18 @@ void desc_supply_produce_ptr(void *addr) {
   //printf("sending addr: %lu\n",to_send);
   void * converted = htonll_ptr(to_send);
   write(desc_sock, &converted, sizeof(converted));
+}
+
+void desc_supply_produce_float(float val) {
+  fi32 tmp;
+  tmp.f = val;
+  desc_supply_produce_i32(tmp.i);
+}
+
+void desc_supply_produce_double(double val) {
+  fi64 tmp;
+  tmp.f = val;
+  desc_supply_produce_i64(tmp.i);
 }
 
 // supply consume
@@ -133,6 +179,33 @@ void desc_supply_consume_ptr(void **addr) {
   //printf("got the addr value %lu\n", tmp);
   *addr = tmp;
 }
+
+void desc_supply_consume_float(float *addr) {
+
+  strcpy(desc_buffer_send, SUPPLY_CONS_TYPE_32);
+  send(desc_sock, desc_buffer_send, 1024, 0);
+
+  int to_store = 0;
+  read(desc_sock, &to_store, sizeof(to_store));
+  to_store = ntohl(to_store);
+  fi32 tmp;
+  tmp.i = to_store;
+  *addr = tmp.f;
+}
+
+void desc_supply_consume_double(double *addr) {
+  strcpy(desc_buffer_send, SUPPLY_CONS_TYPE_64);
+  send(desc_sock, desc_buffer_send, 1024, 0);
+  
+  uint64_t to_store = 0;
+  read(desc_sock, &to_store, sizeof(to_store));
+  to_store = ntohll(to_store);
+  //printf("got the i64 value %lu\n", tmp);
+  fi64 tmp;
+  tmp.i = to_store;
+  *addr = tmp.f;
+}
+
 
 // init and cleanup
 void desc_init(int option) {

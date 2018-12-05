@@ -36,10 +36,17 @@ namespace {
   Function *compute_consume_i64;
   Function *compute_consume_ptr;
 
+  Function *compute_consume_float;
+  Function *compute_consume_double;
+
+
   Function *compute_produce_i8;
   Function *compute_produce_i32;
   Function *compute_produce_i64;
   Function *compute_produce_ptr;
+
+  Function *compute_produce_float;
+  Function *compute_produce_double;
 
   Function *desc_init;
   Function *desc_cleanup;
@@ -62,6 +69,13 @@ namespace {
     compute_consume_ptr = (Function *) M.getOrInsertFunction("desc_compute_consume_ptr",
 								 FunctionType::get(Type::getInt8PtrTy(M.getContext()), false));
 
+    compute_consume_float = (Function *) M.getOrInsertFunction("desc_compute_consume_float",
+							      FunctionType::get(Type::getFloatTy(M.getContext()), false));
+    
+    compute_consume_double = (Function *) M.getOrInsertFunction("desc_compute_consume_double",
+								 FunctionType::get(Type::getDoubleTy(M.getContext()), false));
+
+
     compute_produce_i8 = (Function *) M.getOrInsertFunction("desc_compute_produce_i8",
 							    FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt8Ty(M.getContext())));
     
@@ -74,6 +88,13 @@ namespace {
     // using *i8 and will cast later
     compute_produce_ptr = (Function *) M.getOrInsertFunction("desc_compute_produce_ptr",
 							     FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt8PtrTy(M.getContext())));
+
+    compute_produce_float = (Function *) M.getOrInsertFunction("desc_compute_produce_float",
+							     FunctionType::get(Type::getVoidTy(M.getContext()),Type::getFloatTy(M.getContext())));
+    
+    compute_produce_double = (Function *) M.getOrInsertFunction("desc_compute_produce_double",
+							     FunctionType::get(Type::getVoidTy(M.getContext()),Type::getDoubleTy(M.getContext())));
+
 
     desc_init = (Function *) M.getOrInsertFunction("desc_init",
 						   FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt32Ty(M.getContext())));
@@ -94,7 +115,8 @@ namespace {
 
 
   bool non_ptr_load(Instruction *I) {
-    return I->getType()->isIntegerTy(8) || I->getType()->isIntegerTy(32) || I->getType()->isIntegerTy(64);
+    return I->getType()->isIntegerTy(8) || I->getType()->isIntegerTy(32) || I->getType()->isIntegerTy(64) ||
+      I->getType()->isFloatTy() || I->getType()->isDoubleTy();
   }
 
   bool ptr_load(Instruction *I) {
@@ -111,6 +133,12 @@ namespace {
     }
     else if (I->getType()->isIntegerTy(64)) {
       return compute_consume_i64;
+    }
+    else if (I->getType()->isFloatTy()) {
+      return compute_consume_float;
+    }
+    else if (I->getType()->isDoubleTy()) {
+      return compute_consume_double;
     }
     else {
       errs() << "[Error: unsupported non-pointer type]\n";
@@ -148,7 +176,8 @@ namespace {
 
   bool non_ptr_store(StoreInst *stI) {
     Value *I = stI->getValueOperand();
-    return I->getType()->isIntegerTy(8) || I->getType()->isIntegerTy(32) || I->getType()->isIntegerTy(64);
+    return I->getType()->isIntegerTy(8) || I->getType()->isIntegerTy(32) || I->getType()->isIntegerTy(64) ||
+      I->getType()->isFloatTy() || I->getType()->isDoubleTy();
   }
 
   bool ptr_store(StoreInst *stI) {
@@ -167,6 +196,13 @@ namespace {
     else if (I->getType()->isIntegerTy(64)) {
       return compute_produce_i64;
     }
+    else if (I->getType()->isFloatTy()) {
+      return compute_produce_float;
+    }
+    else if (I->getType()->isDoubleTy()) {
+      return compute_produce_double;
+    }
+
     else {
       errs() << "[Error: unsupported non-pointer type]\n";
       errs() << *I << "\n";
