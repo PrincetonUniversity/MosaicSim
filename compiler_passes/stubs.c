@@ -10,6 +10,8 @@
 
 int desc_sock = 0;
 
+int ID = 0;
+
 char desc_buffer_send[1024] = {0};
 char desc_buffer_rec[1024] = {0};
 
@@ -28,7 +30,7 @@ uint64_t desc_compute_consume_i64() {
   uint64_t to_ret = 0;
   read(desc_sock, &to_ret, sizeof(to_ret));
   uint64_t tmp = ntohll(to_ret);
-  printf("got the i64 value %lu\n", tmp);
+  //printf("got the i64 value %lu\n", tmp);
   return tmp;
 }
 
@@ -37,7 +39,7 @@ void * desc_compute_consume_ptr() {
   void * to_ret = NULL;
   read(desc_sock, &to_ret, sizeof(to_ret));
   void *tmp = ntohll_ptr(to_ret);
-  printf("got the addr value %lu\n", tmp);
+  //printf("got the addr value %lu\n", tmp);
   return tmp;  
 }
 
@@ -52,55 +54,47 @@ void desc_compute_produce_i32(int x) {
 
 void desc_compute_produce_i64(uint64_t x) {
   uint64_t to_send = htonll(x);
-  printf("sending i64: %lu\n",x);
+  //printf("sending i64: %lu\n",x);
   write(desc_sock, &to_send, sizeof(to_send));
 }
 
 void desc_compute_produce_ptr(void *x) {
   void * to_send = htonll_ptr(x);
-  printf("sending addr: %lu\n",x);
+  //printf("sending addr: %lu\n",x);
   write(desc_sock, &to_send, sizeof(to_send));
 }
 
 
 // Supply
 
-char desc_supply_produce_i8(char *addr) {
-  assert(0);
-  return *addr;
+void desc_supply_produce_i8(char val) {
+  assert(0); // Not supported yet. Although shouldn't be difficult to add when/if needed
 }
 
-int desc_supply_produce_i32(int *addr) {
+void desc_supply_produce_i32(int val) {
   strcpy(desc_buffer_send, SUPPLY_PROD_TYPE_32);
   send(desc_sock, desc_buffer_send, 1024, 0);
-  int to_send = *addr;
+  int to_send =  val;
   int converted = htonl(to_send);
   write(desc_sock, &converted, sizeof(converted));
-
-  return to_send;
 }
 
-uint64_t desc_supply_produce_i64(uint64_t *addr) {
+void desc_supply_produce_i64(uint64_t val) {
   strcpy(desc_buffer_send, SUPPLY_PROD_TYPE_64);
   send(desc_sock, desc_buffer_send, 1024, 0);
-  uint64_t to_send = *addr;
-  printf("sending addr: %lu\n",to_send);
+  uint64_t to_send = val;
+  //printf("sending addr: %lu\n",to_send);
   uint64_t converted = htonll(to_send);
-  write(desc_sock, &converted, sizeof(converted));
-  
-  return to_send;
+  write(desc_sock, &converted, sizeof(converted)); 
 }
 
-void * desc_supply_produce_ptr(void **addr) {
-  printf("But Maybe its here?\n");
+void desc_supply_produce_ptr(void *addr) {
   strcpy(desc_buffer_send, SUPPLY_PROD_TYPE_64);
   send(desc_sock, desc_buffer_send, 1024, 0);
-  void * to_send = *addr;
-  printf("sending addr: %lu\n",to_send);
+  void * to_send = addr;
+  //printf("sending addr: %lu\n",to_send);
   void * converted = htonll_ptr(to_send);
   write(desc_sock, &converted, sizeof(converted));
-  printf("I'm trying this\n");
-  return to_send;
 }
 
 // supply consume
@@ -124,7 +118,7 @@ void desc_supply_consume_i64(uint64_t *addr) {
   uint64_t to_store = 0;
   read(desc_sock, &to_store, sizeof(to_store));
   uint64_t tmp = ntohll(to_store);
-  printf("got the i64 value %lu\n", tmp);
+  //printf("got the i64 value %lu\n", tmp);
   *addr = tmp;
 
 }
@@ -136,7 +130,7 @@ void desc_supply_consume_ptr(void **addr) {
   void * to_store = NULL;
   read(desc_sock, &to_store, sizeof(to_store));
   void * tmp = ntohll_ptr(to_store);
-  printf("got the addr value %lu\n", tmp);
+  //printf("got the addr value %lu\n", tmp);
   *addr = tmp;
 }
 
@@ -148,7 +142,9 @@ void desc_init(int option) {
   if ((desc_sock = socket(AF_INET, SOCK_STREAM, 0)) < 0) { 
     printf("\n Socket creation error \n"); 
     exit(1); 
-  } 
+  }
+
+  ID = option;
   
   memset(&serv_addr, '0', sizeof(serv_addr)); 
   
@@ -177,8 +173,28 @@ void desc_init(int option) {
   send(desc_sock, desc_buffer_send, 1024, 0);
   read(desc_sock, desc_buffer_rec, 1024);
 
-  printf("finished desc_init!\n");
+  printf("connected to desc server!\n");
 }
 
 void desc_cleanup() {
+  int err = 0;
+  if (ID == SUPPLY) {
+    strcpy(desc_buffer_send, SUPPLY_FINISH);
+  }
+  else if (ID == COMPUTE) {
+    strcpy(desc_buffer_send, COMPUTE_FINISH);
+  }
+  else {
+    printf("error: unrecognized ID: %d\n", ID);
+    exit(1);
+  }
+  printf("sending finished!\n");
+  send(desc_sock, desc_buffer_send, 1024, 0);
+  
+  // Just to wait for ack from server
+  read(desc_sock, desc_buffer_rec, 1024); 
+  if (close(desc_sock) < 0) {
+    printf("\nerror closing socket!\n");
+    exit(1);
+  }  
 }

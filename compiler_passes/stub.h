@@ -10,6 +10,9 @@
 #define SUPPLY_CONS_TYPE_32 "SUPPLY_CONS_TYPE_32\0"
 #define SUPPLY_CONS_TYPE_64 "SUPPLY_CONS_TYPE_64\0"
 
+#define SUPPLY_FINISH "SUPPLY_FINISH"
+#define COMPUTE_FINISH "COMPUTE_FINISH"
+
 // From https://stackoverflow.com/questions/3022552/is-there-any-standard-htonl-like-function-for-64-bits-integers-in-c
 uint64_t htonll(uint64_t value) {
   // The answer is 42

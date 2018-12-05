@@ -23,6 +23,8 @@
 #include "stub.h"
 #define PORT 8080
 
+#define NUM_TILES 2
+
 int supply_sock, compute_sock;
 char buffer_rec[1024] = {0};
 char buffer_send[1024] = {0}; 
@@ -82,6 +84,8 @@ int main(int argc, char const *argv[])
     printf("hello from %s\n", buffer_rec);
     send(new_socket, buffer_send, 1024, 0); 
   }
+
+  int finished_tiles = 0;
   
   while(1) {
     
@@ -92,7 +96,7 @@ int main(int argc, char const *argv[])
     
     if (strstr(buffer_rec, SUPPLY_PROD_TYPE_32) != NULL) {
       //prod-con type
-      printf("executing supply -> execute interaction (32)\n");
+      //printf("executing supply -> execute interaction (32)\n");
       
       //read the supply value
       int rec_int;
@@ -106,13 +110,13 @@ int main(int argc, char const *argv[])
     }
     else if (strstr(buffer_rec, SUPPLY_PROD_TYPE_64) != NULL) {
       //prod-con type
-      printf("executing supply -> execute interaction (64)\n");
+      //printf("executing supply -> execute interaction (64)\n");
       
       //read the supply value
       uint64_t rec_int;
       read(supply_sock, &rec_int, sizeof(rec_int));
       uint64_t converted = ntohll(rec_int);
-      printf("got the number %lu\n", converted);
+      //printf("got the number %lu\n", converted);
       uint64_t to_send = htonll(converted);
       
       //send it to the compute side
@@ -120,7 +124,7 @@ int main(int argc, char const *argv[])
     }
     
     else if (strstr(buffer_rec, SUPPLY_CONS_TYPE_32) != NULL) {
-      printf("executing compute -> supply interaction (32)\n");
+      //printf("executing compute -> supply interaction (32)\n");
       // store-type
       
       int rec_int;
@@ -135,7 +139,7 @@ int main(int argc, char const *argv[])
       write(supply_sock, &to_send, sizeof(to_send));
     }
     else if (strstr(buffer_rec, SUPPLY_CONS_TYPE_64) != NULL) {
-      printf("executing compute -> supply interaction (64)\n");
+      //printf("executing compute -> supply interaction (64)\n");
       // store-type
       
       uint64_t rec_int;
@@ -143,15 +147,35 @@ int main(int argc, char const *argv[])
       read(compute_sock, &rec_int, sizeof(rec_int));
       //printf("got the number %lu\n", rec_int);
       uint64_t converted = ntohll(rec_int);
-      printf("got the number %lu\n", converted);
+      //printf("got the number %lu\n", converted);
       uint64_t to_send = htonll(converted);
       
       //send it to the supply side
       write(supply_sock, &to_send, sizeof(to_send));
     }
+    else if (strstr(buffer_rec, SUPPLY_FINISH) != NULL) {
+      //printf("got finished tiles: %d", finished_tiles+1);
+      send(supply_sock, buffer_send, 1024, 0); 
+      finished_tiles+=1;
+      read(compute_sock, buffer_rec, 1024);
+      send(compute_sock, buffer_send, 1024, 0);
+      break;
+    }
     else if (bytes_read != 0) {
       printf("ERROR %s\n", buffer_rec);
     }
-  }    
+  }
+  sleep(1); // hack to make sure server sends its reply
+  printf("desc server finished.\n");
+  if (close(supply_sock) < 0) {
+    printf("\nerror closing socket!\n");
+    exit(1);
+  }
+  if (close(compute_sock) < 0) {
+    printf("\nerror closing socket!\n");
+    exit(1);
+  }  
+
+
   return 0; 
 }

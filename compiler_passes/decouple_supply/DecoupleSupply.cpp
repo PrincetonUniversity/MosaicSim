@@ -63,17 +63,17 @@ namespace {
 							    FunctionType::get(Type::getVoidTy(M.getContext()), Type::getInt8PtrTy(M.getContext())->getPointerTo()));
     
     supply_produce_i8 = (Function *) M.getOrInsertFunction("desc_supply_produce_i8",
-							   FunctionType::get(Type::getInt8Ty(M.getContext()),Type::getInt8Ty(M.getContext())));
+							   FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt8Ty(M.getContext())));
     
     supply_produce_i32 = (Function *) M.getOrInsertFunction("desc_supply_produce_i32",
-							    FunctionType::get(Type::getInt32Ty(M.getContext()),Type::getInt32Ty(M.getContext())->getPointerTo()));
+							    FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt32Ty(M.getContext())));
     
     supply_produce_i64 = (Function *) M.getOrInsertFunction("desc_supply_produce_i64",
-							    FunctionType::get(Type::getInt64Ty(M.getContext()),Type::getInt64Ty(M.getContext())->getPointerTo()));
+							    FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt64Ty(M.getContext())));
     
     // using *i8 and will cast later
     supply_produce_ptr = (Function *) M.getOrInsertFunction("desc_supply_produce_ptr",
-							    FunctionType::get(Type::getInt8PtrTy(M.getContext()),Type::getInt8PtrTy(M.getContext())->getPointerTo()));
+							    FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt8PtrTy(M.getContext())));
     
     desc_init = (Function *) M.getOrInsertFunction("desc_init",
 						   FunctionType::get(Type::getVoidTy(M.getContext()),Type::getInt32Ty(M.getContext())));
@@ -125,20 +125,20 @@ namespace {
     Instruction *Intr;
     Value *Intr2;
     Value *Intr_pre;
-    IRBuilder<> Builder(I);
+    IRBuilder<> Builder(I->getNextNode());
 
     if (non_ptr_load(I)) {
       Function *supply_produce_non_ptr_func = get_non_ptr_produce(I);
-      Intr = Builder.CreateCall(supply_produce_non_ptr_func, {I->getPointerOperand()});
-      I->replaceAllUsesWith(Intr);
-      to_erase.push_back(I);
+      Intr = Builder.CreateCall(supply_produce_non_ptr_func, {I});
+      //I->replaceAllUsesWith(Intr);
+      //to_erase.push_back(I);
     }
     else if (ptr_load(I)) {
-      Intr_pre = Builder.CreatePointerCast(I->getPointerOperand(), Type::getInt8PtrTy(M.getContext())->getPointerTo());
+      Intr_pre = Builder.CreatePointerCast(I, Type::getInt8PtrTy(M.getContext())->getPointerTo());
       Intr = Builder.CreateCall(supply_produce_ptr,{Intr_pre});
-      Intr2 = Builder.CreatePointerCast(Intr, I->getType());
-      I->replaceAllUsesWith(Intr2);
-      to_erase.push_back(I);      
+      //Intr2 = Builder.CreatePointerCast(Intr, I->getType());
+      //I->replaceAllUsesWith(Intr2);
+      //to_erase.push_back(I);      
     }
     else {
       errs() << "[Error: Could not find a type for the load instruction]\n";
