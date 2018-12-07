@@ -424,6 +424,7 @@ void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candi
         }
         ++row_it;
     }
+    cout << "Program Completed \n"; 
 }
 
 
@@ -472,7 +473,7 @@ int main(int argc, char **argv) {
     
     
     _kernel_(row_vector, query, reference, top_k, K, counter);
-    
+    cout << "Program Completed \n"; 
     print_queue(top_k);
     double duration = (clock() - start) / (double)(CLOCKS_PER_SEC);
     cout << "counter: " << counter << endl;
