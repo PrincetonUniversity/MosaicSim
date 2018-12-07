@@ -392,8 +392,8 @@ bool DynamicNode::issueDESCNode() {
 
 
 void DynamicNode::finishNode() {
-  //cout << "Cycle: " << core->cycles; //luwa test
-  //this->print("Node Completed",-2); //luwa test
+  //these assertions test to make sure decoupling dependencies are maintained
+  
   if(n->typeInstr==RECV)
     assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());
   if(n->typeInstr==STADDR)

@@ -273,7 +273,7 @@ int* get_query_ref_instance (Query& query, Candidate* cand) {
   return query_array;
 }
 
-vector<Candidate*> _kernel_expand_candidate(Query& query, Reference& reference, \
+vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
         vector<Candidate*>& initial_cands, const float max_weight, candidate_heap& top_k) {
     
     vector<Candidate*> new_cands;
@@ -394,6 +394,38 @@ void load_rows(vector<Row>* row_vector, string edge_path, int num_edges) {
   cout << "size of vector is " << row_vector->size() << endl;  
 }
 
+void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candidate_heap& top_k, int& K, int& counter) {
+      vector<Row>::iterator row_it=row_vector->begin();
+      while(true) {        
+        Row row=*row_it;
+             
+        if(row.weight * query.num_edges < top_k.top()->weight) {
+            break;
+        }
+        
+        vector<Candidate*> initial_candidates, out_cands; 
+        initial_candidates = get_initial_candidates(query, row);
+        out_cands = expand_candidate(query, reference, initial_candidates, row.weight, top_k);
+        reference.visited.insert(pair<int,int>(row.src, row.trg));
+        reference.visited.insert(pair<int,int>(row.trg, row.src));
+                       
+        for(auto &out_cand : out_cands) {
+            if(top_k.size() < K) {
+                top_k.push(out_cand);
+            } else if (out_cand->weight > top_k.top()->weight) {
+                top_k.pop();
+                top_k.push(out_cand);
+            }
+        }
+        
+        counter++;
+        if(counter == reference.num_edges) {
+            break;
+        }
+        ++row_it;
+    }
+}
+
 
 int main(int argc, char **argv) {
 
@@ -437,38 +469,9 @@ int main(int argc, char **argv) {
     
     vector<Row>* row_vector = new vector<Row>();
     load_rows(row_vector, edge_path, reference.num_edges);
-    vector<Row>::iterator row_it=row_vector->begin();
     
-    while(true) {
-      
-        Row row=*row_it;
-             
-        if(row.weight * query.num_edges < top_k.top()->weight) {
-            break;
-        }
-        
-        vector<Candidate*> initial_candidates, out_cands; 
-        initial_candidates = get_initial_candidates(query, row);
-        out_cands = _kernel_expand_candidate(query, reference, initial_candidates, row.weight, top_k);
-        return 0;
-        reference.visited.insert(pair<int,int>(row.src, row.trg));
-        reference.visited.insert(pair<int,int>(row.trg, row.src));
-                       
-        for(auto &out_cand : out_cands) {
-            if(top_k.size() < K) {
-                top_k.push(out_cand);
-            } else if (out_cand->weight > top_k.top()->weight) {
-                top_k.pop();
-                top_k.push(out_cand);
-            }
-        }
-        
-        counter++;
-        if(counter == reference.num_edges) {
-            break;
-        }
-        ++row_it;
-    }
+    
+    _kernel_(row_vector, query, reference, top_k, K, counter);
     
     print_queue(top_k);
     double duration = (clock() - start) / (double)(CLOCKS_PER_SEC);

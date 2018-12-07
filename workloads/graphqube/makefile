@@ -10,7 +10,7 @@ testbench: main.cpp
 	llc -filetype=obj int/$(NAME)-pass.llvm -o int/$(NAME).o
 	llc -filetype=asm int/$(NAME)-pass.llvm -o int/$(NAME).s
 	$(CC) int/$(NAME).o -o $(NAME)-profile.out
-	./$(NAME)-profile.out ./_data/edges_medium.tsv ./_data/queryGraph.Subgraph.4.5.txt 20
+	./$(NAME)-profile.out ./_data/edges_small_trimmed.tsv ./_data/queryGraph.Subgraph.4.5.txt 20
 
 clean: 
 	rm -f $(NAME)
