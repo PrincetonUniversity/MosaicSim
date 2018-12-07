@@ -1,0 +1,19 @@
+#Randomly generated graph:
+#Time: Wed Mar 14 00:34:09 EDT 2018
+#Nodes: 5
+#Edges: 7
+#Undirected graph (each pair of nodes is saved twice) -- contains no self loops. #edges is #directed edges
+1#4#1.0
+1#3#1.0
+1#2#1.0
+2#1#1.0
+3#2#1.0
+5#4#1.0
+3#1#1.0
+2#3#1.0
+5#2#1.0
+4#1#1.0
+4#2#1.0
+2#4#1.0
+2#5#1.0
+4#5#1.0
