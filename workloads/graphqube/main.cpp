@@ -396,7 +396,8 @@ void load_rows(vector<Row>* row_vector, string edge_path, int num_edges) {
 
 void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candidate_heap& top_k, int& K, int& counter) {
       vector<Row>::iterator row_it=row_vector->begin();
-      while(true) {        
+      for(int i=0; i<5; i++) {
+      //while(true) {        
         Row row=*row_it;
              
         if(row.weight * query.num_edges < top_k.top()->weight) {

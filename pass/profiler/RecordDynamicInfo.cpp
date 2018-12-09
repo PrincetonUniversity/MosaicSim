@@ -211,6 +211,7 @@ namespace {
         }
         else if(auto *lI = dyn_cast<LoadInst>(inst))
           printMemory(inst);
+        
         else if(auto *sI = dyn_cast<StoreInst>(inst))
           printMemory(inst);
         else if(auto *iI = dyn_cast<InvokeInst>(inst))
