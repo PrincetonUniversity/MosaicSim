@@ -5,7 +5,7 @@
 #define MAX_NUM 10000
 
 void _kernel_triad(int a[], int b[], int c[], int s) {
-  #pragma clang loop unroll(disable)
+  //#pragma clang loop unroll(disable)
   for (int i = 0; i < SIZE; i++) {
     c[i] = a[i] + s * b[i];
   }

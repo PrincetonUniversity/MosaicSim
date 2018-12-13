@@ -51,7 +51,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
       if(!(n->typeInstr == STADDR)) {
-        core->lsq.insert(d); //luwa: it's not safe to insert in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
+        core->lsq.insert(d); //luwa: it's not safe to insert STADDR in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
       }
     }
     else {

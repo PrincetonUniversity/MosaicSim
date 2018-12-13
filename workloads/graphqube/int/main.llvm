@@ -1956,16 +1956,17 @@ $_ZN9__gnu_cxxeqIPKP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT
 @.str.9 = private unnamed_addr constant [30 x i8] c"  k            number of hits\00", align 1
 @.str.10 = private unnamed_addr constant [17 x i8] c"num_query_edges=\00", align 1
 @.str.11 = private unnamed_addr constant [21 x i8] c"num_reference_edges=\00", align 1
-@.str.12 = private unnamed_addr constant [10 x i8] c"counter: \00", align 1
-@.str.13 = private unnamed_addr constant [10 x i8] c"runtime: \00", align 1
-@.str.14 = private unnamed_addr constant [5 x i8] c"stoi\00", align 1
-@.str.18 = private unnamed_addr constant [26 x i8] c"vector::_M_realloc_insert\00", align 1
+@.str.12 = private unnamed_addr constant [20 x i8] c"Program Completed \0A\00", align 1
+@.str.13 = private unnamed_addr constant [10 x i8] c"counter: \00", align 1
+@.str.14 = private unnamed_addr constant [10 x i8] c"runtime: \00", align 1
+@.str.15 = private unnamed_addr constant [5 x i8] c"stoi\00", align 1
+@.str.19 = private unnamed_addr constant [26 x i8] c"vector::_M_realloc_insert\00", align 1
 @_ZStL19piecewise_construct = internal constant %"struct.std::piecewise_construct_t" undef, align 1
-@.str.19 = private unnamed_addr constant [3 x i8] c"--\00", align 1
-@.str.20 = private unnamed_addr constant [2 x i8] c":\00", align 1
-@.str.21 = private unnamed_addr constant [2 x i8] c"\09\00", align 1
-@.str.22 = private unnamed_addr constant [8 x i8] c"weight:\00", align 1
-@.str.23 = private unnamed_addr constant [15 x i8] c"total_weight: \00", align 1
+@.str.20 = private unnamed_addr constant [3 x i8] c"--\00", align 1
+@.str.21 = private unnamed_addr constant [2 x i8] c":\00", align 1
+@.str.22 = private unnamed_addr constant [2 x i8] c"\09\00", align 1
+@.str.23 = private unnamed_addr constant [8 x i8] c"weight:\00", align 1
+@.str.24 = private unnamed_addr constant [15 x i8] c"total_weight: \00", align 1
 @llvm.global_ctors = appending global [1 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 65535, void ()* @_GLOBAL__sub_I_main.cpp, i8* null }]
 
 ; Function Attrs: noinline uwtable
@@ -4347,8 +4348,8 @@ invoke.cont50:                                    ; preds = %invoke.cont44
   call fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0EC2ERKS5_OS4_"(%"class.std::priority_queue"* nonnull %top_k, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp48)
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp48) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %14) #3
-  %cmp53116 = icmp sgt i32 %call19, 0
-  br i1 %cmp53116, label %for.body.lr.ph, label %for.cond.cleanup
+  %cmp53118 = icmp sgt i32 %call19, 0
+  br i1 %cmp53118, label %for.body.lr.ph, label %for.cond.cleanup
 
 for.body.lr.ph:                                   ; preds = %invoke.cont50
   %15 = bitcast %struct.Candidate** %dummy_cand to i8*
@@ -4373,7 +4374,7 @@ lpad:                                             ; preds = %if.end
   %21 = extractvalue { i8*, i32 } %19, 1
   call void @_ZNSaIcED2Ev(%"class.std::allocator.23"* nonnull %ref.tmp) #3
   call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %2) #3
-  br label %ehcleanup102
+  br label %ehcleanup104
 
 lpad10:                                           ; preds = %invoke.cont
   %22 = landingpad { i8*, i32 }
@@ -4382,7 +4383,7 @@ lpad10:                                           ; preds = %invoke.cont
   %24 = extractvalue { i8*, i32 } %22, 1
   call void @_ZNSaIcED2Ev(%"class.std::allocator.23"* nonnull %ref.tmp9) #3
   call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %5) #3
-  br label %ehcleanup100
+  br label %ehcleanup102
 
 lpad15:                                           ; preds = %invoke.cont11
   %25 = landingpad { i8*, i32 }
@@ -4405,14 +4406,14 @@ ehcleanup:                                        ; preds = %lpad17, %lpad15
   call void @_ZNSaIcED2Ev(%"class.std::allocator.23"* nonnull %ref.tmp14) #3
   call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %9) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %7) #3
-  br label %ehcleanup98
+  br label %ehcleanup100
 
 lpad22:                                           ; preds = %invoke.cont18
   %31 = landingpad { i8*, i32 }
           cleanup
   %32 = extractvalue { i8*, i32 } %31, 0
   %33 = extractvalue { i8*, i32 } %31, 1
-  br label %ehcleanup97
+  br label %ehcleanup99
 
 lpad24:                                           ; preds = %invoke.cont23
   %34 = landingpad { i8*, i32 }
@@ -4420,21 +4421,21 @@ lpad24:                                           ; preds = %invoke.cont23
   %35 = extractvalue { i8*, i32 } %34, 0
   %36 = extractvalue { i8*, i32 } %34, 1
   call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %agg.tmp) #3
-  br label %ehcleanup97
+  br label %ehcleanup99
 
 lpad27:                                           ; preds = %invoke.cont31, %invoke.cont28, %invoke.cont25
   %37 = landingpad { i8*, i32 }
           cleanup
   %38 = extractvalue { i8*, i32 } %37, 0
   %39 = extractvalue { i8*, i32 } %37, 1
-  br label %ehcleanup96
+  br label %ehcleanup98
 
 lpad36:                                           ; preds = %invoke.cont33
   %40 = landingpad { i8*, i32 }
           cleanup
   %41 = extractvalue { i8*, i32 } %40, 0
   %42 = extractvalue { i8*, i32 } %40, 1
-  br label %ehcleanup95
+  br label %ehcleanup97
 
 lpad38:                                           ; preds = %invoke.cont37
   %43 = landingpad { i8*, i32 }
@@ -4442,17 +4443,17 @@ lpad38:                                           ; preds = %invoke.cont37
   %44 = extractvalue { i8*, i32 } %43, 0
   %45 = extractvalue { i8*, i32 } %43, 1
   call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %agg.tmp35) #3
-  br label %ehcleanup95
+  br label %ehcleanup97
 
 lpad41:                                           ; preds = %invoke.cont44, %invoke.cont42, %invoke.cont39
   %46 = landingpad { i8*, i32 }
           cleanup
   %47 = extractvalue { i8*, i32 } %46, 0
   %48 = extractvalue { i8*, i32 } %46, 1
-  br label %ehcleanup94
+  br label %ehcleanup96
 
 for.body:                                         ; preds = %for.body.lr.ph, %invoke.cont57
-  %i.0117 = phi i32 [ 0, %for.body.lr.ph ], [ %inc, %invoke.cont57 ]
+  %i.0119 = phi i32 [ 0, %for.body.lr.ph ], [ %inc, %invoke.cont57 ]
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %15) #3
   %call56 = invoke i8* @_Znwm(i64 120) #15
           to label %invoke.cont55 unwind label %lpad54
@@ -4469,7 +4470,7 @@ invoke.cont55:                                    ; preds = %for.body
 
 invoke.cont57:                                    ; preds = %invoke.cont55
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %15) #3
-  %inc = add nuw nsw i32 %i.0117, 1
+  %inc = add nuw nsw i32 %i.0119, 1
   %cmp53 = icmp slt i32 %inc, %call19
   br i1 %cmp53, label %for.body, label %for.cond.cleanup
 
@@ -4479,7 +4480,7 @@ lpad54:                                           ; preds = %invoke.cont55, %for
   %52 = extractvalue { i8*, i32 } %51, 0
   %53 = extractvalue { i8*, i32 } %51, 1
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %15) #3
-  br label %ehcleanup93
+  br label %ehcleanup95
 
 invoke.cont62:                                    ; preds = %for.cond.cleanup
   %54 = bitcast i8* %call63 to %"class.std::vector.90"*
@@ -4498,39 +4499,43 @@ invoke.cont68:                                    ; preds = %invoke.cont65
           to label %invoke.cont70 unwind label %lpad61
 
 invoke.cont70:                                    ; preds = %invoke.cont68
-  invoke fastcc void @"_Z11print_queueISt14priority_queueIP9CandidateSt6vectorIS2_SaIS2_EE3$_0EEvRT_"(%"class.std::priority_queue"* nonnull dereferenceable(32) %top_k)
+  %call72 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.12, i64 0, i64 0))
           to label %invoke.cont71 unwind label %lpad61
 
 invoke.cont71:                                    ; preds = %invoke.cont70
-  %call72 = call i64 @clock() #3
-  %sub = sub nsw i64 %call72, %call60
+  invoke fastcc void @"_Z11print_queueISt14priority_queueIP9CandidateSt6vectorIS2_SaIS2_EE3$_0EEvRT_"(%"class.std::priority_queue"* nonnull dereferenceable(32) %top_k)
+          to label %invoke.cont73 unwind label %lpad61
+
+invoke.cont73:                                    ; preds = %invoke.cont71
+  %call74 = call i64 @clock() #3
+  %sub = sub nsw i64 %call74, %call60
   %conv = sitofp i64 %sub to double
   %div = fdiv double %conv, 1.000000e+06
-  %call75 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.12, i64 0, i64 0))
-          to label %invoke.cont74 unwind label %lpad73
+  %call77 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.13, i64 0, i64 0))
+          to label %invoke.cont76 unwind label %lpad75
 
-invoke.cont74:                                    ; preds = %invoke.cont71
+invoke.cont76:                                    ; preds = %invoke.cont73
   %56 = load i32, i32* %counter, align 4, !tbaa !18
-  %call77 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call75, i32 %56)
-          to label %invoke.cont76 unwind label %lpad73
-
-invoke.cont76:                                    ; preds = %invoke.cont74
-  %call79 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call77, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
-          to label %invoke.cont78 unwind label %lpad73
+  %call79 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call77, i32 %56)
+          to label %invoke.cont78 unwind label %lpad75
 
 invoke.cont78:                                    ; preds = %invoke.cont76
-  %call81 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.13, i64 0, i64 0))
-          to label %invoke.cont80 unwind label %lpad73
+  %call81 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call79, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
+          to label %invoke.cont80 unwind label %lpad75
 
 invoke.cont80:                                    ; preds = %invoke.cont78
-  %call83 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEd(%"class.std::basic_ostream"* nonnull %call81, double %div)
-          to label %invoke.cont82 unwind label %lpad73
+  %call83 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.14, i64 0, i64 0))
+          to label %invoke.cont82 unwind label %lpad75
 
 invoke.cont82:                                    ; preds = %invoke.cont80
-  %call85 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call83, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
-          to label %invoke.cont84 unwind label %lpad73
+  %call85 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEd(%"class.std::basic_ostream"* nonnull %call83, double %div)
+          to label %invoke.cont84 unwind label %lpad75
 
 invoke.cont84:                                    ; preds = %invoke.cont82
+  %call87 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call85, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
+          to label %invoke.cont86 unwind label %lpad75
+
+invoke.cont86:                                    ; preds = %invoke.cont84
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %18) #3
   call void @_ZNSt13unordered_setISt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEES1_IS9_ES3_IS9_ESaIS9_EED2Ev(%"class.std::unordered_set.95"* nonnull %top_k_members) #3
   call void @llvm.lifetime.end.p0i8(i64 56, i8* nonnull %17) #3
@@ -4547,16 +4552,16 @@ invoke.cont84:                                    ; preds = %invoke.cont82
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %0) #3
   br label %return
 
-return:                                           ; preds = %invoke.cont84, %if.then
-  %retval.0 = phi i32 [ 1, %if.then ], [ 0, %invoke.cont84 ]
+return:                                           ; preds = %invoke.cont86, %if.then
+  %retval.0 = phi i32 [ 1, %if.then ], [ 0, %invoke.cont86 ]
   ret i32 %retval.0
 
-lpad61:                                           ; preds = %invoke.cont70, %invoke.cont68, %invoke.cont62, %for.cond.cleanup
+lpad61:                                           ; preds = %invoke.cont71, %invoke.cont70, %invoke.cont68, %invoke.cont62, %for.cond.cleanup
   %57 = landingpad { i8*, i32 }
           cleanup
   %58 = extractvalue { i8*, i32 } %57, 0
   %59 = extractvalue { i8*, i32 } %57, 1
-  br label %ehcleanup87
+  br label %ehcleanup89
 
 lpad67:                                           ; preds = %invoke.cont65
   %60 = landingpad { i8*, i32 }
@@ -4564,75 +4569,75 @@ lpad67:                                           ; preds = %invoke.cont65
   %61 = extractvalue { i8*, i32 } %60, 0
   %62 = extractvalue { i8*, i32 } %60, 1
   call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %agg.tmp64) #3
-  br label %ehcleanup87
+  br label %ehcleanup89
 
-lpad73:                                           ; preds = %invoke.cont82, %invoke.cont80, %invoke.cont78, %invoke.cont76, %invoke.cont74, %invoke.cont71
+lpad75:                                           ; preds = %invoke.cont84, %invoke.cont82, %invoke.cont80, %invoke.cont78, %invoke.cont76, %invoke.cont73
   %63 = landingpad { i8*, i32 }
           cleanup
   %64 = extractvalue { i8*, i32 } %63, 0
   %65 = extractvalue { i8*, i32 } %63, 1
-  br label %ehcleanup87
+  br label %ehcleanup89
 
-ehcleanup87:                                      ; preds = %lpad73, %lpad67, %lpad61
-  %ehselector.slot.1 = phi i32 [ %65, %lpad73 ], [ %59, %lpad61 ], [ %62, %lpad67 ]
-  %exn.slot.1 = phi i8* [ %64, %lpad73 ], [ %58, %lpad61 ], [ %61, %lpad67 ]
+ehcleanup89:                                      ; preds = %lpad75, %lpad67, %lpad61
+  %ehselector.slot.1 = phi i32 [ %65, %lpad75 ], [ %59, %lpad61 ], [ %62, %lpad67 ]
+  %exn.slot.1 = phi i8* [ %64, %lpad75 ], [ %58, %lpad61 ], [ %61, %lpad67 ]
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %18) #3
   call void @_ZNSt13unordered_setISt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEES1_IS9_ES3_IS9_ESaIS9_EED2Ev(%"class.std::unordered_set.95"* nonnull %top_k_members) #3
   call void @llvm.lifetime.end.p0i8(i64 56, i8* nonnull %17) #3
-  br label %ehcleanup93
-
-ehcleanup93:                                      ; preds = %lpad54, %ehcleanup87
-  %ehselector.slot.2 = phi i32 [ %53, %lpad54 ], [ %ehselector.slot.1, %ehcleanup87 ]
-  %exn.slot.2 = phi i8* [ %52, %lpad54 ], [ %exn.slot.1, %ehcleanup87 ]
-  call fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0ED2Ev"(%"class.std::priority_queue"* nonnull %top_k) #3
-  call void @llvm.lifetime.end.p0i8(i64 32, i8* nonnull %13) #3
-  br label %ehcleanup94
-
-ehcleanup94:                                      ; preds = %ehcleanup93, %lpad41
-  %ehselector.slot.4 = phi i32 [ %ehselector.slot.2, %ehcleanup93 ], [ %48, %lpad41 ]
-  %exn.slot.4 = phi i8* [ %exn.slot.2, %ehcleanup93 ], [ %47, %lpad41 ]
-  call void @_ZN9ReferenceD2Ev(%struct.Reference* nonnull %reference) #3
   br label %ehcleanup95
 
-ehcleanup95:                                      ; preds = %ehcleanup94, %lpad38, %lpad36
-  %ehselector.slot.5 = phi i32 [ %ehselector.slot.4, %ehcleanup94 ], [ %45, %lpad38 ], [ %42, %lpad36 ]
-  %exn.slot.5 = phi i8* [ %exn.slot.4, %ehcleanup94 ], [ %44, %lpad38 ], [ %41, %lpad36 ]
-  call void @llvm.lifetime.end.p0i8(i64 120, i8* nonnull %11) #3
+ehcleanup95:                                      ; preds = %lpad54, %ehcleanup89
+  %ehselector.slot.2 = phi i32 [ %53, %lpad54 ], [ %ehselector.slot.1, %ehcleanup89 ]
+  %exn.slot.2 = phi i8* [ %52, %lpad54 ], [ %exn.slot.1, %ehcleanup89 ]
+  call fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0ED2Ev"(%"class.std::priority_queue"* nonnull %top_k) #3
+  call void @llvm.lifetime.end.p0i8(i64 32, i8* nonnull %13) #3
   br label %ehcleanup96
 
-ehcleanup96:                                      ; preds = %ehcleanup95, %lpad27
-  %ehselector.slot.6 = phi i32 [ %ehselector.slot.5, %ehcleanup95 ], [ %39, %lpad27 ]
-  %exn.slot.6 = phi i8* [ %exn.slot.5, %ehcleanup95 ], [ %38, %lpad27 ]
-  call void @_ZN5QueryD2Ev(%struct.Query* nonnull %query) #3
+ehcleanup96:                                      ; preds = %ehcleanup95, %lpad41
+  %ehselector.slot.4 = phi i32 [ %ehselector.slot.2, %ehcleanup95 ], [ %48, %lpad41 ]
+  %exn.slot.4 = phi i8* [ %exn.slot.2, %ehcleanup95 ], [ %47, %lpad41 ]
+  call void @_ZN9ReferenceD2Ev(%struct.Reference* nonnull %reference) #3
   br label %ehcleanup97
 
-ehcleanup97:                                      ; preds = %ehcleanup96, %lpad24, %lpad22
-  %ehselector.slot.7 = phi i32 [ %ehselector.slot.6, %ehcleanup96 ], [ %36, %lpad24 ], [ %33, %lpad22 ]
-  %exn.slot.7 = phi i8* [ %exn.slot.6, %ehcleanup96 ], [ %35, %lpad24 ], [ %32, %lpad22 ]
-  call void @llvm.lifetime.end.p0i8(i64 120, i8* nonnull %10) #3
+ehcleanup97:                                      ; preds = %ehcleanup96, %lpad38, %lpad36
+  %ehselector.slot.5 = phi i32 [ %ehselector.slot.4, %ehcleanup96 ], [ %45, %lpad38 ], [ %42, %lpad36 ]
+  %exn.slot.5 = phi i8* [ %exn.slot.4, %ehcleanup96 ], [ %44, %lpad38 ], [ %41, %lpad36 ]
+  call void @llvm.lifetime.end.p0i8(i64 120, i8* nonnull %11) #3
   br label %ehcleanup98
 
-ehcleanup98:                                      ; preds = %ehcleanup97, %ehcleanup
-  %ehselector.slot.8 = phi i32 [ %ehselector.slot.7, %ehcleanup97 ], [ %ehselector.slot.0, %ehcleanup ]
-  %exn.slot.8 = phi i8* [ %exn.slot.7, %ehcleanup97 ], [ %exn.slot.0, %ehcleanup ]
-  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %6) #3
-  call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %edge_path) #3
+ehcleanup98:                                      ; preds = %ehcleanup97, %lpad27
+  %ehselector.slot.6 = phi i32 [ %ehselector.slot.5, %ehcleanup97 ], [ %39, %lpad27 ]
+  %exn.slot.6 = phi i8* [ %exn.slot.5, %ehcleanup97 ], [ %38, %lpad27 ]
+  call void @_ZN5QueryD2Ev(%struct.Query* nonnull %query) #3
+  br label %ehcleanup99
+
+ehcleanup99:                                      ; preds = %ehcleanup98, %lpad24, %lpad22
+  %ehselector.slot.7 = phi i32 [ %ehselector.slot.6, %ehcleanup98 ], [ %36, %lpad24 ], [ %33, %lpad22 ]
+  %exn.slot.7 = phi i8* [ %exn.slot.6, %ehcleanup98 ], [ %35, %lpad24 ], [ %32, %lpad22 ]
+  call void @llvm.lifetime.end.p0i8(i64 120, i8* nonnull %10) #3
   br label %ehcleanup100
 
-ehcleanup100:                                     ; preds = %ehcleanup98, %lpad10
-  %ehselector.slot.9 = phi i32 [ %ehselector.slot.8, %ehcleanup98 ], [ %24, %lpad10 ]
-  %exn.slot.9 = phi i8* [ %exn.slot.8, %ehcleanup98 ], [ %23, %lpad10 ]
-  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %3) #3
-  call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %query_path) #3
+ehcleanup100:                                     ; preds = %ehcleanup99, %ehcleanup
+  %ehselector.slot.8 = phi i32 [ %ehselector.slot.7, %ehcleanup99 ], [ %ehselector.slot.0, %ehcleanup ]
+  %exn.slot.8 = phi i8* [ %exn.slot.7, %ehcleanup99 ], [ %exn.slot.0, %ehcleanup ]
+  call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %6) #3
+  call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %edge_path) #3
   br label %ehcleanup102
 
-ehcleanup102:                                     ; preds = %ehcleanup100, %lpad
-  %ehselector.slot.10 = phi i32 [ %ehselector.slot.9, %ehcleanup100 ], [ %21, %lpad ]
-  %exn.slot.10 = phi i8* [ %exn.slot.9, %ehcleanup100 ], [ %20, %lpad ]
+ehcleanup102:                                     ; preds = %ehcleanup100, %lpad10
+  %ehselector.slot.9 = phi i32 [ %ehselector.slot.8, %ehcleanup100 ], [ %24, %lpad10 ]
+  %exn.slot.9 = phi i8* [ %exn.slot.8, %ehcleanup100 ], [ %23, %lpad10 ]
+  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %3) #3
+  call void @_ZNSsD2Ev(%"class.std::basic_string"* nonnull %query_path) #3
+  br label %ehcleanup104
+
+ehcleanup104:                                     ; preds = %ehcleanup102, %lpad
+  %ehselector.slot.10 = phi i32 [ %ehselector.slot.9, %ehcleanup102 ], [ %21, %lpad ]
+  %exn.slot.10 = phi i8* [ %exn.slot.9, %ehcleanup102 ], [ %20, %lpad ]
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %0) #3
   %lpad.val = insertvalue { i8*, i32 } undef, i8* %exn.slot.10, 0
-  %lpad.val103 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.10, 1
-  resume { i8*, i32 } %lpad.val103
+  %lpad.val105 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.10, 1
+  resume { i8*, i32 } %lpad.val105
 }
 
 ; Function Attrs: noinline norecurse nounwind uwtable
@@ -4644,7 +4649,7 @@ declare dso_local void @_ZNSsC1EPKcRKSaIcE(%"class.std::basic_string"*, i8*, %"c
 define linkonce_odr dso_local i32 @_ZSt4stoiRKSsPmi(%"class.std::basic_string"* dereferenceable(8) %__str, i64* %__idx, i32 %__base) local_unnamed_addr #0 comdat {
 entry:
   %call = tail call i8* @_ZNKSs5c_strEv(%"class.std::basic_string"* nonnull %__str) #3
-  %call1 = tail call i32 @_ZN9__gnu_cxx6__stoaIlicJiEEET0_PFT_PKT1_PPS3_DpT2_EPKcS5_PmS9_(i64 (i8*, i8**, i32)* nonnull @strtol, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.14, i64 0, i64 0), i8* %call, i64* %__idx, i32 %__base)
+  %call1 = tail call i32 @_ZN9__gnu_cxx6__stoaIlicJiEEET0_PFT_PKT1_PPS3_DpT2_EPKcS5_PmS9_(i64 (i8*, i8**, i32)* nonnull @strtol, i8* getelementptr inbounds ([5 x i8], [5 x i8]* @.str.15, i64 0, i64 0), i8* %call, i64* %__idx, i32 %__base)
   ret i32 %call1
 }
 
@@ -4710,9 +4715,9 @@ entry:
   %initial_candidates = alloca %"class.std::vector.84", align 8
   %out_cands = alloca %"class.std::vector.84", align 8
   %ref.tmp = alloca %"class.std::vector.84", align 8
-  %ref.tmp7 = alloca %"class.std::vector.84", align 8
-  %ref.tmp12 = alloca %"struct.std::pair.26", align 4
-  %ref.tmp18 = alloca %"struct.std::pair.26", align 4
+  %ref.tmp8 = alloca %"class.std::vector.84", align 8
+  %ref.tmp13 = alloca %"struct.std::pair.26", align 4
+  %ref.tmp19 = alloca %"struct.std::pair.26", align 4
   %__begin2 = alloca %"class.__gnu_cxx::__normal_iterator.134", align 8
   %__end2 = alloca %"class.__gnu_cxx::__normal_iterator.134", align 8
   %0 = bitcast %"class.__gnu_cxx::__normal_iterator"* %row_it to i8*
@@ -4726,20 +4731,21 @@ entry:
   %2 = bitcast %"class.std::vector.84"* %initial_candidates to i8*
   %3 = bitcast %"class.std::vector.84"* %out_cands to i8*
   %4 = bitcast %"class.std::vector.84"* %ref.tmp to i8*
-  %5 = bitcast %"class.std::vector.84"* %ref.tmp7 to i8*
+  %5 = bitcast %"class.std::vector.84"* %ref.tmp8 to i8*
   %visited = getelementptr inbounds %struct.Reference, %struct.Reference* %reference, i64 0, i32 1
-  %6 = bitcast %"struct.std::pair.26"* %ref.tmp12 to i8*
+  %6 = bitcast %"struct.std::pair.26"* %ref.tmp13 to i8*
   %src = getelementptr inbounds %struct.Row, %struct.Row* %row, i64 0, i32 0
   %trg = getelementptr inbounds %struct.Row, %struct.Row* %row, i64 0, i32 1
-  %7 = bitcast %"struct.std::pair.26"* %ref.tmp18 to i8*
+  %7 = bitcast %"struct.std::pair.26"* %ref.tmp19 to i8*
   %8 = bitcast %"class.__gnu_cxx::__normal_iterator.134"* %__begin2 to i8*
-  %coerce.dive27 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.134", %"class.__gnu_cxx::__normal_iterator.134"* %__begin2, i64 0, i32 0
+  %coerce.dive28 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.134", %"class.__gnu_cxx::__normal_iterator.134"* %__begin2, i64 0, i32 0
   %9 = bitcast %"class.__gnu_cxx::__normal_iterator.134"* %__end2 to i8*
-  %coerce.dive29 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.134", %"class.__gnu_cxx::__normal_iterator.134"* %__end2, i64 0, i32 0
-  %num_edges50 = getelementptr inbounds %struct.Reference, %struct.Reference* %reference, i64 0, i32 2
-  br label %while.cond
+  %coerce.dive30 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.134", %"class.__gnu_cxx::__normal_iterator.134"* %__end2, i64 0, i32 0
+  %num_edges54 = getelementptr inbounds %struct.Reference, %struct.Reference* %reference, i64 0, i32 2
+  br label %for.body
 
-while.cond:                                       ; preds = %cleanup61, %entry
+for.body:                                         ; preds = %cleanup65, %entry
+  %i.0130 = phi i32 [ 0, %entry ], [ %inc70, %cleanup65 ]
   call void @llvm.lifetime.start.p0i8(i64 32, i8* nonnull %1) #3
   %call1 = call dereferenceable(32) %struct.Row* @_ZNK9__gnu_cxx17__normal_iteratorIP3RowSt6vectorIS1_SaIS1_EEEdeEv(%"class.__gnu_cxx::__normal_iterator"* nonnull %row_it) #3
   call void @_ZN3RowC2ERKS_(%struct.Row* nonnull %row, %struct.Row* nonnull dereferenceable(32) %call1)
@@ -4751,65 +4757,65 @@ while.cond:                                       ; preds = %cleanup61, %entry
   %12 = load %struct.Candidate*, %struct.Candidate** %call2, align 8, !tbaa !43
   %weight3 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %12, i64 0, i32 2
   %13 = load float, float* %weight3, align 8, !tbaa !47
-  %cmp = fcmp olt float %mul, %13
-  br i1 %cmp, label %cleanup61, label %if.end
+  %cmp4 = fcmp olt float %mul, %13
+  br i1 %cmp4, label %cleanup65, label %if.end
 
-if.end:                                           ; preds = %while.cond
+if.end:                                           ; preds = %for.body
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %2) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EEC2Ev(%"class.std::vector.84"* nonnull %initial_candidates) #3
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %3) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EEC2Ev(%"class.std::vector.84"* nonnull %out_cands) #3
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %4) #3
   invoke void @_Z22get_initial_candidatesR5QueryR3Row(%"class.std::vector.84"* nonnull sret %ref.tmp, %struct.Query* nonnull dereferenceable(120) %query, %struct.Row* nonnull dereferenceable(32) %row)
-          to label %invoke.cont5 unwind label %lpad4
+          to label %invoke.cont6 unwind label %lpad5
 
-invoke.cont5:                                     ; preds = %if.end
-  %call6 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %initial_candidates, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp) #3
+invoke.cont6:                                     ; preds = %if.end
+  %call7 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %initial_candidates, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %4) #3
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %5) #3
   %14 = load float, float* %weight, align 8, !tbaa !46
-  invoke fastcc void @"_Z16expand_candidateR5QueryR9ReferenceRSt6vectorIP9CandidateSaIS5_EEfRSt14priority_queueIS5_S7_3$_0E"(%"class.std::vector.84"* noalias nonnull %ref.tmp7, %struct.Query* nonnull dereferenceable(120) %query, %struct.Reference* nonnull dereferenceable(120) %reference, %"class.std::vector.84"* nonnull dereferenceable(24) %initial_candidates, float %14, %"class.std::priority_queue"* nonnull dereferenceable(32) %top_k)
-          to label %invoke.cont10 unwind label %lpad9
+  invoke fastcc void @"_Z16expand_candidateR5QueryR9ReferenceRSt6vectorIP9CandidateSaIS5_EEfRSt14priority_queueIS5_S7_3$_0E"(%"class.std::vector.84"* noalias nonnull %ref.tmp8, %struct.Query* nonnull dereferenceable(120) %query, %struct.Reference* nonnull dereferenceable(120) %reference, %"class.std::vector.84"* nonnull dereferenceable(24) %initial_candidates, float %14, %"class.std::priority_queue"* nonnull dereferenceable(32) %top_k)
+          to label %invoke.cont11 unwind label %lpad10
 
-invoke.cont10:                                    ; preds = %invoke.cont5
-  %call11 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %out_cands, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp7) #3
-  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp7) #3
+invoke.cont11:                                    ; preds = %invoke.cont6
+  %call12 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %out_cands, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp8) #3
+  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp8) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %5) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %6) #3
-  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp12, i32* nonnull dereferenceable(4) %src, i32* nonnull dereferenceable(4) %trg)
-  %call16 = invoke { %"struct.std::__detail::_Hash_node"*, i8 } @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE6insertEOS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp12)
-          to label %invoke.cont15 unwind label %lpad13
+  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp13, i32* nonnull dereferenceable(4) %src, i32* nonnull dereferenceable(4) %trg)
+  %call17 = invoke { %"struct.std::__detail::_Hash_node"*, i8 } @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE6insertEOS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp13)
+          to label %invoke.cont16 unwind label %lpad14
 
-invoke.cont15:                                    ; preds = %invoke.cont10
+invoke.cont16:                                    ; preds = %invoke.cont11
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %6) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %7) #3
-  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp18, i32* nonnull dereferenceable(4) %trg, i32* nonnull dereferenceable(4) %src)
-  %call24 = invoke { %"struct.std::__detail::_Hash_node"*, i8 } @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE6insertEOS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp18)
-          to label %invoke.cont23 unwind label %lpad21
+  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp19, i32* nonnull dereferenceable(4) %trg, i32* nonnull dereferenceable(4) %src)
+  %call25 = invoke { %"struct.std::__detail::_Hash_node"*, i8 } @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE6insertEOS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp19)
+          to label %invoke.cont24 unwind label %lpad22
 
-invoke.cont23:                                    ; preds = %invoke.cont15
+invoke.cont24:                                    ; preds = %invoke.cont16
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %7) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %8) #3
-  %call26 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE5beginEv(%"class.std::vector.84"* nonnull %out_cands) #3
-  store %struct.Candidate** %call26, %struct.Candidate*** %coerce.dive27, align 8
+  %call27 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE5beginEv(%"class.std::vector.84"* nonnull %out_cands) #3
+  store %struct.Candidate** %call27, %struct.Candidate*** %coerce.dive28, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %9) #3
-  %call28 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE3endEv(%"class.std::vector.84"* nonnull %out_cands) #3
-  store %struct.Candidate** %call28, %struct.Candidate*** %coerce.dive29, align 8
-  %call30117 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
-  br i1 %call30117, label %for.body, label %for.cond.cleanup
+  %call29 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE3endEv(%"class.std::vector.84"* nonnull %out_cands) #3
+  store %struct.Candidate** %call29, %struct.Candidate*** %coerce.dive30, align 8
+  %call32129 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
+  br i1 %call32129, label %for.body34, label %for.cond.cleanup33
 
-for.cond.cleanup:                                 ; preds = %if.end48, %invoke.cont23
+for.cond.cleanup33:                               ; preds = %if.end52, %invoke.cont24
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %9) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %8) #3
   %15 = load i32, i32* %counter, align 4, !tbaa !18
   %inc = add nsw i32 %15, 1
   store i32 %inc, i32* %counter, align 4, !tbaa !18
-  %16 = load i32, i32* %num_edges50, align 8, !tbaa !22
-  %cmp51 = icmp eq i32 %inc, %16
-  br i1 %cmp51, label %cleanup, label %if.end53
+  %16 = load i32, i32* %num_edges54, align 8, !tbaa !22
+  %cmp55 = icmp eq i32 %inc, %16
+  br i1 %cmp55, label %cleanup, label %if.end57
 
-lpad4:                                            ; preds = %if.end
+lpad5:                                            ; preds = %if.end
   %17 = landingpad { i8*, i32 }
           cleanup
   %18 = extractvalue { i8*, i32 } %17, 0
@@ -4817,7 +4823,7 @@ lpad4:                                            ; preds = %if.end
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %4) #3
   br label %ehcleanup
 
-lpad9:                                            ; preds = %invoke.cont5
+lpad10:                                           ; preds = %invoke.cont6
   %20 = landingpad { i8*, i32 }
           cleanup
   %21 = extractvalue { i8*, i32 } %20, 0
@@ -4825,7 +4831,7 @@ lpad9:                                            ; preds = %invoke.cont5
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %5) #3
   br label %ehcleanup
 
-lpad13:                                           ; preds = %invoke.cont10
+lpad14:                                           ; preds = %invoke.cont11
   %23 = landingpad { i8*, i32 }
           cleanup
   %24 = extractvalue { i8*, i32 } %23, 0
@@ -4833,7 +4839,7 @@ lpad13:                                           ; preds = %invoke.cont10
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %6) #3
   br label %ehcleanup
 
-lpad21:                                           ; preds = %invoke.cont15
+lpad22:                                           ; preds = %invoke.cont16
   %26 = landingpad { i8*, i32 }
           cleanup
   %27 = extractvalue { i8*, i32 } %26, 0
@@ -4841,19 +4847,19 @@ lpad21:                                           ; preds = %invoke.cont15
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %7) #3
   br label %ehcleanup
 
-for.body:                                         ; preds = %invoke.cont23, %if.end48
-  %call31 = call dereferenceable(8) %struct.Candidate** @_ZNK9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
-  %call34 = call fastcc i64 @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4sizeEv"(%"class.std::priority_queue"* nonnull %top_k)
+for.body34:                                       ; preds = %invoke.cont24, %if.end52
+  %call35 = call dereferenceable(8) %struct.Candidate** @_ZNK9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
+  %call38 = call fastcc i64 @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4sizeEv"(%"class.std::priority_queue"* nonnull %top_k)
   %29 = load i32, i32* %K, align 4, !tbaa !18
-  %conv35 = sext i32 %29 to i64
-  %cmp36 = icmp ult i64 %call34, %conv35
-  br i1 %cmp36, label %if.then37, label %if.else
+  %conv39 = sext i32 %29 to i64
+  %cmp40 = icmp ult i64 %call38, %conv39
+  br i1 %cmp40, label %if.then41, label %if.else
 
-if.then37:                                        ; preds = %for.body
-  invoke fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4pushERKS1_"(%"class.std::priority_queue"* nonnull %top_k, %struct.Candidate** nonnull dereferenceable(8) %call31)
-          to label %if.end48 unwind label %lpad32
+if.then41:                                        ; preds = %for.body34
+  invoke fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4pushERKS1_"(%"class.std::priority_queue"* nonnull %top_k, %struct.Candidate** nonnull dereferenceable(8) %call35)
+          to label %if.end52 unwind label %lpad36
 
-lpad32:                                           ; preds = %invoke.cont45, %if.then37
+lpad36:                                           ; preds = %invoke.cont49, %if.then41
   %30 = landingpad { i8*, i32 }
           cleanup
   %31 = extractvalue { i8*, i32 } %30, 0
@@ -4862,49 +4868,52 @@ lpad32:                                           ; preds = %invoke.cont45, %if.
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %8) #3
   br label %ehcleanup
 
-if.else:                                          ; preds = %for.body
-  %33 = load %struct.Candidate*, %struct.Candidate** %call31, align 8, !tbaa !43
-  %weight39 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %33, i64 0, i32 2
-  %34 = load float, float* %weight39, align 8, !tbaa !47
-  %call41 = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
-  %35 = load %struct.Candidate*, %struct.Candidate** %call41, align 8, !tbaa !43
-  %weight42 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %35, i64 0, i32 2
-  %36 = load float, float* %weight42, align 8, !tbaa !47
-  %cmp43 = fcmp ogt float %34, %36
-  br i1 %cmp43, label %invoke.cont45, label %if.end48
+if.else:                                          ; preds = %for.body34
+  %33 = load %struct.Candidate*, %struct.Candidate** %call35, align 8, !tbaa !43
+  %weight43 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %33, i64 0, i32 2
+  %34 = load float, float* %weight43, align 8, !tbaa !47
+  %call45 = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
+  %35 = load %struct.Candidate*, %struct.Candidate** %call45, align 8, !tbaa !43
+  %weight46 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %35, i64 0, i32 2
+  %36 = load float, float* %weight46, align 8, !tbaa !47
+  %cmp47 = fcmp ogt float %34, %36
+  br i1 %cmp47, label %invoke.cont49, label %if.end52
 
-invoke.cont45:                                    ; preds = %if.else
+invoke.cont49:                                    ; preds = %if.else
   call fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3popEv"(%"class.std::priority_queue"* nonnull %top_k)
-  invoke fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4pushERKS1_"(%"class.std::priority_queue"* nonnull %top_k, %struct.Candidate** nonnull dereferenceable(8) %call31)
-          to label %if.end48 unwind label %lpad32
+  invoke fastcc void @"_ZNSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E4pushERKS1_"(%"class.std::priority_queue"* nonnull %top_k, %struct.Candidate** nonnull dereferenceable(8) %call35)
+          to label %if.end52 unwind label %lpad36
 
-if.end48:                                         ; preds = %if.else, %invoke.cont45, %if.then37
-  %call49 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.134"* @_ZN9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
-  %call30 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
-  br i1 %call30, label %for.body, label %for.cond.cleanup
+if.end52:                                         ; preds = %if.else, %invoke.cont49, %if.then41
+  %call53 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.134"* @_ZN9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
+  %call32 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
+  br i1 %call32, label %for.body34, label %for.cond.cleanup33
 
-if.end53:                                         ; preds = %for.cond.cleanup
-  %call54 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator"* @_ZN9__gnu_cxx17__normal_iteratorIP3RowSt6vectorIS1_SaIS1_EEEppEv(%"class.__gnu_cxx::__normal_iterator"* nonnull %row_it) #3
+if.end57:                                         ; preds = %for.cond.cleanup33
+  %call58 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator"* @_ZN9__gnu_cxx17__normal_iteratorIP3RowSt6vectorIS1_SaIS1_EEEppEv(%"class.__gnu_cxx::__normal_iterator"* nonnull %row_it) #3
   br label %cleanup
 
-cleanup:                                          ; preds = %for.cond.cleanup, %if.end53
-  %cleanup.dest.slot.0 = phi i32 [ 0, %if.end53 ], [ 3, %for.cond.cleanup ]
+cleanup:                                          ; preds = %for.cond.cleanup33, %if.end57
+  %cleanup.dest.slot.0 = phi i32 [ 0, %if.end57 ], [ 2, %for.cond.cleanup33 ]
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %out_cands) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %3) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %initial_candidates) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %2) #3
-  br label %cleanup61
+  br label %cleanup65
 
-cleanup61:                                        ; preds = %while.cond, %cleanup
-  %cleanup.dest.slot.1 = phi i32 [ %cleanup.dest.slot.0, %cleanup ], [ 3, %while.cond ]
+cleanup65:                                        ; preds = %for.body, %cleanup
+  %cleanup.dest.slot.1 = phi i32 [ %cleanup.dest.slot.0, %cleanup ], [ 2, %for.body ]
   call void @_ZN3RowD2Ev(%struct.Row* nonnull %row) #3
   call void @llvm.lifetime.end.p0i8(i64 32, i8* nonnull %1) #3
-  %switch = icmp eq i32 %cleanup.dest.slot.1, 0
-  br i1 %switch, label %while.cond, label %while.end
+  %cond = icmp eq i32 %cleanup.dest.slot.1, 0
+  %inc70 = add nuw nsw i32 %i.0130, 1
+  %cmp = icmp ult i32 %inc70, 5
+  %or.cond = and i1 %cond, %cmp
+  br i1 %or.cond, label %for.body, label %cleanup71
 
-ehcleanup:                                        ; preds = %lpad32, %lpad21, %lpad13, %lpad9, %lpad4
-  %ehselector.slot.0 = phi i32 [ %32, %lpad32 ], [ %28, %lpad21 ], [ %25, %lpad13 ], [ %22, %lpad9 ], [ %19, %lpad4 ]
-  %exn.slot.0 = phi i8* [ %31, %lpad32 ], [ %27, %lpad21 ], [ %24, %lpad13 ], [ %21, %lpad9 ], [ %18, %lpad4 ]
+ehcleanup:                                        ; preds = %lpad36, %lpad22, %lpad14, %lpad10, %lpad5
+  %ehselector.slot.0 = phi i32 [ %32, %lpad36 ], [ %28, %lpad22 ], [ %25, %lpad14 ], [ %22, %lpad10 ], [ %19, %lpad5 ]
+  %exn.slot.0 = phi i8* [ %31, %lpad36 ], [ %27, %lpad22 ], [ %24, %lpad14 ], [ %21, %lpad10 ], [ %18, %lpad5 ]
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %out_cands) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %3) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %initial_candidates) #3
@@ -4913,10 +4922,11 @@ ehcleanup:                                        ; preds = %lpad32, %lpad21, %l
   call void @llvm.lifetime.end.p0i8(i64 32, i8* nonnull %1) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %0) #3
   %lpad.val = insertvalue { i8*, i32 } undef, i8* %exn.slot.0, 0
-  %lpad.val66 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.0, 1
-  resume { i8*, i32 } %lpad.val66
+  %lpad.val76 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.0, 1
+  resume { i8*, i32 } %lpad.val76
 
-while.end:                                        ; preds = %cleanup61
+cleanup71:                                        ; preds = %cleanup65
+  %call74 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([20 x i8], [20 x i8]* @.str.12, i64 0, i64 0))
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %0) #3
   ret void
 }
@@ -4926,56 +4936,56 @@ define internal fastcc void @"_Z11print_queueISt14priority_queueIP9CandidateSt6v
 entry:
   %it = alloca %"struct.std::__detail::_Node_iterator.28", align 8
   %ref.tmp = alloca %"struct.std::__detail::_Node_iterator.28", align 8
-  %call = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.1 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.2 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.3 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.4 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.5 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.6 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.7 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.8 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.9 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.10 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.11 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.12 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.13 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.14 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.15 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.16 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.17 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.18 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.19 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.20 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.21 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.22 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.23 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.24 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.25 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.26 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.27 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.28 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.29 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.30 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.31 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.32 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.33 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.34 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.35 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.36 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.37 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.38 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.39 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.40 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.41 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.42 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.43 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.44 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.45 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.46 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.47 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.48 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call.49 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
+  %call = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.1 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.2 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.3 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.4 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.5 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.6 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.7 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.8 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.9 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.10 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.11 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.12 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.13 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.14 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.15 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.16 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.17 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.18 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.19 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.20 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.21 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.22 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.23 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.24 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.25 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.26 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.27 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.28 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.29 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.30 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.31 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.32 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.33 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.34 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.35 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.36 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.37 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.38 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.39 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.40 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.41 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.42 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.43 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.44 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.45 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.46 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.47 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.48 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call.49 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
   %call1 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull @_ZSt4cout, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
   %call256 = call fastcc zeroext i1 @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E5emptyEv"(%"class.std::priority_queue"* nonnull %q)
   br i1 %call256, label %for.cond29.preheader, label %while.body.lr.ph
@@ -4991,58 +5001,58 @@ while.body.lr.ph:                                 ; preds = %entry
 
 for.cond29.preheader:                             ; preds = %for.cond.cleanup13, %entry
   %total_weight.0.lcssa = phi float [ 0.000000e+00, %entry ], [ %add, %for.cond.cleanup13 ]
-  %call33 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.1 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.2 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.3 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.4 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.5 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.6 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.7 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.8 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.9 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.10 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.11 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.12 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.13 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.14 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.15 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.16 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.17 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.18 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.19 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.20 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.21 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.22 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.23 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.24 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.25 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.26 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.27 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.28 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.29 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.30 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.31 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.32 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.33 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.34 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.35 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.36 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.37 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.38 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.39 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.40 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.41 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.42 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.43 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.44 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.45 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.46 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.47 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.48 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
-  %call33.49 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.19, i64 0, i64 0))
+  %call33 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.1 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.2 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.3 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.4 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.5 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.6 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.7 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.8 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.9 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.10 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.11 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.12 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.13 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.14 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.15 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.16 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.17 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.18 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.19 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.20 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.21 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.22 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.23 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.24 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.25 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.26 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.27 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.28 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.29 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.30 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.31 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.32 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.33 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.34 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.35 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.36 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.37 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.38 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.39 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.40 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.41 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.42 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.43 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.44 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.45 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.46 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.47 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.48 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
+  %call33.49 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str.20, i64 0, i64 0))
   %call37 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull @_ZSt4cout, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
-  %call38 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call37, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.23, i64 0, i64 0))
+  %call38 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call37, i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.24, i64 0, i64 0))
   %call39 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEf(%"class.std::basic_ostream"* nonnull %call38, float %total_weight.0.lcssa)
   %call40 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEPFRSoS_E(%"class.std::basic_ostream"* nonnull %call39, %"class.std::basic_ostream"* (%"class.std::basic_ostream"*)* nonnull @_ZSt4endlIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_)
   ret void
@@ -5069,7 +5079,7 @@ while.body:                                       ; preds = %while.body.lr.ph, %
 
 for.cond.cleanup13:                               ; preds = %for.body14, %while.body
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %0) #3
-  %call24 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.22, i64 0, i64 0))
+  %call24 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.23, i64 0, i64 0))
   %weight25 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %6, i64 0, i32 2
   %7 = load float, float* %weight25, align 8, !tbaa !47
   %call26 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEf(%"class.std::basic_ostream"* nonnull %call24, float %7)
@@ -5083,12 +5093,12 @@ for.body14:                                       ; preds = %while.body, %for.bo
   %first = getelementptr inbounds %"struct.std::pair.89", %"struct.std::pair.89"* %call15, i64 0, i32 0
   %8 = load i32, i32* %first, align 4, !tbaa !55
   %call16 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull @_ZSt4cout, i32 %8)
-  %call17 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call16, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.20, i64 0, i64 0))
+  %call17 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call16, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.21, i64 0, i64 0))
   %call18 = call %"struct.std::pair.89"* @_ZNKSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEptEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %it) #3
   %second = getelementptr inbounds %"struct.std::pair.89", %"struct.std::pair.89"* %call18, i64 0, i32 1
   %9 = load i32, i32* %second, align 4, !tbaa !57
   %call19 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call17, i32 %9)
-  %call20 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call19, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.21, i64 0, i64 0))
+  %call20 = call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call19, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.22, i64 0, i64 0))
   %call22 = call dereferenceable(8) %"struct.std::__detail::_Node_iterator.28"* @_ZNSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEppEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %it) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %2) #3
   %call9 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE3endEv(%"class.std::unordered_map"* nonnull %nodes) #3
@@ -8416,22 +8426,22 @@ entry:
   %r_src = alloca i32, align 4
   %q_trg = alloca i32, align 4
   %q_trg_type = alloca i32, align 4
-  %ref.tmp43 = alloca %"struct.std::__detail::_Node_iterator.74", align 8
-  %ref.tmp51 = alloca %"struct.std::__detail::_Node_iterator.74", align 8
-  %ref.tmp61 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
-  %ref.tmp68 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
+  %ref.tmp46 = alloca %"struct.std::__detail::_Node_iterator.74", align 8
+  %ref.tmp54 = alloca %"struct.std::__detail::_Node_iterator.74", align 8
+  %ref.tmp64 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
+  %ref.tmp71 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
   %cand_nodes_values = alloca %"class.std::unordered_set.136", align 8
   %__begin4 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
   %__end4 = alloca %"struct.std::__detail::_Node_iterator.28", align 8
-  %__begin4111 = alloca %"class.__gnu_cxx::__normal_iterator.159", align 8
-  %__end4114 = alloca %"class.__gnu_cxx::__normal_iterator.159", align 8
+  %__begin4114 = alloca %"class.__gnu_cxx::__normal_iterator.159", align 8
+  %__end4117 = alloca %"class.__gnu_cxx::__normal_iterator.159", align 8
   %r_trg = alloca i32, align 4
-  %ref.tmp125 = alloca %"struct.std::__detail::_Node_iterator.151", align 8
-  %ref.tmp131 = alloca %"struct.std::__detail::_Node_iterator.151", align 8
-  %ref.tmp146 = alloca %"struct.std::__detail::_Node_iterator", align 8
-  %ref.tmp147 = alloca %"struct.std::pair.26", align 4
-  %ref.tmp154 = alloca %"struct.std::__detail::_Node_iterator", align 8
-  %ref.tmp173 = alloca %"class.std::vector.84", align 8
+  %ref.tmp128 = alloca %"struct.std::__detail::_Node_iterator.151", align 8
+  %ref.tmp134 = alloca %"struct.std::__detail::_Node_iterator.151", align 8
+  %ref.tmp150 = alloca %"struct.std::__detail::_Node_iterator", align 8
+  %ref.tmp151 = alloca %"struct.std::pair.26", align 4
+  %ref.tmp158 = alloca %"struct.std::__detail::_Node_iterator", align 8
+  %ref.tmp177 = alloca %"class.std::vector.84", align 8
   %agg.tmp = alloca %"class.std::vector.84", align 8
   %0 = bitcast %"class.std::vector.84"* %new_cands to i8*
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %0) #3
@@ -8444,153 +8454,154 @@ entry:
   %3 = bitcast i32* %r_src to i8*
   %4 = bitcast i32* %q_trg to i8*
   %5 = bitcast i32* %q_trg_type to i8*
-  %6 = bitcast %"struct.std::__detail::_Node_iterator.74"* %ref.tmp43 to i8*
+  %6 = bitcast %"struct.std::__detail::_Node_iterator.74"* %ref.tmp46 to i8*
   %neibs = getelementptr inbounds %struct.Reference, %struct.Reference* %reference, i64 0, i32 0
-  %coerce.dive50 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp43, i64 0, i32 0, i32 0
-  %7 = bitcast %"struct.std::__detail::_Node_iterator.74"* %ref.tmp51 to i8*
-  %8 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp43, i64 0, i32 0
-  %coerce.dive58 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp51, i64 0, i32 0, i32 0
-  %9 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp51, i64 0, i32 0
-  %10 = bitcast %"struct.std::__detail::_Node_iterator.28"* %ref.tmp61 to i8*
-  %coerce.dive67 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp61, i64 0, i32 0, i32 0
-  %11 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp61, i64 0, i32 0
-  %12 = bitcast %"struct.std::__detail::_Node_iterator.28"* %ref.tmp68 to i8*
-  %coerce.dive72 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp68, i64 0, i32 0, i32 0
-  %13 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp68, i64 0, i32 0
+  %coerce.dive53 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp46, i64 0, i32 0, i32 0
+  %7 = bitcast %"struct.std::__detail::_Node_iterator.74"* %ref.tmp54 to i8*
+  %8 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp46, i64 0, i32 0
+  %coerce.dive61 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp54, i64 0, i32 0, i32 0
+  %9 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.74", %"struct.std::__detail::_Node_iterator.74"* %ref.tmp54, i64 0, i32 0
+  %10 = bitcast %"struct.std::__detail::_Node_iterator.28"* %ref.tmp64 to i8*
+  %coerce.dive70 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp64, i64 0, i32 0, i32 0
+  %11 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp64, i64 0, i32 0
+  %12 = bitcast %"struct.std::__detail::_Node_iterator.28"* %ref.tmp71 to i8*
+  %coerce.dive75 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp71, i64 0, i32 0, i32 0
+  %13 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %ref.tmp71, i64 0, i32 0
   %14 = bitcast %"class.std::unordered_set.136"* %cand_nodes_values to i8*
   %15 = bitcast %"struct.std::__detail::_Node_iterator.28"* %__begin4 to i8*
-  %coerce.dive84 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__begin4, i64 0, i32 0, i32 0
+  %coerce.dive87 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__begin4, i64 0, i32 0, i32 0
   %16 = bitcast %"struct.std::__detail::_Node_iterator.28"* %__end4 to i8*
-  %coerce.dive87 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__end4, i64 0, i32 0, i32 0
+  %coerce.dive90 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__end4, i64 0, i32 0, i32 0
   %17 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__begin4, i64 0, i32 0
   %18 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.28", %"struct.std::__detail::_Node_iterator.28"* %__end4, i64 0, i32 0
-  %19 = bitcast %"class.__gnu_cxx::__normal_iterator.159"* %__begin4111 to i8*
-  %coerce.dive113 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.159", %"class.__gnu_cxx::__normal_iterator.159"* %__begin4111, i64 0, i32 0
-  %20 = bitcast %"class.__gnu_cxx::__normal_iterator.159"* %__end4114 to i8*
-  %coerce.dive116 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.159", %"class.__gnu_cxx::__normal_iterator.159"* %__end4114, i64 0, i32 0
+  %19 = bitcast %"class.__gnu_cxx::__normal_iterator.159"* %__begin4114 to i8*
+  %coerce.dive116 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.159", %"class.__gnu_cxx::__normal_iterator.159"* %__begin4114, i64 0, i32 0
+  %20 = bitcast %"class.__gnu_cxx::__normal_iterator.159"* %__end4117 to i8*
+  %coerce.dive119 = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.159", %"class.__gnu_cxx::__normal_iterator.159"* %__end4117, i64 0, i32 0
   %21 = bitcast i32* %r_trg to i8*
-  %22 = bitcast %"struct.std::__detail::_Node_iterator"* %ref.tmp146 to i8*
+  %22 = bitcast %"struct.std::__detail::_Node_iterator"* %ref.tmp150 to i8*
   %visited = getelementptr inbounds %struct.Reference, %struct.Reference* %reference, i64 0, i32 1
-  %23 = bitcast %"struct.std::pair.26"* %ref.tmp147 to i8*
-  %24 = bitcast %"struct.std::__detail::_Node_iterator.151"* %ref.tmp125 to i8*
-  %coerce.dive153 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp146, i64 0, i32 0, i32 0
-  %25 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp146, i64 0, i32 0
-  %26 = bitcast %"struct.std::__detail::_Node_iterator"* %ref.tmp154 to i8*
-  %coerce.dive158 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp154, i64 0, i32 0, i32 0
-  %27 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp154, i64 0, i32 0
-  %coerce.dive130 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp125, i64 0, i32 0, i32 0
-  %28 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp125, i64 0, i32 0
-  %29 = bitcast %"struct.std::__detail::_Node_iterator.151"* %ref.tmp131 to i8*
-  %coerce.dive135 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp131, i64 0, i32 0, i32 0
-  %30 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp131, i64 0, i32 0
-  %31 = bitcast %"class.std::vector.84"* %ref.tmp173 to i8*
-  br label %while.cond
+  %23 = bitcast %"struct.std::pair.26"* %ref.tmp151 to i8*
+  %24 = bitcast %"struct.std::__detail::_Node_iterator.151"* %ref.tmp128 to i8*
+  %coerce.dive157 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp150, i64 0, i32 0, i32 0
+  %25 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp150, i64 0, i32 0
+  %26 = bitcast %"struct.std::__detail::_Node_iterator"* %ref.tmp158 to i8*
+  %coerce.dive162 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp158, i64 0, i32 0, i32 0
+  %27 = getelementptr inbounds %"struct.std::__detail::_Node_iterator", %"struct.std::__detail::_Node_iterator"* %ref.tmp158, i64 0, i32 0
+  %coerce.dive133 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp128, i64 0, i32 0, i32 0
+  %28 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp128, i64 0, i32 0
+  %29 = bitcast %"struct.std::__detail::_Node_iterator.151"* %ref.tmp134 to i8*
+  %coerce.dive138 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp134, i64 0, i32 0, i32 0
+  %30 = getelementptr inbounds %"struct.std::__detail::_Node_iterator.151", %"struct.std::__detail::_Node_iterator.151"* %ref.tmp134, i64 0, i32 0
+  %31 = bitcast %"class.std::vector.84"* %ref.tmp177 to i8*
+  br label %for.body
 
-while.cond:                                       ; preds = %if.end240, %entry
-  %new_cand_ptr.0 = phi %"class.std::vector.84"* [ %new_cands, %entry ], [ %curr_cand_ptr.0, %if.end240 ]
-  %curr_cand_ptr.0 = phi %"class.std::vector.84"* [ %initial_cands, %entry ], [ %new_cand_ptr.0, %if.end240 ]
+for.body:                                         ; preds = %entry, %if.end244
+  %curr_cand_ptr.0467 = phi %"class.std::vector.84"* [ %initial_cands, %entry ], [ %new_cand_ptr.0466, %if.end244 ]
+  %new_cand_ptr.0466 = phi %"class.std::vector.84"* [ %new_cands, %entry ], [ %curr_cand_ptr.0467, %if.end244 ]
+  %i.0465 = phi i32 [ 0, %entry ], [ %inc, %if.end244 ]
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %1) #3
-  %call = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE5beginEv(%"class.std::vector.84"* %curr_cand_ptr.0) #3
+  %call = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE5beginEv(%"class.std::vector.84"* %curr_cand_ptr.0467) #3
   store %struct.Candidate** %call, %struct.Candidate*** %coerce.dive, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %2) #3
-  %call1 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE3endEv(%"class.std::vector.84"* %curr_cand_ptr.0) #3
+  %call1 = call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE3endEv(%"class.std::vector.84"* %curr_cand_ptr.0467) #3
   store %struct.Candidate** %call1, %struct.Candidate*** %coerce.dive2, align 8
-  %call3447 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
-  br i1 %call3447, label %for.body, label %for.cond.cleanup
+  %call4464 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
+  br i1 %call4464, label %for.body6, label %for.cond.cleanup5
 
-for.cond.cleanup:                                 ; preds = %if.end200, %while.cond
+for.cond.cleanup5:                                ; preds = %if.end204, %for.body
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %2) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %1) #3
-  %call216 = call i64 @_ZNKSt6vectorIP9CandidateSaIS1_EE4sizeEv(%"class.std::vector.84"* %new_cand_ptr.0) #3
-  %cmp217 = icmp eq i64 %call216, 0
-  br i1 %cmp217, label %nrvo.skipdtor, label %if.end240
+  %call220 = call i64 @_ZNKSt6vectorIP9CandidateSaIS1_EE4sizeEv(%"class.std::vector.84"* %new_cand_ptr.0466) #3
+  %cmp221 = icmp eq i64 %call220, 0
+  br i1 %cmp221, label %nrvo.skipdtor, label %if.end244
 
-for.body:                                         ; preds = %while.cond, %if.end200
-  %call4 = call dereferenceable(8) %struct.Candidate** @_ZNK9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
+for.body6:                                        ; preds = %for.body, %if.end204
+  %call7 = call dereferenceable(8) %struct.Candidate** @_ZNK9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
   call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %3) #3
   call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %4) #3
   call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %5) #3
-  %32 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %call39 = invoke i32* @_Z22get_query_ref_instanceR5QueryP9Candidate(%struct.Query* nonnull dereferenceable(120) %query, %struct.Candidate* %32)
-          to label %invoke.cont38 unwind label %lpad37
+  %32 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %call42 = invoke i32* @_Z22get_query_ref_instanceR5QueryP9Candidate(%struct.Query* nonnull dereferenceable(120) %query, %struct.Candidate* %32)
+          to label %invoke.cont41 unwind label %lpad40
 
-invoke.cont38:                                    ; preds = %for.body
-  %33 = load i32, i32* %call39, align 4, !tbaa !18
+invoke.cont41:                                    ; preds = %for.body6
+  %33 = load i32, i32* %call42, align 4, !tbaa !18
   store i32 %33, i32* %r_src, align 4, !tbaa !18
-  %arrayidx40 = getelementptr inbounds i32, i32* %call39, i64 1
-  %34 = load i32, i32* %arrayidx40, align 4, !tbaa !18
-  %arrayidx41 = getelementptr inbounds i32, i32* %call39, i64 2
-  %35 = load i32, i32* %arrayidx41, align 4, !tbaa !18
+  %arrayidx43 = getelementptr inbounds i32, i32* %call42, i64 1
+  %34 = load i32, i32* %arrayidx43, align 4, !tbaa !18
+  %arrayidx44 = getelementptr inbounds i32, i32* %call42, i64 2
+  %35 = load i32, i32* %arrayidx44, align 4, !tbaa !18
   store i32 %35, i32* %q_trg, align 4, !tbaa !18
-  %arrayidx42 = getelementptr inbounds i32, i32* %call39, i64 3
-  %36 = load i32, i32* %arrayidx42, align 4, !tbaa !18
+  %arrayidx45 = getelementptr inbounds i32, i32* %call42, i64 3
+  %36 = load i32, i32* %arrayidx45, align 4, !tbaa !18
   store i32 %36, i32* %q_trg_type, align 4, !tbaa !18
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %6) #3
-  %call46 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
-          to label %invoke.cont45 unwind label %lpad44
+  %call49 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
+          to label %invoke.cont48 unwind label %lpad47
 
-invoke.cont45:                                    ; preds = %invoke.cont38
-  %call48 = invoke %"struct.std::__detail::_Hash_node.76"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEE4findERS9_(%"class.std::unordered_map.59"* nonnull %call46, i32* nonnull dereferenceable(4) %q_trg_type)
-          to label %invoke.cont47 unwind label %lpad44
+invoke.cont48:                                    ; preds = %invoke.cont41
+  %call51 = invoke %"struct.std::__detail::_Hash_node.76"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEE4findERS9_(%"class.std::unordered_map.59"* nonnull %call49, i32* nonnull dereferenceable(4) %q_trg_type)
+          to label %invoke.cont50 unwind label %lpad47
 
-invoke.cont47:                                    ; preds = %invoke.cont45
-  store %"struct.std::__detail::_Hash_node.76"* %call48, %"struct.std::__detail::_Hash_node.76"** %coerce.dive50, align 8
+invoke.cont50:                                    ; preds = %invoke.cont48
+  store %"struct.std::__detail::_Hash_node.76"* %call51, %"struct.std::__detail::_Hash_node.76"** %coerce.dive53, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %7) #3
-  %call55 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
-          to label %invoke.cont54 unwind label %lpad53
+  %call58 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
+          to label %invoke.cont57 unwind label %lpad56
 
-invoke.cont54:                                    ; preds = %invoke.cont47
-  %call56 = call %"struct.std::__detail::_Hash_node.76"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEE3endEv(%"class.std::unordered_map.59"* nonnull %call55) #3
-  store %"struct.std::__detail::_Hash_node.76"* %call56, %"struct.std::__detail::_Hash_node.76"** %coerce.dive58, align 8
-  %call59 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiSt6vectorIS1_IifESaIS4_EEELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEESC_(%"struct.std::__detail::_Node_iterator_base.75"* nonnull dereferenceable(8) %8, %"struct.std::__detail::_Node_iterator_base.75"* nonnull dereferenceable(8) %9) #3
+invoke.cont57:                                    ; preds = %invoke.cont50
+  %call59 = call %"struct.std::__detail::_Hash_node.76"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEE3endEv(%"class.std::unordered_map.59"* nonnull %call58) #3
+  store %"struct.std::__detail::_Hash_node.76"* %call59, %"struct.std::__detail::_Hash_node.76"** %coerce.dive61, align 8
+  %call62 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiSt6vectorIS1_IifESaIS4_EEELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEESC_(%"struct.std::__detail::_Node_iterator_base.75"* nonnull dereferenceable(8) %8, %"struct.std::__detail::_Node_iterator_base.75"* nonnull dereferenceable(8) %9) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %7) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %6) #3
-  br i1 %call59, label %if.then60, label %if.end200
+  br i1 %call62, label %if.then63, label %if.end204
 
-if.then60:                                        ; preds = %invoke.cont54
+if.then63:                                        ; preds = %invoke.cont57
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %10) #3
-  %37 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %nodes62 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %37, i64 0, i32 1
-  %call65 = invoke %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE4findERS5_(%"class.std::unordered_map"* nonnull %nodes62, i32* nonnull dereferenceable(4) %q_trg)
-          to label %invoke.cont64 unwind label %lpad63
+  %37 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %nodes65 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %37, i64 0, i32 1
+  %call68 = invoke %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE4findERS5_(%"class.std::unordered_map"* nonnull %nodes65, i32* nonnull dereferenceable(4) %q_trg)
+          to label %invoke.cont67 unwind label %lpad66
 
-invoke.cont64:                                    ; preds = %if.then60
-  store %"struct.std::__detail::_Hash_node.30"* %call65, %"struct.std::__detail::_Hash_node.30"** %coerce.dive67, align 8
+invoke.cont67:                                    ; preds = %if.then63
+  store %"struct.std::__detail::_Hash_node.30"* %call68, %"struct.std::__detail::_Hash_node.30"** %coerce.dive70, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %12) #3
-  %38 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %nodes69 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %38, i64 0, i32 1
-  %call70 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE3endEv(%"class.std::unordered_map"* nonnull %nodes69) #3
-  store %"struct.std::__detail::_Hash_node.30"* %call70, %"struct.std::__detail::_Hash_node.30"** %coerce.dive72, align 8
-  %call73 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %11, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %13) #3
+  %38 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %nodes72 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %38, i64 0, i32 1
+  %call73 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE3endEv(%"class.std::unordered_map"* nonnull %nodes72) #3
+  store %"struct.std::__detail::_Hash_node.30"* %call73, %"struct.std::__detail::_Hash_node.30"** %coerce.dive75, align 8
+  %call76 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %11, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %13) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %12) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %10) #3
-  br i1 %call73, label %if.then75, label %if.end80
+  br i1 %call76, label %if.then78, label %if.end83
 
-if.then75:                                        ; preds = %invoke.cont64
-  %39 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %nodes76 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %39, i64 0, i32 1
-  %call79 = invoke dereferenceable(4) i32* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEEixERS5_(%"class.std::unordered_map"* nonnull %nodes76, i32* nonnull dereferenceable(4) %q_trg)
-          to label %invoke.cont78 unwind label %lpad77
+if.then78:                                        ; preds = %invoke.cont67
+  %39 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %nodes79 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %39, i64 0, i32 1
+  %call82 = invoke dereferenceable(4) i32* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEEixERS5_(%"class.std::unordered_map"* nonnull %nodes79, i32* nonnull dereferenceable(4) %q_trg)
+          to label %invoke.cont81 unwind label %lpad80
 
-invoke.cont78:                                    ; preds = %if.then75
-  %40 = load i32, i32* %call79, align 4, !tbaa !18
-  br label %if.end80
+invoke.cont81:                                    ; preds = %if.then78
+  %40 = load i32, i32* %call82, align 4, !tbaa !18
+  br label %if.end83
 
-lpad37:                                           ; preds = %for.body
+lpad40:                                           ; preds = %for.body6
   %41 = landingpad { i8*, i32 }
           cleanup
   %42 = extractvalue { i8*, i32 } %41, 0
   %43 = extractvalue { i8*, i32 } %41, 1
-  br label %ehcleanup204
+  br label %ehcleanup208
 
-lpad44:                                           ; preds = %invoke.cont45, %invoke.cont38
+lpad47:                                           ; preds = %invoke.cont48, %invoke.cont41
   %44 = landingpad { i8*, i32 }
           cleanup
   %45 = extractvalue { i8*, i32 } %44, 0
   %46 = extractvalue { i8*, i32 } %44, 1
   br label %ehcleanup
 
-lpad53:                                           ; preds = %invoke.cont47
+lpad56:                                           ; preds = %invoke.cont50
   %47 = landingpad { i8*, i32 }
           cleanup
   %48 = extractvalue { i8*, i32 } %47, 0
@@ -8598,357 +8609,357 @@ lpad53:                                           ; preds = %invoke.cont47
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %7) #3
   br label %ehcleanup
 
-ehcleanup:                                        ; preds = %lpad53, %lpad44
-  %ehselector.slot.0 = phi i32 [ %49, %lpad53 ], [ %46, %lpad44 ]
-  %exn.slot.0 = phi i8* [ %48, %lpad53 ], [ %45, %lpad44 ]
+ehcleanup:                                        ; preds = %lpad56, %lpad47
+  %ehselector.slot.0 = phi i32 [ %49, %lpad56 ], [ %46, %lpad47 ]
+  %exn.slot.0 = phi i8* [ %48, %lpad56 ], [ %45, %lpad47 ]
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %6) #3
-  br label %ehcleanup204
+  br label %ehcleanup208
 
-lpad63:                                           ; preds = %if.then60
+lpad66:                                           ; preds = %if.then63
   %50 = landingpad { i8*, i32 }
           cleanup
   %51 = extractvalue { i8*, i32 } %50, 0
   %52 = extractvalue { i8*, i32 } %50, 1
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %10) #3
-  br label %ehcleanup204
+  br label %ehcleanup208
 
-lpad77:                                           ; preds = %if.then75
+lpad80:                                           ; preds = %if.then78
   %53 = landingpad { i8*, i32 }
           cleanup
   %54 = extractvalue { i8*, i32 } %53, 0
   %55 = extractvalue { i8*, i32 } %53, 1
-  br label %ehcleanup204
+  br label %ehcleanup208
 
-if.end80:                                         ; preds = %invoke.cont64, %invoke.cont78
-  %q_trg_new.0 = phi i32 [ 0, %invoke.cont78 ], [ 1, %invoke.cont64 ]
-  %q_trg_current.0 = phi i32 [ %40, %invoke.cont78 ], [ -1, %invoke.cont64 ]
+if.end83:                                         ; preds = %invoke.cont67, %invoke.cont81
+  %q_trg_new.0 = phi i32 [ 0, %invoke.cont81 ], [ 1, %invoke.cont67 ]
+  %q_trg_current.0 = phi i32 [ %40, %invoke.cont81 ], [ -1, %invoke.cont67 ]
   call void @llvm.lifetime.start.p0i8(i64 56, i8* nonnull %14) #3
   call void @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEEC2Ev(%"class.std::unordered_set.136"* nonnull %cand_nodes_values) #3
-  %56 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %nodes81 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %56, i64 0, i32 1
+  %56 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %nodes84 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %56, i64 0, i32 1
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %15) #3
-  %call82 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE5beginEv(%"class.std::unordered_map"* nonnull %nodes81) #3
-  store %"struct.std::__detail::_Hash_node.30"* %call82, %"struct.std::__detail::_Hash_node.30"** %coerce.dive84, align 8
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %16) #3
-  %call85 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE3endEv(%"class.std::unordered_map"* nonnull %nodes81) #3
+  %call85 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE5beginEv(%"class.std::unordered_map"* nonnull %nodes84) #3
   store %"struct.std::__detail::_Hash_node.30"* %call85, %"struct.std::__detail::_Hash_node.30"** %coerce.dive87, align 8
-  %call89442 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %17, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %18) #3
-  br i1 %call89442, label %for.body91, label %for.cond.cleanup90
+  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %16) #3
+  %call88 = call %"struct.std::__detail::_Hash_node.30"* @_ZNSt13unordered_mapIiiSt4hashIiESt8equal_toIiESaISt4pairIKiiEEE3endEv(%"class.std::unordered_map"* nonnull %nodes84) #3
+  store %"struct.std::__detail::_Hash_node.30"* %call88, %"struct.std::__detail::_Hash_node.30"** %coerce.dive90, align 8
+  %call92459 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %17, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %18) #3
+  br i1 %call92459, label %for.body94, label %for.cond.cleanup93
 
-for.cond.cleanup90:                               ; preds = %invoke.cont95, %if.end80
+for.cond.cleanup93:                               ; preds = %invoke.cont98, %if.end83
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %16) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %15) #3
-  %call108 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
-          to label %invoke.cont107 unwind label %lpad106
+  %call111 = invoke dereferenceable(56) %"class.std::unordered_map.59"* @_ZNSt13unordered_mapIiS_IiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEES6_S8_SaIS1_IS9_SC_EEEixERS9_(%"class.std::unordered_map.34"* nonnull %neibs, i32* nonnull dereferenceable(4) %r_src)
+          to label %invoke.cont110 unwind label %lpad109
 
-for.body91:                                       ; preds = %if.end80, %invoke.cont95
-  %call92 = call dereferenceable(8) %"struct.std::pair.89"* @_ZNKSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEdeEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %__begin4) #3
-  %second93 = getelementptr inbounds %"struct.std::pair.89", %"struct.std::pair.89"* %call92, i64 0, i32 1
-  %call96 = invoke { %"struct.std::__detail::_Hash_node.153"*, i8 } @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE6insertERKi(%"class.std::unordered_set.136"* nonnull %cand_nodes_values, i32* nonnull dereferenceable(4) %second93)
-          to label %invoke.cont95 unwind label %lpad94
+for.body94:                                       ; preds = %if.end83, %invoke.cont98
+  %call95 = call dereferenceable(8) %"struct.std::pair.89"* @_ZNKSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEdeEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %__begin4) #3
+  %second96 = getelementptr inbounds %"struct.std::pair.89", %"struct.std::pair.89"* %call95, i64 0, i32 1
+  %call99 = invoke { %"struct.std::__detail::_Hash_node.153"*, i8 } @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE6insertERKi(%"class.std::unordered_set.136"* nonnull %cand_nodes_values, i32* nonnull dereferenceable(4) %second96)
+          to label %invoke.cont98 unwind label %lpad97
 
-invoke.cont95:                                    ; preds = %for.body91
-  %call99 = call dereferenceable(8) %"struct.std::__detail::_Node_iterator.28"* @_ZNSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEppEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %__begin4) #3
-  %call89 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %17, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %18) #3
-  br i1 %call89, label %for.body91, label %for.cond.cleanup90
+invoke.cont98:                                    ; preds = %for.body94
+  %call102 = call dereferenceable(8) %"struct.std::__detail::_Node_iterator.28"* @_ZNSt8__detail14_Node_iteratorISt4pairIKiiELb0ELb0EEppEv(%"struct.std::__detail::_Node_iterator.28"* nonnull %__begin4) #3
+  %call92 = call zeroext i1 @_ZNSt8__detailneISt4pairIKiiELb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES8_(%"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %17, %"struct.std::__detail::_Node_iterator_base.29"* nonnull dereferenceable(8) %18) #3
+  br i1 %call92, label %for.body94, label %for.cond.cleanup93
 
-lpad94:                                           ; preds = %for.body91
+lpad97:                                           ; preds = %for.body94
   %57 = landingpad { i8*, i32 }
           cleanup
   %58 = extractvalue { i8*, i32 } %57, 0
   %59 = extractvalue { i8*, i32 } %57, 1
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %16) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %15) #3
-  br label %ehcleanup198
+  br label %ehcleanup202
 
-invoke.cont107:                                   ; preds = %for.cond.cleanup90
-  %call110 = invoke dereferenceable(24) %"class.std::vector"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEEixERS9_(%"class.std::unordered_map.59"* nonnull %call108, i32* nonnull dereferenceable(4) %q_trg_type)
-          to label %invoke.cont109 unwind label %lpad106
+invoke.cont110:                                   ; preds = %for.cond.cleanup93
+  %call113 = invoke dereferenceable(24) %"class.std::vector"* @_ZNSt13unordered_mapIiSt6vectorISt4pairIifESaIS2_EESt4hashIiESt8equal_toIiESaIS1_IKiS4_EEEixERS9_(%"class.std::unordered_map.59"* nonnull %call111, i32* nonnull dereferenceable(4) %q_trg_type)
+          to label %invoke.cont112 unwind label %lpad109
 
-invoke.cont109:                                   ; preds = %invoke.cont107
+invoke.cont112:                                   ; preds = %invoke.cont110
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %19) #3
-  %call112 = call %"struct.std::pair.58"* @_ZNSt6vectorISt4pairIifESaIS1_EE5beginEv(%"class.std::vector"* nonnull %call110) #3
-  store %"struct.std::pair.58"* %call112, %"struct.std::pair.58"** %coerce.dive113, align 8
-  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %20) #3
-  %call115 = call %"struct.std::pair.58"* @_ZNSt6vectorISt4pairIifESaIS1_EE3endEv(%"class.std::vector"* nonnull %call110) #3
+  %call115 = call %"struct.std::pair.58"* @_ZNSt6vectorISt4pairIifESaIS1_EE5beginEv(%"class.std::vector"* nonnull %call113) #3
   store %"struct.std::pair.58"* %call115, %"struct.std::pair.58"** %coerce.dive116, align 8
-  %call118443 = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4111, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4114) #3
-  br i1 %call118443, label %for.body120.lr.ph, label %for.cond.cleanup119
+  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %20) #3
+  %call118 = call %"struct.std::pair.58"* @_ZNSt6vectorISt4pairIifESaIS1_EE3endEv(%"class.std::vector"* nonnull %call113) #3
+  store %"struct.std::pair.58"* %call118, %"struct.std::pair.58"** %coerce.dive119, align 8
+  %call121460 = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4114, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4117) #3
+  br i1 %call121460, label %for.body123.lr.ph, label %for.cond.cleanup122
 
-for.body120.lr.ph:                                ; preds = %invoke.cont109
-  %tobool124 = icmp eq i32 %q_trg_new.0, 0
-  br i1 %tobool124, label %for.body120.us, label %for.body120
+for.body123.lr.ph:                                ; preds = %invoke.cont112
+  %tobool127 = icmp eq i32 %q_trg_new.0, 0
+  br i1 %tobool127, label %for.body123.us, label %for.body123
 
-for.body120.us:                                   ; preds = %for.body120.lr.ph, %if.end187.us
-  %call121.us = call dereferenceable(8) %"struct.std::pair.58"* @_ZNK9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4111) #3
+for.body123.us:                                   ; preds = %for.body123.lr.ph, %if.end191.us
+  %call124.us = call dereferenceable(8) %"struct.std::pair.58"* @_ZNK9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4114) #3
   call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %21) #3
-  %first122.us = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call121.us, i64 0, i32 0
-  %60 = load i32, i32* %first122.us, align 4, !tbaa !28
+  %first125.us = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call124.us, i64 0, i32 0
+  %60 = load i32, i32* %first125.us, align 4, !tbaa !28
   store i32 %60, i32* %r_trg, align 4, !tbaa !18
-  %second123.us = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call121.us, i64 0, i32 1
-  %61 = load float, float* %second123.us, align 4, !tbaa !31
-  %cmp.us = icmp eq i32 %q_trg_current.0, %60
-  br i1 %cmp.us, label %if.then145.us, label %if.end187.us
+  %second126.us = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call124.us, i64 0, i32 1
+  %61 = load float, float* %second126.us, align 4, !tbaa !31
+  %cmp140.us = icmp eq i32 %q_trg_current.0, %60
+  br i1 %cmp140.us, label %if.then149.us, label %if.end191.us
 
-if.then145.us:                                    ; preds = %for.body120.us
+if.then149.us:                                    ; preds = %for.body123.us
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %22) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %23) #3
-  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp147, i32* nonnull dereferenceable(4) %r_src, i32* nonnull dereferenceable(4) %r_trg)
-  %call151.us = invoke %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE4findERKS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp147)
-          to label %invoke.cont150.us unwind label %lpad148.us-lcssa.us
+  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp151, i32* nonnull dereferenceable(4) %r_src, i32* nonnull dereferenceable(4) %r_trg)
+  %call155.us = invoke %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE4findERKS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp151)
+          to label %invoke.cont154.us unwind label %lpad152.us-lcssa.us
 
-invoke.cont150.us:                                ; preds = %if.then145.us
-  store %"struct.std::__detail::_Hash_node"* %call151.us, %"struct.std::__detail::_Hash_node"** %coerce.dive153, align 8
+invoke.cont154.us:                                ; preds = %if.then149.us
+  store %"struct.std::__detail::_Hash_node"* %call155.us, %"struct.std::__detail::_Hash_node"** %coerce.dive157, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %26) #3
-  %call156.us = call %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE3endEv(%"class.std::unordered_set"* nonnull %visited) #3
-  store %"struct.std::__detail::_Hash_node"* %call156.us, %"struct.std::__detail::_Hash_node"** %coerce.dive158, align 8
-  %call159.us = call zeroext i1 @_ZNSt8__detaileqISt4pairIiiELb1EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES7_(%"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %25, %"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %27) #3
+  %call160.us = call %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE3endEv(%"class.std::unordered_set"* nonnull %visited) #3
+  store %"struct.std::__detail::_Hash_node"* %call160.us, %"struct.std::__detail::_Hash_node"** %coerce.dive162, align 8
+  %call163.us = call zeroext i1 @_ZNSt8__detaileqISt4pairIiiELb1EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES7_(%"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %25, %"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %27) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %26) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %23) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %22) #3
-  br i1 %call159.us, label %if.then164.us, label %if.end187.us
+  br i1 %call163.us, label %if.then168.us, label %if.end191.us
 
-if.then164.us:                                    ; preds = %invoke.cont150.us
-  %62 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %num_uncovered_edges165.us = getelementptr inbounds %struct.Candidate, %struct.Candidate* %62, i64 0, i32 3
-  %63 = load i32, i32* %num_uncovered_edges165.us, align 4, !tbaa !44
+if.then168.us:                                    ; preds = %invoke.cont154.us
+  %62 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %num_uncovered_edges169.us = getelementptr inbounds %struct.Candidate, %struct.Candidate* %62, i64 0, i32 3
+  %63 = load i32, i32* %num_uncovered_edges169.us, align 4, !tbaa !44
   %sub.us = add nsw i32 %63, -1
   %weight.us = getelementptr inbounds %struct.Candidate, %struct.Candidate* %62, i64 0, i32 2
   %64 = load float, float* %weight.us, align 8, !tbaa !47
   %add.us = fadd float %61, %64
   %conv.us = sitofp i32 %sub.us to float
   %mul.us = fmul float %conv.us, %max_weight
-  %add166.us = fadd float %add.us, %mul.us
-  %call169.us = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
-  %65 = load %struct.Candidate*, %struct.Candidate** %call169.us, align 8, !tbaa !43
-  %weight170.us = getelementptr inbounds %struct.Candidate, %struct.Candidate* %65, i64 0, i32 2
-  %66 = load float, float* %weight170.us, align 8, !tbaa !47
-  %cmp171.us = fcmp ogt float %add166.us, %66
-  br i1 %cmp171.us, label %if.then172.us, label %if.end187.us
+  %add170.us = fadd float %add.us, %mul.us
+  %call173.us = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
+  %65 = load %struct.Candidate*, %struct.Candidate** %call173.us, align 8, !tbaa !43
+  %weight174.us = getelementptr inbounds %struct.Candidate, %struct.Candidate* %65, i64 0, i32 2
+  %66 = load float, float* %weight174.us, align 8, !tbaa !47
+  %cmp175.us = fcmp ogt float %add170.us, %66
+  br i1 %cmp175.us, label %if.then176.us, label %if.end191.us
 
-if.then172.us:                                    ; preds = %if.then164.us
+if.then176.us:                                    ; preds = %if.then168.us
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %31) #3
-  %67 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
+  %67 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
   invoke void @_ZNSt6vectorIP9CandidateSaIS1_EEC2ERKS3_(%"class.std::vector.84"* nonnull %agg.tmp, %"class.std::vector.84"* dereferenceable(24) %agg.result)
-          to label %invoke.cont175.us unwind label %lpad174.us-lcssa.us
+          to label %invoke.cont179.us unwind label %lpad178.us-lcssa.us
 
-invoke.cont175.us:                                ; preds = %if.then172.us
+invoke.cont179.us:                                ; preds = %if.then176.us
   %68 = load i32, i32* %q_trg, align 4, !tbaa !18
   %69 = load i32, i32* %r_trg, align 4, !tbaa !18
-  invoke void @_Z19enter_new_candidateP9CandidateSt6vectorIS0_SaIS0_EEiiifiPS3_i(%"class.std::vector.84"* nonnull sret %ref.tmp173, %struct.Candidate* %67, %"class.std::vector.84"* nonnull %agg.tmp, i32 %34, i32 %68, i32 %69, float %add.us, i32 %sub.us, %"class.std::vector.84"* %new_cand_ptr.0, i32 0)
-          to label %invoke.cont177.us unwind label %lpad176.us-lcssa.us
+  invoke void @_Z19enter_new_candidateP9CandidateSt6vectorIS0_SaIS0_EEiiifiPS3_i(%"class.std::vector.84"* nonnull sret %ref.tmp177, %struct.Candidate* %67, %"class.std::vector.84"* nonnull %agg.tmp, i32 %34, i32 %68, i32 %69, float %add.us, i32 %sub.us, %"class.std::vector.84"* %new_cand_ptr.0466, i32 0)
+          to label %invoke.cont181.us unwind label %lpad180.us-lcssa.us
 
-invoke.cont177.us:                                ; preds = %invoke.cont175.us
-  %call178.us = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %agg.result, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp173) #3
-  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp173) #3
+invoke.cont181.us:                                ; preds = %invoke.cont179.us
+  %call182.us = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %agg.result, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp177) #3
+  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp177) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %agg.tmp) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %31) #3
-  br label %if.end187.us
+  br label %if.end191.us
 
-if.end187.us:                                     ; preds = %invoke.cont177.us, %if.then164.us, %invoke.cont150.us, %for.body120.us
+if.end191.us:                                     ; preds = %invoke.cont181.us, %if.then168.us, %invoke.cont154.us, %for.body123.us
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %21) #3
-  %call193.us = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.159"* @_ZN9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4111) #3
-  %call118.us = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4111, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4114) #3
-  br i1 %call118.us, label %for.body120.us, label %for.cond.cleanup119
+  %call197.us = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.159"* @_ZN9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4114) #3
+  %call121.us = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4114, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4117) #3
+  br i1 %call121.us, label %for.body123.us, label %for.cond.cleanup122
 
-lpad148.us-lcssa.us:                              ; preds = %if.then145.us
-  %lpad.us-lcssa444.us = landingpad { i8*, i32 }
+lpad152.us-lcssa.us:                              ; preds = %if.then149.us
+  %lpad.us-lcssa461.us = landingpad { i8*, i32 }
           cleanup
-  br label %lpad148
+  br label %lpad152
 
-lpad174.us-lcssa.us:                              ; preds = %if.then172.us
-  %lpad.us-lcssa445.us = landingpad { i8*, i32 }
+lpad178.us-lcssa.us:                              ; preds = %if.then176.us
+  %lpad.us-lcssa462.us = landingpad { i8*, i32 }
           cleanup
-  br label %lpad174
+  br label %lpad178
 
-lpad176.us-lcssa.us:                              ; preds = %invoke.cont175.us
-  %lpad.us-lcssa446.us = landingpad { i8*, i32 }
+lpad180.us-lcssa.us:                              ; preds = %invoke.cont179.us
+  %lpad.us-lcssa463.us = landingpad { i8*, i32 }
           cleanup
-  br label %lpad176
+  br label %lpad180
 
-for.cond.cleanup119:                              ; preds = %if.end187, %if.end187.us, %invoke.cont109
+for.cond.cleanup122:                              ; preds = %if.end191, %if.end191.us, %invoke.cont112
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %20) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %19) #3
   call void @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev(%"class.std::unordered_set.136"* nonnull %cand_nodes_values) #3
   call void @llvm.lifetime.end.p0i8(i64 56, i8* nonnull %14) #3
-  br label %if.end200
+  br label %if.end204
 
-lpad106:                                          ; preds = %invoke.cont107, %for.cond.cleanup90
+lpad109:                                          ; preds = %invoke.cont110, %for.cond.cleanup93
   %70 = landingpad { i8*, i32 }
           cleanup
   %71 = extractvalue { i8*, i32 } %70, 0
   %72 = extractvalue { i8*, i32 } %70, 1
-  br label %ehcleanup198
+  br label %ehcleanup202
 
-for.body120:                                      ; preds = %for.body120.lr.ph, %if.end187
-  %call121 = call dereferenceable(8) %"struct.std::pair.58"* @_ZNK9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4111) #3
+for.body123:                                      ; preds = %for.body123.lr.ph, %if.end191
+  %call124 = call dereferenceable(8) %"struct.std::pair.58"* @_ZNK9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEdeEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4114) #3
   call void @llvm.lifetime.start.p0i8(i64 4, i8* nonnull %21) #3
-  %first122 = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call121, i64 0, i32 0
-  %73 = load i32, i32* %first122, align 4, !tbaa !28
+  %first125 = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call124, i64 0, i32 0
+  %73 = load i32, i32* %first125, align 4, !tbaa !28
   store i32 %73, i32* %r_trg, align 4, !tbaa !18
-  %second123 = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call121, i64 0, i32 1
-  %74 = load float, float* %second123, align 4, !tbaa !31
+  %second126 = getelementptr inbounds %"struct.std::pair.58", %"struct.std::pair.58"* %call124, i64 0, i32 1
+  %74 = load float, float* %second126, align 4, !tbaa !31
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %24) #3
-  %call128 = invoke %"struct.std::__detail::_Hash_node.153"* @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE4findERKi(%"class.std::unordered_set.136"* nonnull %cand_nodes_values, i32* nonnull dereferenceable(4) %r_trg)
-          to label %invoke.cont127 unwind label %lpad126.us-lcssa
+  %call131 = invoke %"struct.std::__detail::_Hash_node.153"* @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE4findERKi(%"class.std::unordered_set.136"* nonnull %cand_nodes_values, i32* nonnull dereferenceable(4) %r_trg)
+          to label %invoke.cont130 unwind label %lpad129.us-lcssa
 
-invoke.cont127:                                   ; preds = %for.body120
-  store %"struct.std::__detail::_Hash_node.153"* %call128, %"struct.std::__detail::_Hash_node.153"** %coerce.dive130, align 8
+invoke.cont130:                                   ; preds = %for.body123
+  store %"struct.std::__detail::_Hash_node.153"* %call131, %"struct.std::__detail::_Hash_node.153"** %coerce.dive133, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %29) #3
-  %call133 = call %"struct.std::__detail::_Hash_node.153"* @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE3endEv(%"class.std::unordered_set.136"* nonnull %cand_nodes_values) #3
-  store %"struct.std::__detail::_Hash_node.153"* %call133, %"struct.std::__detail::_Hash_node.153"** %coerce.dive135, align 8
-  %call136 = call zeroext i1 @_ZNSt8__detaileqIiLb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES5_(%"struct.std::__detail::_Node_iterator_base.152"* nonnull dereferenceable(8) %28, %"struct.std::__detail::_Node_iterator_base.152"* nonnull dereferenceable(8) %30) #3
-  br i1 %call136, label %cleanup.done139.thread, label %cleanup.done139
+  %call136 = call %"struct.std::__detail::_Hash_node.153"* @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEE3endEv(%"class.std::unordered_set.136"* nonnull %cand_nodes_values) #3
+  store %"struct.std::__detail::_Hash_node.153"* %call136, %"struct.std::__detail::_Hash_node.153"** %coerce.dive138, align 8
+  %call139 = call zeroext i1 @_ZNSt8__detaileqIiLb0EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES5_(%"struct.std::__detail::_Node_iterator_base.152"* nonnull dereferenceable(8) %28, %"struct.std::__detail::_Node_iterator_base.152"* nonnull dereferenceable(8) %30) #3
+  br i1 %call139, label %cleanup.done143.thread, label %cleanup.done143
 
-cleanup.done139.thread:                           ; preds = %invoke.cont127
+cleanup.done143.thread:                           ; preds = %invoke.cont130
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %29) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %24) #3
-  br label %if.then145
+  br label %if.then149
 
-cleanup.done139:                                  ; preds = %invoke.cont127
+cleanup.done143:                                  ; preds = %invoke.cont130
   %75 = load i32, i32* %r_trg, align 4, !tbaa !18
-  %cmp319 = icmp eq i32 %q_trg_current.0, %75
+  %cmp140336 = icmp eq i32 %q_trg_current.0, %75
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %29) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %24) #3
-  br i1 %cmp319, label %if.then145, label %if.end187
+  br i1 %cmp140336, label %if.then149, label %if.end191
 
-if.then145:                                       ; preds = %cleanup.done139.thread, %cleanup.done139
+if.then149:                                       ; preds = %cleanup.done143.thread, %cleanup.done143
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %22) #3
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %23) #3
-  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp147, i32* nonnull dereferenceable(4) %r_src, i32* nonnull dereferenceable(4) %r_trg)
-  %call151 = invoke %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE4findERKS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp147)
-          to label %invoke.cont150 unwind label %lpad148.us-lcssa
+  call void @_ZNSt4pairIiiEC2IRiS2_Lb1EEEOT_OT0_(%"struct.std::pair.26"* nonnull %ref.tmp151, i32* nonnull dereferenceable(4) %r_src, i32* nonnull dereferenceable(4) %r_trg)
+  %call155 = invoke %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE4findERKS1_(%"class.std::unordered_set"* nonnull %visited, %"struct.std::pair.26"* nonnull dereferenceable(8) %ref.tmp151)
+          to label %invoke.cont154 unwind label %lpad152.us-lcssa
 
-invoke.cont150:                                   ; preds = %if.then145
-  store %"struct.std::__detail::_Hash_node"* %call151, %"struct.std::__detail::_Hash_node"** %coerce.dive153, align 8
+invoke.cont154:                                   ; preds = %if.then149
+  store %"struct.std::__detail::_Hash_node"* %call155, %"struct.std::__detail::_Hash_node"** %coerce.dive157, align 8
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %26) #3
-  %call156 = call %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE3endEv(%"class.std::unordered_set"* nonnull %visited) #3
-  store %"struct.std::__detail::_Hash_node"* %call156, %"struct.std::__detail::_Hash_node"** %coerce.dive158, align 8
-  %call159 = call zeroext i1 @_ZNSt8__detaileqISt4pairIiiELb1EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES7_(%"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %25, %"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %27) #3
+  %call160 = call %"struct.std::__detail::_Hash_node"* @_ZNSt13unordered_setISt4pairIiiESt4hashIS1_ESt8equal_toIS1_ESaIS1_EE3endEv(%"class.std::unordered_set"* nonnull %visited) #3
+  store %"struct.std::__detail::_Hash_node"* %call160, %"struct.std::__detail::_Hash_node"** %coerce.dive162, align 8
+  %call163 = call zeroext i1 @_ZNSt8__detaileqISt4pairIiiELb1EEEbRKNS_19_Node_iterator_baseIT_XT0_EEES7_(%"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %25, %"struct.std::__detail::_Node_iterator_base"* nonnull dereferenceable(8) %27) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %26) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %23) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %22) #3
-  br i1 %call159, label %if.then164, label %if.end187
+  br i1 %call163, label %if.then168, label %if.end191
 
-if.then164:                                       ; preds = %invoke.cont150
-  %76 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
-  %num_uncovered_edges165 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %76, i64 0, i32 3
-  %77 = load i32, i32* %num_uncovered_edges165, align 4, !tbaa !44
+if.then168:                                       ; preds = %invoke.cont154
+  %76 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
+  %num_uncovered_edges169 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %76, i64 0, i32 3
+  %77 = load i32, i32* %num_uncovered_edges169, align 4, !tbaa !44
   %sub = add nsw i32 %77, -1
   %weight = getelementptr inbounds %struct.Candidate, %struct.Candidate* %76, i64 0, i32 2
   %78 = load float, float* %weight, align 8, !tbaa !47
   %add = fadd float %74, %78
   %conv = sitofp i32 %sub to float
   %mul = fmul float %conv, %max_weight
-  %add166 = fadd float %add, %mul
-  %call169 = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
-  %79 = load %struct.Candidate*, %struct.Candidate** %call169, align 8, !tbaa !43
-  %weight170 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %79, i64 0, i32 2
-  %80 = load float, float* %weight170, align 8, !tbaa !47
-  %cmp171 = fcmp ogt float %add166, %80
-  br i1 %cmp171, label %if.then172, label %if.end187
+  %add170 = fadd float %add, %mul
+  %call173 = call fastcc dereferenceable(8) %struct.Candidate** @"_ZNKSt14priority_queueIP9CandidateSt6vectorIS1_SaIS1_EE3$_0E3topEv"(%"class.std::priority_queue"* nonnull %top_k)
+  %79 = load %struct.Candidate*, %struct.Candidate** %call173, align 8, !tbaa !43
+  %weight174 = getelementptr inbounds %struct.Candidate, %struct.Candidate* %79, i64 0, i32 2
+  %80 = load float, float* %weight174, align 8, !tbaa !47
+  %cmp175 = fcmp ogt float %add170, %80
+  br i1 %cmp175, label %if.then176, label %if.end191
 
-if.then172:                                       ; preds = %if.then164
+if.then176:                                       ; preds = %if.then168
   call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %31) #3
-  %81 = load %struct.Candidate*, %struct.Candidate** %call4, align 8, !tbaa !43
+  %81 = load %struct.Candidate*, %struct.Candidate** %call7, align 8, !tbaa !43
   invoke void @_ZNSt6vectorIP9CandidateSaIS1_EEC2ERKS3_(%"class.std::vector.84"* nonnull %agg.tmp, %"class.std::vector.84"* dereferenceable(24) %agg.result)
-          to label %invoke.cont175 unwind label %lpad174.us-lcssa
+          to label %invoke.cont179 unwind label %lpad178.us-lcssa
 
-invoke.cont175:                                   ; preds = %if.then172
+invoke.cont179:                                   ; preds = %if.then176
   %82 = load i32, i32* %q_trg, align 4, !tbaa !18
   %83 = load i32, i32* %r_trg, align 4, !tbaa !18
-  invoke void @_Z19enter_new_candidateP9CandidateSt6vectorIS0_SaIS0_EEiiifiPS3_i(%"class.std::vector.84"* nonnull sret %ref.tmp173, %struct.Candidate* %81, %"class.std::vector.84"* nonnull %agg.tmp, i32 %34, i32 %82, i32 %83, float %add, i32 %sub, %"class.std::vector.84"* %new_cand_ptr.0, i32 0)
-          to label %invoke.cont177 unwind label %lpad176.us-lcssa
+  invoke void @_Z19enter_new_candidateP9CandidateSt6vectorIS0_SaIS0_EEiiifiPS3_i(%"class.std::vector.84"* nonnull sret %ref.tmp177, %struct.Candidate* %81, %"class.std::vector.84"* nonnull %agg.tmp, i32 %34, i32 %82, i32 %83, float %add, i32 %sub, %"class.std::vector.84"* %new_cand_ptr.0466, i32 0)
+          to label %invoke.cont181 unwind label %lpad180.us-lcssa
 
-invoke.cont177:                                   ; preds = %invoke.cont175
-  %call178 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %agg.result, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp173) #3
-  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp173) #3
+invoke.cont181:                                   ; preds = %invoke.cont179
+  %call182 = call dereferenceable(24) %"class.std::vector.84"* @_ZNSt6vectorIP9CandidateSaIS1_EEaSEOS3_(%"class.std::vector.84"* nonnull %agg.result, %"class.std::vector.84"* nonnull dereferenceable(24) %ref.tmp177) #3
+  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %ref.tmp177) #3
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %agg.tmp) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %31) #3
-  br label %if.end187
+  br label %if.end191
 
-lpad126.us-lcssa:                                 ; preds = %for.body120
+lpad129.us-lcssa:                                 ; preds = %for.body123
   %lpad.us-lcssa = landingpad { i8*, i32 }
           cleanup
   %84 = extractvalue { i8*, i32 } %lpad.us-lcssa, 1
   %85 = extractvalue { i8*, i32 } %lpad.us-lcssa, 0
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %24) #3
-  br label %ehcleanup188
+  br label %ehcleanup192
 
-lpad148.us-lcssa:                                 ; preds = %if.then145
-  %lpad.us-lcssa444 = landingpad { i8*, i32 }
+lpad152.us-lcssa:                                 ; preds = %if.then149
+  %lpad.us-lcssa461 = landingpad { i8*, i32 }
           cleanup
-  br label %lpad148
+  br label %lpad152
 
-lpad148:                                          ; preds = %lpad148.us-lcssa.us, %lpad148.us-lcssa
-  %86 = phi { i8*, i32 } [ %lpad.us-lcssa444.us, %lpad148.us-lcssa.us ], [ %lpad.us-lcssa444, %lpad148.us-lcssa ]
+lpad152:                                          ; preds = %lpad152.us-lcssa.us, %lpad152.us-lcssa
+  %86 = phi { i8*, i32 } [ %lpad.us-lcssa461.us, %lpad152.us-lcssa.us ], [ %lpad.us-lcssa461, %lpad152.us-lcssa ]
   %87 = extractvalue { i8*, i32 } %86, 0
   %88 = extractvalue { i8*, i32 } %86, 1
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %23) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %22) #3
-  br label %ehcleanup188
+  br label %ehcleanup192
 
-lpad174.us-lcssa:                                 ; preds = %if.then172
-  %lpad.us-lcssa445 = landingpad { i8*, i32 }
+lpad178.us-lcssa:                                 ; preds = %if.then176
+  %lpad.us-lcssa462 = landingpad { i8*, i32 }
           cleanup
-  br label %lpad174
+  br label %lpad178
 
-lpad174:                                          ; preds = %lpad174.us-lcssa.us, %lpad174.us-lcssa
-  %89 = phi { i8*, i32 } [ %lpad.us-lcssa445.us, %lpad174.us-lcssa.us ], [ %lpad.us-lcssa445, %lpad174.us-lcssa ]
+lpad178:                                          ; preds = %lpad178.us-lcssa.us, %lpad178.us-lcssa
+  %89 = phi { i8*, i32 } [ %lpad.us-lcssa462.us, %lpad178.us-lcssa.us ], [ %lpad.us-lcssa462, %lpad178.us-lcssa ]
   %90 = extractvalue { i8*, i32 } %89, 0
   %91 = extractvalue { i8*, i32 } %89, 1
-  br label %ehcleanup180
+  br label %ehcleanup184
 
-lpad176.us-lcssa:                                 ; preds = %invoke.cont175
-  %lpad.us-lcssa446 = landingpad { i8*, i32 }
+lpad180.us-lcssa:                                 ; preds = %invoke.cont179
+  %lpad.us-lcssa463 = landingpad { i8*, i32 }
           cleanup
-  br label %lpad176
+  br label %lpad180
 
-lpad176:                                          ; preds = %lpad176.us-lcssa.us, %lpad176.us-lcssa
-  %92 = phi { i8*, i32 } [ %lpad.us-lcssa446.us, %lpad176.us-lcssa.us ], [ %lpad.us-lcssa446, %lpad176.us-lcssa ]
+lpad180:                                          ; preds = %lpad180.us-lcssa.us, %lpad180.us-lcssa
+  %92 = phi { i8*, i32 } [ %lpad.us-lcssa463.us, %lpad180.us-lcssa.us ], [ %lpad.us-lcssa463, %lpad180.us-lcssa ]
   %93 = extractvalue { i8*, i32 } %92, 0
   %94 = extractvalue { i8*, i32 } %92, 1
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %agg.tmp) #3
-  br label %ehcleanup180
+  br label %ehcleanup184
 
-ehcleanup180:                                     ; preds = %lpad176, %lpad174
-  %ehselector.slot.1 = phi i32 [ %94, %lpad176 ], [ %91, %lpad174 ]
-  %exn.slot.1 = phi i8* [ %93, %lpad176 ], [ %90, %lpad174 ]
+ehcleanup184:                                     ; preds = %lpad180, %lpad178
+  %ehselector.slot.1 = phi i32 [ %94, %lpad180 ], [ %91, %lpad178 ]
+  %exn.slot.1 = phi i8* [ %93, %lpad180 ], [ %90, %lpad178 ]
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %31) #3
-  br label %ehcleanup188
+  br label %ehcleanup192
 
-if.end187:                                        ; preds = %invoke.cont150, %invoke.cont177, %if.then164, %cleanup.done139
+if.end191:                                        ; preds = %invoke.cont154, %invoke.cont181, %if.then168, %cleanup.done143
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %21) #3
-  %call193 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.159"* @_ZN9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4111) #3
-  %call118 = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4111, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4114) #3
-  br i1 %call118, label %for.body120, label %for.cond.cleanup119
+  %call197 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.159"* @_ZN9__gnu_cxx17__normal_iteratorIPSt4pairIifESt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.159"* nonnull %__begin4114) #3
+  %call121 = call zeroext i1 @_ZN9__gnu_cxxneIPSt4pairIifESt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__begin4114, %"class.__gnu_cxx::__normal_iterator.159"* nonnull dereferenceable(8) %__end4117) #3
+  br i1 %call121, label %for.body123, label %for.cond.cleanup122
 
-ehcleanup188:                                     ; preds = %lpad148, %ehcleanup180, %lpad126.us-lcssa
-  %ehselector.slot.3 = phi i32 [ %84, %lpad126.us-lcssa ], [ %ehselector.slot.1, %ehcleanup180 ], [ %88, %lpad148 ]
-  %exn.slot.3 = phi i8* [ %85, %lpad126.us-lcssa ], [ %exn.slot.1, %ehcleanup180 ], [ %87, %lpad148 ]
+ehcleanup192:                                     ; preds = %lpad152, %ehcleanup184, %lpad129.us-lcssa
+  %ehselector.slot.3 = phi i32 [ %84, %lpad129.us-lcssa ], [ %ehselector.slot.1, %ehcleanup184 ], [ %88, %lpad152 ]
+  %exn.slot.3 = phi i8* [ %85, %lpad129.us-lcssa ], [ %exn.slot.1, %ehcleanup184 ], [ %87, %lpad152 ]
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %21) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %20) #3
   call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %19) #3
-  br label %ehcleanup198
+  br label %ehcleanup202
 
-ehcleanup198:                                     ; preds = %lpad106, %ehcleanup188, %lpad94
-  %ehselector.slot.5 = phi i32 [ %59, %lpad94 ], [ %ehselector.slot.3, %ehcleanup188 ], [ %72, %lpad106 ]
-  %exn.slot.5 = phi i8* [ %58, %lpad94 ], [ %exn.slot.3, %ehcleanup188 ], [ %71, %lpad106 ]
+ehcleanup202:                                     ; preds = %lpad109, %ehcleanup192, %lpad97
+  %ehselector.slot.5 = phi i32 [ %59, %lpad97 ], [ %ehselector.slot.3, %ehcleanup192 ], [ %72, %lpad109 ]
+  %exn.slot.5 = phi i8* [ %58, %lpad97 ], [ %exn.slot.3, %ehcleanup192 ], [ %71, %lpad109 ]
   call void @_ZNSt13unordered_setIiSt4hashIiESt8equal_toIiESaIiEED2Ev(%"class.std::unordered_set.136"* nonnull %cand_nodes_values) #3
   call void @llvm.lifetime.end.p0i8(i64 56, i8* nonnull %14) #3
-  br label %ehcleanup204
+  br label %ehcleanup208
 
-if.end200:                                        ; preds = %for.cond.cleanup119, %invoke.cont54
+if.end204:                                        ; preds = %for.cond.cleanup122, %invoke.cont57
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %5) #3
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %4) #3
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %3) #3
-  %call211 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.134"* @_ZN9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
-  %call3 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
-  br i1 %call3, label %for.body, label %for.cond.cleanup
+  %call215 = call dereferenceable(8) %"class.__gnu_cxx::__normal_iterator.134"* @_ZN9__gnu_cxx17__normal_iteratorIPP9CandidateSt6vectorIS2_SaIS2_EEEppEv(%"class.__gnu_cxx::__normal_iterator.134"* nonnull %__begin2) #3
+  %call4 = call zeroext i1 @_ZN9__gnu_cxxneIPP9CandidateSt6vectorIS2_SaIS2_EEEEbRKNS_17__normal_iteratorIT_T0_EESC_(%"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__begin2, %"class.__gnu_cxx::__normal_iterator.134"* nonnull dereferenceable(8) %__end2) #3
+  br i1 %call4, label %for.body6, label %for.cond.cleanup5
 
-ehcleanup204:                                     ; preds = %ehcleanup, %lpad63, %lpad77, %ehcleanup198, %lpad37
-  %ehselector.slot.7 = phi i32 [ %43, %lpad37 ], [ %ehselector.slot.5, %ehcleanup198 ], [ %55, %lpad77 ], [ %52, %lpad63 ], [ %ehselector.slot.0, %ehcleanup ]
-  %exn.slot.7 = phi i8* [ %42, %lpad37 ], [ %exn.slot.5, %ehcleanup198 ], [ %54, %lpad77 ], [ %51, %lpad63 ], [ %exn.slot.0, %ehcleanup ]
+ehcleanup208:                                     ; preds = %ehcleanup, %lpad66, %lpad80, %ehcleanup202, %lpad40
+  %ehselector.slot.7 = phi i32 [ %43, %lpad40 ], [ %ehselector.slot.5, %ehcleanup202 ], [ %55, %lpad80 ], [ %52, %lpad66 ], [ %ehselector.slot.0, %ehcleanup ]
+  %exn.slot.7 = phi i8* [ %42, %lpad40 ], [ %exn.slot.5, %ehcleanup202 ], [ %54, %lpad80 ], [ %51, %lpad66 ], [ %exn.slot.0, %ehcleanup ]
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %5) #3
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %4) #3
   call void @llvm.lifetime.end.p0i8(i64 4, i8* nonnull %3) #3
@@ -8958,14 +8969,20 @@ ehcleanup204:                                     ; preds = %ehcleanup, %lpad63,
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %new_cands) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
   %lpad.val = insertvalue { i8*, i32 } undef, i8* %exn.slot.7, 0
-  %lpad.val249 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.7, 1
-  resume { i8*, i32 } %lpad.val249
+  %lpad.val263 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.7, 1
+  resume { i8*, i32 } %lpad.val263
 
-if.end240:                                        ; preds = %for.cond.cleanup
-  call void @_ZNSt6vectorIP9CandidateSaIS1_EE5clearEv(%"class.std::vector.84"* %curr_cand_ptr.0) #3
-  br label %while.cond
+if.end244:                                        ; preds = %for.cond.cleanup5
+  call void @_ZNSt6vectorIP9CandidateSaIS1_EE5clearEv(%"class.std::vector.84"* %curr_cand_ptr.0467) #3
+  %inc = add nuw nsw i32 %i.0465, 1
+  %cmp = icmp ult i32 %inc, 5
+  br i1 %cmp, label %for.body, label %nrvo.unused
 
-nrvo.skipdtor:                                    ; preds = %for.cond.cleanup
+nrvo.unused:                                      ; preds = %if.end244
+  call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* %agg.result) #3
+  br label %nrvo.skipdtor
+
+nrvo.skipdtor:                                    ; preds = %for.cond.cleanup5, %nrvo.unused
   call void @_ZNSt6vectorIP9CandidateSaIS1_EED2Ev(%"class.std::vector.84"* nonnull %new_cands) #3
   call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %0) #3
   ret void
@@ -13709,7 +13726,7 @@ entry:
   %ref.tmp = alloca %"class.__gnu_cxx::__normal_iterator.159", align 8
   %coerce.dive = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.159", %"class.__gnu_cxx::__normal_iterator.159"* %__position, i64 0, i32 0
   store %"struct.std::pair.58"* %__position.coerce, %"struct.std::pair.58"** %coerce.dive, align 8
-  %call = tail call i64 @_ZNKSt6vectorISt4pairIifESaIS1_EE12_M_check_lenEmPKc(%"class.std::vector"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.18, i64 0, i64 0))
+  %call = tail call i64 @_ZNKSt6vectorISt4pairIifESaIS1_EE12_M_check_lenEmPKc(%"class.std::vector"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.19, i64 0, i64 0))
   %0 = bitcast %"class.__gnu_cxx::__normal_iterator.159"* %ref.tmp to i8*
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %0) #3
   %call2 = tail call %"struct.std::pair.58"* @_ZNSt6vectorISt4pairIifESaIS1_EE5beginEv(%"class.std::vector"* %this) #3
@@ -17278,7 +17295,7 @@ entry:
   %ref.tmp = alloca %"class.__gnu_cxx::__normal_iterator.134", align 8
   %coerce.dive = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator.134", %"class.__gnu_cxx::__normal_iterator.134"* %__position, i64 0, i32 0
   store %struct.Candidate** %__position.coerce, %struct.Candidate*** %coerce.dive, align 8
-  %call = tail call i64 @_ZNKSt6vectorIP9CandidateSaIS1_EE12_M_check_lenEmPKc(%"class.std::vector.84"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.18, i64 0, i64 0))
+  %call = tail call i64 @_ZNKSt6vectorIP9CandidateSaIS1_EE12_M_check_lenEmPKc(%"class.std::vector.84"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.19, i64 0, i64 0))
   %0 = bitcast %"class.__gnu_cxx::__normal_iterator.134"* %ref.tmp to i8*
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %0) #3
   %call2 = tail call %struct.Candidate** @_ZNSt6vectorIP9CandidateSaIS1_EE5beginEv(%"class.std::vector.84"* %this) #3
@@ -17710,7 +17727,7 @@ entry:
   %ref.tmp = alloca %"class.__gnu_cxx::__normal_iterator", align 8
   %coerce.dive = getelementptr inbounds %"class.__gnu_cxx::__normal_iterator", %"class.__gnu_cxx::__normal_iterator"* %__position, i64 0, i32 0
   store %struct.Row* %__position.coerce, %struct.Row** %coerce.dive, align 8
-  %call = tail call i64 @_ZNKSt6vectorI3RowSaIS0_EE12_M_check_lenEmPKc(%"class.std::vector.90"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.18, i64 0, i64 0))
+  %call = tail call i64 @_ZNKSt6vectorI3RowSaIS0_EE12_M_check_lenEmPKc(%"class.std::vector.90"* %this, i64 1, i8* getelementptr inbounds ([26 x i8], [26 x i8]* @.str.19, i64 0, i64 0))
   %0 = bitcast %"class.__gnu_cxx::__normal_iterator"* %ref.tmp to i8*
   call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %0) #3
   %call2 = tail call %struct.Row* @_ZNSt6vectorI3RowSaIS0_EE5beginEv(%"class.std::vector.90"* %this) #3

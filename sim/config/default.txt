@@ -4,7 +4,7 @@
 0,mem_forward
 99999,max_contexts_per_bb
 0,ideal_cache
-4096,l1_size_in_kb
+1024,l1_size_in_kb
 99999,cache_load_ports
 99999,cache_store_ports
 99999,mem_load_ports

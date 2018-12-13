@@ -219,7 +219,7 @@ namespace {
             Value *v = use.get();
             if(Function *f = dyn_cast<Function>(v)) {
               if(f->getName().str().find("supply_consume") != std::string::npos) {
-                errs() << "[STADDR]"<< *inst << "\n";
+                //errs() << "[STADDR]"<< *inst << "\n";
                 //LLVMContext& ctx = mod->getContext();
                 //auto arg_it=f->arg_begin();
                 //Value* addr=cinst->getArgOperand(0);

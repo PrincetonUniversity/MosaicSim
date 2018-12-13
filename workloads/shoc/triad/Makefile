@@ -42,7 +42,17 @@ LLDST2   = int/$(NAME).s
 OUTSRC   = $(LLDST1)
 OUTDST   = $(NAME)-profile.out
 
+SUPPLY_LL=/home/luwa/pythia/workloads/shoc/triad/decoupled/decoupled_supply.ll
+COMPUTE_LL=/home/luwa/pythia/workloads/shoc/triad/decoupled/decoupled_compute.ll
+
 # Fully compile the test bench into the requisite parts, step by step.
+
+decoupled: 
+	DEC++ $(NAME).cpp
+	python ~/pythia/pass/pythia_pass.py $(SUPPLY_LL) supply
+	python ~/pythia/pass/pythia_pass.py $(COMPUTE_LL) compute
+	cd decoupled; python run.py 
+
 all: $(SRC)
 	mkdir -p int
 	mkdir -p output

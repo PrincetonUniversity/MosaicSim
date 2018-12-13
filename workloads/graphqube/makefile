@@ -1,5 +1,14 @@
 CC=clang++
 NAME=main
+SUPPLY_LL=/home/luwa/pythia/workloads/graphqube/decoupled/decoupled_supply.ll
+COMPUTE_LL=/home/luwa/pythia/workloads/graphqube/decoupled/decoupled_compute.ll
+
+decoupled: 
+	DEC++ $(NAME).cpp
+	python pythia_pass.py $(SUPPLY_LL) supply
+	python pythia_pass.py $(COMPUTE_LL) compute
+	cd decoupled; python run.py ../../_data/edges_small.tsv ../../_data/queryGraph.Subgraph.4.5.txt 20
+
 testbench: main.cpp
 	$(CC) -static -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cpp
 	opt -S -load ../../always_inline/build/libAlwaysInlinerPass.so -alwaysinline int/$(NAME).llvm -o int/$(NAME)-inlinepass.llvm
@@ -11,6 +20,7 @@ testbench: main.cpp
 	llc -filetype=asm int/$(NAME)-pass.llvm -o int/$(NAME).s
 	$(CC) int/$(NAME).o -o $(NAME)-profile.out
 	./$(NAME)-profile.out ./_data/edges_small_trimmed.tsv ./_data/queryGraph.Subgraph.4.5.txt 20
+
 
 clean: 
 	rm -f $(NAME)
