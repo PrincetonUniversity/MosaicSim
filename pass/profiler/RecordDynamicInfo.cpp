@@ -191,7 +191,9 @@ namespace {
       uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
       ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
       Value* args[] = {name, ctype, castI, csize};
+  
       CallInst* cI = Builder.CreateCall(printMem, args);
+  
     }
     void instInspect(Function &F) {
       for (inst_iterator iI = inst_begin(F), iE = inst_end(F);iI != iE; iI++) {
@@ -209,11 +211,51 @@ namespace {
         else if (auto *bI = dyn_cast<SwitchInst>(inst)) {
           printSwitch(bI);
         }
-        else if(auto *lI = dyn_cast<LoadInst>(inst))
+        else if(auto *lI = dyn_cast<LoadInst>(inst)) {
           printMemory(inst);
+        }
+        else if(CallInst *cinst = dyn_cast<CallInst>(inst)) {
+          for (Use &use : inst->operands()) {
+            Value *v = use.get();
+            if(Function *f = dyn_cast<Function>(v)) {
+              if(f->getName().str().find("supply_consume") != std::string::npos) {
+                errs() << "[STADDR]"<< *inst << "\n";
+                //LLVMContext& ctx = mod->getContext();
+                //auto arg_it=f->arg_begin();
+                //Value* addr=cinst->getArgOperand(0);
+                Value* v, *castI, *name;
+                IRBuilder<> Builder(inst);
+                DataLayout* dl = new DataLayout(mod);
+                LLVMContext& ctx = mod->getContext();
+                v=(cinst->getArgOperand(0));
+                
+                castI = Builder.CreatePtrToInt(v, llvm::Type::getInt64Ty(ctx), "castInst");
+                ConstantInt* ctype = llvm::ConstantInt::get(ctx, llvm::APInt(1, 1, false));
+                std::string namestr = std::to_string(findID(inst));
+                name = Builder.CreateGlobalStringPtr(namestr);
+                PointerType* vPtrType = cast<PointerType>(v->getType());
+                uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
+                ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
+                Value* args[] = {name, ctype, castI, csize};
+ 
+                CallInst* cI = Builder.CreateCall(printMem, args);
+                //for(int i=0; i<1000; i++) {
+                //  CallInst* cI = Builder.CreateCall(printMem, args);
+                //}
+                //assert(false);
+                //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
+                
+              }
+            }
+          }
+        }        
         
-        else if(auto *sI = dyn_cast<StoreInst>(inst))
-          printMemory(inst);
+        else if(auto *sI = dyn_cast<StoreInst>(inst)) {
+          //luwa delete
+          
+            printMemory(inst);
+          
+        }
         else if(auto *iI = dyn_cast<InvokeInst>(inst))
           printInvoke(iI);
         else if(auto *tI = dyn_cast<TerminatorInst>(inst))

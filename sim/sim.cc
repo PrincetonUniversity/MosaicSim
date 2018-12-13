@@ -50,7 +50,9 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     else if (stval_map.at(d->desc_id)->completed) {
-      d->c->insertQ(d);      
+      d->c->insertQ(d);
+      d->print("Access Memory Hierarchy", 1);
+      d->core->access(d);
       return true;      
     }
   }

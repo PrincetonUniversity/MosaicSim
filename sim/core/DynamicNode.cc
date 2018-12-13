@@ -38,28 +38,29 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
-    if(n->typeInstr == ST || n->typeInstr == LD) {
+    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR) {
       if(core->memory.find(n->id)==core->memory.end()) {
         cout << "Assertion about to fail for: " << n->name << endl;        
       }
-      else {
-        //cout << "Apparently it works for some \n";
-      }
+
       assert(core->memory.find(n->id) !=core->memory.end());
+ 
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
+ 
+     
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
-      core->lsq.insert(d);
+      if(!(n->typeInstr == STADDR)) {
+        core->lsq.insert(d); //luwa: it's not safe to insert in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
+      }
     }
     else {
-      d = new DynamicNode(n, this, core);
-      if(n->typeInstr == SEND || n->typeInstr == RECV || n->typeInstr == STADDR || n->typeInstr == STVAL) {
-        nodes.insert(make_pair(n,d));
-        core->master->orderDESC(d);
-      } 
-      else {
-        nodes.insert(make_pair(n, d));
-      }     
+      d = new DynamicNode(n, this, core); 
+      nodes.insert(make_pair(n, d));          
+    }
+    
+    if(d->isDESC) {
+      core->master->orderDESC(d);
     }
     core->window.insertDN(d);
   }
@@ -107,6 +108,8 @@ void Context::process() {
     DynamicNode *d = *it;
     bool res = core->window.canIssue(d);
 
+    
+    
     assert(!d->issued);
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
@@ -116,8 +119,28 @@ void Context::process() {
     }
     else if(d->isMem)
       res = res && d->issueMemNode();
-    else if (d->isDESC)
+    else if (d->isDESC) { 
+      if(d->type == SEND) {
+        stat.update("send_issue_try");
+        core->local_stat.update("send_issue_try");
+      }
+      
+      if(d->type == RECV) {
+        stat.update("recv_issue_try");
+        core->local_stat.update("recv_issue_try");
+      }
+      if(d->type == STADDR) {
+        stat.update("staddr_issue_try");
+        core->local_stat.update("staddr_issue_try");
+      }
+      if(d->type == STVAL) {
+        stat.update("stval_issue_try");
+        core->local_stat.update("stval_issue_try");
+      }
+      
       res = res && d->issueDESCNode();
+      
+    }      
     else
       res = res && d->issueCompNode();
     
@@ -131,6 +154,7 @@ void Context::process() {
         insertQ(d);        
       }
       d->print("Issue Succesful",0);
+      
       //cout << "Cycle: " << core->cycles;
       //d->print("Issue Succesful",-2); //luwa test
     }
@@ -188,7 +212,7 @@ void Context::complete() {
         core->local_stat.update("bytes_read", word_size_bytes);
       }
       
-      else if (d->type == ST) {
+      else if (d->type == ST || d->type == STADDR) {
         stat.update("bytes_write", word_size_bytes);
         core->local_stat.update("bytes_write", word_size_bytes);
       } 
@@ -217,15 +241,16 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
   else
     pending_parents = n->parents.size();
   pending_external_parents = n->external_parents.size();
-  if(addr == 0)
-    isMem = false;
-  else
-    isMem = true;
   
   if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL)
     isDESC = true;
   else
-    isDESC = false;  
+    isDESC = false;
+  if(addr == 0 || isDESC)
+    isMem = false;
+  else
+    isMem = true;
+
 }
 
 bool DynamicNode::operator== (const DynamicNode &in) {
@@ -271,9 +296,10 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  if(pending_parents > 0 || pending_external_parents > 0)  {    
+  if(pending_parents > 0 || pending_external_parents > 0)  {
     return;
   }
+  
   if(issued || completed)
     assert(false);
   if(type == TERMINATOR && core->window.canIssue(this)) {    
@@ -387,6 +413,25 @@ bool DynamicNode::issueMemNode() {
 bool DynamicNode::issueDESCNode() {
   issued = true;
   core->communicate(this);
+ 
+  if(type == SEND) {
+    stat.update("send_issue_success");
+    core->local_stat.update("send_issue_success");
+  }
+
+  if(type == RECV) {
+    stat.update("recv_issue_success");
+    core->local_stat.update("recv_issue_success");
+  }
+  if(type == STADDR) {
+    stat.update("staddr_issue_success");
+    core->local_stat.update("staddr_issue_success");
+  }
+  if(type == STVAL) {
+    stat.update("stval_issue_success");
+    core->local_stat.update("stval_issue_success");
+  }
+  
   return true;  
 }
 

@@ -19,7 +19,9 @@ public:
     registerStat("cycles", 0);
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
-
+    
+    
+    
     registerStat("cache_hit", 1);
     registerStat("cache_miss", 1);
     registerStat("cache_access", 1);
@@ -40,7 +42,17 @@ public:
     registerStat("store_issue_success", 3);
     registerStat("comp_issue_try", 3);
     registerStat("comp_issue_success", 3);
+    
+    registerStat("send_issue_try", 3);
+    registerStat("send_issue_success", 3);
+    registerStat("recv_issue_try", 3);
+    registerStat("recv_issue_success", 3);
 
+    registerStat("stval_issue_try", 3);
+    registerStat("stval_issue_success", 3);
+    registerStat("staddr_issue_try", 3);
+    registerStat("staddr_issue_success", 3);
+    
     registerStat("lsq_insert_success", 4);
     registerStat("lsq_insert_fail", 4);
   }
@@ -69,3 +81,4 @@ public:
 extern Statistics stats;
 
 #endif
+
