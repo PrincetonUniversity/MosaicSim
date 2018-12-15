@@ -119,7 +119,9 @@ public:
     }
     cfile.close();
     cout << "[2] Finished Reading Graph (" << name << ") \n";
-    cout << g << endl;
+
+    //cout << g << endl; luwa commented out, graph can be large
+    
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }

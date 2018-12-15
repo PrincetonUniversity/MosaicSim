@@ -50,9 +50,9 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
      
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
-      if(!(n->typeInstr == STADDR)) {
-        core->lsq.insert(d); //luwa: it's not safe to insert STADDR in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
-      }
+      //if(!(n->typeInstr == STADDR)) {
+      core->lsq.insert(d); //luwa: it's not safe to insert STADDR in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
+        //}
     }
     else {
       d = new DynamicNode(n, this, core); 
@@ -150,7 +150,7 @@ void Context::process() {
     }
     else {
       core->window.issue();
-      if(d->type != LD && !d->isDESC) {
+      if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
       d->print("Issue Succesful",0);
@@ -253,19 +253,72 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
 
 }
 
-bool DynamicNode::operator== (const DynamicNode &in) {
+bool DynamicNode::operator== (const DynamicNode &in) {  
   if(c->id == in.c->id && n->id == in.n->id)
     return true;
   else
     return false;
+  
+  /*
+  try{
+    if(c->id == in.c->id && n->id == in.n->id)
+      return true;
+    else
+      return false;
+  }
+  catch(...) {
+    cout << "Failing nodes: ";
+    DynamicNode orig=*this;
+    orig.print("failing node", -10);
+    DynamicNode d=in;
+    d.print("failing node arg", -10);
+    assert(false);
+  }
+  */
 }
 bool DynamicNode::operator< (const DynamicNode &in) const {
-  if(c->id < in.c->id) 
+  /* if(c->id < in.c->id) 
     return true;
   else if(c->id == in.c->id && n->id < in.n->id)
     return true;
   else
+  return false;
+  */
+  /*  cout << "before sf \n";
+  if (n->id) { //< in.n->id) {
+    cout<<"";
+  }
+  cout << "after sf \n";
+  */
+  //DynamicNode orig=*this;
+  //orig.print("failing node", -10);
+  //DynamicNode d=in;
+  //d.print("failing node arg", -10);
+  if(c->id < in.c->id) 
+    return true;
+  if(c->id == in.c->id && n->id < in.n->id)
+    return true;
+  else
     return false;
+  
+/*  
+  try {
+    if(c->id < in.c->id) 
+      return true;
+    else if(c->id == in.c->id && n->id < in.n->id)
+      return true;
+    else
+      return false; 
+  }
+  catch(...) {
+    cout << "Failing nodes: ";
+    DynamicNode orig=*this;
+    orig.print("failing node", -10);
+    DynamicNode d=in;
+    d.print("failing node arg", -10);
+    assert(false);
+  }
+*/ 
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
   string descid;
@@ -310,7 +363,7 @@ void DynamicNode::tryActivate() {
   }
   else {
     assert(c->issue_set.find(this) == c->issue_set.end());
-    if(isMem) {
+    if(isMem || type==STADDR) { //luwa just added
       addr_resolved = true;
       core->lsq.resolveAddress(this);
     }
@@ -411,8 +464,8 @@ bool DynamicNode::issueMemNode() {
 }
 
 bool DynamicNode::issueDESCNode() {
-  issued = true;
-  core->communicate(this);
+  bool can_issue=true;
+  
  
   if(type == SEND) {
     stat.update("send_issue_success");
@@ -424,15 +477,25 @@ bool DynamicNode::issueDESCNode() {
     core->local_stat.update("recv_issue_success");
   }
   if(type == STADDR) {
-    stat.update("staddr_issue_success");
-    core->local_stat.update("staddr_issue_success");
+    if(!core->lsq.check_store_issue(this)) {
+      can_issue = false;
+    }
+    else {
+      
+      stat.update("staddr_issue_success");
+      core->local_stat.update("staddr_issue_success");
+    }
   }
   if(type == STVAL) {
     stat.update("stval_issue_success");
     core->local_stat.update("stval_issue_success");
   }
-  
-  return true;  
+
+  if(can_issue) {
+    issued=true;
+    core->communicate(this);
+  }
+  return can_issue;  
 }
 
 
@@ -470,9 +533,13 @@ void DynamicNode::finishNode() {
   set<Node*>::iterator it;
   for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
     DynamicNode *dst = c->nodes.at(*it);
+
+    //if the dependent is a store addr dependent
+    //for some reason, DESC instructions are never store dependents
     if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {
+      //assert(!isDESC);
       dst->addr_resolved = true;
-      core->lsq.resolveAddress(dst);
+      core->lsq.resolveAddress(dst);      
     }
     dst->pending_parents--;
     dst->tryActivate();
@@ -481,6 +548,7 @@ void DynamicNode::finishNode() {
   // The same for external dependents: decrease parent's count & try to launch them
   for(unsigned int i=0; i<external_dependents.size(); i++) {
     DynamicNode *dst = external_dependents.at(i);
+   
     if(n->store_addr_dependents.find(n) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
       core->lsq.resolveAddress(dst);

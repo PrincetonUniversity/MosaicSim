@@ -91,25 +91,31 @@ bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
 }
 
 bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
+
   if(unresolved_st_set.size() == 0)
     return false;
   DynamicNode *d = *(unresolved_st_set.begin());
 
   if(core->local_cfg.mem_speculate) {
     for(auto it=unresolved_st_set.begin(); it!=unresolved_st_set.end();it++) {
-      if (*in < **it || *in == **it)       
+      if (*in < **it || *in == **it) {        
         return false;
+      }
       if (in->addr == (*it)->addr)
         return true;
     }
+
     return false;
   }
-      
-  if(*d < *in || *d == *in) {
+
+    
+  if(*d < *in || *d == *in) {    
     return true;
   }
-  else
+  else {
+    
     return false;
+  }
 }
 
 //for perfect, loop through all unresolved stores, if no conflicting
@@ -141,6 +147,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
   bool skipLoad = false;
   if(check_unresolved_store(in))
     return false;
+
   if(check_unresolved_load(in))
     return false;
   if(sm.at(in->addr).size() == 1)
@@ -175,21 +182,73 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   if(sm.find(in->addr) == sm.end())
     return -1;
   set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
+  
+
+  DynamicNode test = *in;
   auto it = s.rbegin();
   auto uit = unresolved_st_set.rbegin();
-  while(*in < *(*uit) && uit != unresolved_st_set.rend())
+
+  
+  /*cout << "before id check \n";
+  (*uit)->print("possible failing", -10);
+  if(*in<*(*uit))
+    {
+      cout << "check the id \n";      
+    }
+  cout << "after id check \n";
+  */
+
+
+
+  //luwa, below shoud be removed
+  /* while(true) {
+    (*in).print("arg", -10);
+    (*(*uit)).print("entry", -10);
+    cout << "Node Id is \n";
+    cout << (*in).n->id << "\n";
+
+    cout << "Node Id is \n";
+    cout << (*(*uit)).n->id << "\n";
+    
+    if(!(*in < *(*uit) && uit != unresolved_st_set.rend())) {      
+      break;
+    }
     uit++;
-  while(*in < *(*it) && it != s.rend())
+  }
+  */
+  //find first *just* older dynamic node with unresolved store
+  while(uit != unresolved_st_set.rend() && *in < *(*uit))
+    uit++;
+
+  //find first *just* older, completed dynamic node that accesses the address in question
+  while(it != s.rend() && *in < *(*it)) {   
     it++;
+  }
+  //can't find someone to forward data cuz no older, completed node with matching address
   if(it == s.rend())
     return -1;
+
+  //previous version
+  //unresolved one is older than relevant one with the address
+  //but shouldn't it be the other way around??
+  //shouldn't you get the forward from the most recent store, which is the younger between *(*it) and *(*uit)? That is, closest to *in. 
+
+  /*
   if(uit != unresolved_st_set.rend() && *(*uit) < *(*it)) {
     speculative = true;
+  } 
+  */
+  //corrected version
+  //here, unresolved store *(*uit) is closest to *in. Technically, we don't know
+  //the address is irrelevant yet and that *(*it) is the relevant one, so it would be speculative. 
+  if(uit != unresolved_st_set.rend() &&   *(*it) < *(*uit)) { //unresolved is younger, should be getting from them if address matched, which you don't know
+    speculative = true;
   }
+  
   DynamicNode *d = *it;
   if(d->completed && !speculative)
     return 1;
-  else if(d->completed && speculative)
+  else if(d->completed && speculative) //just get from most recent completed with addr anyway
     return 0;
   else if(!d->completed)
     return -1;

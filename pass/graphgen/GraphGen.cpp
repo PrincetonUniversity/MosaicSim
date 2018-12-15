@@ -75,19 +75,19 @@ void GraphGen::detectComm(Function &func) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
             if(f->getName().str().find("desc_supply_produce") != std::string::npos) {
-              errs() << "[SEND]"<< *i << "\n";
+              //errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
             else if(f->getName().str().find( "desc_compute_consume") != std::string::npos) {
-              errs() << "[RECV]"<< *i << "\n";
+              //errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
             else if (f->getName().str().find("desc_supply_consume") != std::string::npos) {
-              errs() << "[STADDR]"<< *i << "\n";
+              //errs() << "[STADDR]"<< *i << "\n";
               n->itype = STADDR;
             }
             else if (f->getName().str().find("desc_compute_produce") != std::string::npos) {
-              errs() << "[STVAL]"<< *i << "\n";
+              //errs() << "[STVAL]"<< *i << "\n";
               n->itype = STVAL;
             }
           }
@@ -162,6 +162,27 @@ void GraphGen::constructGraph(Function &func) {
           //assert(false);
         }
       }
+
+      //treat staddr just like a store above
+       if(CallInst *cinst = dyn_cast<CallInst>(i)) {
+          for (Use &use : i->operands()) {
+            Value *v = use.get();
+            if(Function *f = dyn_cast<Function>(v)) {
+              if(f->getName().str().find("supply_consume") != std::string::npos) {
+                Value* pv=(cinst->getArgOperand(0));
+                if(Instruction *ipv = dyn_cast<Instruction>(pv)) {
+                  store_to_addr.insert(std::make_pair(i, ipv));
+                }
+                else {
+                  errs() << "[WARNING] STADDR operand not from instruction: " << *pv << "\n";
+                }
+                
+              }
+            }
+          }
+        }
+
+                
       Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
       depGraph.addNode(n);
       nodeMap[i] = n;
@@ -187,7 +208,7 @@ void GraphGen::addDataEdges(Function &func) {
     }
   }
 }
-//luwahere, maybe there are some edges with the new control instructions for exceptions, etc that aren't being added
+
 void GraphGen::addControlEdges(Function &func) {
   for (auto &bb : func) {
     TerminatorInst* term = bb.getTerminator();
