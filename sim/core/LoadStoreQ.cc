@@ -57,6 +57,7 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
         break;
     }
   }
+  
   if(ld_ct >= ld_need && st_ct >= st_need) {
     for(int i=0; i<ld_need; i++) {
       DynamicNode *d = lq.front();
