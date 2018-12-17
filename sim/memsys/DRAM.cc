@@ -49,7 +49,7 @@ void DRAMSimInterface::addTransaction(Transaction* d, uint64_t addr, bool isLoad
   }
 }
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
-  if((free_load_ports == 0 && isLoad) || (free_store_ports == 0 && !isLoad))
+  if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))
     return false;
   return mem->willAcceptTransaction(addr);
 }

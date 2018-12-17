@@ -73,9 +73,9 @@ Simulator::Simulator() {
 
 bool Simulator::canAccess(bool isLoad) {
   if(isLoad)
-    return cache->free_load_ports > 0;
+    return cache->free_load_ports > 0 || cache->load_ports==-1;
   else
-    return cache->free_store_ports > 0;
+    return cache->free_store_ports > 0 || cache->store_ports==-1;
 }
 
 void Simulator::communicate(DynamicNode* d) {
