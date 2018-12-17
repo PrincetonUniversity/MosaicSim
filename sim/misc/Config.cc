@@ -3,11 +3,12 @@
 #include <iostream>
 #include <fstream>
 #include <sstream> 
+#include <boost/algorithm/string.hpp>
 using namespace std;
 Config::Config() {    
-  L1_latency = 1;
-  L1_assoc = 8;
-  L1_linesize = 64;
+  //L1_latency = 1;
+  //L1_assoc = 8;
+  //L1_linesize = 64;
   instr_latency[I_ADDSUB] = 1;
   instr_latency[I_MULT] = 3;
   instr_latency[I_DIV] = 26;
@@ -93,6 +94,16 @@ void Config::getCfg(int id, int val) {
   case 10:
     mem_store_ports = val;
     break;
+  case 11:
+    L1_latency = val;
+  case 12:
+    L1_assoc = val;
+  case 13:
+    L1_linesize = val;
+  case 14:
+    window_size = val;
+  case 15:
+    issueWidth = val;
   default:
     break;
   }
@@ -105,6 +116,14 @@ void Config::read(std::string name) {
   if (cfile.is_open()) {
     while (getline (cfile,line)) {
       vector<string> s = split(line, ',');
+      //getCfg(id, stoi(s.at(0)));
+      string param = s.at(1);
+      boost::trim(param);
+      if(param_map.find(param)==param_map.end()) {
+        cout <<"[ERROR] Can't find config mapping of: "  << s.at(1) << endl;
+        assert(false);
+      }
+      id=param_map.at(param);
       getCfg(id, stoi(s.at(0)));
       id++;
     }

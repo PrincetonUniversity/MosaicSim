@@ -104,13 +104,12 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
 
 void Context::process() {
   //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
-  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
+  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) { 
     DynamicNode *d = *it;
-    bool res = core->window.canIssue(d);
-
-    
-    
+    bool window_available = core->window.canIssue(d);
+    bool res = window_available;
     assert(!d->issued);
+    
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
       d->completed = true;

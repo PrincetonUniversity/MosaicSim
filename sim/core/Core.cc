@@ -25,6 +25,15 @@ void IssueWindow::insertDN(DynamicNode* d) {
 bool IssueWindow::canIssue(DynamicNode* d) {
   assert(issueMap.find(d)!=issueMap.end());
   uint64_t position=issueMap.at(d);
+  if(window_size==-1 && issueWidth==-1) { //infinite sizes
+    return true;
+  }
+  else if(window_size==-1) { //only issue width matters
+    return issueCount<issueWidth;
+  }
+  else if (issueWidth==-1) { //only instruction window availability matters
+    return position>=window_start && position<=window_end;
+  }
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
@@ -51,7 +60,7 @@ void IssueWindow::process() {
 }
 
 void IssueWindow::issue() {
-  assert(issueCount<=issueWidth);
+  assert(issueWidth==-1 || issueCount<=issueWidth);
   issueCount++;
 }
 
@@ -67,6 +76,8 @@ void Core::initialize(int id) {
   // Initialize Resources / Limits
   this->id = id;
   lsq.size = local_cfg.lsq_size;
+  window.window_size=local_cfg.window_size;
+  window.issueWidth=local_cfg.issueWidth;
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), local_cfg.num_units[i]));
   }

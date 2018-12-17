@@ -34,7 +34,8 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
   int st_need = sq.size() + num_st - size; 
   int ld_ct = 0;
   int st_ct = 0;
-  if(ld_need <= 0 && st_need <= 0)
+  //negative size means infinite lsq
+  if(size == -1 || (ld_need <= 0 && st_need <= 0)) 
     return true;
   if(ld_need > 0) {
     for(auto it = lq.begin(); it!= lq.end(); ++it) {

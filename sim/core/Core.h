@@ -27,11 +27,11 @@ class IssueWindow {
 public:
   map<DynamicNode*, uint64_t, DNPointerLT> issueMap;
   vector<DynamicNode*> issueQ;
-  uint64_t window_size=128;
+  int window_size=1;//128; // instrn window size
   uint64_t window_start=0;
   uint64_t curr_index=0;
   uint64_t window_end=window_size-1;
-  int issueWidth=8;
+  int issueWidth=1;//8; //total # issues per cycle
   int issueCount=0;
   void insertDN(DynamicNode* d);
   bool canIssue(DynamicNode* d);
