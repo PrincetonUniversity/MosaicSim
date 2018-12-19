@@ -25,13 +25,16 @@ void IssueWindow::insertDN(DynamicNode* d) {
 bool IssueWindow::canIssue(DynamicNode* d) {
   assert(issueMap.find(d)!=issueMap.end());
   uint64_t position=issueMap.at(d);
+  //cout << "window size is " << window_size << endl;
+  //cout << "issue width is " << issueWidth << endl; 
+  
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
     return true;
   }
-  else if(window_size==-1) { //only issue width matters
+  if(window_size==-1) { //only issue width matters
     return issueCount<issueWidth;
   }
-  else if (issueWidth==-1) { //only instruction window availability matters
+  if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
   return issueCount<issueWidth && position>=window_start && position<=window_end;

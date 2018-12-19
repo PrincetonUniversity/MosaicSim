@@ -96,14 +96,19 @@ void Config::getCfg(int id, int val) {
     break;
   case 11:
     L1_latency = val;
+    break;
   case 12:
     L1_assoc = val;
+    break;
   case 13:
     L1_linesize = val;
+    break;
   case 14:
     window_size = val;
+    break;
   case 15:
     issueWidth = val;
+    break;
   default:
     break;
   }
@@ -113,11 +118,18 @@ void Config::read(std::string name) {
   string last_line;
   ifstream cfile(name);
   int id = 0;
+  cout << "\n---------CONFIGS---------\n";
   if (cfile.is_open()) {
     while (getline (cfile,line)) {
+      
+      boost::trim(line);
+      
+      if(line[0]=='#' || line=="")
+        continue;
+      
       vector<string> s = split(line, ',');
       //getCfg(id, stoi(s.at(0)));
-      string param = s.at(1);
+      string param = split(s.at(1),'#').at(0); //cut out trailing comments
       boost::trim(param);
       if(param_map.find(param)==param_map.end()) {
         cout <<"[ERROR] Can't find config mapping of: "  << s.at(1) << endl;
@@ -125,8 +137,10 @@ void Config::read(std::string name) {
       }
       id=param_map.at(param);
       getCfg(id, stoi(s.at(0)));
-      id++;
+      cout << "("<<id<<")"<< " " << param << ": " << stoi(s.at(0)) << endl;
+      //id++;
     }
+    cout << "----------------------------\n\n";
   }
   else {
     cout << "[ERROR] Cannot open Config file\n";
