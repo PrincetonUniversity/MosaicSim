@@ -28,6 +28,7 @@ bool DESCQ::execute(DynamicNode* d) {
   if (d->n->typeInstr==SEND) { //sends can commit out of order
     d->c->insertQ(d);
     debug_send_set.insert(d->desc_id);
+    supply_count--;
     return true;    
   }
   else if (d->n->typeInstr==STVAL) { //sends can commit out of order
@@ -40,7 +41,8 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     else if (send_map.at(d->desc_id)->completed) {
-      d->c->insertQ(d);      
+      d->c->insertQ(d);
+      consume_count--;
       return true;      
     }
   }
@@ -59,8 +61,21 @@ bool DESCQ::execute(DynamicNode* d) {
   return false;
 }
 
-void DESCQ::insert(DynamicNode* d) {
+bool DESCQ::insert(DynamicNode* d) {
+  if (d->n->typeInstr==SEND) {    
+    if (supply_count==supply_size)  
+      return false;
+    else
+      supply_count++;  
+  }
+  if (d->n->typeInstr==RECV) {
+    if (consume_count==consume_size) 
+      return false;
+    else
+      consume_count++;
+  }    
   pq.push(make_pair(d,cycles+latency));
+  return true;
 }
 
 Simulator::Simulator() {        
@@ -78,8 +93,8 @@ bool Simulator::canAccess(bool isLoad) {
     return cache->free_store_ports > 0 || cache->store_ports==-1;
 }
 
-void Simulator::communicate(DynamicNode* d) {
-  descq->insert(d);
+bool Simulator::communicate(DynamicNode* d) {
+  return descq->insert(d);
 }
 
 void Simulator::orderDESC(DynamicNode* d) {

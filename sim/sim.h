@@ -15,22 +15,25 @@ public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
   deque<DynamicNode*> supply_q;
   deque<DynamicNode*> consume_q;
-  map<int,DynamicNode*> send_map;
-  map<int,DynamicNode*> stval_map;
+  map<uint64_t,DynamicNode*> send_map;
+  map<uint64_t,DynamicNode*> stval_map;
+  int consume_size=128; //comm buff size
+  int supply_size=128; //comm queue size
+  int consume_count=0;
+  int supply_count=0;
   map<DynamicNode*, uint64_t> final_cycle; 
   uint64_t cycles=0;
-  int last_send_id;
-  int last_stval_id;
-  int last_recv_id;
-  int last_staddr_id;
-  int latency=2;
-  uint64_t supply_count=0;
+  uint64_t last_send_id;
+  uint64_t last_stval_id;
+  uint64_t last_recv_id;
+  uint64_t last_staddr_id;
+  int latency=2;  
   Config config; 
   void process();
   bool execute(DynamicNode* d);
-  void insert(DynamicNode* d);
-  set<int> debug_send_set;
-  set<int> debug_stval_set;
+  bool insert(DynamicNode* d);
+  set<uint64_t> debug_send_set;
+  set<uint64_t> debug_stval_set;
 };
 
 class Simulator {
@@ -41,7 +44,7 @@ public:
   DRAMSimInterface* memInterface;
   
   Simulator();
-  void communicate(DynamicNode* d);
+  bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();
   bool canAccess(bool isLoad);

@@ -464,35 +464,33 @@ bool DynamicNode::issueMemNode() {
 
 bool DynamicNode::issueDESCNode() {
   bool can_issue=true;
-  
- 
-  if(type == SEND) {
-    stat.update("send_issue_success");
-    core->local_stat.update("send_issue_success");
-  }
 
-  if(type == RECV) {
-    stat.update("recv_issue_success");
-    core->local_stat.update("recv_issue_success");
-  }
   if(type == STADDR) {
     if(!core->lsq.check_store_issue(this)) {
       can_issue = false;
-    }
-    else {
-      
-      stat.update("staddr_issue_success");
-      core->local_stat.update("staddr_issue_success");
-    }
+    }    
   }
-  if(type == STVAL) {
-    stat.update("stval_issue_success");
-    core->local_stat.update("stval_issue_success");
-  }
+
+  can_issue=can_issue && core->communicate(this);
 
   if(can_issue) {
     issued=true;
-    core->communicate(this);
+    if(type == STVAL) {
+      stat.update("stval_issue_success");
+      core->local_stat.update("stval_issue_success");
+    }
+    if (type == STADDR) {
+      stat.update("staddr_issue_success");
+      core->local_stat.update("staddr_issue_success");
+    }
+    if(type == RECV) {
+      stat.update("recv_issue_success");
+      core->local_stat.update("recv_issue_success");
+    }
+    if(type == SEND) {
+      stat.update("send_issue_success");
+      core->local_stat.update("send_issue_success");
+    }    
   }
   return can_issue;  
 }

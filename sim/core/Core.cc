@@ -5,8 +5,8 @@
 bool Core::canAccess(bool isLoad) {
   return master->canAccess(isLoad);
 }
-void Core::communicate(DynamicNode *d) {
-  master->communicate(d);
+bool Core::communicate(DynamicNode *d) {
+  return master->communicate(d);
 }
 void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
