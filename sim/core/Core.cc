@@ -2,8 +2,9 @@
 #include "Core.h"
 #include "../memsys/Cache.h"
 #define ID_POOL 1000000
+
 bool Core::canAccess(bool isLoad) {
-  return master->canAccess(isLoad);
+  return master->canAccess(this, isLoad);
 }
 bool Core::communicate(DynamicNode *d) {
   return master->communicate(d);
@@ -76,8 +77,15 @@ void Core::accessComplete(Transaction *t) {
   d->handleMemoryReturn();
 }
 void Core::initialize(int id) {
-  // Initialize Resources / Limits
   this->id = id;
+  
+  // Set up cache
+  cache = new Cache(local_cfg.L1_latency, local_cfg.L1_size, local_cfg.L1_assoc, local_cfg.L1_linesize, local_cfg.cache_load_ports, local_cfg.cache_store_ports, local_cfg.ideal_cache);
+
+  cache->sim = master;
+  cache->memInterface = master->memInterface;
+  
+  // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
   window.issueWidth=local_cfg.issueWidth;
@@ -157,6 +165,7 @@ bool Core::createContext() {
 
 bool Core::process() {
   window.process();
+  cache->process();
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {

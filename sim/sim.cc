@@ -80,13 +80,14 @@ bool DESCQ::insert(DynamicNode* d) {
 
 Simulator::Simulator() {        
   descq = new DESCQ();
-  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
-  memInterface = new DRAMSimInterface(cache, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  cache->sim = this;
-  cache->memInterface = memInterface;
+  //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
+  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  //cache->sim = this;
+  //cache->memInterface = memInterface;
 }
 
-bool Simulator::canAccess(bool isLoad) {
+bool Simulator::canAccess(Core* core, bool isLoad) {
+  Cache* cache = core->cache;
   if(isLoad)
     return cache->free_load_ports > 0 || cache->load_ports==-1;
   else
@@ -118,7 +119,32 @@ void Simulator::orderDESC(DynamicNode* d) {
   }
 }
 
+void Simulator::InsertCaches(const vector<Transaction*>& transVec) {
+  for (auto t:transVec) {
+    Core *core = cores.at(t->coreId);
+    Cache* c = core->cache;
+    int64_t evictedAddr = -1;
+    uint64_t addr = t->addr;
+    
+    if(!(c->ideal))
+      c->fc->insert(addr/64, &evictedAddr);
+    if(evictedAddr!=-1) { //if ideal evicted Addr still is -1
+      assert(evictedAddr >= 0);
+      stat.update("cache_evict");
+      c->to_evict.push_back(evictedAddr*64);
+    }
+  }
+}
+
+void Simulator::TransactionComplete(Transaction* t) {
+  Core *core = cores.at(t->coreId);
+  Cache* cache = core->cache;
+  cache->TransactionComplete(t);
+}
+
 void Simulator::access(Transaction *t) {
+  Core *core = cores.at(t->coreId);
+  Cache* cache = core->cache;
   cache->addTransaction(t);
 }
 void Simulator::accessComplete(Transaction *t) {
@@ -133,7 +159,7 @@ void Simulator::run() {
       Core* core = *it;
       simulate += core->process();
     }
-    simulate += cache->process();
+    //simulate += cache->process();
     memInterface->process();
     descq->process();
   }
@@ -166,8 +192,7 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
-  
-  core->initialize(id);
   core->master=this;
+  core->initialize(id);
   cores.push_back(core);  
 }

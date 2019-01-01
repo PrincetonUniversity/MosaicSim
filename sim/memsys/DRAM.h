@@ -5,13 +5,16 @@
 #include "assert.h"
 #include "../common.h"
 #include "../include/DRAMSim.h"
-class Cache;
+#include "../sim.h"
 
+class Cache;
+class Simulator;
 using namespace std;
 
 class DRAMSimInterface {
 public:
-  Cache *c;
+  //Cache *c;
+  Simulator* sim;
   bool ideal;
   int load_ports;
   int store_ports;
@@ -20,7 +23,7 @@ public:
   unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
   DRAMSim::MultiChannelMemorySystem *mem;
 
-  DRAMSimInterface(Cache *c, bool ideal, int load_ports, int store_ports) : c(c),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
+  DRAMSimInterface(Simulator* sim, bool ideal, int load_ports, int store_ports) : sim(sim),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
     mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 

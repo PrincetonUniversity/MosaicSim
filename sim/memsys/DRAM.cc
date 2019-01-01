@@ -5,25 +5,30 @@ using namespace std;
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
+
   if(UNUSED)
     cout << id << clock_cycle;
   queue<Transaction*> &q = outstanding_read_map.at(addr);
+
+  set<int> coreIDSet;
+  vector<Transaction*> transVec;
+  
   while(q.size() > 0) {
-    Transaction* t = q.front();  
-    c->TransactionComplete(t);
+    Transaction* t = q.front();    
+    sim->TransactionComplete(t);
+    //gather all transactions with unique cores
+    if(coreIDSet.find(t->coreId)==coreIDSet.end()) {
+      transVec.push_back(t);
+      coreIDSet.insert(t->coreId);
+    }
+    assert(transVec.size() == 1);
     q.pop();
   }
-  int64_t evictedAddr = -1;
-  if(!ideal)
-    c->fc->insert(addr/64, &evictedAddr);
-  if(evictedAddr!=-1) {
-    assert(evictedAddr >= 0);
-    stat.update("cache_evict");
-    c->to_evict.push_back(evictedAddr*64);
-  }
+  sim->InsertCaches(transVec);
   if(q.size() == 0)
     outstanding_read_map.erase(addr);
 }
+
 void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   if(UNUSED)
     cout << id << addr << clock_cycle;

@@ -47,10 +47,12 @@ public:
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();
-  bool canAccess(bool isLoad);
+  bool canAccess(Core* core, bool isLoad);
   void access(Transaction *t);
   void accessComplete(Transaction *t);
   void registerCore(string wlpath, string cfgname, int id);
+  void TransactionComplete(Transaction* t);
+  void InsertCaches(const vector<Transaction*>& transVec);
 };
 
 #endif

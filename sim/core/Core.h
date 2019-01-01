@@ -49,6 +49,7 @@ public:
   IssueWindow window;
   Config local_cfg; 
   Simulator* master;
+  Cache* cache;
   Statistics local_stat;
 
   chrono::high_resolution_clock::time_point curr;
