@@ -13,7 +13,7 @@ void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
-  Transaction *t = new Transaction(tid, id, d->addr, d->type == LD);
+  Transaction *t = new Transaction(tid, id, d->addr, d->type == LD || d->type == LD_PROD);
   master->access(t);
 }
 
@@ -45,7 +45,8 @@ void IssueWindow::process() {
   issueCount=0;
   vector<DynamicNode*> eraseVector;
   for(auto it=issueMap.begin(); it!=issueMap.end(); ++it) {
-    if (it->first->completed) { 
+    if (it->first->completed || it->first->n->typeInstr==LD_PROD) {//when load produce is at head of RoB, you can remove it, even if it's not completed
+      
       //(*it).first->print("completed node", -2); //luwa test
      
       window_start=it->second+1;
@@ -111,13 +112,13 @@ void Core::initialize(int id) {
 }
 
 string Core::instrToStr(TInstr instr) {
-  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "INVALID"};
+  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID"};
   return InstrName[instr];
 }
 
 void Core::printActivity() {
   
-  std::string InstrName[] =  { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "INVALID"};
+  std::string InstrName[] =  { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID"};
   cout << "-----------Simulator " << name << " Activity-----------\n";
   cout << "Cycles: " << cycles << endl;
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
@@ -164,8 +165,8 @@ bool Core::createContext() {
 }
 
 bool Core::process() {
-  window.process();
-  cache->process();
+  window.process();  
+  bool simulate = cache->process();
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 100000 == 0 && cycles !=0) {
@@ -183,7 +184,7 @@ bool Core::process() {
     last = Clock::now();
     last_processed_contexts = 0;
   }
-  bool simulate = false;
+
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();

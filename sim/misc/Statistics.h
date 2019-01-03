@@ -52,6 +52,9 @@ public:
     registerStat("stval_issue_success", 3);
     registerStat("staddr_issue_try", 3);
     registerStat("staddr_issue_success", 3);
+
+    registerStat("ld_prod_issue_try", 3);
+    registerStat("ld_prod_issue_success", 3);
     
     registerStat("lsq_insert_success", 4);
     registerStat("lsq_insert_fail", 4);

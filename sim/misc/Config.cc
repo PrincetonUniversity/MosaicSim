@@ -28,6 +28,7 @@ Config::Config() {
   instr_latency[RECV] = 1;
   instr_latency[STADDR] = 1;
   instr_latency[STVAL] = 1;
+  instr_latency[LD_PROD] = -1; //treat like an actual load
   num_units[I_ADDSUB] = -1;
   num_units[I_MULT] =  -1;
   num_units[I_DIV] = -1;
@@ -47,6 +48,7 @@ Config::Config() {
   num_units[RECV] = -1;
   num_units[STADDR] = -1;
   num_units[STVAL] = -1;
+  num_units[LD_PROD] = -1;
   num_units[INVALID] = -1;
 }
 

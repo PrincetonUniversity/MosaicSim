@@ -21,7 +21,6 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
       transVec.push_back(t);
       coreIDSet.insert(t->coreId);
     }
-    assert(transVec.size() == 1);
     q.pop();
   }
   sim->InsertCaches(transVec);

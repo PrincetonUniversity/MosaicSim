@@ -20,12 +20,26 @@ void DESCQ::process() {
   for(auto& d:failed_nodes) {
     pq.push(make_pair(d,cycles));
   }
+  
+  //drain the terminal load buffer (possibly) up to the max size
+  int term_buffer_count=0; 
+  while(term_buffer_count<term_buffer_size && term_ld_buffer.size()>0) {
+    DynamicNode* dn=term_ld_buffer.front();
+    if (insert(dn)) {
+      term_ld_buffer.pop_front();
+      term_buffer_count++;
+    }
+    else {
+      break;
+    }
+  }
   cycles++;
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  //int predecessor_send=d->desc_id-1; 
-  if (d->n->typeInstr==SEND) { //sends can commit out of order
+  //int predecessor_send=d->desc_id-1;
+
+  if (d->n->typeInstr==SEND || d->n->typeInstr==LD_PROD) { //sends can commit out of order
     d->c->insertQ(d);
     debug_send_set.insert(d->desc_id);
     supply_count--;
@@ -62,20 +76,34 @@ bool DESCQ::execute(DynamicNode* d) {
 }
 
 bool DESCQ::insert(DynamicNode* d) {
-  if (d->n->typeInstr==SEND) {    
-    if (supply_count==supply_size)  
-      return false;
+  bool canInsert=true;
+  if(d->n->typeInstr==LD_PROD) { //should be entry in comm queue   
+    if(supply_count==supply_size) {  
+      canInsert=false;
+      if(d!=term_ld_buffer.front()) {
+        term_ld_buffer.push_back(d);
+      }
+    }
+    else {
+      supply_count++;
+    }
+  }
+  if(d->n->typeInstr==SEND) {     
+    if(supply_count==supply_size)  
+      canInsert=false;
     else
       supply_count++;  
   }
-  if (d->n->typeInstr==RECV) {
-    if (consume_count==consume_size) 
-      return false;
+  if(d->n->typeInstr==RECV) {
+    if(consume_count==consume_size) 
+      canInsert=false;
     else
       consume_count++;
-  }    
-  pq.push(make_pair(d,cycles+latency));
-  return true;
+  }
+  if(canInsert)
+    pq.push(make_pair(d,cycles+latency));  
+
+  return canInsert;
 }
 
 Simulator::Simulator() {        
@@ -104,6 +132,11 @@ void Simulator::orderDESC(DynamicNode* d) {
       d->desc_id=descq->last_send_id;
       descq->last_send_id++;
   }
+  if(d->n->typeInstr == LD_PROD) {     
+      descq->send_map.insert(make_pair(descq->last_send_id,d));
+      d->desc_id=descq->last_send_id;
+      descq->last_send_id++;
+  }
   else if(d->n->typeInstr == STVAL) {
       descq->stval_map.insert(make_pair(descq->last_stval_id,d));
       d->desc_id=descq->last_stval_id;
@@ -119,7 +152,7 @@ void Simulator::orderDESC(DynamicNode* d) {
   }
 }
 
-void Simulator::InsertCaches(const vector<Transaction*>& transVec) {
+void Simulator::InsertCaches(vector<Transaction*>& transVec) {
   for (auto t:transVec) {
     Core *core = cores.at(t->coreId);
     Cache* c = core->cache;

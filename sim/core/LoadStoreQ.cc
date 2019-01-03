@@ -7,13 +7,13 @@ LoadStoreQ::LoadStoreQ(Core* thecore) {
 }
 
 void LoadStoreQ::resolveAddress(DynamicNode *d) {
-  if(d->type == LD)
+  if(d->type == LD || d->type == LD_PROD)
     unresolved_ld_set.erase(d);
   else
     unresolved_st_set.erase(d);
 }
 void LoadStoreQ::insert(DynamicNode *d) {
-  if(d->type == LD) {
+  if(d->type == LD || d->type == LD_PROD) {
     lq.push_back(d);
     if(lm.find(d->addr) == lm.end())
       lm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));

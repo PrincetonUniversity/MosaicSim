@@ -38,21 +38,18 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
-    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR) {
+    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD) {
       if(core->memory.find(n->id)==core->memory.end()) {
         cout << "Assertion about to fail for: " << n->name << endl;        
       }
 
-      assert(core->memory.find(n->id) !=core->memory.end());
- 
+      assert(core->memory.find(n->id) !=core->memory.end()); 
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
- 
-     
+      
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
-      //if(!(n->typeInstr == STADDR)) {
-      core->lsq.insert(d); //luwa: it's not safe to insert STADDR in lsq because we're not actually removing it after completion, which causes deadlocks for dependent loads
-        //}
+      
+      core->lsq.insert(d); 
     }
     else {
       d = new DynamicNode(n, this, core); 
@@ -160,7 +157,7 @@ void Context::process() {
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
-    if(core->local_cfg.mem_speculate && d->type == LD && d->speculated && core->lsq.check_unresolved_store(d)) {
+    if(core->local_cfg.mem_speculate && (d->type == LD || d->type == LD_PROD) && d->speculated && core->lsq.check_unresolved_store(d)) { //added ld_prod here even though we don't currently speculate with it 
       ++it;
     }
     else {
@@ -241,7 +238,7 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     pending_parents = n->parents.size();
   pending_external_parents = n->external_parents.size();
   
-  if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL)
+  if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL || n->typeInstr==LD_PROD)
     isDESC = true;
   else
     isDESC = false;
@@ -321,7 +318,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
   string descid;
-  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR) {
+  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR ||  d.n->typeInstr==LD_PROD) {
     descid=" [DESC ID: " + to_string(d.desc_id) + "]";
   }
   
@@ -336,14 +333,20 @@ void DynamicNode::print(string str, int level) {
 void DynamicNode::handleMemoryReturn() {
   print("Memory Data Ready", 1);
   print(to_string(outstanding_accesses), 1);
-  if(type == LD) {
+  if(type == LD || type == LD_PROD) {
     if(core->local_cfg.mem_speculate) {
       if(outstanding_accesses > 0)
         outstanding_accesses--;
       if(outstanding_accesses != 0) 
         return;
     }
-    c->insertQ(this);
+    if(type == LD) {
+      c->insertQ(this);
+    }
+    if(type == LD_PROD) {
+      //here we push to descq
+      core->communicate(this);
+    }
   }
 }
 
@@ -470,9 +473,18 @@ bool DynamicNode::issueDESCNode() {
       can_issue = false;
     }    
   }
+  if(type == LD_PROD) {
+     if(!core->lsq.check_store_issue(this) ||
+        !core->canAccess(true) ||
+        core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)!=1) {
+      can_issue = false;
+    }
+  }
 
-  can_issue=can_issue && core->communicate(this);
-
+  if(type != LD_PROD) { //ld_prod will be entered into desq after load returns
+    can_issue=can_issue && core->communicate(this);
+  }
+  
   if(can_issue) {
     issued=true;
     if(type == STVAL) {
@@ -490,7 +502,15 @@ bool DynamicNode::issueDESCNode() {
     if(type == SEND) {
       stat.update("send_issue_success");
       core->local_stat.update("send_issue_success");
-    }    
+    }
+    if(type == LD_PROD) {
+      //send to memsys
+      print("Access Memory Hierarchy", 1);
+      core->access(this);
+      
+      stat.update("ld_prod_issue_success");
+      core->local_stat.update("ld_prod_issue_success");
+    }
   }
   return can_issue;  
 }
@@ -532,9 +552,7 @@ void DynamicNode::finishNode() {
     DynamicNode *dst = c->nodes.at(*it);
 
     //if the dependent is a store addr dependent
-    //for some reason, DESC instructions are never store dependents
-    if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {
-      //assert(!isDESC);
+    if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {      
       dst->addr_resolved = true;
       core->lsq.resolveAddress(dst);      
     }

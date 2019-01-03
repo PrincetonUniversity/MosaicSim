@@ -17,8 +17,8 @@ public:
   deque<DynamicNode*> consume_q;
   map<uint64_t,DynamicNode*> send_map;
   map<uint64_t,DynamicNode*> stval_map;
-  int consume_size=128; //comm buff size
-  int supply_size=128; //comm queue size
+  int consume_size=64; //comm buff size
+  int supply_size=512; //comm queue size
   int consume_count=0;
   int supply_count=0;
   map<DynamicNode*, uint64_t> final_cycle; 
@@ -27,7 +27,9 @@ public:
   uint64_t last_stval_id;
   uint64_t last_recv_id;
   uint64_t last_staddr_id;
-  int latency=2;  
+  int latency=3;
+  deque<DynamicNode*> term_ld_buffer;
+  int term_buffer_size=32; //max size of terminal load buffer
   Config config; 
   void process();
   bool execute(DynamicNode* d);
@@ -52,7 +54,7 @@ public:
   void accessComplete(Transaction *t);
   void registerCore(string wlpath, string cfgname, int id);
   void TransactionComplete(Transaction* t);
-  void InsertCaches(const vector<Transaction*>& transVec);
+  void InsertCaches(vector<Transaction*>& transVec);
 };
 
 #endif

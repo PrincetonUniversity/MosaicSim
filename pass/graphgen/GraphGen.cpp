@@ -78,7 +78,11 @@ void GraphGen::detectComm(Function &func) {
               //errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
-            else if(f->getName().str().find( "desc_compute_consume") != std::string::npos) {
+            else if(f->getName().str().find("desc_supply_load_produce") != std::string::npos) {
+              //errs() << "[LD_PROD]"<< *i << "\n";
+              n->itype = LD_PROD;
+            }
+            else if(f->getName().str().find("desc_compute_consume") != std::string::npos) {
               //errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
             }
@@ -181,17 +185,35 @@ void GraphGen::constructGraph(Function &func) {
             }
           }
         }
-
-                
-      Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
-      depGraph.addNode(n);
-      nodeMap[i] = n;
-      id++;
-      uid++;
+       
+       if(CallInst *cinst = dyn_cast<CallInst>(i)) {
+         for (Use &use : i->operands()) {
+           Value *v = use.get();
+           if(Function *f = dyn_cast<Function>(v)) {
+             if(f->getName().str().find("supply_load_produce") != std::string::npos) {
+               Value* pv=(cinst->getArgOperand(0));
+               if(Instruction *ipv = dyn_cast<Instruction>(pv)) {
+                 store_to_addr.insert(std::make_pair(i, ipv));
+               }
+               else {
+                 errs() << "[WARNING] LD_PROD operand not from instruction: " << *pv << "\n";
+                 
+               }
+               
+             }
+           }
+         }
+       }
+       
+       Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
+       depGraph.addNode(n);
+       nodeMap[i] = n;
+       id++;
+       uid++;
     }
-  }
- 
+  }  
 }
+
 void GraphGen::addDataEdges(Function &func) {
   for (auto &bb : func) {
     for (auto &inst : bb) {
