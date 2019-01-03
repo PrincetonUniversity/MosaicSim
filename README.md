@@ -27,8 +27,9 @@ in the root directory will compile the files. <location TBD>
 
 ## Running Pythia
 
-To run Pythia, navigate to pythia/bin
-The syntax is:
+To run Pythia, first navigate to pythia/bin.
+
+The run syntax is:
 ./sim -n [num_cores] [sim_config_name] [path_to_workload_1] [core_1_config] [path_to_workload_2] [core_2_config] ... [path_to_workload_n] [core_n_config] [-v]
 
 Here is an example:
