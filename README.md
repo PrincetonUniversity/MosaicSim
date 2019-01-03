@@ -32,8 +32,10 @@ The syntax is:
 ./sim -n [num_cores] [sim_config_name] [path_to_workload_1] [core_1_config] [path_to_workload_2] [core_2_config] ... [path_to_workload_n] [core_n_config] [-v]
 
 Here is an example:
+
 ./sim -n 2 default ../workloads/shoc/triad/ out_of_order ../workloads/shoc/triad in_order
 
 Note:
 The config files are in pythia/sim/config. The command line arguments ommit their extensions.
+
 The "-v" for verbose mode is optional. 
