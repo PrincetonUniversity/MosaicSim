@@ -3,6 +3,9 @@
 #include "../memsys/Cache.h"
 #define ID_POOL 1000000
 
+std::string InstrName[]={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID"};
+
+
 bool Core::canAccess(bool isLoad) {
   return master->canAccess(this, isLoad);
 }
@@ -13,7 +16,9 @@ void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
+  
   Transaction *t = new Transaction(tid, id, d->addr, d->type == LD || d->type == LD_PROD);
+ 
   master->access(t);
 }
 
@@ -44,23 +49,27 @@ bool IssueWindow::canIssue(DynamicNode* d) {
 void IssueWindow::process() {
   issueCount=0;
   vector<DynamicNode*> eraseVector;
-  for(auto it=issueMap.begin(); it!=issueMap.end(); ++it) {
-    if (it->first->completed || it->first->n->typeInstr==LD_PROD) {//when load produce is at head of RoB, you can remove it, even if it's not completed
+  for(auto it=issueMap.begin(); it!=issueMap.end();) {
+    if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when load produce is at head of RoB, you can remove it, even if it's been issued but not completed
       
       //(*it).first->print("completed node", -2); //luwa test
      
       window_start=it->second+1;
       window_end=(window_size+window_start)-1;
-      eraseVector.push_back(it->first);
+      it=issueMap.erase(it); //erases and gets next element, i.e., it++
+      //eraseVector.push_back(it->first);
     }
     else {
       break;
     }
   }
-  
+
+  /*  
   for (auto it=eraseVector.end(); it!=eraseVector.end(); ++it) {
+    assert(false);
     issueMap.erase(*it);
-  }
+    }*/
+  
   //cout << "Win start: " << window_start << " Win end: " << window_end << endl; //luwa test
 }
 
@@ -79,7 +88,7 @@ void Core::accessComplete(Transaction *t) {
 }
 void Core::initialize(int id) {
   this->id = id;
-  
+    
   // Set up cache
   cache = new Cache(local_cfg.L1_latency, local_cfg.L1_size, local_cfg.L1_assoc, local_cfg.L1_linesize, local_cfg.cache_load_ports, local_cfg.cache_store_ports, local_cfg.ideal_cache);
 
@@ -109,10 +118,18 @@ void Core::initialize(int id) {
   for(int i=0; i<ID_POOL; i++) {
     tracker_id.push(i);
   }
+
+  for(uint64_t i=0; i<cf.size(); i++) {
+    uint64_t bbid=cf[i];
+    BasicBlock *bb = g.bbs.at(bbid);
+    master->total_instructions+=bb->inst_count;
+  }
+  //cout << "Total Instructions is: " << master->total_instructions << endl;
+  //assert(false);
+  
 }
 
-string Core::instrToStr(TInstr instr) {
-  std::string InstrName[] = { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID"};
+string Core::instrToStr(TInstr instr) {  
   return InstrName[instr];
 }
 
@@ -169,7 +186,7 @@ bool Core::process() {
   bool simulate = cache->process();
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
-  if(cycles % 100000 == 0 && cycles !=0) {
+  if(cycles % 1000000 == 0 && cycles !=0) {
     curr = Clock::now();
     uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
     

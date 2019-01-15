@@ -219,6 +219,7 @@ namespace {
             Value *v = use.get();
             if(Function *f = dyn_cast<Function>(v)) {
               if(f->getName().str().find("supply_consume") != std::string::npos) {
+               
                 //errs() << "[STADDR]"<< *inst << "\n";
                 //LLVMContext& ctx = mod->getContext();
                 //auto arg_it=f->arg_begin();
@@ -246,15 +247,9 @@ namespace {
                 //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
                 
               }
-            }
-          }
-        }
-
-        else if(CallInst *cinst = dyn_cast<CallInst>(inst)) {
-          for (Use &use : inst->operands()) {
-            Value *v = use.get();
-            if(Function *f = dyn_cast<Function>(v)) {
-              if(f->getName().str().find("supply_load_produce") != std::string::npos) {
+              
+              else if(f->getName().str().find("supply_load_produce") != std::string::npos) {
+                
                 //errs() << "[STADDR]"<< *inst << "\n";
                 //LLVMContext& ctx = mod->getContext();
                 //auto arg_it=f->arg_begin();

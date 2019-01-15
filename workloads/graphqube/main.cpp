@@ -394,10 +394,10 @@ void load_rows(vector<Row>* row_vector, string edge_path, int num_edges) {
   cout << "size of vector is " << row_vector->size() << endl;  
 }
 
-void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candidate_heap& top_k, int& K, int& counter) {
+__attribute__((noinline)) void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candidate_heap& top_k, int& K, int& counter) {
       vector<Row>::iterator row_it=row_vector->begin();
-      for(int i=0; i<5; i++) {
-      //while(true) {        
+      
+      while(true) {        
         Row row=*row_it;
              
         if(row.weight * query.num_edges < top_k.top()->weight) {

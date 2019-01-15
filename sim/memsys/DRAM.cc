@@ -15,12 +15,14 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
   
   while(q.size() > 0) {
     Transaction* t = q.front();    
-    sim->TransactionComplete(t);
+        
     //gather all transactions with unique cores
     if(coreIDSet.find(t->coreId)==coreIDSet.end()) {
-      transVec.push_back(t);
-      coreIDSet.insert(t->coreId);
+      Transaction *nt = new Transaction(t->id, t->coreId, t->addr, t->isLoad);
+      transVec.push_back(nt);
+      coreIDSet.insert(nt->coreId);
     }
+    sim->TransactionComplete(t);
     q.pop();
   }
   sim->InsertCaches(transVec);

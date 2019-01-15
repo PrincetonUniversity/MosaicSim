@@ -1,10 +1,10 @@
 #include <random>
-
+#include <iostream>
 #define SIZE    2048
 #define SCALE   3
 #define MAX_NUM 10000
 
-void _kernel_triad(int a[], int b[], int c[], int s) {
+__attribute__((noinline)) void _kernel_triad(int a[], int b[], int c[], int s) {
   //#pragma clang loop unroll(disable)
   for (int i = 0; i < SIZE; i++) {
     c[i] = a[i] + s * b[i];
@@ -27,6 +27,6 @@ int main(int argc, char* argv[]) {
   }
 
   _kernel_triad(a, b, c, SCALE);
-
+  std::cout << "finished with no errors \n";
   return 0;
 }

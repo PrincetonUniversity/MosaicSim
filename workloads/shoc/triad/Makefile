@@ -47,11 +47,11 @@ COMPUTE_LL=/home/luwa/pythia/workloads/shoc/triad/decoupled/decoupled_compute.ll
 
 # Fully compile the test bench into the requisite parts, step by step.
 
-decoupled: 
-	DEC++ $(NAME).cpp
-	python ~/pythia/pass/pythia_pass.py $(SUPPLY_LL) supply
-	python ~/pythia/pass/pythia_pass.py $(COMPUTE_LL) compute
-	cd decoupled; python run.py 
+#decoupled: 
+#	DEC++ $(NAME).cpp
+#	python ~/pythia/pass/pythia_pass.py $(SUPPLY_LL) supply
+#	python ~/pythia/pass/pythia_pass.py $(COMPUTE_LL) compute
+#	cd decoupled; python run.py 
 
 all: $(SRC)
 	mkdir -p int
@@ -68,7 +68,7 @@ all: $(SRC)
 # Actually run the generated output file.
 run: all
 	./$(OUTDST)
-
+	#./$(OUTSRC)
 # Clean up the directories by removing compiled/generated files.
 clean:
 	rm -f $(NAME)

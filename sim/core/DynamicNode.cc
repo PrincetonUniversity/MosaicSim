@@ -93,9 +93,10 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       }
     }
   }
-  for(auto it = nodes.begin(); it!= nodes.end(); ++it)
+  for(auto it = nodes.begin(); it!= nodes.end(); ++it){
+    assert(!it->second->issued && !it->second->completed);
     it->second->tryActivate();
-
+  }
   print("Created (BB:" + to_string(bb->id) + ") " , 0);
 }
 
@@ -105,8 +106,8 @@ void Context::process() {
     DynamicNode *d = *it;
     bool window_available = core->window.canIssue(d);
     bool res = window_available;
+
     assert(!d->issued);
-    
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
       d->completed = true;
@@ -135,22 +136,25 @@ void Context::process() {
       }
       
       res = res && d->issueDESCNode();
-      
+      //depends on lazy eval, as descq will insert if *its* resources are available
+
     }      
     else
-      res = res && d->issueCompNode();
+      res = res && d->issueCompNode(); //depends on lazy eval
     
     if(!res) {
-      d->print("Issue Failed", 0);
+      d->print("Issue Failed", 0);     
       next_issue_set.insert(d);
+      //if(d->type == RECV && d->c->core->master->descq->consume_count<d->c->core->master->descq->consume_size) {        
+      //}
     }
     else {
       core->window.issue();
+      d->issued=true;
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      d->print("Issue Succesful",0);
-      
+      d->print("Issue Succesful",0);      
       //cout << "Cycle: " << core->cycles;
       //d->print("Issue Succesful",-2); //luwa test
     }
@@ -161,7 +165,7 @@ void Context::process() {
       ++it;
     }
     else {
-      nodes_to_complete.insert(d);
+      nodes_to_complete.insert(d);      
       it = speculated_set.erase(it);
     }
   }
@@ -202,8 +206,9 @@ void Context::complete() {
     // Update activity counters
     
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
-      DynamicNode *d =*it;
-      if (d->type == LD) {
+      DynamicNode *d =*it;      
+      
+      if (d->type == LD || d->type == LD_PROD) {
         stat.update("bytes_read", word_size_bytes);
         core->local_stat.update("bytes_read", word_size_bytes);
       }
@@ -211,7 +216,8 @@ void Context::complete() {
       else if (d->type == ST || d->type == STADDR) {
         stat.update("bytes_write", word_size_bytes);
         core->local_stat.update("bytes_write", word_size_bytes);
-      } 
+      }
+      
       stat.update(core->instrToStr(d->type));
       core->local_stat.update(core->instrToStr(d->type));      
     }
@@ -242,11 +248,11 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     isDESC = true;
   else
     isDESC = false;
+  
   if(addr == 0 || isDESC)
     isMem = false;
   else
     isMem = true;
-
 }
 
 bool DynamicNode::operator== (const DynamicNode &in) {  
@@ -355,8 +361,10 @@ void DynamicNode::tryActivate() {
     return;
   }
   
-  if(issued || completed)
+  if(issued || completed) {
+    this->print("",-10);
     assert(false);
+  }
   if(type == TERMINATOR && core->window.canIssue(this)) {    
     c->completed_nodes.insert(this);
     completed = true;
@@ -365,7 +373,7 @@ void DynamicNode::tryActivate() {
   }
   else {
     assert(c->issue_set.find(this) == c->issue_set.end());
-    if(isMem || type==STADDR) { //luwa just added
+    if(isMem || type==STADDR || type==LD_PROD) { //luwa just added
       addr_resolved = true;
       core->lsq.resolveAddress(this);
     }
@@ -385,7 +393,7 @@ bool DynamicNode::issueCompNode() {
   }
   stat.update("comp_issue_success");
   core->local_stat.update("comp_issue_success");
-  issued = true;
+  //issued = true;
   return true;
 }
 
@@ -431,7 +439,7 @@ bool DynamicNode::issueMemNode() {
       return false;
   }
   // at this point the memory request will be issued for sure
-  issued = true;
+  //issued = true;
   if(type == LD) {
     stat.update("load_issue_success");
     core->local_stat.update("load_issue_success");
@@ -467,26 +475,34 @@ bool DynamicNode::issueMemNode() {
 
 bool DynamicNode::issueDESCNode() {
   bool can_issue=true;
-
+  bool lpd_can_forward=false;
   if(type == STADDR) {
     if(!core->lsq.check_store_issue(this)) {
-      can_issue = false;
-    }    
-  }
-  if(type == LD_PROD) {
-     if(!core->lsq.check_store_issue(this) ||
-        !core->canAccess(true) ||
-        core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)!=1) {
-      can_issue = false;
+      can_issue = false; 
     }
   }
-
-  if(type != LD_PROD) { //ld_prod will be entered into desq after load returns
+ 
+  if(type == LD_PROD) {
+    
+    can_issue=core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)==1;
+    lpd_can_forward=can_issue && core->master->descq->updateSAB(this);
+    //luwa: this breaks abstraction, but we can change it later
+    
+    if(lpd_can_forward) {
+      can_issue=can_issue && core->communicate(this);
+    }
+    else {
+      can_issue=can_issue && core->canAccess(true); //here, must rely on memsystem
+      
+    } 
+  }
+  
+  if(type != LD_PROD) { 
     can_issue=can_issue && core->communicate(this);
   }
   
   if(can_issue) {
-    issued=true;
+    //issued=true;
     if(type == STVAL) {
       stat.update("stval_issue_success");
       core->local_stat.update("stval_issue_success");
@@ -504,10 +520,12 @@ bool DynamicNode::issueDESCNode() {
       core->local_stat.update("send_issue_success");
     }
     if(type == LD_PROD) {
+      
       //send to memsys
       print("Access Memory Hierarchy", 1);
-      core->access(this);
-      
+      if (!lpd_can_forward) { //can't forward
+        core->access(this); //handlememoryreturn() calls communicate on ld_prod
+      }
       stat.update("ld_prod_issue_success");
       core->local_stat.update("ld_prod_issue_success");
     }
@@ -518,12 +536,14 @@ bool DynamicNode::issueDESCNode() {
 
 void DynamicNode::finishNode() {
   //these assertions test to make sure decoupling dependencies are maintained
-  
-  if(n->typeInstr==RECV)
-    assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+  if(n->typeInstr==RECV) {
+    assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());   
+  }    
   if(n->typeInstr==STADDR)
     assert(core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+
   c->completed_nodes.insert(this);
+  //assert(this->type!=LD_PROD); this fails, which is good
   completed = true;
 
   // Handle Resource limits
@@ -557,7 +577,9 @@ void DynamicNode::finishNode() {
       core->lsq.resolveAddress(dst);      
     }
     dst->pending_parents--;
+   
     dst->tryActivate();
+    
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
@@ -569,7 +591,8 @@ void DynamicNode::finishNode() {
       core->lsq.resolveAddress(dst);
     }
     dst->pending_external_parents--;
-    dst->tryActivate();
+    assert(!dst->issued && !dst->completed);
+    dst->tryActivate();    
   }
   external_dependents.clear();
 
@@ -579,6 +602,7 @@ void DynamicNode::finishNode() {
     if(c->next_bbid == dst->bbid) {
       if(Context *cc = c->getNextContext()) {
         cc->nodes.at(dst)->pending_parents--;
+        assert(!cc->nodes.at(dst)->issued && !cc->nodes.at(dst)->completed);
         cc->nodes.at(dst)->tryActivate();
       }
     }

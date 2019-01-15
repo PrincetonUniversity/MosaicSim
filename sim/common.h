@@ -17,6 +17,7 @@ class Statistics;
 extern Config cfg;
 extern Statistics stat;
 
+
 struct Transaction {
 	Transaction(int id, int coreId, uint64_t addr, bool isLoad) : id(id), coreId(coreId), addr(addr), isLoad(isLoad) {};
 	int id;

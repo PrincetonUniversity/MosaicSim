@@ -87,10 +87,15 @@ bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
   if(unresolved_ld_set.size() == 0)
     return false;
   DynamicNode *d = *(unresolved_ld_set.begin());
-  if(*d < *in || *d == *in)
+  if(*d < *in || *d == *in) {
+    //if(d->type==LD) {
+    //  cout << "reg ld is delaying \n";
+    //}
     return true;
-  else
+  }
+  else {
     return false;
+  }
 }
 
 bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
@@ -150,9 +155,12 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
   bool skipLoad = false;
   if(check_unresolved_store(in))
     return false;
-
-  if(check_unresolved_load(in))
+  
+  if(check_unresolved_load(in)) {
+    //if(in->type==STADDR)
+      //cout<<"it's unresolved load \n";
     return false;
+  }
   if(sm.at(in->addr).size() == 1)
     skipStore = true;
   if(lm.find(in->addr) == lm.end())
