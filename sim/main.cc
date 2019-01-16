@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include "sim.h"
+#include <chrono>
 using namespace std;
   
 Statistics stat;
@@ -27,7 +28,8 @@ int main(int argc, char const *argv[]) {
   cfgpath = "../sim/config/" + cfgname+".txt";
   cfg.read(cfgpath);
   Simulator* simulator=new Simulator();
-  
+  simulator->init_time=chrono::high_resolution_clock::now();
+
   if(test) {
     simulator->registerCore("../workloads/test", cfgname, 0);
   }

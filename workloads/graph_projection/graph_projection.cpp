@@ -90,7 +90,7 @@ void readEdgelist(std::string _edgelistFile, uint64_t* nEdges, uint64_t* nVertic
   
 }
 
-void _kernel_(uint64_t& nVertices, compressed_sparse& csr, std::vector<complementaryEdgeWeightType>& perVertexEdgeHashMap, int& lookups) {
+__attribute__((noinline)) void _kernel_(uint64_t& nVertices, compressed_sparse& csr, std::vector<complementaryEdgeWeightType>& perVertexEdgeHashMap, int& lookups) {
   //std::cout << "Running outlined Kernel \n";
   for (uint64_t i = 0; i < nVertices; i++) {
     //std::cout << i << "\n";

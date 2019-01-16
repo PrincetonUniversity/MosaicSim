@@ -8,7 +8,7 @@
 
 #define MAX_NUM       std::numeric_limits<int>::max()
 
-void _kernel_stencil(int orig[][IMG_HEIGHT], int sol[][IMG_HEIGHT], const int filt[][FILTER_HEIGHT]) {
+__attribute__((noinline)) void _kernel_stencil(int orig[][IMG_HEIGHT], int sol[][IMG_HEIGHT], const int filt[][FILTER_HEIGHT]) {
   #pragma clang loop unroll(disable)
   for (int i = 0; i < IMG_WIDTH-FILTER_WIDTH+1; i++) {
     for (int j = 0; j < IMG_HEIGHT-FILTER_HEIGHT+1; j++) {

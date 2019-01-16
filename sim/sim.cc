@@ -298,20 +298,18 @@ void Simulator::run() {
       uint64_t remaining_instructions = total_instructions - last_instr_count; 
       
       double remaining_time = (double)remaining_instructions/(60000*instr_rate);
-      cout << "Remaining Time: " << (int)remaining_time << "mins \n Remaining Instructions: " << remaining_instructions << endl;
+      cout << "Remaining Time: " << (int)remaining_time << " mins \n Remaining Instructions: " << remaining_instructions << endl;
       
       last_instr_count = stat.get("total_instructions");
       last_time = curr_time;
-
-      
-
-      
     }
     else if(cores[0]->cycles == 0) {
       last_time = Clock::now();
       last_instr_count = 0;
     }          
   }
+  
+  //print stats for each pythia core
   for (auto it=cores.begin(); it!=cores.end(); it++) {
     Core* core=*it;
     stat.set("cycles", core->cycles);
@@ -319,14 +317,24 @@ void Simulator::run() {
     cout << "----------------" << core->name << " General Stats--------------\n";
     core->local_stat.print();      
   }
-
-
   
   cout << "----------------GLOBAL STATS--------------\n";
   
   stat.print();
   memInterface->mem->printStats(true);
-  
+  curr_time=Clock::now();
+  uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
+  uint64_t tdiff_seconds = chrono::duration_cast<std::chrono::seconds>(curr_time - init_time).count();
+  uint64_t tdiff_milliseconds = chrono::duration_cast<std::chrono::milliseconds>(curr_time - init_time).count();
+  if(tdiff_mins>1) {
+    cout << "Average Global Simulation Speed: " << total_instructions/tdiff_seconds << " Instructions per sec \n";
+    cout << "Total Runtime: " << tdiff_mins << " mins \n";
+  }
+  else if(tdiff_seconds>0) {
+    cout << "Total Runtime: " << tdiff_seconds << " secs \n";
+  }
+  else
+    cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
 }
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {
@@ -348,6 +356,5 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   //opt.inductionOptimization();
   core->master=this;
   core->initialize(id);
-  cores.push_back(core);
-  
+  cores.push_back(core);  
 }

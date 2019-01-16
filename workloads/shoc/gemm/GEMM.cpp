@@ -6,7 +6,7 @@
 
 #define MAX_NUM    128
 
-void _kernel_gemm(int x[][BLOCK_SIZE], int y[][BLOCK_SIZE], int z[][BLOCK_SIZE]) {
+__attribute__((noinline)) void _kernel_gemm(int x[][BLOCK_SIZE], int y[][BLOCK_SIZE], int z[][BLOCK_SIZE]) {
   #pragma clang loop unroll(disable)
   for (int i = 0; i < ROW_SIZE; i++) {
     for (int j = 0; j < BLOCK_SIZE; j++) {

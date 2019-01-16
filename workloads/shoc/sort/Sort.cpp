@@ -12,7 +12,7 @@
 
 #define MAX_NUM     255
 
-void _kernel_sort(int arr[][BLOCK_SIZE], int opp[][BLOCK_SIZE], int bucket[][SCAN_SIZE], int sum[]) {
+__attribute__((noinline)) void _kernel_sort(int arr[][BLOCK_SIZE], int opp[][BLOCK_SIZE], int bucket[][SCAN_SIZE], int sum[]) {
   #pragma clang loop unroll(disable)
   for (int i = 0; i < NUM_BLOCKS; i++) {
     for (int j = 0; j < BLOCK_SIZE; j++) {

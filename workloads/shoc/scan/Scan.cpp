@@ -5,7 +5,7 @@
 #define RADIX_SIZE  BUCKET_SIZE/BLOCK_SIZE
 #define MAX_NUM     1024
 
-void _kernel_scan(int bucketA[][BLOCK_SIZE], int bucketB[][BLOCK_SIZE], int sum[]) {
+__attribute__((noinline)) void _kernel_scan(int bucketA[][BLOCK_SIZE], int bucketB[][BLOCK_SIZE], int sum[]) {
   #pragma clang loop unroll(disable)
   for (int i = 0; i < RADIX_SIZE; i++) {
     for (int j = 1; j < BLOCK_SIZE; j++) {

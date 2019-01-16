@@ -60,6 +60,7 @@ public:
 
 class Simulator {
 public:
+  chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time;
   uint64_t last_instr_count;
