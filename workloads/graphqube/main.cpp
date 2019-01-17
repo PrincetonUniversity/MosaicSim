@@ -288,7 +288,8 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
     curr_cand_ptr = &initial_cands;
     new_cand_ptr = &new_cands;
     
-    for(int i=0; i<5; i++) {
+    //for(int i=0; i<5; i++) {
+    while(true) {
         for(auto &cand : *curr_cand_ptr) {
 
             if(verbose) {

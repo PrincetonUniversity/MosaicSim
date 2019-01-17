@@ -29,16 +29,16 @@ Config::Config() {
   instr_latency[STADDR] = 1;
   instr_latency[STVAL] = 1;
   instr_latency[LD_PROD] = -1; //treat like an actual load
-  num_units[I_ADDSUB] = -1;
-  num_units[I_MULT] =  -1;
-  num_units[I_DIV] = -1;
-  num_units[I_REM] = -1;
-  num_units[FP_ADDSUB] = -1;
-  num_units[FP_MULT] = -1;
-  num_units[FP_DIV] = -1;
-  num_units[FP_REM] = -1;
-  num_units[LOGICAL] = -1;
-  num_units[CAST] = -1;
+  num_units[I_ADDSUB] = 8;
+  num_units[I_MULT] =  1;
+  num_units[I_DIV] = 1;
+  num_units[I_REM] = 2;
+  num_units[FP_ADDSUB] = 1;
+  num_units[FP_MULT] = 1;
+  num_units[FP_DIV] = 1;
+  num_units[FP_REM] = 1;
+  num_units[LOGICAL] = 2;
+  num_units[CAST] = 2;
   num_units[GEP] = -1;
   num_units[LD] = -1;
   num_units[ST] = -1;
@@ -111,6 +111,14 @@ void Config::getCfg(int id, int val) {
   case 15:
     issueWidth = val;
     break;
+  case 16:
+    consume_size = val;
+    break;
+  case 17:
+    supply_size = val;
+    break;
+  case 18:
+    term_buffer_size = val;
   default:
     break;
   }

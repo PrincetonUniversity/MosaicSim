@@ -3,6 +3,32 @@
 #include "../memsys/Cache.h"
 using namespace std;
 
+string load_issue_try="load_issue_try";
+string load_issue_success = "load_issue_success";
+string store_issue_try= "store_issue_try";
+string store_issue_success = "store_issue_success";
+string comp_issue_try="comp_issue_try";
+string comp_issue_success="comp_issue_success";
+string send_issue_try="send_issue_try";
+string send_issue_success="send_issue_success";
+string recv_issue_try="recv_issue_try";
+string recv_issue_success="recv_issue_success";
+string stval_issue_try="stval_issue_try";
+string stval_issue_success="stval_issue_success";
+string staddr_issue_try="staddr_issue_try";
+string staddr_issue_success="staddr_issue_success";
+string ld_prod_issue_try="ld_prod_issue_try";
+string ld_prod_issue_success="ld_prod_issue_success";    
+string lsq_insert_success="lsq_insert_success";
+string lsq_insert_fail="lsq_insert_fail";
+string total_instructions="total_instructions";
+string Issue_Failed="Issue_Failed";
+string Issue_Succesful="Issue_Succesful";
+string bytes_read="bytes_read";
+string bytes_write="bytes_write";
+string Access_Memory_Hierarchy="Access_Memory_Hierarchy";
+string Memory_Data_Ready="Memory_Data_Ready";
+
 Context* Context::getNextContext() {
   if(core->context_list.size() > id+1)
     return core->context_list.at(id+1);
@@ -21,7 +47,7 @@ ostream& operator<<(ostream &os, Context &c) {
 }
 void Context::print(string str, int level) {
   if( level < cfg.verbLevel )
-    cout << (*this) << str << "\n";
+    cout << (*this) << str << endl;
 }
 void Context::insertQ(DynamicNode *d) {
   if(d->n->lat > 0)
@@ -118,21 +144,21 @@ void Context::process() {
       res = res && d->issueMemNode();
     else if (d->isDESC) { 
       if(d->type == SEND) {
-        stat.update("send_issue_try");
-        core->local_stat.update("send_issue_try");
+        stat.update(send_issue_try);
+        core->local_stat.update(send_issue_try);
       }
       
       if(d->type == RECV) {
-        stat.update("recv_issue_try");
-        core->local_stat.update("recv_issue_try");
+        stat.update(recv_issue_try);
+        core->local_stat.update(recv_issue_try);
       }
       if(d->type == STADDR) {
-        stat.update("staddr_issue_try");
-        core->local_stat.update("staddr_issue_try");
+        stat.update(staddr_issue_try);
+        core->local_stat.update(staddr_issue_try);
       }
       if(d->type == STVAL) {
-        stat.update("stval_issue_try");
-        core->local_stat.update("stval_issue_try");
+        stat.update(stval_issue_try);
+        core->local_stat.update(stval_issue_try);
       }
       
       res = res && d->issueDESCNode();
@@ -143,7 +169,7 @@ void Context::process() {
       res = res && d->issueCompNode(); //depends on lazy eval
     
     if(!res) {
-      d->print("Issue Failed", 0);     
+      d->print(Issue_Failed, 0);     
       next_issue_set.insert(d);
       //if(d->type == RECV && d->c->core->master->descq->consume_count<d->c->core->master->descq->consume_size) {        
       //}
@@ -154,7 +180,7 @@ void Context::process() {
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      d->print("Issue Succesful",0);      
+      d->print(Issue_Succesful,0);      
       //cout << "Cycle: " << core->cycles;
       //d->print("Issue Succesful",-2); //luwa test
     }
@@ -198,10 +224,10 @@ void Context::complete() {
     print("Finished (BB:" + to_string(bb->id) + ") ", 0);
     // update GLOBAL Stats    
     stat.update("contexts");
-    stat.update("total_instructions", completed_nodes.size());
+    stat.update(total_instructions, completed_nodes.size());
     // update LOCAL Stats
     core->local_stat.update("contexts");
-    core->local_stat.update("total_instructions", completed_nodes.size());
+    core->local_stat.update(total_instructions, completed_nodes.size());
 
     // Update activity counters
     
@@ -209,13 +235,13 @@ void Context::complete() {
       DynamicNode *d =*it;      
       
       if (d->type == LD || d->type == LD_PROD) {
-        stat.update("bytes_read", word_size_bytes);
-        core->local_stat.update("bytes_read", word_size_bytes);
+        stat.update(bytes_read, word_size_bytes);
+        core->local_stat.update(bytes_read, word_size_bytes);
       }
       
       else if (d->type == ST || d->type == STADDR) {
-        stat.update("bytes_write", word_size_bytes);
-        core->local_stat.update("bytes_write", word_size_bytes);
+        stat.update(bytes_write, word_size_bytes);
+        core->local_stat.update(bytes_write, word_size_bytes);
       }
       
       stat.update(core->instrToStr(d->type));
@@ -333,11 +359,11 @@ ostream& operator<<(ostream &os, DynamicNode &d) {
 }
 void DynamicNode::print(string str, int level) {
   if( level < cfg.verbLevel )
-    cout << (*this) << str << "\n";
+    cout << (*this) << str << endl;
 }
 
 void DynamicNode::handleMemoryReturn() {
-  print("Memory Data Ready", 1);
+  print(Memory_Data_Ready, 1);
   print(to_string(outstanding_accesses), 1);
   if(type == LD || type == LD_PROD) {
     if(core->local_cfg.mem_speculate) {
@@ -362,7 +388,7 @@ void DynamicNode::tryActivate() {
   }
   
   if(issued || completed) {
-    this->print("",-10);
+    //this->print("",-10);
     assert(false);
   }
   if(type == TERMINATOR && core->window.canIssue(this)) {    
@@ -382,8 +408,8 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  stat.update("comp_issue_try");
-  core->local_stat.update("comp_issue_try");
+  stat.update(comp_issue_try);
+  core->local_stat.update(comp_issue_try);
   // check for resource (FU) availability
   if (core->available_FUs.at(n->typeInstr) != -1) {
     if (core->available_FUs.at(n->typeInstr) == 0)
@@ -391,8 +417,8 @@ bool DynamicNode::issueCompNode() {
     else
       core->available_FUs.at(n->typeInstr)--;
   }
-  stat.update("comp_issue_success");
-  core->local_stat.update("comp_issue_success");
+  stat.update(comp_issue_success);
+  core->local_stat.update(comp_issue_success);
   //issued = true;
   return true;
 }
@@ -402,12 +428,12 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1;
   if(type == LD) {
-    stat.update("load_issue_try");
-    core->local_stat.update("load_issue_try");
+    stat.update(load_issue_try);
+    core->local_stat.update(load_issue_try);
   }
   else {
-    stat.update("store_issue_try");
-    core->local_stat.update("store_issue_try");
+    stat.update(store_issue_try);
+    core->local_stat.update(store_issue_try);
   }
   // FIXME
   if(!core->canAccess(type == LD))
@@ -441,12 +467,12 @@ bool DynamicNode::issueMemNode() {
   // at this point the memory request will be issued for sure
   //issued = true;
   if(type == LD) {
-    stat.update("load_issue_success");
-    core->local_stat.update("load_issue_success");
+    stat.update(load_issue_success);
+    core->local_stat.update(load_issue_success);
   }
   else {
-    stat.update("store_issue_success");
-    core->local_stat.update("store_issue_success");
+    stat.update(store_issue_success);
+    core->local_stat.update(store_issue_success);
   }
   speculated = speculate;
   if (type == LD) {
@@ -459,7 +485,7 @@ bool DynamicNode::issueMemNode() {
       c->speculated_set.insert(this);
     }
     else {
-      print("Access Memory Hierarchy", 1);
+      print(Access_Memory_Hierarchy, 1);
       core->access(this);
       if (speculate) {
         outstanding_accesses++;
@@ -467,7 +493,7 @@ bool DynamicNode::issueMemNode() {
     }
   }
   else if (type == ST) {
-    print("Access Memory Hierarchy", 1);
+    print(Access_Memory_Hierarchy, 1);
     core->access(this);
   }
   return true;
@@ -504,30 +530,30 @@ bool DynamicNode::issueDESCNode() {
   if(can_issue) {
     //issued=true;
     if(type == STVAL) {
-      stat.update("stval_issue_success");
-      core->local_stat.update("stval_issue_success");
+      stat.update(stval_issue_success);
+      core->local_stat.update(stval_issue_success);
     }
     if (type == STADDR) {
-      stat.update("staddr_issue_success");
-      core->local_stat.update("staddr_issue_success");
+      stat.update(staddr_issue_success);
+      core->local_stat.update(staddr_issue_success);
     }
     if(type == RECV) {
-      stat.update("recv_issue_success");
-      core->local_stat.update("recv_issue_success");
+      stat.update(recv_issue_success);
+      core->local_stat.update(recv_issue_success);
     }
     if(type == SEND) {
-      stat.update("send_issue_success");
-      core->local_stat.update("send_issue_success");
+      stat.update(send_issue_success);
+      core->local_stat.update(send_issue_success);
     }
     if(type == LD_PROD) {
       
       //send to memsys
-      print("Access Memory Hierarchy", 1);
+      print(Access_Memory_Hierarchy, 1);
       if (!lpd_can_forward) { //can't forward
         core->access(this); //handlememoryreturn() calls communicate on ld_prod
       }
-      stat.update("ld_prod_issue_success");
-      core->local_stat.update("ld_prod_issue_success");
+      stat.update(ld_prod_issue_success);
+      core->local_stat.update(ld_prod_issue_success);
     }
   }
   return can_issue;  

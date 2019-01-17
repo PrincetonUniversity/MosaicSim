@@ -40,8 +40,11 @@ public:
   int L1_linesize = 64; // bytes
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
-  
-  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"l1_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"L1_latency",11}, {"L1_assoc",12}, {"L1_linesize",13}, {"window_size",14}, {"issueWidth",15}}; 
+
+  int consume_size=64; //desc comm buff size
+  int supply_size=512; //desc comm queue size
+  int term_buffer_size=32; //desc terminal load buffer size
+  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"l1_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"L1_latency",11}, {"L1_assoc",12}, {"L1_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"consume_size", 16}, {"supply_size",17}, {"term_buffer_size",18}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   //it allows us reorder and group variables at will in the config file or even omit them
 

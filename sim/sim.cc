@@ -198,6 +198,10 @@ bool DESCQ::insert(DynamicNode* d) {
 
 Simulator::Simulator() {        
   descq = new DESCQ();
+  descq->consume_size=cfg.consume_size;
+  descq->supply_size=cfg.supply_size;
+  descq->term_buffer_size=cfg.term_buffer_size;
+    
   //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   //cache->sim = this;
@@ -326,8 +330,7 @@ void Simulator::run() {
   uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
   uint64_t tdiff_seconds = chrono::duration_cast<std::chrono::seconds>(curr_time - init_time).count();
   uint64_t tdiff_milliseconds = chrono::duration_cast<std::chrono::milliseconds>(curr_time - init_time).count();
-  if(tdiff_mins>1) {
-    cout << "Average Global Simulation Speed: " << total_instructions/tdiff_seconds << " Instructions per sec \n";
+  if(tdiff_mins>5) {
     cout << "Total Runtime: " << tdiff_mins << " mins \n";
   }
   else if(tdiff_seconds>0) {
@@ -335,6 +338,8 @@ void Simulator::run() {
   }
   else
     cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
+
+  cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
 }
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {

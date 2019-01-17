@@ -5,7 +5,7 @@
 #For in order mode, set window_size to 1
 -1,lsq_size
 1,window_size   #effectively, ROB size
-4,issueWidth   #num of issuable instrs per cycle
+1,issueWidth   #num of issuable instrs per cycle, right now no pipeline, so issue width must be 1
 0,cf_mode   #set 1 to create all contexts at once
 0,mem_speculate
 0,mem_forward
@@ -17,9 +17,9 @@
 1,L1_latency
 8,L1_assoc
 64,L1_linesize
--1,cache_load_ports
--1,cache_store_ports
+8,cache_load_ports
+8,cache_store_ports
 
 #Memory
--1,mem_load_ports
--1,mem_store_ports
+4,mem_load_ports
+4,mem_store_ports
