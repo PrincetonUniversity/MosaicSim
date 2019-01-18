@@ -25,19 +25,31 @@ to generate compilation files in the `build` directory. Then, a simple run of
 
 in the root directory will compile the files. <location TBD>
 
+## Building Workloads
+Workloads must be specially prepared through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). The make files in the workloads do this automatically. 
+
+Navigate to the workload in the pythia/workloads directory. For benchmark suites, navigate to the relevant subdirectory. For example, to run triad in shoc, you'd navigate to pythia/workloads/shoc/triad. Then type:
+  
+    mkdir -p int output
+    make
+    make run 
+    
+"make run" may not be necessary, depending on how the makefile is written.
+After making and running, there should be files generated in the "int" directory and the "output" directory (which is the most important). Check that the ctrl.txt and mem.txt and graphOutput.txt are not empty. 
+
 ## Running Pythia
 
 To run Pythia, first navigate to pythia/bin.
 
 The run syntax is:
 
-./sim -n [num_cores] [sim_config_name] [path_to_workload_1] [core_1_config] [path_to_workload_2] [core_2_config] ... [path_to_workload_n] [core_n_config] [-v]
+    ./sim -n [num_cores] [sim_config_name] [path_to_workload_1] [core_1_config] [path_to_workload_2] [core_2_config] ... [path_to_workload_n] [core_n_config] [-v]
 
 Here is an example:
 
-./sim -n 2 default ../workloads/shoc/triad/ out_of_order_medium ../workloads/shoc/triad in_order
+    ./sim -n 2 default ../workloads/shoc/triad/ default ../workloads/shoc/triad default
 
 Note:
-The config files are in pythia/sim/config. The command line arguments ommit their extensions.
+The config files are in pythia/sim/config for different preset modes (in order, out of order, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
 
 The "-v" for verbose mode is optional. 
