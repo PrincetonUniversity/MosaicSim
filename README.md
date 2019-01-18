@@ -13,7 +13,7 @@ This project was built with the following tools:
 
 No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible. :-)
 
-### Usage
+### Building the Simulator
 
 To compile the LLVM pass, navigate to the root directory of the project. To compile the files, simply run
 
