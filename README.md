@@ -50,6 +50,7 @@ Here is an example:
     ./sim -n 2 default ../workloads/shoc/triad/ default ../workloads/shoc/triad default
 
 Note:
+
 The config files are in pythia/sim/config for different preset modes (in order, out of order, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
 
 The "-v" for verbose mode is optional. 
