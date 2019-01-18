@@ -35,7 +35,7 @@ Navigate to the workload in the pythia/workloads directory. For benchmark suites
     make run 
     
 "make run" may not be necessary, depending on how the makefile is written.
-After making and running, there should be files generated in the "int" directory and the "output" directory (which is the most important). Check that the ctrl.txt and mem.txt and graphOutput.txt are not empty. 
+After making and running, there should be files generated in the "int" directory and the "output" directory (which is the most important). Check that output/ctrl.txt, output/mem.txt and output/graphOutput.txt are not empty. 
 
 ## Running Pythia
 
