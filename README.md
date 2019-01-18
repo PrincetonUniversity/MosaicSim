@@ -28,7 +28,7 @@ in the root directory will compile the files. <location TBD>
 ## Building Workloads
 Workloads must be specially prepared through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). The make files in the workloads do this automatically. 
 
-Navigate to the workload in the pythia/workloads directory. For benchmark suites, navigate to the relevant subdirectory. For example, to run triad in shoc, you'd navigate to pythia/workloads/shoc/triad. Then type:
+Navigate to the workload in the pythia/workloads directory. For benchmark suites, navigate to the relevant subdirectory. For example, to build triad in shoc, you'd navigate to pythia/workloads/shoc/triad. Then type:
   
     mkdir -p int output
     make
