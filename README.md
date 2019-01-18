@@ -35,7 +35,7 @@ The run syntax is:
 
 Here is an example:
 
-./sim -n 2 default ../workloads/shoc/triad/ out_of_order ../workloads/shoc/triad in_order
+./sim -n 2 default ../workloads/shoc/triad/ out_of_order_medium ../workloads/shoc/triad in_order
 
 Note:
 The config files are in pythia/sim/config. The command line arguments ommit their extensions.
