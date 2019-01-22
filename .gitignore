@@ -60,7 +60,7 @@ bin/
 
 # Compiler-generated dynamic libraries.
 *.so
-!libdramsim.so
+#!libdramsim.so
 *.dll
 *.dylib
 
