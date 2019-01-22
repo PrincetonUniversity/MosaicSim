@@ -1,7 +1,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream> 
+
+//#define NDEBUG
 #include "assert.h"
+
 #include <regex>
 
 #include <boost/algorithm/string.hpp>

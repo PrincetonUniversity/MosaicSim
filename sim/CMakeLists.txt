@@ -5,7 +5,13 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
+if(FALSE)
+  set(CMAKE_CXX_FLAGS_DEBUG "-DNDEBUG")
+endif()
+
+if(FALSE)
+  set(CMAKE_CXX_FLAGS_DEBUG "-g")
+endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 ADD_EXECUTABLE(sim main.cc sim.cc core/Core.cc memsys/Cache.cc memsys/DRAM.cc core/LoadStoreQ.cc graph/Graph.cc core/DynamicNode.cc misc/Config.cc power_model/aladdin_power_model.cpp)

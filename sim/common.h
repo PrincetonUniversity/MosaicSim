@@ -7,7 +7,10 @@
 #include <queue>
 #include <set>
 #include <cstdint>
+
+//#define NDEBUG
 #include "assert.h"
+
 #include "misc/Config.h"
 #include "misc/Statistics.h"
 
