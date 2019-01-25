@@ -1,4 +1,4 @@
-void _kernel_sgemm( char transa, char transb, int m, int n, int k, float alpha, const float *A, int lda, const float *B, int ldb, float beta, float *C, int ldc, int tid )
+__attribute__((noinline)) void _kernel_sgemm( char transa, char transb, int m, int n, int k, float alpha, const float *A, int lda, const float *B, int ldb, float beta, float *C, int ldc, int tid )
 {
   int factor = 128;
   for (int nn = 0; nn < n/factor; ++nn) {

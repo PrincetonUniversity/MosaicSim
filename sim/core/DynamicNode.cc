@@ -126,11 +126,89 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   print("Created (BB:" + to_string(bb->id) + ") " , 0);
 }
 
+void DynamicNode::register_issue_try() {
+  if(type == SEND) {
+    stat.update(send_issue_try);
+    core->local_stat.update(send_issue_try);
+  }  
+  else if(type == RECV) {
+    stat.update(recv_issue_try);
+    core->local_stat.update(recv_issue_try);
+  }
+  else if(type == STADDR) {
+    stat.update(staddr_issue_try);
+    core->local_stat.update(staddr_issue_try);
+  }
+  else if(type == STVAL) {
+    stat.update(stval_issue_try);
+    core->local_stat.update(stval_issue_try);
+  }
+  else if(type == LD_PROD) {    
+    stat.update(ld_prod_issue_try);
+    core->local_stat.update(ld_prod_issue_try);
+  }
+  else if(type == LD) {
+    stat.update(load_issue_try);
+    core->local_stat.update(load_issue_try);
+  }
+  else if (type == ST) {
+    stat.update(store_issue_try);
+    core->local_stat.update(store_issue_try);
+  }
+  else {
+    stat.update(comp_issue_try);
+    core->local_stat.update(comp_issue_try);
+  }
+}
+
+void DynamicNode::register_issue_success() {
+  if(type == SEND) {
+    stat.update(send_issue_success);
+    core->local_stat.update(send_issue_success);
+  }  
+  else if(type == RECV) {
+    stat.update(recv_issue_success);
+    core->local_stat.update(recv_issue_success);
+  }
+  else if(type == STADDR) {
+    stat.update(staddr_issue_success);
+    core->local_stat.update(staddr_issue_success);
+  }
+  else if(type == STVAL) {
+    stat.update(stval_issue_success);
+    core->local_stat.update(stval_issue_success);
+  }
+  else if(type == LD_PROD) {    
+    stat.update(ld_prod_issue_success);
+    core->local_stat.update(ld_prod_issue_success);
+  }
+  else if(type == LD) {
+    stat.update(load_issue_success);
+    core->local_stat.update(load_issue_success);
+  }
+  else if (type == ST) {
+    stat.update(store_issue_success);
+    core->local_stat.update(store_issue_success);
+  }
+  else {
+    stat.update(comp_issue_success);
+    core->local_stat.update(comp_issue_success);
+  }
+}
+
 void Context::process() {
   //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
-  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) { 
+  bool window_full=false;
+  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
     DynamicNode *d = *it;
+    if(window_full) {
+      d->register_issue_try();
+      d->print(Issue_Failed, 0);     
+      next_issue_set.insert(d);
+      continue;
+    }    
     bool window_available = core->window.canIssue(d);
+    window_full=!window_available;
     bool res = window_available;
 
     assert(!d->issued);
@@ -142,45 +220,30 @@ void Context::process() {
     }
     else if(d->isMem)
       res = res && d->issueMemNode();
-    else if (d->isDESC) { 
-      if(d->type == SEND) {
-        stat.update(send_issue_try);
-        core->local_stat.update(send_issue_try);
-      }
-      
-      if(d->type == RECV) {
-        stat.update(recv_issue_try);
-        core->local_stat.update(recv_issue_try);
-      }
-      if(d->type == STADDR) {
-        stat.update(staddr_issue_try);
-        core->local_stat.update(staddr_issue_try);
-      }
-      if(d->type == STVAL) {
-        stat.update(stval_issue_try);
-        core->local_stat.update(stval_issue_try);
-      }
+    else if (d->isDESC) {     
       
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
 
     }      
-    else
+    else {
       res = res && d->issueCompNode(); //depends on lazy eval
-    
+    }
     if(!res) {
-      d->print(Issue_Failed, 0);     
+      d->print(Issue_Failed, 0);      
       next_issue_set.insert(d);
       //if(d->type == RECV && d->c->core->master->descq->consume_count<d->c->core->master->descq->consume_size) {        
       //}
     }
     else {
+      
       core->window.issue();
       d->issued=true;
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      d->print(Issue_Succesful,0);      
+      d->print(Issue_Succesful,0);
+      d->register_issue_success();
       //cout << "Cycle: " << core->cycles;
       //d->print("Issue Succesful",-2); //luwa test
     }
@@ -407,9 +470,7 @@ void DynamicNode::tryActivate() {
   }
 }
 
-bool DynamicNode::issueCompNode() {
-  stat.update(comp_issue_try);
-  core->local_stat.update(comp_issue_try);
+bool DynamicNode::issueCompNode() { 
   // check for resource (FU) availability
   if (core->available_FUs.at(n->typeInstr) != -1) {
     if (core->available_FUs.at(n->typeInstr) == 0)
@@ -426,15 +487,7 @@ bool DynamicNode::issueCompNode() {
 bool DynamicNode::issueMemNode() {
   
   bool speculate = false;
-  int forwardRes = -1;
-  if(type == LD) {
-    stat.update(load_issue_try);
-    core->local_stat.update(load_issue_try);
-  }
-  else {
-    stat.update(store_issue_try);
-    core->local_stat.update(store_issue_try);
-  }
+  int forwardRes = -1; 
   // FIXME
   if(!core->canAccess(type == LD))
     return false;

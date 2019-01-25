@@ -35,7 +35,7 @@ public:
   int pending_parents;
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
-
+  
   DynamicNode(Node *n, Context *c, Core *core, uint64_t addr = 0);
   bool operator== (const DynamicNode &in);
   bool operator< (const DynamicNode &in) const;
@@ -46,6 +46,8 @@ public:
   bool issueCompNode();
   bool issueDESCNode();
   void finishNode();
+  void register_issue_try();
+  void register_issue_success();
 };
 
 class OpCompare {
