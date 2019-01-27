@@ -119,6 +119,10 @@ void Config::getCfg(int id, int val) {
     break;
   case 18:
     term_buffer_size = val;
+    break;
+  case 19:
+    desc_latency = val;
+    break;
   default:
     break;
   }

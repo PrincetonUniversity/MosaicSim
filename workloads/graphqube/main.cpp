@@ -11,42 +11,102 @@
 
 #include <vector>
 #include <utility>
-#include <unordered_set>
-#include <unordered_map>
+//#include <set>
+//#include <unordered_map>
 #include <queue>
 
 #include <ctime>
+
+#include "DECADES/HashMap/HashMap.h"
 
 using namespace std;
 
 // --
 // Typedefs
 
-namespace std {
-    template <> struct hash<std::pair<int, int>> {
-        inline size_t operator()(const std::pair<int, int> &v) const {
-            std::hash<int> int_hasher;
-            return int_hasher(v.first) ^ int_hasher(v.second);
-        }
-    };
-    template <> struct hash<std::unordered_map<int, int>> {
-        inline size_t operator()(const std::unordered_map<int, int> &v) const {
-            std::hash<int> int_hasher;
-            long int out = 0;
-            for (int i=0; i < v.size(); ++i) {
-                out += (i * 2654435761U) ^ v.at(i);
-            }
-            return out;
-        }
-    };
-}
 
-typedef unordered_set<pair<int,int>> edgeset;
-typedef unordered_map<int, int> intint_map;
+struct int_pair_hash {
+  unsigned long operator() (const std::pair<int, int>& i) const {
+    std::hash<int> int_hasher;
+    return int_hasher(i.first) ^ int_hasher(i.second);
+  }
+};
+
+struct int_hash {
+  unsigned long operator() (const int& i) const {
+    std::hash<int> int_hasher;
+    return int_hasher(i);
+  }
+};
+
+
+struct int_pair_eq {
+  bool operator() (const std::pair<int, int>& i, const std::pair<int, int>& j) const {    
+    return i.first == j.first && i.second == j.second;
+  }
+};
+
+struct int_eq {
+  bool operator() (const int& i, const int& j) const {    
+    return i == j;
+  }
+};
+
+
+template<class E, class HSH, class EQ>
+class custom_set {
+
+public:
+  bool contains(E check) {
+    return to_check.contains(check);
+    /*for (int i = 0; i < internal.size(); i++) {
+      if (internal[i] == check) {
+	return true;
+      }
+    }
+    return false;
+    }*/
+  }
+
+  void insert(E element) {
+    if (contains(element)) {
+      return;
+    }
+    to_check.put(element, true);
+    internal.push_back(element);
+  }
+
+  int size() {
+    return internal.size();
+  }
+
+  HashMap<E, bool, 1028, HSH, EQ> to_check;  
+  vector<E> internal;
+  
+};
+
+struct intint_map_hash{
+  unsigned long operator() (const int& i) const {
+    return std::hash<int>{}(i);
+  }
+};
+
+struct intint_map_equals{
+  bool operator() (const int& i, const int& j) const {
+    return i == j;
+  }
+};
+
+typedef custom_set<pair<int,int>, int_pair_hash, int_pair_eq> edgeset;
+
+//typedef unordered_map<int, int> intint_map;
+typedef HashMap<int, int, 512, intint_map_hash, intint_map_equals> intint_map;
 
 typedef vector<pair<int, float>> neighbors_type_entry;
-typedef unordered_map<int, neighbors_type_entry> neighbors_type;
-typedef unordered_map<int, neighbors_type> neighbors;
+//typedef unordered_map<int, neighbors_type_entry> neighbors_type;
+typedef HashMap<int, neighbors_type_entry, 512, intint_map_hash, intint_map_equals> neighbors_type;
+//typedef unordered_map<int, neighbors_type> neighbors;
+typedef HashMap<int, neighbors_type, 512, intint_map_hash, intint_map_equals> neighbors;
 
 // --
 // Structs
@@ -108,8 +168,10 @@ Query load_query(string filename) {
         
         query.edges.insert(pair<int,int>(src, trg));
         query.edges.insert(pair<int,int>(trg, src));
-        query.types.emplace(src, src_type);
-        query.types.emplace(trg, trg_type);
+        //query.types.emplace(src, src_type);
+	query.types.insert(pair<int,int>(src, src_type));
+        //query.types.emplace(trg, trg_type);
+	query.types.insert(pair<int,int>(trg, trg_type));
     }
     query.num_edges = query.edges.size() / 2;
     return query;
@@ -126,9 +188,10 @@ Reference load_edgelist(string filename) {
     string line;
     ifstream infile(filename, ifstream::in);
     infile.ignore(9999, '\n');
+    int counter = 0;
     while(getline(infile, line)) {
         reference.num_edges += 1;
-        
+	
         istringstream iss(line);
         iss >> src;
         iss >> trg;
@@ -136,38 +199,48 @@ Reference load_edgelist(string filename) {
         iss >> src_type;
         iss >> trg_type;
         iss >> edge_type;
+
         
         // Index edges
-        if(reference.neibs.find(src) == reference.neibs.end()) {
+        if (reference.neibs.find_flag(src) == reference.neibs.end_flag()) {
             neighbors_type_entry tmp_type_entry;
             neighbors_type tmp_type;
-            
             tmp_type_entry.push_back(pair<int,float>(trg, weight));
-            tmp_type.emplace(trg_type, tmp_type_entry);
-            reference.neibs.emplace(src, tmp_type);
-        } else {
-            if(reference.neibs[src].find(trg_type) == reference.neibs[src].end()) {
-                neighbors_type_entry tmp_type_entry;
-                tmp_type_entry.push_back(pair<int,float>(trg, weight));
-                reference.neibs[src].emplace(trg_type, tmp_type_entry);
-            } else {
-                reference.neibs[src][trg_type].push_back(pair<int,float>(trg, weight));
-            }
+            //tmp_type.emplace(trg_type, tmp_type_entry);
+	    tmp_type.insert(std::pair<int,neighbors_type_entry>(trg_type, tmp_type_entry));
+            //reference.neibs.emplace(src, tmp_type);
+	    reference.neibs.insert(std::pair<int,neighbors_type>(src, tmp_type));
         }
-        
+	else {
+
+	  if(reference.neibs[src].find_flag(trg_type) == reference.neibs[src].end_flag()) {
+	    neighbors_type_entry tmp_type_entry;
+	    tmp_type_entry.push_back(pair<int,float>(trg, weight));
+	    //reference.neibs[src].emplace(trg_type, tmp_type_entry);
+	    reference.neibs[src].insert(std::pair<int,neighbors_type_entry>(trg_type, tmp_type_entry));
+	  }
+	  else {
+	    reference.neibs[src][trg_type].push_back(pair<int,float>(trg, weight));
+	  }
+        }
+
         // Index reverse edges
-        if(reference.neibs.find(trg) == reference.neibs.end()) {
+        if(reference.neibs.find_flag(trg) == reference.neibs.end_flag()) {
             neighbors_type_entry tmp_type_entry;
             neighbors_type tmp_type;
-            
+
             tmp_type_entry.push_back(pair<int,float>(src, weight));
-            tmp_type.emplace(src_type, tmp_type_entry);
-            reference.neibs.emplace(trg, tmp_type);
+            //tmp_type.emplace(src_type, tmp_type_entry);
+	    tmp_type.insert(std::pair<int,neighbors_type_entry>(src_type, tmp_type_entry));
+            //reference.neibs.emplace(trg, tmp_type);
+	    reference.neibs.insert(std::pair<int,neighbors_type>(trg, tmp_type));
         } else {
-            if(reference.neibs[trg].find(src_type) == reference.neibs[trg].end()) {
+
+            if(reference.neibs[trg].find_flag(src_type) == reference.neibs[trg].end_flag()) {
                 neighbors_type_entry tmp_type_entry;
                 tmp_type_entry.push_back(pair<int,float>(src, weight));
-                reference.neibs[trg].emplace(src_type, tmp_type_entry);
+                //reference.neibs[trg].emplace(src_type, tmp_type_entry);
+		reference.neibs[trg].insert(std::pair<int,neighbors_type_entry>(src_type, tmp_type_entry));
             } else {
                 reference.neibs[trg][src_type].push_back(pair<int,float>(src, weight));
             }
@@ -182,7 +255,10 @@ vector<Candidate*> get_initial_candidates(Query& query, Row& row) {
     
     vector<Candidate*> initial_cands;
     
-    for (auto &q_edge : query.edges) {
+    //for (auto &q_edge : query.edges) {
+
+    for (auto &q_edge : query.edges.internal) {
+    
         if(q_edge.first < q_edge.second) {
             
             int q_src_type = query.types[q_edge.first];
@@ -239,7 +315,8 @@ vector<Candidate*> enter_new_candidate(Candidate* cand, vector<Candidate*> out_c
   
   if(verbose) {
     cout << "new_cand: ";
-    for(auto it = new_cand->nodes.cbegin(); it != new_cand->nodes.cend(); ++it) {
+    auto iterable = new_cand->nodes.get_iterable();
+    for(auto it = iterable.cbegin(); it != iterable.cend(); ++it) {
       cout << "(" << it->first << ": " << it->second << ") ";
     }
     cout << " " << new_cand->num_uncovered_edges << endl;
@@ -257,9 +334,13 @@ vector<Candidate*> enter_new_candidate(Candidate* cand, vector<Candidate*> out_c
  //find the 1st edge that's not in candidate but whose src node is in candidate's nodes
 int* get_query_ref_instance (Query& query, Candidate* cand) {
   int* query_array=new int[4]();
-  for(auto &q_edge : query.edges) {
-    if(cand->edges.find(q_edge) == cand->edges.end()) {
-      if(cand->nodes.find(q_edge.first) != cand->nodes.end()) {
+  for(auto &q_edge : query.edges.internal) {
+
+    //if (cand->edges.find(q_edge) == cand->edges.end()) {
+    if (!cand->edges.contains(q_edge)) {
+
+      //if (cand->nodes.find(q_edge.first) != cand->nodes.end()) {
+      if (cand->nodes.contains(q_edge.first)) {
         int r_src = cand->nodes[q_edge.first];
         int q_src = q_edge.first;
         int q_trg = q_edge.second;
@@ -284,6 +365,7 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
     vector<Candidate*>* curr_cand_ptr;
     vector<Candidate*>* new_cand_ptr;
     vector<Candidate*>* tmp_cand_ptr;
+
     
     curr_cand_ptr = &initial_cands;
     new_cand_ptr = &new_cands;
@@ -294,7 +376,8 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
 
             if(verbose) {
                 cout << "entry: ";
-                for(auto it = cand->nodes.cbegin(); it != cand->nodes.cend(); ++it) {
+		auto iterable = cand->nodes.get_iterable();
+                for(auto it = iterable.cbegin(); it != iterable.cend(); ++it) {
                     cout << "(" << it->first << ": " << it->second << ") ";
                 }
                 cout << " " << cand->num_uncovered_edges << endl;
@@ -308,35 +391,42 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
             int flag = 0;
                                    
             int q_trg_current, q_trg_new;
-            if(reference.neibs[r_src].find(q_trg_type) != reference.neibs[r_src].end()) {
+	    //cout << "reference.neibs.size(): " << reference.neibs[r_src][q_trg_type].size() << " " << r_src << "\n";
+            if(reference.neibs[r_src].find_flag(q_trg_type) != reference.neibs[r_src].end_flag()) {
+	      
                 
-                if(cand->nodes.find(q_trg) != cand->nodes.end()) {
-                    q_trg_current = cand->nodes[q_trg];
-                    q_trg_new = 0;
-                } else {
-                    q_trg_current = -1;
-                    q_trg_new = 1;
-                }
-                
-                unordered_set<int> cand_nodes_values;
-                for(auto &kv : cand->nodes) {
-                    cand_nodes_values.insert(kv.second);
-                }
-                
-                for(auto &r_trg_weight : reference.neibs[r_src][q_trg_type]) {
-                    int r_trg = r_trg_weight.first;
+	      //if (cand->nodes.find(q_trg) != cand->nodes.end()) {
+	      if (cand->nodes.contains(q_trg)) {
+		q_trg_current = cand->nodes[q_trg];
+		q_trg_new = 0;
+	      } else {
+		q_trg_current = -1;
+		q_trg_new = 1;
+	      }
+	      
+	      custom_set<int, int_hash, int_eq> cand_nodes_values;
+	      auto iterable = cand->nodes.get_iterable();
+	      for(auto &kv : iterable) {
+		cand_nodes_values.insert(kv.second);
+	      }
+
+	      for(auto &r_trg_weight : reference.neibs[r_src][q_trg_type]) {
+		int r_trg = r_trg_weight.first;
                     float r_edge_weight = r_trg_weight.second;
                     
-                    bool node_fits = (q_trg_new && (cand_nodes_values.find(r_trg) == cand_nodes_values.end())) || (q_trg_current == r_trg);
+                    //bool node_fits = (q_trg_new && (cand_nodes_values.find(r_trg) == cand_nodes_values.end())) || (q_trg_current == r_trg);
+		    bool node_fits = (q_trg_new && (!cand_nodes_values.contains(r_trg))) || (q_trg_current == r_trg);
                     if(node_fits) {
-                        
-                        bool not_visited = reference.visited.find(pair<int,int>(r_src, r_trg)) == reference.visited.end();
-                        if(not_visited) {
 
-                            int new_num_uncovered_edges = cand->num_uncovered_edges - 1;
-                            float new_weight = cand->weight + r_edge_weight;
-                            float upper_bound = new_weight + max_weight * new_num_uncovered_edges;
-                            
+                        
+		      //bool not_visited = reference.visited.find(pair<int,int>(r_src, r_trg)) == reference.visited.end();
+		      bool not_visited = !(reference.visited.contains(pair<int,int>(r_src, r_trg)));
+                        if (not_visited) {
+
+			  int new_num_uncovered_edges = cand->num_uncovered_edges - 1;
+			  float new_weight = cand->weight + r_edge_weight;
+			  float upper_bound = new_weight + max_weight * new_num_uncovered_edges;
+                          
                             if(upper_bound > top_k.top()->weight) {
                               out_cands=enter_new_candidate(cand, out_cands, q_src, q_trg, r_trg, new_weight, new_num_uncovered_edges, new_cand_ptr, verbose);
                             }
@@ -360,20 +450,21 @@ vector<Candidate*> expand_candidate(Query& query, Reference& reference, \
 }
 
 template<typename T> void print_queue(T& q) {
-    for(int i = 0; i < 50; ++i) {cout << "--";}; cout << endl;
-    float total_weight = 0.0;
-    while(!q.empty()) {
-        total_weight += q.top()->weight;
-        
-        Candidate* top = q.top();
-        for ( auto it = top->nodes.begin(); it != top->nodes.end(); ++it ) {
-            cout << it->first << ":" << it->second << "\t";
-        }
-        cout << "weight:" << top->weight << endl;
-        q.pop();
+  for(int i = 0; i < 50; ++i) {cout << "--";}; cout << endl;
+  float total_weight = 0.0;
+  while(!q.empty()) {
+    total_weight += q.top()->weight;
+    
+    Candidate* top = q.top();
+    auto iterable = top->nodes.get_iterable();
+    for ( auto it = iterable.begin(); it != iterable.end(); ++it ) {
+      cout << it->first << ":" << it->second << "\t";
     }
-    for(int i = 0; i < 50; ++i) {cout << "--";};
-    cout << endl << "total_weight: " << total_weight << endl;
+    cout << "weight:" << top->weight << endl;
+    q.pop();
+  }
+  for(int i = 0; i < 50; ++i) {cout << "--";};
+  cout << endl << "total_weight: " << total_weight << endl;
 }
 
 
@@ -398,7 +489,8 @@ void load_rows(vector<Row>* row_vector, string edge_path, int num_edges) {
 __attribute__((noinline)) void _kernel_(vector<Row>* row_vector, Query& query, Reference& reference, candidate_heap& top_k, int& K, int& counter) {
       vector<Row>::iterator row_it=row_vector->begin();
       
-      while(true) {        
+      //while(true) {
+      for (int i = 0; i < 5; i++) {
         Row row=*row_it;
              
         if(row.weight * query.num_edges < top_k.top()->weight) {
@@ -419,14 +511,15 @@ __attribute__((noinline)) void _kernel_(vector<Row>* row_vector, Query& query, R
                 top_k.push(out_cand);
             }
         }
-        
+
+	printf("%d counter\n", counter);
         counter++;
         if(counter == reference.num_edges) {
             break;
         }
         ++row_it;
     }
-    cout << "Program Completed \n"; 
+    
 }
 
 
@@ -461,7 +554,8 @@ int main(int argc, char **argv) {
         dummy_cand->weight = -1.0;
         top_k.push(dummy_cand);
     }
-    unordered_set<unordered_map<int,int>> top_k_members;
+    
+    //set<unordered_map<int,int>> top_k_members;
     
     // --
     // Run
@@ -471,9 +565,9 @@ int main(int argc, char **argv) {
 
     
     vector<Row>* row_vector = new vector<Row>();
+
     load_rows(row_vector, edge_path, reference.num_edges);
-    
-    
+
     _kernel_(row_vector, query, reference, top_k, K, counter);
     cout << "Program Completed \n"; 
     print_queue(top_k);

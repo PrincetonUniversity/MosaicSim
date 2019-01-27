@@ -201,7 +201,9 @@ Simulator::Simulator() {
   descq->consume_size=cfg.consume_size;
   descq->supply_size=cfg.supply_size;
   descq->term_buffer_size=cfg.term_buffer_size;
-    
+  descq->latency=cfg.desc_latency;
+  
+ 
   //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   //cache->sim = this;

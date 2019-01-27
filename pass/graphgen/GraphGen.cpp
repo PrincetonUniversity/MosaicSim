@@ -79,7 +79,7 @@ void GraphGen::detectComm(Function &func) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
-            if(f->getName().str().find("desc_supply_produce") != std::string::npos || f->getName().str().find("desc_supply_special_produce") != std::string::npos) { 
+            if(f->getName().str().find("desc_supply_produce") != std::string::npos || f->getName().str().find("desc_supply_special_produce") != std::string::npos || f->getName().str().find("desc_special_supply_produce") != std::string::npos) {              
               send_count++;
               //errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
