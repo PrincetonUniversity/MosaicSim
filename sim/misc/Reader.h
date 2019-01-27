@@ -54,8 +54,24 @@ public:
           //cout << "BAD LINE: " << line << endl;
           continue;
         }
-        
+         //can't parse switch statement cuz it's multiple lines
+        //switch statements span multiple lines and are of the form e.g.,
+        /* 
+           7,13,2,  switch i31 %trunc, label %sw.default [
+           i31 1, label %sw.bb
+           i31 2, label %sw.bb6
+           i31 3, label %sw.bb16
+           ]          
+        */
+        if(line.find("switch")!=string::npos) { 
+          string line2=line;
+          while(line2.find("]")==string::npos) { 
+            getline(cfile,line2);
+          }
+        }
+              
         vector<string> s = split(line, ',');
+        
         int id = stoi(s.at(0));
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));
         int bbid = stoi(s.at(2));
@@ -160,7 +176,7 @@ public:
     bool init = false;
     int last_bbid = -1;
     if (cfile.is_open()) {
-      while (getline (cfile,line)) {
+      while (getline (cfile,line)) { //could be cuz kernel gets called multiple times in a loop for example
         vector<string> s = split(line, ',');
         assert(s.size() == 3);
         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {

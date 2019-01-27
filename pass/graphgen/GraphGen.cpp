@@ -66,6 +66,11 @@ bool GraphGen::runOnFunction(Function &func) {
 
 void GraphGen::detectComm(Function &func) {
   int id = 0;
+  uint64_t staddr_count=0;
+  uint64_t stval_count=0;
+  uint64_t send_count=0;
+  uint64_t ld_prod_count=0;
+  uint64_t recv_count=0;
   for (auto &bb : func) {
     for (auto &inst : bb) {
       Instruction *i = &(inst);
@@ -74,30 +79,38 @@ void GraphGen::detectComm(Function &func) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
-            if(f->getName().str().find("desc_supply_produce") != std::string::npos) {
+            if(f->getName().str().find("desc_supply_produce") != std::string::npos || f->getName().str().find("desc_supply_special_produce") != std::string::npos) { 
+              send_count++;
               //errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
             }
             else if(f->getName().str().find("desc_supply_load_produce") != std::string::npos) {
               //errs() << "[LD_PROD]"<< *i << "\n";
               n->itype = LD_PROD;
+              ld_prod_count++;
             }
             else if(f->getName().str().find("desc_compute_consume") != std::string::npos) {
               //errs() << "[RECV]"<< *i << "\n";
               n->itype = RECV;
+              recv_count++;
             }
             else if (f->getName().str().find("desc_supply_consume") != std::string::npos) {
               //errs() << "[STADDR]"<< *i << "\n";
               n->itype = STADDR;
+              staddr_count++;
             }
             else if (f->getName().str().find("desc_compute_produce") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = STVAL;
+              stval_count++;
             }
           }
         }
       }
     }
+  }
+  if(stval_count>0 || recv_count>0 || ld_prod_count >0 || staddr_count > 0 || send_count>0) {
+    errs() << "\n---DESC STATS---\n staddr: " << staddr_count << " stval: " << stval_count << " ld_prod: " << ld_prod_count << " send " << send_count << " recv " << recv_count << "\n";
   }
 }
 void GraphGen::analyzeLoop() {
