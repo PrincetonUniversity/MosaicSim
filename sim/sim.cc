@@ -36,6 +36,8 @@ void DESCQ::process() {
   cycles++;
 }
 
+int desc_fwd_count=0;
+
 bool DESCQ::execute(DynamicNode* d) {
   //int predecessor_send=d->desc_id-1;
   if (d->n->typeInstr==SEND || d->n->typeInstr==LD_PROD) { //sends can commit out of order
@@ -51,18 +53,24 @@ bool DESCQ::execute(DynamicNode* d) {
       debug_stval_set.insert(d->desc_id);
       return true;    
     }
-
+    else{
+      assert(false);
+    }
   }
   else if (d->n->typeInstr==RECV) {
     //make sure recvs complete after corresponding send
     //or they can get a fwd from SVB
-
+    if (recv_delay_map.find(d->desc_id)==recv_delay_map.end()) {
+      recv_delay_map[d->desc_id]=cycles;
+    }
     if (decrementFwdCounter(d)) {//can you get fwd from SVB
+      desc_fwd_count++;
+      assert(desc_fwd_count==0);
       d->c->insertQ(d);
       consume_count--;
-      
+      recv_delay_map[d->desc_id]=cycles - recv_delay_map[d->desc_id];
       return true;      
-    }
+    }    
     
     if(send_map.find(d->desc_id)==send_map.end()) {
       return false;
@@ -70,10 +78,10 @@ bool DESCQ::execute(DynamicNode* d) {
     else if (send_map.at(d->desc_id)->completed) {
       d->c->insertQ(d);
       consume_count--;
+      recv_delay_map[d->desc_id]=cycles - recv_delay_map[d->desc_id];
       return true;      
     }
   }
-
   else if (d->n->typeInstr==STADDR) { //make sure staddrs complete after corresponding send
     if(stval_map.find(d->desc_id)==stval_map.end()) {
       return false;
@@ -117,6 +125,7 @@ bool DESCQ::updateSAB(DynamicNode* lpd) { //called by issuedescnode
     it++;
   }
   if(found_fwd) {
+    
     DynamicNode* staddr_d=*it;
     updateSVB(lpd, staddr_d);
   }
@@ -124,7 +133,7 @@ bool DESCQ::updateSAB(DynamicNode* lpd) { //called by issuedescnode
 }
 
 void DESCQ::insert_staddr_map(DynamicNode* d) {
- 
+  
   if(staddr_map.find(d->addr)==staddr_map.end()) {      
     set<DynamicNode*, DynamicNodePointerCompare> temp;
     temp.insert(d);
@@ -184,7 +193,7 @@ bool DESCQ::insert(DynamicNode* d) {
     }
   }
   if(d->n->typeInstr==STADDR) {
-    insert_staddr_map(d);
+    //insert_staddr_map(d); doing it in initialize context
   }
   if(d->n->typeInstr==STVAL) {
     stval_svb_map[d->desc_id]=0;
@@ -288,7 +297,12 @@ void Simulator::run() {
     simulate = 0;
     for (auto it=cores.begin(); it!=cores.end(); ++it) {
       Core* core = *it;
+      //      if (core==cores[0]) {
       simulate += core->process();
+        //}
+      //else if(cores[0]->cycles % 200 == 0){
+      //  core->process();
+      // }
     }
     //simulate += cache->process();
     memInterface->process();
@@ -342,6 +356,37 @@ void Simulator::run() {
     cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
 
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
+  if(descq->send_runahead_map.size()>0) {
+    uint64_t send_runahead_sum=0;
+    for(auto it=descq->send_runahead_map.begin(); it!=descq->send_runahead_map.end(); ++it) {
+      send_runahead_sum+=it->second;    
+    }
+    uint64_t avg_send_runahead=send_runahead_sum/descq->send_runahead_map.size();
+    
+    cout<<"Avg SEND Runahead : " << avg_send_runahead << " cycles \n";
+  }
+
+  if(descq->stval_runahead_map.size()>0) {
+    uint64_t stval_runahead_sum=0;
+    for(auto it=descq->stval_runahead_map.begin(); it!=descq->stval_runahead_map.end(); ++it) {
+      stval_runahead_sum+=it->second;    
+    }
+    uint64_t avg_stval_runahead=stval_runahead_sum/descq->stval_runahead_map.size();
+    
+    cout<<"Avg STVAL Runahead : " << avg_stval_runahead << " cycles \n";
+  }
+
+  if(descq->recv_delay_map.size()>0) {
+    uint64_t recv_delay_sum=0;
+    for(auto it=descq->recv_delay_map.begin(); it!=descq->recv_delay_map.end(); ++it) {
+      recv_delay_sum+=it->second;    
+    }
+    uint64_t avg_recv_delay=recv_delay_sum/descq->recv_delay_map.size();
+    
+    cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
+  }
+
+  cout << "DeSC Forward Count: " << desc_fwd_count << endl;
 }
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {

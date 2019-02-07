@@ -17,8 +17,12 @@ public:
   deque<DynamicNode*> consume_q;
   map<uint64_t,DynamicNode*> send_map;
   map<uint64_t,DynamicNode*> stval_map;
- 
   
+  map<uint64_t, uint64_t> send_runahead_map;
+  //map of runahead distance in cycles between when a send (or ld_produce) completes and a receive completes
+  
+  map<uint64_t, uint64_t> stval_runahead_map;
+  map<uint64_t, uint64_t> recv_delay_map; 
   
   int consume_size=64; //comm buff size
   int supply_size=512; //comm queue size

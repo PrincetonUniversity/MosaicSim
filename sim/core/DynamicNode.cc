@@ -82,8 +82,8 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       nodes.insert(make_pair(n, d));          
     }
     
-    if(d->isDESC) {
-      core->master->orderDESC(d);
+    if(d->isDESC) { 
+      core->master->orderDESC(d);    
     }
     core->window.insertDN(d);
   }
@@ -615,12 +615,28 @@ bool DynamicNode::issueDESCNode() {
 
 void DynamicNode::finishNode() {
   //these assertions test to make sure decoupling dependencies are maintained
-  if(n->typeInstr==RECV) {
-    assert(core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());   
-  }    
-  if(n->typeInstr==STADDR)
-    assert(core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+  
+  assert(!(n->typeInstr==RECV) || core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());         
+  
+  assert(!(n->typeInstr==STADDR) || core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
 
+  if(type==SEND||type==LD_PROD) {
+    core->master->descq->send_runahead_map[desc_id]=core->cycles;    
+  }
+
+  if(type==RECV) {
+    core->master->descq->send_runahead_map[desc_id] = core->cycles - core->master->descq->send_runahead_map[desc_id];
+  }
+
+  if(type==STVAL) {
+    core->master->descq->stval_runahead_map[desc_id]=core->cycles;    
+  }
+
+  if(type==STADDR) {
+    core->master->descq->stval_runahead_map[desc_id] = core->cycles - core->master->descq->stval_runahead_map[desc_id];
+  }
+
+  
   c->completed_nodes.insert(this);
   //assert(this->type!=LD_PROD); this fails, which is good
   completed = true;
