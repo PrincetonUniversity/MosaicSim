@@ -119,9 +119,15 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       }
     }
   }
-  for(auto it = nodes.begin(); it!= nodes.end(); ++it){
+  for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
     assert(!it->second->issued && !it->second->completed);
-    it->second->tryActivate();
+    DynamicNode* d=it->second;
+    //correctly predict all branches
+    if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR/*&& random num gen*/) {
+      d->pending_parents=0;
+      d->pending_external_parents=0;
+    }
+    d->tryActivate();
   }
   print("Created (BB:" + to_string(bb->id) + ") " , 0);
 }
@@ -215,6 +221,7 @@ void Context::process() {
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
       d->completed = true;
+      d->issued = true;
       if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
         core->context_to_create++;     
     }
@@ -446,28 +453,30 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  if(pending_parents > 0 || pending_external_parents > 0)  {
+  if(pending_parents > 0 || pending_external_parents > 0 || (core->local_cfg.cf_mode==1 && type==TERMINATOR && (issued || completed))) {
     return;
   }
-  
+
   if(issued || completed) {
     //this->print("",-10);
     assert(false);
   }
-  if(type == TERMINATOR && core->window.canIssue(this)) {    
+  /*  if(type == TERMINATOR) {    
     c->completed_nodes.insert(this);
+    issued = true;
     completed = true;
     if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
       core->context_to_create++;       
-  }
-  else {
-    assert(c->issue_set.find(this) == c->issue_set.end());
+      }*/
+  //else {
+  assert((core->local_cfg.cf_mode == 1 && type == TERMINATOR) || c->issue_set.find(this) == c->issue_set.end());
+    
     if(isMem || type==STADDR || type==LD_PROD) { //luwa just added
       addr_resolved = true;
       core->lsq.resolveAddress(this);
     }
     c->issue_set.insert(this);
-  }
+    //}
 }
 
 bool DynamicNode::issueCompNode() { 
