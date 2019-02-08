@@ -205,13 +205,20 @@ void DynamicNode::register_issue_success() {
 void Context::process() {
   //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
   bool window_full=false;
-  for (auto it = issue_set.begin(); it!= issue_set.end(); ++it) {
+  bool issue_stats_mode=false;
+  for (auto it = issue_set.begin(); it!= issue_set.end();) {
     DynamicNode *d = *it;
-    if(window_full) {
-      d->register_issue_try();
-      d->print(Issue_Failed, 0);     
-      next_issue_set.insert(d);
-      continue;
+    if(window_full) {      
+      if (issue_stats_mode) {
+        d->register_issue_try();
+        d->print(Issue_Failed, 0);     
+        next_issue_set.insert(d);
+        continue;
+      }
+      else {
+        break;
+      }
+      
     }    
     bool window_available = core->window.canIssue(d);
     window_full=!window_available;
@@ -237,22 +244,30 @@ void Context::process() {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
     if(!res) {
-      d->print(Issue_Failed, 0);      
-      next_issue_set.insert(d);
+      //d->print(Issue_Failed, 0);
+      if(issue_stats_mode) {
+        next_issue_set.insert(d);
+      }
+      ++it;
       //if(d->type == RECV && d->c->core->master->descq->consume_count<d->c->core->master->descq->consume_size) {        
       //}
-    }
-    else {
       
+    }
+    else {      
       core->window.issue();
       d->issued=true;
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      d->print(Issue_Succesful,0);
-      d->register_issue_success();
-      //cout << "Cycle: " << core->cycles;
-      //d->print("Issue Succesful",-2); //luwa test
+      //d->print(Issue_Succesful,0);
+      
+      if(issue_stats_mode) {
+        d->register_issue_success();
+        ++it;
+      }
+      else {
+        it=issue_set.erase(it); //gets the next iteration
+      }
     }
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
@@ -272,9 +287,10 @@ void Context::process() {
     nodes_to_complete.insert(d);
     pq.pop();
   }
-
-  issue_set = move(next_issue_set);
-  next_issue_set.clear();
+  if(issue_stats_mode) {
+    issue_set = move(next_issue_set);
+    next_issue_set.clear();
+  }
 }
 
 void Context::complete() {
