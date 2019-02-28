@@ -29,6 +29,16 @@ Config::Config() {
   instr_latency[STADDR] = 1;
   instr_latency[STVAL] = 1;
   instr_latency[LD_PROD] = -1; //treat like an actual load
+  instr_latency[BS_DONE] = 1;
+  instr_latency[CORE_INTERRUPT] = 1;
+  instr_latency[CALL_BS] = 1;
+  instr_latency[BS_WAKE] = 1;
+  instr_latency[BS_VECTOR_INC] = 1;
+  num_units[BS_DONE] = -1;
+  num_units[CORE_INTERRUPT] = -1;
+  num_units[CALL_BS] = -1;
+  num_units[BS_WAKE] = -1;
+  num_units[BS_VECTOR_INC] = -1;
   num_units[I_ADDSUB] = 8;
   num_units[I_MULT] =  1;
   num_units[I_DIV] = 1;

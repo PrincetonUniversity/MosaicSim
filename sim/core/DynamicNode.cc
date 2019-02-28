@@ -82,6 +82,10 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       nodes.insert(make_pair(n, d));          
     }
     
+    d->width=n->width;
+    if(d->n->typeInstr==BS_VECTOR_INC) {
+      core->master->load_count+=d->width;
+    }
     if(d->isDESC) { 
       core->master->orderDESC(d);    
     }
@@ -123,7 +127,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     assert(!it->second->issued && !it->second->completed);
     DynamicNode* d=it->second;
     //correctly predict all branches
-    if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR/*&& random num gen*/) {
+    if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR) {
       d->pending_parents=0;
       d->pending_external_parents=0;
     }
@@ -203,12 +207,9 @@ void DynamicNode::register_issue_success() {
 }
 
 void Context::process() {
-  /* if(core->cycles >= 1000000) {
-    cout<<"STILL PROCESSING CONTEXTS \n";
-    }*/
-  //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
+
   bool window_full=false;
-  bool issue_stats_mode=true; // luwa change back to false
+  bool issue_stats_mode=false; 
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
    
     DynamicNode *d = *it;

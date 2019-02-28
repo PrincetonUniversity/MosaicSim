@@ -83,7 +83,7 @@ namespace {
       BasicBlock *bb = pi->getNormalDest();
       std::string temp= std::to_string(findBID(bb));
       StringRef p = temp;
-      errs() << "[invoke] " << *pi << " - " << p << "\n";
+      //errs() << "[invoke] " << *pi << " - " << p << "\n";
       std::string bbname = std::to_string(findBID(pi->getParent()));
       Value *name = Builder.CreateGlobalStringPtr(bbname);
       Value *name1= Builder.CreateGlobalStringPtr(p);
@@ -108,7 +108,7 @@ namespace {
         Value *castI;
         p1 = temp1;
         p2 = temp2;
-        errs() << "[Branch] " << *pi << " - " << p1 << " / " << p2 << "\n";
+        //errs() << "[Branch] " << *pi << " - " << p1 << " / " << p2 << "\n";
         castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
         std::string bbname = std::to_string(findBID(pi->getParent()));
         Value *name = Builder.CreateGlobalStringPtr(bbname);
@@ -121,7 +121,7 @@ namespace {
         BasicBlock *bb = pi->getSuccessor(0);
         std::string temp= std::to_string(findBID(bb));
         StringRef p = temp;
-        errs() << "[uBranch] " << *pi << " - " << p << "\n";
+        //errs() << "[uBranch] " << *pi << " - " << p << "\n";
         std::string bbname = std::to_string(findBID(pi->getParent()));
         Value *name = Builder.CreateGlobalStringPtr(bbname);
         Value *name1= Builder.CreateGlobalStringPtr(p);
@@ -136,7 +136,7 @@ namespace {
       if(!v->getType()->isIntegerTy()) {
         assert(false);
       }
-      errs() << "[Switch] " << pi->getNumCases() << " : " << *pi << "\n";
+      //errs() << "[Switch] " << pi->getNumCases() << " : " << *pi << "\n";
       Value *castI;
       castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
       std::vector<Value*> args;
@@ -170,7 +170,7 @@ namespace {
       ConstantInt *ctype;
       if(auto *li = dyn_cast<LoadInst>(pi)) {
         isLoad = true;
-        errs() << "[Load] " << *pi << "\n";
+        //errs() << "[Load] " << *pi << "\n";
         v = li->getPointerOperand();
         std::string namestr = std::to_string(findID(pi));//pi->getParent()->getName().str() + "/" + std::to_string(id);
         name = Builder.CreateGlobalStringPtr(namestr);
@@ -178,7 +178,7 @@ namespace {
       }
       else if(auto *si = dyn_cast<StoreInst>(pi)) {
         isLoad = false;
-        errs() << "[Store] " << *pi << "\n";
+        //errs() << "[Store] " << *pi << "\n";
         v = si->getPointerOperand();
         std::string namestr = std::to_string(findID(pi));//pi->getParent()->getName().str() + "/" + std::to_string(id);
         name = Builder.CreateGlobalStringPtr(namestr);

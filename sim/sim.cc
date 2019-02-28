@@ -417,7 +417,8 @@ void Simulator::run() {
     cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
   }
 
-  cout << "DeSC Forward Count: " << desc_fwd_count << endl;
+  //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
+  //cout << "Number of Vector Entries: " << load_count << endl; 
 }
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {

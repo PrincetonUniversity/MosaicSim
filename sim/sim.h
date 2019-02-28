@@ -73,6 +73,7 @@ public:
   vector<Core*> cores;
   DESCQ* descq;
   Cache* cache;
+  uint64_t load_count=0;
   DRAMSimInterface* memInterface;
   vector<Cache*> Caches;
   

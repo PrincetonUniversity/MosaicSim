@@ -53,8 +53,10 @@ void Graph::addBasicBlock(int id) {
   bbs.insert( make_pair(id, new BasicBlock(id)) );
 }
 
-void Graph::addNode(int id, TInstr type, int bbid, string name, int lat) {
+
+void Graph::addNode(int id, TInstr type, int bbid, string name, int lat, int vecWidth) {
   Node *n = new Node(id, type, bbid, name, lat);
+  n->width=vecWidth;
   nodes.insert(make_pair(n->id, n));
   assert( bbs.find(bbid) != bbs.end() );
   bbs.at(bbid)->addInst(n);

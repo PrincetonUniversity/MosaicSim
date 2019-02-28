@@ -6,7 +6,7 @@ using namespace std;
 
 typedef enum {DATA_DEP, PHI_DEP} TEdge;
 typedef enum {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, 
-              CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID} TInstr;
+              CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID,  BS_DONE, CORE_INTERRUPT, CALL_BS, BS_WAKE, BS_VECTOR_INC} TInstr;
 
 
 class Node {
@@ -16,6 +16,7 @@ public:
   int bbid;
   string name;
   int lat;
+  int width;
   set<Node*> dependents;
   set<Node*> parents;
   set<Node*> external_dependents;
@@ -49,7 +50,8 @@ public:
   map<int, BasicBlock*> bbs;
   ~Graph() { eraseAllNodes(); } 
   void addBasicBlock(int id);
-  void addNode(int id, TInstr type, int bbid, string name, int lat);
+
+  void addNode(int id, TInstr type, int bbid, string name, int lat, int vecWidth=1);
   Node *getNode(int id);
   void eraseNode(Node *n);
   void eraseAllNodes();

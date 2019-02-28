@@ -15,7 +15,7 @@
 
 using namespace llvm;
 namespace apollo {
-  enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID};
+  enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID,  BS_DONE, CORE_INTERRUPT, CALL_BS, BS_WAKE, BS_VECTOR_INC};
 
 enum EdgeType {
   Edge_Control,
@@ -37,6 +37,7 @@ public:
   int id;
   int uid;
   int bb_id;
+  int width; 
   Node(const NodeType nt, Value *v, int uid, int id, int bb_id) : type(nt), val(v), uid(uid), id(id), bb_id(bb_id) {
     if(type == Node_Instruction) {
       raw_string_ostream stream(name);

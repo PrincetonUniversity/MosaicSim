@@ -104,6 +104,37 @@ void GraphGen::detectComm(Function &func) {
               n->itype = STVAL;
               stval_count++;
             }
+         
+            else if(f->getName().str().find("dec_bs_vector_inc") != std::string::npos) {
+               Value* pv=(cinst->getArgOperand(0));
+               if(ConstantInt *ipv = dyn_cast<llvm::ConstantInt>(pv)) {
+                 n->itype=BS_VECTOR_INC;
+                 n->width=ipv->getSExtValue();                                    
+                }
+                else {
+                  errs() << "couldn't convert to int \n";
+                 
+                  assert(false);
+                }
+               //add extra edge for width
+             }
+
+            else if (f->getName().str().find("dec_bs_wait") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = BS_WAKE;              
+            }
+            else if (f->getName().str().find("dec_bs_supply") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = BS_DONE;
+            }
+            else if (f->getName().str().find("dec_call_bs") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = CALL_BS;
+            }
+            else if (f->getName().str().find("dec_bs_flush") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = CORE_INTERRUPT;
+            }
           }
         }
       }
@@ -219,6 +250,7 @@ void GraphGen::constructGraph(Function &func) {
        }
        
        Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
+       
        depGraph.addNode(n);
        nodeMap[i] = n;
        id++;
@@ -387,7 +419,11 @@ void GraphGen::exportGraph() {
     cfile << numEdge << "\n";
     for(int i=0; i<depGraph.i_nodes.size(); i++) {
       Node *n =depGraph.i_nodes.at(i);
-      cfile << n->id << "," << static_cast<int>(n->itype) << "," << n->bb_id << "," << n->name << "\n";
+      cfile << n->id << "," << static_cast<int>(n->itype) << "," << n->bb_id << "," << n->name;
+      if(n->itype==BS_VECTOR_INC) {
+        cfile << "," << std::to_string(n->itype);
+      }
+      cfile<< "\n";
     }
     int ect = 0;
     int extra =0;

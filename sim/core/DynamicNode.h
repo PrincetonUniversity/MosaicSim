@@ -28,6 +28,7 @@ public:
   int desc_id;
   /* Memory */
   uint64_t addr;
+  int width;
   bool addr_resolved = false;
   bool speculated = false;
   int outstanding_accesses = 0;

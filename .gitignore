@@ -14,6 +14,8 @@ CMakeFiles/
 Testing/
 *.out
 # Workloads Internal
+workloads/*/int/*
+workloads/*/output/*
 workloads/send_test/int/
 workloads/send_test/output/
 workloads/recv_test/int/

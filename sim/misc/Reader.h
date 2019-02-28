@@ -79,7 +79,13 @@ public:
         for(unsigned int i=3; i<s.size(); i++)
           name += s.at(i);     
         name = name.substr(2, name.size()-2);
-        g.addNode( id, type, bbid, name, cfg.instr_latency[type]);
+        int vec_width=1;
+        if(name.find("dec_bs_vector_inc") != std::string::npos) {
+          vec_width = stoi(s.at(s.size()-1));      
+        }
+
+        g.addNode( id, type, bbid, name, cfg.instr_latency[type], vec_width);
+
         if(id+1==numNode) {
           //cout << "ID "<< (id+1) << endl;
           //cout << "Num Nodes " << numNode << endl;
