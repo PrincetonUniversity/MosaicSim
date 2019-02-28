@@ -1,5 +1,5 @@
 #include <stdio.h>
-__attribute__((noinline)) void _kernel_spmv(int dim, float* h_data, int *h_nzcnt, int *h_ptr, int *h_indices, int *h_perm, float *h_Ax_vector, float *h_x_vector)
+void _kernel_spmv(int dim, float* h_data, int *h_nzcnt, int *h_ptr, int *h_indices, int *h_perm, float *h_Ax_vector, float *h_x_vector)
 {	
 	int p, i, k;
 	int ds, de;

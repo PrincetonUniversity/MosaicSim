@@ -9,7 +9,7 @@
 #include "parboil.h"
 
 
-__attribute__((noinline)) void _kernel_sgemm( char transa, char transb, int m, int n, int k, float alpha, const float *A, int lda, const float *B, int ldb, float beta, float *C, int ldc, int tid );
+void _kernel_sgemm( char transa, char transb, int m, int n, int k, float alpha, const float *A, int lda, const float *B, int ldb, float beta, float *C, int ldc, int tid );
 struct thread_param{
 	 char transa;
 	 char transb;
