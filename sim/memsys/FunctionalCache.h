@@ -48,10 +48,12 @@ public:
     if(c)
     {
       // Hit
+
       deleteNode(c);
       insertFront(c);
       if(!isLoad)
         c->dirty = true;
+      
       return true;
     }
     else
@@ -64,13 +66,16 @@ public:
     CacheLine *c = addr_map[address];    
     if(freeEntries.size() == 0)
     {
+      
       // Evict
+      
       c = tail->prev;
       deleteNode(c);
       addr_map.erase(c->addr);
     
       if(evict && c->dirty) {
         *evict = c->addr;
+        
       }  
     }
     else

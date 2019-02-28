@@ -69,7 +69,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
         cout << "Assertion about to fail for: " << n->name << endl;        
       }
 
-      assert(core->memory.find(n->id) !=core->memory.end()); 
+      assert(core->memory.find(n->id)!=core->memory.end());
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       
       nodes.insert(make_pair(n,d));
@@ -203,22 +203,26 @@ void DynamicNode::register_issue_success() {
 }
 
 void Context::process() {
+  /* if(core->cycles >= 1000000) {
+    cout<<"STILL PROCESSING CONTEXTS \n";
+    }*/
   //cout << "window start: " << core->window.window_start << " window end: " << core->window.window_end << endl;
   bool window_full=false;
-  bool issue_stats_mode=false;
+  bool issue_stats_mode=true; // luwa change back to false
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
+   
     DynamicNode *d = *it;
-    if(window_full) {      
+    if(window_full) {     
       if (issue_stats_mode) {
         d->register_issue_try();
         d->print(Issue_Failed, 0);     
         next_issue_set.insert(d);
+        ++it;
         continue;
       }
       else {
         break;
-      }
-      
+      }      
     }    
     bool window_available = core->window.canIssue(d);
     window_full=!window_available;
@@ -244,7 +248,8 @@ void Context::process() {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
     if(!res) {
-      //d->print(Issue_Failed, 0);
+      //if(core->cycles >= 1000000)
+      //  d->print(Issue_Failed, 0);
       if(issue_stats_mode) {
         next_issue_set.insert(d);
       }
@@ -449,6 +454,7 @@ void DynamicNode::print(string str, int level) {
 }
 
 void DynamicNode::handleMemoryReturn() {
+  
   print(Memory_Data_Ready, 1);
   print(to_string(outstanding_accesses), 1);
   if(type == LD || type == LD_PROD) {
@@ -464,6 +470,7 @@ void DynamicNode::handleMemoryReturn() {
     if(type == LD_PROD) {
       //here we push to descq
       core->communicate(this);
+      //assert(false);
     }
   }
 }
@@ -626,8 +633,9 @@ bool DynamicNode::issueDESCNode() {
     if(type == LD_PROD) {
       
       //send to memsys
-      print(Access_Memory_Hierarchy, 1);
+      
       if (!lpd_can_forward) { //can't forward
+        print(Access_Memory_Hierarchy, 1);
         core->access(this); //handlememoryreturn() calls communicate on ld_prod
       }
       stat.update(ld_prod_issue_success);
@@ -639,13 +647,23 @@ bool DynamicNode::issueDESCNode() {
 
 
 void DynamicNode::finishNode() {
+  if(completed) {
+    return;
+    //print("shouldn't be completed ", -10);
+    //assert(false);
+  } 
   //these assertions test to make sure decoupling dependencies are maintained
-  
+  DynamicNode* d=this;
+  if(d->c->id==35682 && d->n->id==14 && d->core->id==0) {
+    
+    //assert(false);
+  }
   assert(!(n->typeInstr==RECV) || core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());         
   
   assert(!(n->typeInstr==STADDR) || core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
 
   if(type==SEND||type==LD_PROD) {
+    assert( core->master->descq->send_runahead_map.find(desc_id)==core->master->descq->send_runahead_map.end());
     core->master->descq->send_runahead_map[desc_id]=core->cycles;    
   }
 

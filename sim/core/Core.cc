@@ -14,17 +14,19 @@ bool Core::communicate(DynamicNode *d) {
 }
 void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
+ 
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
   
   Transaction *t = new Transaction(tid, id, d->addr, d->type == LD || d->type == LD_PROD);
- 
-  master->access(t);
+  t->d=d;
+  //assert(tid!=-1);
+  cache->addTransaction(t);
+  //master->access(t);
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
   issueMap.insert(make_pair(d,curr_index));
-  //d->print(" InsertedDN: ", -50);
   curr_index++;
 }
 
@@ -43,6 +45,12 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
+  if(d->core->cycles >= 1000000 && d->core->cycles %500000==0) {
+    
+    if(position<window_start || position>window_end)
+      d->print("rob full", -10);
+    //cout<<"STILL PROCESSING CONTEXTS \n";
+  }
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
@@ -53,7 +61,7 @@ void IssueWindow::process() {
     if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when load produce is at head of RoB, you can remove it, even if it's been issued but not completed
       
       //(*it).first->print("completed node", -2); //luwa test
-     
+
       window_start=it->second+1;
       window_end=(window_size+window_start)-1;
       it=issueMap.erase(it); //erases and gets next element, i.e., it++
@@ -80,21 +88,30 @@ void IssueWindow::issue() {
 
 void Core::accessComplete(Transaction *t) {
   int tid = t->id;
-  DynamicNode *d = access_tracker.at(tid);
-  access_tracker.erase(tid);
-  tracker_id.push(tid);
-  delete t;
-  d->handleMemoryReturn();
+
+  if(access_tracker.find(tid)!=access_tracker.end()) {
+    DynamicNode *d = access_tracker.at(tid);
+    access_tracker.erase(tid);
+    tracker_id.push(tid);
+    delete t;
+    d->handleMemoryReturn();
+  }
+  else {
+    cout << "assertion false for transaction" << tid << endl;
+    assert(false);
+  }
 }
 void Core::initialize(int id) {
   this->id = id;
     
   // Set up cache
   cache = new Cache(local_cfg.L1_latency, local_cfg.L1_size, local_cfg.L1_assoc, local_cfg.L1_linesize, local_cfg.cache_load_ports, local_cfg.cache_store_ports, local_cfg.ideal_cache);
-
-  cache->sim = master;
-  cache->memInterface = master->memInterface;
   
+  cache->sim = master;
+  cache->parent_cache=master->cache;
+  cache->isL1=true;
+  cache->memInterface = master->memInterface;
+  master->Caches.push_back(cache);
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
@@ -184,6 +201,7 @@ bool Core::createContext() {
 bool Core::process() {
   window.process();  
   bool simulate = cache->process();
+  
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 1000000 == 0 && cycles !=0) {

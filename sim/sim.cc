@@ -199,9 +199,12 @@ bool DESCQ::insert(DynamicNode* d) {
     stval_svb_map[d->desc_id]=0;
   }
   
-  if(canInsert)
-    pq.push(make_pair(d,cycles+latency));  
-  
+  if(canInsert) {
+    pq.push(make_pair(d,cycles+latency));
+    if(d->type==LD_PROD && d->issued==true) {
+      pq.push(make_pair(d,cycles+(int) 0.6*latency));
+    }
+  }
   return canInsert;
 }
 
@@ -212,11 +215,13 @@ Simulator::Simulator() {
   descq->term_buffer_size=cfg.term_buffer_size;
   descq->latency=cfg.desc_latency;
   
- 
-  //cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
+  
+  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  //cache->sim = this;
-  //cache->memInterface = memInterface;
+  cache->sim = this;
+  cache->isLLC=true;
+  cache->memInterface = memInterface;
+  Caches.push_back(cache);
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {
@@ -257,7 +262,7 @@ void Simulator::orderDESC(DynamicNode* d) {
   }
 }
 
-void Simulator::InsertCaches(vector<Transaction*>& transVec) {
+/*void Simulator::InsertCaches(vector<Transaction*>& transVec) {
   for (auto it=transVec.begin(); it!=transVec.end(); ++it) {
     Transaction* t=*it;        
     Core *core = cores.at(t->coreId);
@@ -266,27 +271,29 @@ void Simulator::InsertCaches(vector<Transaction*>& transVec) {
     uint64_t addr = t->addr;
     
     if(!(c->ideal))
-      c->fc->insert(addr/64, &evictedAddr);
+      c->fc->insert(addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) { //if ideal evicted Addr still is -1
       assert(evictedAddr >= 0);
       stat.update("cache_evict");
-      c->to_evict.push_back(evictedAddr*64);
+      c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     delete t;
   }
-}
+  }*/
 
-void Simulator::TransactionComplete(Transaction* t) {
-  Core *core = cores.at(t->coreId);
-  Cache* cache = core->cache;
-  cache->TransactionComplete(t);
-}
+// void Simulator::TransactionComplete(Transaction* t) {
+//   Core *core = cores.at(t->coreId);
+//   Cache* cache = core->cache;
+//   cache->TransactionComplete(t);
+// }
 
-void Simulator::access(Transaction *t) {
-  Core *core = cores.at(t->coreId);
-  Cache* cache = core->cache;
-  cache->addTransaction(t);
-}
+// //unneccessary indirection
+// void Simulator::access(Transaction *t) {
+//   Core *core = cores.at(t->coreId);
+//   core->cache->addTransaction(t);
+// }
+
+
 void Simulator::accessComplete(Transaction *t) {
   Core *core = cores.at(t->coreId);
   core->accessComplete(t);
@@ -294,21 +301,20 @@ void Simulator::accessComplete(Transaction *t) {
 void Simulator::run() {
   int simulate = 1;
   while(simulate > 0) {
+
     simulate = 0;
     for (auto it=cores.begin(); it!=cores.end(); ++it) {
       Core* core = *it;
-      //      if (core==cores[0]) {
-      simulate += core->process();
-        //}
-      //else if(cores[0]->cycles % 200 == 0){
-      //  core->process();
-      // }
+      simulate += core->process();    
     }
-    //simulate += cache->process();
+    simulate += cache->process();
+    
     memInterface->process();
+
     descq->process();
     
-    if(cores[0]->cycles % 1000000 == 0 && cores[0]->cycles !=0) {     
+    if(cores[0]->cycles % 1000000 == 0 && cores[0]->cycles !=0) {
+      
       curr_time = Clock::now();
       uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
       //uint64_t tdiff_mins = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
@@ -326,7 +332,32 @@ void Simulator::run() {
     else if(cores[0]->cycles == 0) {
       last_time = Clock::now();
       last_instr_count = 0;
-    }          
+    }
+    if(cores[0]->cycles % 1000000 == 0 && cores[0]->cycles !=0 && cores[0]->cycles >= 1000000) {
+      
+      //cout<< "\n trying to print issuemap \n" << endl;
+
+      for (auto it=cores[0]->window.issueMap.begin(); it!=cores[0]->window.issueMap.end(); ++it) {
+        if(it->first->issued && !(it->first->completed))
+          {
+          
+            it->first->print("still in RoB", -10);
+            cout << "address is: " << it->first->addr << endl;
+          }
+
+      }
+      //assert(false);
+      /*for (auto it=cores[1]->window.issueMap.begin(); it!=cores[1]->window.issueMap.end(); ++it) {
+        if(it->first->issued && !(it->first->completed))
+          {
+          
+            it->first->print("still in RoB", -10);
+          }
+
+      } */
+      //assert(false);
+
+    }
   }
   
   //print stats for each pythia core

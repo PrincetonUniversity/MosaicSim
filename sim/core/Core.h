@@ -14,6 +14,7 @@ class Simulator;
 class Context;
 class DRAMSimInterface;
 class Cache;
+struct Transaction;
 
 typedef chrono::high_resolution_clock Clock;
 

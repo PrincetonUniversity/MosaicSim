@@ -39,6 +39,7 @@ public:
   void process() {
     free_load_ports = load_ports;
     free_store_ports = store_ports;
+    
     mem->update();
   }
 };

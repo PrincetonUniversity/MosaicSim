@@ -33,7 +33,7 @@
 // for directory operations 
 #include <sys/stat.h>
 #include <sys/types.h>
-
+#include <assert.h>
 #include "MultiChannelMemorySystem.h"
 #include "AddressMapping.h"
 #include "IniReader.h"

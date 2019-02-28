@@ -9,6 +9,7 @@ class Context;
 class DRAMSimInterface;
 class Core;
 class Cache;
+struct Transaction;
 
 class DESCQ {
 public:
@@ -73,6 +74,7 @@ public:
   DESCQ* descq;
   Cache* cache;
   DRAMSimInterface* memInterface;
+  vector<Cache*> Caches;
   
   Simulator();
   bool communicate(DynamicNode* d);
