@@ -1,11 +1,229 @@
 #include "sim.h"
 #include "memsys/Cache.h"
 #include "memsys/DRAM.h"
-#include "core/Core.h"
+#include "tile/Core.h"
 #include "misc/Reader.h"
 #include "graph/GraphOpt.h"
-#include "core/Core.h"
+#include "tile/Core.h"
 using namespace std;
+
+
+Simulator::Simulator() {         
+  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
+  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  cache->sim = this;
+  cache->isLLC=true;
+  cache->memInterface = memInterface;
+
+  descq = new DESCQ();
+  descq->consume_size=cfg.consume_size;
+  descq->supply_size=cfg.supply_size;
+  descq->term_buffer_size=cfg.term_buffer_size;
+  descq->latency=cfg.desc_latency;  
+}
+
+void Simulator::registerCore(string wlpath, string cfgname, int id) {
+  string name = "Pythia Core";
+  string cfgpath = "../sim/config/" + cfgname+".txt";
+  string cname = wlpath + "/output/ctrl.txt";     
+  string gname = wlpath + "/output/graphOutput.txt";
+  string mname = wlpath + "/output/mem.txt";   
+  
+  Core* core = new Core(this, clockspeed);
+  core->local_cfg.read(cfgpath);
+  core->name=name;
+  Reader r;
+  r.readGraph(gname, core->g);
+  r.readProfMemory(mname , core->memory);
+  r.readProfCF(cname, core->cf);
+  
+  //GraphOpt opt(core->g);
+  //opt.inductionOptimization();
+  core->sim=this;
+  core->initialize(id);
+  registerTile(core, id);  
+}
+
+bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
+  int dst_clockspeed=tiles[t->dst_id]->clockspeed;
+  int src_clockspeed=tiles[t->src_id]->clockspeed;
+  uint64_t dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
+  uint64_t final_cycle=dst_cycle+transq_latency;
+  transq_map[t->dst_id].push({t,final_cycle});
+  return true;
+}
+
+//tile ids must be non repeating
+void Simulator::registerTile(Tile* tile) {
+  assert(tiles.find(tileCount)==tiles.end());
+  tile->id=tileCount;
+  tiles[tileCount]=tile;
+  tileCount++;
+  tile->sim=this;
+}
+
+void Simulator::registerTile(Tile* tile, int tid) {
+  assert(tiles.find(tid)==tiles.end());
+  tile->id=tid;
+  tiles[tid]=tile;
+  tile->sim=this;
+}
+
+void Simulator::run() {
+  int simulate = 1;
+  while(simulate > 0) {
+
+    simulate = 0;
+    for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
+      Tile* tile = it->second;
+      simulate += tile->process();
+      
+      //process transactions
+      priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
+      while(true) {
+        if(pq.empty() || pq.top().second >= tile->cycles)
+          break;        
+        tile->ReceiveTransaction(pq.top().first);      
+        pq.pop();    
+      }
+    }    
+    simulate += cache->process();    
+    memInterface->process();
+    descq->process();
+    
+    
+    //---printing stats---    
+    if(tiles[0]->cycles % 1000000 == 0 && tiles[0]->cycles !=0) {
+      
+      curr_time = Clock::now();
+      uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
+      //uint64_t tdiff_mins = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
+      double instr_rate = ((double)(stat.get("total_instructions") - last_instr_count)) / tdiff;
+      cout << "Global Simulation Speed: " << instr_rate << " Instructions per ms \n";
+      
+      uint64_t remaining_instructions = total_instructions - last_instr_count; 
+      
+      double remaining_time = (double)remaining_instructions/(60000*instr_rate);
+      cout << "Remaining Time: " << (int)remaining_time << " mins \n Remaining Instructions: " << remaining_instructions << endl;
+      
+      last_instr_count = stat.get("total_instructions");
+      last_time = curr_time;
+    }
+    else if(tiles[0]->cycles == 0) {
+      last_time = Clock::now();
+      last_instr_count = 0;
+    }
+
+  }
+  
+  //print stats for each pythia tile
+  for (auto it=tiles.begin(); it!=tiles.end(); it++) {
+    Tile* tile=it->second;
+    if(Core* core=dynamic_cast<Core*>(tile)) {
+      stat.set("cycles", core->cycles);
+      core->local_stat.set("cycles", core->cycles);
+      cout << "----------------" << core->name << " General Stats--------------\n";
+      core->local_stat.print();
+    }
+  }
+  
+  cout << "----------------GLOBAL STATS--------------\n";
+  
+  stat.print();
+  memInterface->mem->printStats(true);
+  curr_time=Clock::now();
+  uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
+  uint64_t tdiff_seconds = chrono::duration_cast<std::chrono::seconds>(curr_time - init_time).count();
+  uint64_t tdiff_milliseconds = chrono::duration_cast<std::chrono::milliseconds>(curr_time - init_time).count();
+  if(tdiff_mins>5) {
+    cout << "Total Runtime: " << tdiff_mins << " mins \n";
+  }
+  else if(tdiff_seconds>0) {
+    cout << "Total Runtime: " << tdiff_seconds << " secs \n";
+  }
+  else
+    cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
+
+  cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
+  if(descq->send_runahead_map.size()>0) {
+    uint64_t send_runahead_sum=0;
+    for(auto it=descq->send_runahead_map.begin(); it!=descq->send_runahead_map.end(); ++it) {
+      send_runahead_sum+=it->second;    
+    }
+    uint64_t avg_send_runahead=send_runahead_sum/descq->send_runahead_map.size();
+    
+    cout<<"Avg SEND Runahead : " << avg_send_runahead << " cycles \n";
+  }
+
+  if(descq->stval_runahead_map.size()>0) {
+    uint64_t stval_runahead_sum=0;
+    for(auto it=descq->stval_runahead_map.begin(); it!=descq->stval_runahead_map.end(); ++it) {
+      stval_runahead_sum+=it->second;    
+    }
+    uint64_t avg_stval_runahead=stval_runahead_sum/descq->stval_runahead_map.size();
+    
+    cout<<"Avg STVAL Runahead : " << avg_stval_runahead << " cycles \n";
+  }
+
+  if(descq->recv_delay_map.size()>0) {
+    uint64_t recv_delay_sum=0;
+    for(auto it=descq->recv_delay_map.begin(); it!=descq->recv_delay_map.end(); ++it) {
+      recv_delay_sum+=it->second;    
+    }
+    uint64_t avg_recv_delay=recv_delay_sum/descq->recv_delay_map.size();
+    
+    cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
+  }
+
+  //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
+  //cout << "Number of Vector Entries: " << load_count << endl; 
+}
+
+bool Simulator::canAccess(Core* core, bool isLoad) {
+  Cache* cache = core->cache;
+  if(isLoad)
+    return cache->free_load_ports > 0 || cache->load_ports==-1;
+  else
+    return cache->free_store_ports > 0 || cache->store_ports==-1;
+}
+
+bool Simulator::communicate(DynamicNode* d) {
+  return descq->insert(d);
+}
+
+void Simulator::orderDESC(DynamicNode* d) {
+  if(d->n->typeInstr == SEND) {     
+      descq->send_map.insert(make_pair(descq->last_send_id,d));
+      d->desc_id=descq->last_send_id;
+      descq->last_send_id++;
+  }
+  if(d->n->typeInstr == LD_PROD) {     
+      descq->send_map.insert(make_pair(descq->last_send_id,d));
+      d->desc_id=descq->last_send_id;
+      descq->last_send_id++;
+  }
+  else if(d->n->typeInstr == STVAL) {
+      descq->stval_map.insert(make_pair(descq->last_stval_id,d));
+      d->desc_id=descq->last_stval_id;
+      descq->last_stval_id++;
+  }
+  else if (d->n->typeInstr == RECV) {
+     d->desc_id=descq->last_recv_id;
+     descq->last_recv_id++;
+  }
+  else if (d->n->typeInstr == STADDR) {
+    d->desc_id=descq->last_staddr_id;
+    descq->last_staddr_id++;
+  }
+}
+
+void Simulator::accessComplete(Transaction *t) {
+  if(Core* core=dynamic_cast<Core*>(tiles[t->src_id])) {
+    core->accessComplete(t);
+  }
+}
+
+
 
 void DESCQ::process() {
   vector<DynamicNode*> failed_nodes;
@@ -206,239 +424,4 @@ bool DESCQ::insert(DynamicNode* d) {
     }
   }
   return canInsert;
-}
-
-Simulator::Simulator() {        
-  descq = new DESCQ();
-  descq->consume_size=cfg.consume_size;
-  descq->supply_size=cfg.supply_size;
-  descq->term_buffer_size=cfg.term_buffer_size;
-  descq->latency=cfg.desc_latency;
-  
-  
-  cache = new Cache(cfg.L1_latency, cfg.L1_size, cfg.L1_assoc, cfg.L1_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
-  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  cache->sim = this;
-  cache->isLLC=true;
-  cache->memInterface = memInterface;
-  Caches.push_back(cache);
-}
-
-bool Simulator::canAccess(Core* core, bool isLoad) {
-  Cache* cache = core->cache;
-  if(isLoad)
-    return cache->free_load_ports > 0 || cache->load_ports==-1;
-  else
-    return cache->free_store_ports > 0 || cache->store_ports==-1;
-}
-
-bool Simulator::communicate(DynamicNode* d) {
-  return descq->insert(d);
-}
-
-void Simulator::orderDESC(DynamicNode* d) {
-  if(d->n->typeInstr == SEND) {     
-      descq->send_map.insert(make_pair(descq->last_send_id,d));
-      d->desc_id=descq->last_send_id;
-      descq->last_send_id++;
-  }
-  if(d->n->typeInstr == LD_PROD) {     
-      descq->send_map.insert(make_pair(descq->last_send_id,d));
-      d->desc_id=descq->last_send_id;
-      descq->last_send_id++;
-  }
-  else if(d->n->typeInstr == STVAL) {
-      descq->stval_map.insert(make_pair(descq->last_stval_id,d));
-      d->desc_id=descq->last_stval_id;
-      descq->last_stval_id++;
-  }
-  else if (d->n->typeInstr == RECV) {
-     d->desc_id=descq->last_recv_id;
-     descq->last_recv_id++;
-  }
-  else if (d->n->typeInstr == STADDR) {
-    d->desc_id=descq->last_staddr_id;
-    descq->last_staddr_id++;
-  }
-}
-
-/*void Simulator::InsertCaches(vector<Transaction*>& transVec) {
-  for (auto it=transVec.begin(); it!=transVec.end(); ++it) {
-    Transaction* t=*it;        
-    Core *core = cores.at(t->coreId);
-    Cache* c = core->cache;
-    int64_t evictedAddr = -1;
-    uint64_t addr = t->addr;
-    
-    if(!(c->ideal))
-      c->fc->insert(addr/c->size_of_cacheline, &evictedAddr);
-    if(evictedAddr!=-1) { //if ideal evicted Addr still is -1
-      assert(evictedAddr >= 0);
-      stat.update("cache_evict");
-      c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
-    }
-    delete t;
-  }
-  }*/
-
-// void Simulator::TransactionComplete(Transaction* t) {
-//   Core *core = cores.at(t->coreId);
-//   Cache* cache = core->cache;
-//   cache->TransactionComplete(t);
-// }
-
-// //unneccessary indirection
-// void Simulator::access(Transaction *t) {
-//   Core *core = cores.at(t->coreId);
-//   core->cache->addTransaction(t);
-// }
-
-
-void Simulator::accessComplete(Transaction *t) {
-  Core *core = cores.at(t->coreId);
-  core->accessComplete(t);
-} 
-void Simulator::run() {
-  int simulate = 1;
-  while(simulate > 0) {
-
-    simulate = 0;
-    for (auto it=cores.begin(); it!=cores.end(); ++it) {
-      Core* core = *it;
-      simulate += core->process();    
-    }
-    simulate += cache->process();
-    
-    memInterface->process();
-
-    descq->process();
-    
-    if(cores[0]->cycles % 1000000 == 0 && cores[0]->cycles !=0) {
-      
-      curr_time = Clock::now();
-      uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
-      //uint64_t tdiff_mins = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
-      double instr_rate = ((double)(stat.get("total_instructions") - last_instr_count)) / tdiff;
-      cout << "Global Simulation Speed: " << instr_rate << " Instructions per ms \n";
-      
-      uint64_t remaining_instructions = total_instructions - last_instr_count; 
-      
-      double remaining_time = (double)remaining_instructions/(60000*instr_rate);
-      cout << "Remaining Time: " << (int)remaining_time << " mins \n Remaining Instructions: " << remaining_instructions << endl;
-      
-      last_instr_count = stat.get("total_instructions");
-      last_time = curr_time;
-    }
-    else if(cores[0]->cycles == 0) {
-      last_time = Clock::now();
-      last_instr_count = 0;
-    }
-    if(cores[0]->cycles % 1000000 == 0 && cores[0]->cycles !=0 && cores[0]->cycles >= 1000000) {
-      
-      //cout<< "\n trying to print issuemap \n" << endl;
-
-      for (auto it=cores[0]->window.issueMap.begin(); it!=cores[0]->window.issueMap.end(); ++it) {
-        if(it->first->issued && !(it->first->completed))
-          {
-          
-            it->first->print("still in RoB", -10);
-            cout << "address is: " << it->first->addr << endl;
-          }
-
-      }
-      //assert(false);
-      /*for (auto it=cores[1]->window.issueMap.begin(); it!=cores[1]->window.issueMap.end(); ++it) {
-        if(it->first->issued && !(it->first->completed))
-          {
-          
-            it->first->print("still in RoB", -10);
-          }
-
-      } */
-      //assert(false);
-
-    }
-  }
-  
-  //print stats for each pythia core
-  for (auto it=cores.begin(); it!=cores.end(); it++) {
-    Core* core=*it;
-    stat.set("cycles", core->cycles);
-    core->local_stat.set("cycles", core->cycles);
-    cout << "----------------" << core->name << " General Stats--------------\n";
-    core->local_stat.print();      
-  }
-  
-  cout << "----------------GLOBAL STATS--------------\n";
-  
-  stat.print();
-  memInterface->mem->printStats(true);
-  curr_time=Clock::now();
-  uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
-  uint64_t tdiff_seconds = chrono::duration_cast<std::chrono::seconds>(curr_time - init_time).count();
-  uint64_t tdiff_milliseconds = chrono::duration_cast<std::chrono::milliseconds>(curr_time - init_time).count();
-  if(tdiff_mins>5) {
-    cout << "Total Runtime: " << tdiff_mins << " mins \n";
-  }
-  else if(tdiff_seconds>0) {
-    cout << "Total Runtime: " << tdiff_seconds << " secs \n";
-  }
-  else
-    cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
-
-  cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
-  if(descq->send_runahead_map.size()>0) {
-    uint64_t send_runahead_sum=0;
-    for(auto it=descq->send_runahead_map.begin(); it!=descq->send_runahead_map.end(); ++it) {
-      send_runahead_sum+=it->second;    
-    }
-    uint64_t avg_send_runahead=send_runahead_sum/descq->send_runahead_map.size();
-    
-    cout<<"Avg SEND Runahead : " << avg_send_runahead << " cycles \n";
-  }
-
-  if(descq->stval_runahead_map.size()>0) {
-    uint64_t stval_runahead_sum=0;
-    for(auto it=descq->stval_runahead_map.begin(); it!=descq->stval_runahead_map.end(); ++it) {
-      stval_runahead_sum+=it->second;    
-    }
-    uint64_t avg_stval_runahead=stval_runahead_sum/descq->stval_runahead_map.size();
-    
-    cout<<"Avg STVAL Runahead : " << avg_stval_runahead << " cycles \n";
-  }
-
-  if(descq->recv_delay_map.size()>0) {
-    uint64_t recv_delay_sum=0;
-    for(auto it=descq->recv_delay_map.begin(); it!=descq->recv_delay_map.end(); ++it) {
-      recv_delay_sum+=it->second;    
-    }
-    uint64_t avg_recv_delay=recv_delay_sum/descq->recv_delay_map.size();
-    
-    cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
-  }
-
-  //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
-  //cout << "Number of Vector Entries: " << load_count << endl; 
-}
-
-void Simulator::registerCore(string wlpath, string cfgname, int id) {
-  string name = "Pythia Core";
-  string cfgpath = "../sim/config/" + cfgname+".txt";
-  string cname = wlpath + "/output/ctrl.txt";     
-  string gname = wlpath + "/output/graphOutput.txt";
-  string mname = wlpath + "/output/mem.txt";   
-  
-  Core* core = new Core();
-  core->local_cfg.read(cfgpath);
-  core->name=name;
-  Reader r;
-  r.readGraph(gname, core->g);
-  r.readProfMemory(mname , core->memory);
-  r.readProfCF(cname, core->cf);
-  
-  //GraphOpt opt(core->g);
-  //opt.inductionOptimization();
-  core->master=this;
-  core->initialize(id);
-  cores.push_back(core);  
 }

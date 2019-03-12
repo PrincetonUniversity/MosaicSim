@@ -1,7 +1,7 @@
-#include "../core/DynamicNode.h"
+#include "../tile/DynamicNode.h"
 #include "Cache.h"
 #include "DRAM.h"
-#include "../core/Core.h"
+#include "../tile/Core.h"
 bool Cache::process() {
 
 
@@ -9,12 +9,7 @@ bool Cache::process() {
     if(pq.top().second > cycles)
       break;
     Transaction* t= pq.top().first;
-    /*if(t->id != -1) {
-      
-      DynamicNode *d = t->d;
-      assert(!(d->c->id==12 && d->n->id==4 && d->core->id==0));
-      
-    }*/
+
     execute(t);
     
     pq.pop();
@@ -26,9 +21,9 @@ bool Cache::process() {
    
     if(isLLC) {
       
-      if((t->coreId!=-1) && memInterface->willAcceptTransaction(dramaddr,  t->isLoad)) {
+      if((t->src_id!=-1) && memInterface->willAcceptTransaction(dramaddr,  t->isLoad)) {
 
-        if(t->id!=-1) {
+        if(t->trans_id!=-1) {
           DynamicNode *d = t->d;
           if((d->c->id==35683 && d->n->id==14 && d->core->id==0)) {
             cout << t->addr << " weird addr"<< endl;
@@ -56,7 +51,7 @@ bool Cache::process() {
         memInterface->addTransaction(t, dramaddr, t->isLoad);
         it = to_send.erase(it);        
       }
-      else if ((t->coreId==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded eviction, will be treated as just a write, nothing to do
+      else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded eviction, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false);
         it = to_send.erase(it);
         delete t;           
@@ -117,7 +112,7 @@ void Cache::execute(Transaction* t) {
   }
   if (res) {                
     //d->print("Cache Hit", 1);
-    if(t->coreId!=-1) { //just normal hit, not an eviction from lower cache      
+    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache      
       if(isL1) {
         
         sim->accessComplete(t); 
@@ -133,14 +128,14 @@ void Cache::execute(Transaction* t) {
         t->cache_q->pop_front(); 
 
          
-        child_cache->fc->insert(dramaddr/size_of_cacheline, &evictedAddr); 
+        child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, &evictedAddr); 
         
         if(evictedAddr!=-1) {
           
           assert(evictedAddr >= 0);
           stat.update("cache_evict");
 
-          child_cache->to_evict.push_back(evictedAddr*size_of_cacheline);
+          child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
         stat.update("cache_hit"); //luwa todo l2 hit
@@ -173,7 +168,7 @@ void Cache::addTransaction(Transaction *t) {
 }
 
 bool Cache::willAcceptTransaction(Transaction *t) {  
-  if(!t || t->id==-1) { //eviction or null transaction
+  if(!t || t->trans_id==-1) { //eviction or null transaction
     return free_store_ports > 0 || store_ports==-1;
   }
   else if(t->isLoad) {
@@ -193,9 +188,8 @@ void Cache::TransactionComplete(Transaction *t) {
 
     int64_t evictedAddr = -1;
     Cache* c = t->cache_q->front();
-    assert(isLLC);
-    t->cache_q->pop_front();
-    //luwa todo: change 64 to cacheline size
+   
+    t->cache_q->pop_front();    
     c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
@@ -204,7 +198,5 @@ void Cache::TransactionComplete(Transaction *t) {
     }
     c->TransactionComplete(t);      
   }
-  //  else {    
-  //  child_cache->TransactionComplete(t);
-  //}
+
 }

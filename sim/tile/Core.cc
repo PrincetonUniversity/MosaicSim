@@ -5,12 +5,13 @@
 
 std::string InstrName[]={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC"};
 
+Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
 
 bool Core::canAccess(bool isLoad) {
-  return master->canAccess(this, isLoad);
+  return sim->canAccess(this, isLoad);
 }
 bool Core::communicate(DynamicNode *d) {
-  return master->communicate(d);
+  return sim->communicate(d);
 }
 void Core::access(DynamicNode* d) {
   int tid = tracker_id.front();
@@ -22,7 +23,7 @@ void Core::access(DynamicNode* d) {
   t->d=d;
   //assert(tid!=-1);
   cache->addTransaction(t);
-  //master->access(t);
+  //sim->access(t);
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
@@ -58,10 +59,8 @@ void IssueWindow::process() {
   issueCount=0;
   vector<DynamicNode*> eraseVector;
   for(auto it=issueMap.begin(); it!=issueMap.end();) {
-    if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when load produce is at head of RoB, you can remove it, even if it's been issued but not completed
-      
-      //(*it).first->print("completed node", -2); //luwa test
-
+    if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when Load_Produce is at head of RoB, you can remove it, even if it's been issued but not completed
+ 
       window_start=it->second+1;
       window_end=(window_size+window_start)-1;
       it=issueMap.erase(it); //erases and gets next element, i.e., it++
@@ -71,14 +70,6 @@ void IssueWindow::process() {
       break;
     }
   }
-
-  /*  
-  for (auto it=eraseVector.end(); it!=eraseVector.end(); ++it) {
-    assert(false);
-    issueMap.erase(*it);
-    }*/
-  
-  //cout << "Win start: " << window_start << " Win end: " << window_end << endl; //luwa test
 }
 
 void IssueWindow::issue() {
@@ -86,8 +77,9 @@ void IssueWindow::issue() {
   issueCount++;
 }
 
+ //handle completed memory transactions
 void Core::accessComplete(Transaction *t) {
-  int tid = t->id;
+  int tid = t->trans_id;
 
   if(access_tracker.find(tid)!=access_tracker.end()) {
     DynamicNode *d = access_tracker.at(tid);
@@ -101,17 +93,24 @@ void Core::accessComplete(Transaction *t) {
     assert(false);
   }
 }
+
+//handle completed transactions
+bool Core::ReceiveTransaction(Transaction* t) {
+  cout<<t->src_id<<endl;
+  return true;
+}
+
 void Core::initialize(int id) {
   this->id = id;
     
   // Set up cache
   cache = new Cache(local_cfg.L1_latency, local_cfg.L1_size, local_cfg.L1_assoc, local_cfg.L1_linesize, local_cfg.cache_load_ports, local_cfg.cache_store_ports, local_cfg.ideal_cache);
   
-  cache->sim = master;
-  cache->parent_cache=master->cache;
+  cache->sim = sim;
+  cache->parent_cache=sim->cache;
   cache->isL1=true;
-  cache->memInterface = master->memInterface;
-  master->Caches.push_back(cache);
+  cache->memInterface = sim->memInterface;
+  
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
@@ -139,9 +138,9 @@ void Core::initialize(int id) {
   for(uint64_t i=0; i<cf.size(); i++) {
     uint64_t bbid=cf[i];
     BasicBlock *bb = g.bbs.at(bbid);
-    master->total_instructions+=bb->inst_count;
+    sim->total_instructions+=bb->inst_count;
   }
-  //cout << "Total Instructions is: " << master->total_instructions << endl;
+  //cout << "Total Instructions is: " << sim->total_instructions << endl;
   //assert(false);
   
 }

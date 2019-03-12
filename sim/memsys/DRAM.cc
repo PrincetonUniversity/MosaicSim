@@ -1,6 +1,6 @@
 #include "DRAM.h"
 #include "Cache.h"
-#include "../core/Core.h"
+#include "../tile/Core.h"
 using namespace std;
 #define UNUSED 0
 

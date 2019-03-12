@@ -41,7 +41,7 @@ void dec_bs_postfix() {
 } \n \
 int main() { \n      \
 _kernel_(); \n     \
-return 1;\n } \n";
+return 0;\n } \n";
 }
 
 __attribute__((noinline))

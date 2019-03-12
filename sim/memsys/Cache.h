@@ -11,30 +11,6 @@ class DRAMSimInterface;
 class Simulator;
 class Cache;
 
-class Transaction {
-public:
-  Transaction(int id, int coreId, uint64_t addr, bool isLoad) : id(id), coreId(coreId), addr(addr), isLoad(isLoad) {};
-  int id;
-  int coreId;
-  DynamicNode* d; //originating dn
-  deque<Cache*>* cache_q = new deque<Cache*>(); //trail of originating caches
-  uint64_t addr;
-  bool isLoad;
-  ~Transaction(){
-    delete cache_q;
-  }
-};
-
-typedef pair<Transaction*, uint64_t> TransactionOp;
-class TransactionOpCompare {
-public:
-  bool operator() (const TransactionOp &l, const TransactionOp &r) const {
-    if(r.second < l.second) 
-      return true;
-  	else
-      return false;
-  }
-};
 
 class Cache {
 public:

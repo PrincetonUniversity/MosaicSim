@@ -2,6 +2,7 @@
 #define CORE_H
 #include "../common.h"
 #include "../sim.h"
+#include "Tile.h"
 #include "../graph/Graph.h"
 #include "LoadStoreQ.h"
 #include <string>
@@ -40,16 +41,15 @@ public:
   void issue();
 };
 
-class Core {
+class Core: public Tile {
 public:
   string name; 
-  int id;
   Graph g;
-  uint64_t cycles = 0;
+  //uint64_t cycles = 0;
   //queue<DynamicNode*> inputQ;
   IssueWindow window;
   Config local_cfg; 
-  Simulator* master;
+  //Simulator* sim;
   Cache* cache;
   Statistics local_stat;
 
@@ -83,6 +83,10 @@ public:
   
   /* LSQ */
   LoadStoreQ lsq=LoadStoreQ(this);
+
+  Core(Simulator* sim, int clockspeed);
+  
+  bool ReceiveTransaction(Transaction* t);
   void initialize(int id);
   bool createContext();
   bool process();

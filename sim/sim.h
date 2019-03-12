@@ -2,14 +2,51 @@
 #define SIM_H
 #include <chrono>
 #include "common.h"
-#include "core/DynamicNode.h"
+#include "tile/DynamicNode.h"
+#include "tile/Tile.h"
 using namespace std;
 
 class Context;
 class DRAMSimInterface;
 class Core;
 class Cache;
-struct Transaction;
+class Transaction;
+class DESCQ;
+class TransQueue;
+
+class Simulator {
+public:
+  chrono::high_resolution_clock::time_point init_time;
+  chrono::high_resolution_clock::time_point curr_time;
+  chrono::high_resolution_clock::time_point last_time;
+  uint64_t last_instr_count;
+  uint64_t total_instructions=0;
+  map<int,Tile*> tiles;
+  int tileCount=0;
+  DESCQ* descq;
+  Cache* cache;
+  //every tile has a transaction priority queue
+  map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
+  int transq_latency=3;
+  int clockspeed=2000000000; //default clockspeed
+  uint64_t load_count=0;
+  DRAMSimInterface* memInterface;
+  
+  Simulator();
+  bool communicate(DynamicNode* d);
+  void orderDESC(DynamicNode* d);
+  void run();
+  bool canAccess(Core* core, bool isLoad);
+  void access(Transaction *t);
+  void accessComplete(Transaction *t);
+  void registerCore(string wlpath, string cfgname, int id);
+  void registerTile(Tile* tile, int tid);
+  void registerTile(Tile* tile);
+  void InsertCaches(vector<Transaction*>& transVec);
+  bool InsertTransaction(Transaction* t, uint64_t cycle);
+};
+
+
 
 class DESCQ {
 public:
@@ -61,32 +98,6 @@ public:
   bool decrementFwdCounter(DynamicNode* recv_d);
   set<uint64_t> debug_send_set;
   set<uint64_t> debug_stval_set;
-};
-
-class Simulator {
-public:
-  chrono::high_resolution_clock::time_point init_time;
-  chrono::high_resolution_clock::time_point curr_time;
-  chrono::high_resolution_clock::time_point last_time;
-  uint64_t last_instr_count;
-  uint64_t total_instructions=0;
-  vector<Core*> cores;
-  DESCQ* descq;
-  Cache* cache;
-  uint64_t load_count=0;
-  DRAMSimInterface* memInterface;
-  vector<Cache*> Caches;
-  
-  Simulator();
-  bool communicate(DynamicNode* d);
-  void orderDESC(DynamicNode* d);
-  void run();
-  bool canAccess(Core* core, bool isLoad);
-  void access(Transaction *t);
-  void accessComplete(Transaction *t);
-  void registerCore(string wlpath, string cfgname, int id);
-  void TransactionComplete(Transaction* t);
-  void InsertCaches(vector<Transaction*>& transVec);
 };
 
 #endif

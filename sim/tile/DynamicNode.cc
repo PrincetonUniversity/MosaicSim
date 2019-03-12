@@ -84,10 +84,10 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     
     d->width=n->width;
     if(d->n->typeInstr==BS_VECTOR_INC) {
-      core->master->load_count+=d->width;
+      core->sim->load_count+=d->width;
     }
     if(d->isDESC) { 
-      core->master->orderDESC(d);    
+      core->sim->orderDESC(d);    
     }
     core->window.insertDN(d);
   }
@@ -255,7 +255,7 @@ void Context::process() {
         next_issue_set.insert(d);
       }
       ++it;
-      //if(d->type == RECV && d->c->core->master->descq->consume_count<d->c->core->master->descq->consume_size) {        
+      //if(d->type == RECV && d->c->core->sim->descq->consume_count<d->c->core->sim->descq->consume_size) {        
       //}
       
     }
@@ -597,7 +597,7 @@ bool DynamicNode::issueDESCNode() {
   if(type == LD_PROD) {
     
     can_issue=core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)==1;
-    lpd_can_forward=can_issue && core->master->descq->updateSAB(this);
+    lpd_can_forward=can_issue && core->sim->descq->updateSAB(this);
     //luwa: this breaks abstraction, but we can change it later
     
     if(lpd_can_forward) {
@@ -659,25 +659,25 @@ void DynamicNode::finishNode() {
     
     //assert(false);
   }
-  assert(!(n->typeInstr==RECV) || core->master->descq->debug_send_set.find(desc_id)!=core->master->descq->debug_send_set.end());         
+  assert(!(n->typeInstr==RECV) || core->sim->descq->debug_send_set.find(desc_id)!=core->sim->descq->debug_send_set.end());         
   
-  assert(!(n->typeInstr==STADDR) || core->master->descq->debug_stval_set.find(desc_id)!=core->master->descq->debug_send_set.end());
+  assert(!(n->typeInstr==STADDR) || core->sim->descq->debug_stval_set.find(desc_id)!=core->sim->descq->debug_send_set.end());
 
   if(type==SEND||type==LD_PROD) {
-    assert( core->master->descq->send_runahead_map.find(desc_id)==core->master->descq->send_runahead_map.end());
-    core->master->descq->send_runahead_map[desc_id]=core->cycles;    
+    assert( core->sim->descq->send_runahead_map.find(desc_id)==core->sim->descq->send_runahead_map.end());
+    core->sim->descq->send_runahead_map[desc_id]=core->cycles;    
   }
 
   if(type==RECV) {
-    core->master->descq->send_runahead_map[desc_id] = core->cycles - core->master->descq->send_runahead_map[desc_id];
+    core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
   }
 
   if(type==STVAL) {
-    core->master->descq->stval_runahead_map[desc_id]=core->cycles;    
+    core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
   }
 
   if(type==STADDR) {
-    core->master->descq->stval_runahead_map[desc_id] = core->cycles - core->master->descq->stval_runahead_map[desc_id];
+    core->sim->descq->stval_runahead_map[desc_id] = core->cycles - core->sim->descq->stval_runahead_map[desc_id];
   }
 
   

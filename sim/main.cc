@@ -2,10 +2,15 @@
 #include <string>
 #include "sim.h"
 #include <chrono>
+
+#include "tile/ExampleTile.cc"
+
 using namespace std;
   
 Statistics stat;
 Config cfg;
+
+class Core;
 
 int main(int argc, char const *argv[]) {
   string wlpath;
@@ -35,6 +40,7 @@ int main(int argc, char const *argv[]) {
   }
   else {
     int arg_index=4;
+    //register the core tiles, they're treated specially
     for (int i=0; i<num_cores; i++) {
       string wlpath(argv[arg_index]);
       arg_index++;
@@ -49,6 +55,19 @@ int main(int argc, char const *argv[]) {
         cfg.verbLevel = 2;
       cout << "[Sim] Verbose Output \n";
     }
+
+    Tile* tile = new ExampleTile(simulator,1000000000);
+    simulator->registerTile(tile,num_cores);
+    /********
+    register the other tiles here
+    e.g. 
+    Tile* tile = new Core(simulator,2000000000); //"cast" as a tile
+    
+    simulator->registerTile(tile); //get assigned tile id
+    or
+    simulator->registerTile(tile, tid); //pick tile id, but unique from other already assigned ones, starting from num_cores
+    *********/
+    
   }  
   simulator->run();
   return 0;
