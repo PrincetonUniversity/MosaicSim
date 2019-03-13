@@ -15,7 +15,6 @@ class Simulator;
 class Context;
 class DRAMSimInterface;
 class Cache;
-struct Transaction;
 
 typedef chrono::high_resolution_clock Clock;
 
@@ -93,7 +92,7 @@ public:
   bool canAccess(bool isLoad);
   void access(DynamicNode *d);
   bool communicate(DynamicNode *d);
-  void accessComplete(Transaction *t);
+  void accessComplete(MemTransaction *t);
   void printActivity();
   string instrToStr(TInstr instr);
 };

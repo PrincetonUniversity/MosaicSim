@@ -38,12 +38,12 @@ public:
   void run();
   bool canAccess(Core* core, bool isLoad);
   void access(Transaction *t);
-  void accessComplete(Transaction *t);
+  void accessComplete(MemTransaction *t);
   void registerCore(string wlpath, string cfgname, int id);
   void registerTile(Tile* tile, int tid);
   void registerTile(Tile* tile);
   void InsertCaches(vector<Transaction*>& transVec);
-  bool InsertTransaction(Transaction* t, uint64_t cycle);
+  bool InsertTransaction(Transaction* t);
 };
 
 

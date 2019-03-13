@@ -13,6 +13,7 @@ class Node;
 class Core;
 class DynamicNode;
 class Context;
+class ExampleTransaction;
 typedef pair<DynamicNode*, uint64_t> Operator;
 
 class DynamicNode {
@@ -26,6 +27,8 @@ public:
   bool isMem;
   bool isDESC;
   int desc_id;
+  bool acc_initiated=false;
+  ExampleTransaction* t;
   /* Memory */
   uint64_t addr;
   int width;

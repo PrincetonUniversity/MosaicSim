@@ -40,29 +40,53 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
   core->sim=this;
+  cout << "register core id " << id << endl;
   core->initialize(id);
+  
   registerTile(core, id);  
 }
 
-bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
+bool Simulator::InsertTransaction(Transaction* t) {
+  assert(tiles.find(t->src_id)!=tiles.end());
+  assert(tiles.find(t->dst_id)!=tiles.end());
+  uint64_t cycle=tiles[t->src_id]->cycles;    
   int dst_clockspeed=tiles[t->dst_id]->clockspeed;
   int src_clockspeed=tiles[t->src_id]->clockspeed;
   uint64_t dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
+
   uint64_t final_cycle=dst_cycle+transq_latency;
+  //if(transq_map[t->dst_id].size()==0) {
+  
+     //priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;//=new priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>;
+    //vector<Transaction*> myvec;
+    //myvec.push_back(t);
+    //pq.push(make_pair(t,final_cycle));
+    //transq_map[t->dst_id]=pq;
+    //assert(false);
+ 
+    //pq.push({t,final_cycle});
+    
+  
+  
+  
   transq_map[t->dst_id].push({t,final_cycle});
+  
+  
   return true;
 }
 
 //tile ids must be non repeating
 void Simulator::registerTile(Tile* tile) {
+  
   assert(tiles.find(tileCount)==tiles.end());
   tile->id=tileCount;
   tiles[tileCount]=tile;
   tileCount++;
-  tile->sim=this;
+  tile->sim=this;  
 }
 
 void Simulator::registerTile(Tile* tile, int tid) {
+  cout << "register tile id " << tid << endl;
   assert(tiles.find(tid)==tiles.end());
   tile->id=tid;
   tiles[tid]=tile;
@@ -74,6 +98,7 @@ void Simulator::run() {
   while(simulate > 0) {
 
     simulate = 0;
+    vector<pair<Transaction*,uint64_t>> rejected_transactions;
     for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
       Tile* tile = it->second;
       simulate += tile->process();
@@ -82,10 +107,19 @@ void Simulator::run() {
       priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
       while(true) {
         if(pq.empty() || pq.top().second >= tile->cycles)
-          break;        
-        tile->ReceiveTransaction(pq.top().first);      
+          break;
+        Transaction* t=pq.top().first;
+        uint64_t cycles=pq.top().second;
+        if(!tile->ReceiveTransaction(t)) {
+          rejected_transactions.push_back({t,cycles});
+        }      
         pq.pop();    
       }
+      //push back all the rejected transactions
+      for(auto& trans_cycle: rejected_transactions) {
+        pq.push(trans_cycle);
+      }
+      rejected_transactions.clear();
     }    
     simulate += cache->process();    
     memInterface->process();
@@ -217,7 +251,7 @@ void Simulator::orderDESC(DynamicNode* d) {
   }
 }
 
-void Simulator::accessComplete(Transaction *t) {
+void Simulator::accessComplete(MemTransaction *t) {
   if(Core* core=dynamic_cast<Core*>(tiles[t->src_id])) {
     core->accessComplete(t);
   }

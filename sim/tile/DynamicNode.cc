@@ -206,6 +206,8 @@ void DynamicNode::register_issue_success() {
   }
 }
 
+uint64_t trans_id=0;
+
 void Context::process() {
 
   bool window_full=false;
@@ -244,9 +246,44 @@ void Context::process() {
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
 
-    }      
+    }
+    
     else {
-      res = res && d->issueCompNode(); //depends on lazy eval
+      
+      //executing floating point on exampletile
+      if(false) {//d->type==I_MULT) {
+        
+        //cout << "before null check \n";
+        if(!d->acc_initiated) {
+          cout << "not initiated mult: "<<  core->window.issueMap.at(d) << endl;
+          //cout << "after null check \n";
+          ExampleTransaction* newt=new ExampleTransaction(trans_id,core->id,1);
+          trans_id++;
+          newt->type=EXAMPLE1;
+          core->sim->InsertTransaction(newt);
+          //cout << "Core Tile sent message t " << core->cycles << endl;
+          d->t=newt;
+          d->acc_initiated=true;
+          d->t->complete=false;          
+          res=false;
+        }
+        else {
+          cout << "have initiated mult: "<<  core->window.issueMap.at(d) << endl;
+          assert(d->t);
+          if(!d->t->complete) {
+            cout << "Trans id of failing t: " << trans_id << endl;
+            assert(false);
+          }
+          //cout << "after null check2 " << endl;
+          res=res && d->t->complete && d->issueCompNode();
+          //cout << "after null check3" << endl;
+        }
+      }
+      
+      //if(true) {}
+      else {
+        res = res && d->issueCompNode(); //depends on lazy eval
+      }
     }
     if(!res) {
       //if(core->cycles >= 1000000)

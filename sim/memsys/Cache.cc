@@ -8,7 +8,7 @@ bool Cache::process() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
       break;
-    Transaction* t= pq.top().first;
+    MemTransaction* t= static_cast<MemTransaction*>(pq.top().first);
 
     execute(t);
     
@@ -16,14 +16,14 @@ bool Cache::process() {
   }
 
   for(auto it = to_send.begin(); it!= to_send.end();) {
-    Transaction *t = *it;
+    MemTransaction *t = *it;
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
    
     if(isLLC) {
       
       if((t->src_id!=-1) && memInterface->willAcceptTransaction(dramaddr,  t->isLoad)) {
 
-        if(t->trans_id!=-1) {
+        if(t->id!=-1) {
           DynamicNode *d = t->d;
           if((d->c->id==35683 && d->n->id==14 && d->core->id==0)) {
             cout << t->addr << " weird addr"<< endl;
@@ -85,7 +85,7 @@ bool Cache::process() {
         ++it;
     }
     else {
-      Transaction* t = new Transaction(-1, -1, eAddr, false);
+      MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false);
       if(parent_cache->willAcceptTransaction(t)) {
         
         
@@ -102,7 +102,7 @@ bool Cache::process() {
   free_store_ports = store_ports;
   return (pq.size() > 0);  
 }
-void Cache::execute(Transaction* t) {
+void Cache::execute(MemTransaction* t) {
   uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
   bool res = true;  
  
@@ -156,7 +156,7 @@ void Cache::execute(Transaction* t) {
     stat.update("cache_miss");
   }
 }
-void Cache::addTransaction(Transaction *t) {
+void Cache::addTransaction(MemTransaction *t) {
   //d->print("Cache Transaction Added", 1);
   
   stat.update("cache_access");
@@ -167,8 +167,8 @@ void Cache::addTransaction(Transaction *t) {
   pq.push(make_pair(t, cycles+latency));
 }
 
-bool Cache::willAcceptTransaction(Transaction *t) {  
-  if(!t || t->trans_id==-1) { //eviction or null transaction
+bool Cache::willAcceptTransaction(MemTransaction *t) {  
+  if(!t || t->id==-1) { //eviction or null transaction
     return free_store_ports > 0 || store_ports==-1;
   }
   else if(t->isLoad) {
@@ -179,7 +179,7 @@ bool Cache::willAcceptTransaction(Transaction *t) {
   }
 }
 
-void Cache::TransactionComplete(Transaction *t) {
+void Cache::TransactionComplete(MemTransaction *t) {
   
   if(isL1) {
     sim->accessComplete(t);

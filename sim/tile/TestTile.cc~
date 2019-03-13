@@ -1,0 +1,13 @@
+#include "../sim.h"
+#include "Tile.h"
+
+class Simulator;
+class TestTile: public Tile {
+public:
+
+  TestTile(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {
+
+  }
+
+
+};

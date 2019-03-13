@@ -20,7 +20,7 @@ public:
   Cache* child_cache;
   bool isLLC=false;
   bool isL1=false;
-  vector<Transaction*> to_send;
+  vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
   int latency;
@@ -39,10 +39,10 @@ public:
       free_store_ports = store_ports;
     }
   bool process();
-  void execute(Transaction* t);
-  void addTransaction(Transaction *t);
-  void TransactionComplete(Transaction *t);
-  bool willAcceptTransaction(Transaction *t);
+  void execute(MemTransaction* t);
+  void addTransaction(MemTransaction *t);
+  void TransactionComplete(MemTransaction *t);
+  bool willAcceptTransaction(MemTransaction *t);
 };
 
 #endif

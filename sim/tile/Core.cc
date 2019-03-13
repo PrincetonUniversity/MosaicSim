@@ -19,7 +19,7 @@ void Core::access(DynamicNode* d) {
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
   
-  Transaction *t = new Transaction(tid, id, d->addr, d->type == LD || d->type == LD_PROD);
+  MemTransaction *t = new MemTransaction(tid, id, id, d->addr, d->type == LD || d->type == LD_PROD);
   t->d=d;
   //assert(tid!=-1);
   cache->addTransaction(t);
@@ -78,8 +78,8 @@ void IssueWindow::issue() {
 }
 
  //handle completed memory transactions
-void Core::accessComplete(Transaction *t) {
-  int tid = t->trans_id;
+void Core::accessComplete(MemTransaction *t) {
+  int tid = t->id;
 
   if(access_tracker.find(tid)!=access_tracker.end()) {
     DynamicNode *d = access_tracker.at(tid);
@@ -96,7 +96,7 @@ void Core::accessComplete(Transaction *t) {
 
 //handle completed transactions
 bool Core::ReceiveTransaction(Transaction* t) {
-  cout<<t->src_id<<endl;
+  t->complete=true;
   return true;
 }
 

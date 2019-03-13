@@ -41,6 +41,7 @@ int main(int argc, char const *argv[]) {
   else {
     int arg_index=4;
     //register the core tiles, they're treated specially
+    cout << "numcores is" << num_cores << endl;
     for (int i=0; i<num_cores; i++) {
       string wlpath(argv[arg_index]);
       arg_index++;
@@ -57,7 +58,7 @@ int main(int argc, char const *argv[]) {
     }
 
     Tile* tile = new ExampleTile(simulator,1000000000);
-    simulator->registerTile(tile,num_cores);
+    simulator->registerTile(tile,1);
     /********
     register the other tiles here
     e.g. 

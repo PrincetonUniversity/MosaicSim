@@ -14,7 +14,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
   queue<Transaction*> &q = outstanding_read_map.at(addr);
   while(q.size() > 0) {
     
-    Transaction* t = q.front();
+    MemTransaction* t = static_cast<MemTransaction*>(q.front());
    
     int64_t evictedAddr = -1;
     Cache* c = t->cache_q->front();
