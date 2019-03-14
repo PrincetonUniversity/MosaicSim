@@ -14,12 +14,12 @@ class Tile {
  public:
   int id;
   Simulator* sim; 
-  int clockspeed; //clockspeed in Hertz
+  uint64_t clockspeed; //clockspeed in MHertz
   uint64_t cycles; 
 
   Tile(Simulator* sim, int clockspeed): sim(sim),clockspeed(clockspeed) {
     cycles=0;
-  }  
+  }
   //increment tile's cycle count, return true only if tile still has work; eventually return false;
   virtual bool process()=0;  
   //call back function to process a completed transaction

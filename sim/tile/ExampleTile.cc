@@ -5,56 +5,46 @@
 
 class ExampleTile: public Tile {  
 public:
-  ExampleTile(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
+  ExampleTile(Simulator* sim, uint64_t clockspeed) : Tile(sim, clockspeed) {}
   ExampleTransaction* currentTransaction;
   uint64_t last_received;
-  int cycle_const=0;
+  int cycle_const=1;
   bool transaction_pending=false;
+  deque<Transaction*> transq;
+
+  priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
 
   //performance model: #cycles taken for a task based on data size
-  uint64_t count_cycles(int data_width, int data_height) {
-    return cycle_const+data_width*data_height;
+  uint64_t perf_model(int data_width, int data_height) {
+    return cycle_const+data_width+data_height;
   }
   
-  bool process() {    
-    if(transaction_pending) {
-      bool send_response=false;
-      if(currentTransaction->type==EXAMPLE1) {
-        send_response=(cycles-last_received)==1;
-        cout << "Processing transaction in cycle " << cycles << endl;
-      }
-      else if(currentTransaction->type==EXAMPLE2) {
-        uint64_t num_cycles=count_cycles(currentTransaction->data_width, currentTransaction->data_height);
-        send_response=(cycles-last_received)==num_cycles;
-        
-      }
-      else {
-        cout << "Wrong Transaction Type!" << endl;
-        assert(false);
-      }
-      
-      if(send_response) {
-        currentTransaction->dst_id=currentTransaction->src_id;
-        currentTransaction->src_id=id;
-        sim->InsertTransaction(currentTransaction);
-        transaction_pending=false;
-      }      
+  bool process() {
+ 
+    while(!transq.empty()) {
+      ExampleTransaction* currentTransaction=static_cast<ExampleTransaction*>(transq.front());      
+      uint64_t num_cycles=perf_model(currentTransaction->data_width, currentTransaction->data_height);      
+      pq.push({currentTransaction, cycles+num_cycles});
+      transq.pop_front(); 
     }
-    cycles++;
-    return false;//cycles<1000000000;
+
+    while(pq.size() > 0) {
+      if(pq.top().second > cycles)
+        break;
+      Transaction* currentTransaction = pq.top().first;
+      uint64_t final_cycle=pq.top().second;
+      currentTransaction->dst_id=currentTransaction->src_id;
+      currentTransaction->src_id=id;
+      sim->InsertTransaction(currentTransaction, final_cycle);
+      pq.pop();
+    }
+    cycles++;    
+    return false;
   }
 
   bool ReceiveTransaction(Transaction* t) {
-    
-    
-    if(transaction_pending) {
-      
-      return false;
-    }
-    cout << "Received Transaction: " << cycles << endl;
-    currentTransaction=static_cast<ExampleTransaction*>(t);
-    last_received=cycles;
-    transaction_pending=true;
+
+    transq.push_back(t);
     return true;
   }  
 };

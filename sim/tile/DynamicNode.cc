@@ -245,42 +245,27 @@ void Context::process() {
       
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
-
     }
     
-    else {
-      
-      //executing floating point on exampletile
-      if(false) {//d->type==I_MULT) {
-        
-        //cout << "before null check \n";
+    else { //compute instructions      
+      //offloading instruction to external functional unit
+      if(false && d->type==FP_MULT) {
+        d->n->lat=0;        
         if(!d->acc_initiated) {
-          cout << "not initiated mult: "<<  core->window.issueMap.at(d) << endl;
-          //cout << "after null check \n";
           ExampleTransaction* newt=new ExampleTransaction(trans_id,core->id,1);
           trans_id++;
-          newt->type=EXAMPLE1;
-          core->sim->InsertTransaction(newt);
-          //cout << "Core Tile sent message t " << core->cycles << endl;
+          newt->data_width=2;
+          newt->data_height=2;
+          core->sim->InsertTransaction(newt, core->cycles);         
           d->t=newt;
           d->acc_initiated=true;
           d->t->complete=false;          
           res=false;
         }
-        else {
-          cout << "have initiated mult: "<<  core->window.issueMap.at(d) << endl;
-          assert(d->t);
-          if(!d->t->complete) {
-            cout << "Trans id of failing t: " << trans_id << endl;
-            assert(false);
-          }
-          //cout << "after null check2 " << endl;
-          res=res && d->t->complete && d->issueCompNode();
-          //cout << "after null check3" << endl;
+        else {                
+          res=res && d->t->complete && d->issueCompNode();      
         }
-      }
-      
-      //if(true) {}
+      }           
       else {
         res = res && d->issueCompNode(); //depends on lazy eval
       }

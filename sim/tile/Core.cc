@@ -46,12 +46,14 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
+  /*
   if(d->core->cycles >= 1000000 && d->core->cycles %500000==0) {
     
     if(position<window_start || position>window_end)
       d->print("rob full", -10);
     //cout<<"STILL PROCESSING CONTEXTS \n";
   }
+  */
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 

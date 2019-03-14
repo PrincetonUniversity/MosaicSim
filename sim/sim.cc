@@ -46,14 +46,20 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   registerTile(core, id);  
 }
 
-bool Simulator::InsertTransaction(Transaction* t) {
+int transactioncount=0;
+bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
   assert(tiles.find(t->src_id)!=tiles.end());
-  assert(tiles.find(t->dst_id)!=tiles.end());
-  uint64_t cycle=tiles[t->src_id]->cycles;    
+  assert(tiles.find(t->dst_id)!=tiles.end());  
+  
   int dst_clockspeed=tiles[t->dst_id]->clockspeed;
   int src_clockspeed=tiles[t->src_id]->clockspeed;
-  uint64_t dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
-
+  int dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
+  //if(t->src_id==0)
+  //cout << "source cycles, src cs, dst cs, dst cycles: " << cycle << ", " << src_clockspeed << ", " << dst_clockspeed << ", " << dst_cycle <<  endl;
+  //assert(false);
+  //cout << "dst cycles: " << dst_cycle << endl;
+  //assert(transactioncount<10);
+ 
   uint64_t final_cycle=dst_cycle+transq_latency;
   //if(transq_map[t->dst_id].size()==0) {
   
@@ -102,7 +108,6 @@ void Simulator::run() {
     for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
       Tile* tile = it->second;
       simulate += tile->process();
-      
       //process transactions
       priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
       while(true) {

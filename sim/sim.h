@@ -28,7 +28,7 @@ public:
   //every tile has a transaction priority queue
   map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
   int transq_latency=3;
-  int clockspeed=2000000000; //default clockspeed
+  int clockspeed=2000; //default clockspeed in MHz
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
   
@@ -43,7 +43,7 @@ public:
   void registerTile(Tile* tile, int tid);
   void registerTile(Tile* tile);
   void InsertCaches(vector<Transaction*>& transVec);
-  bool InsertTransaction(Transaction* t);
+  bool InsertTransaction(Transaction* t, uint64_t cycle);
 };
 
 

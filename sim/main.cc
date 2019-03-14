@@ -56,8 +56,9 @@ int main(int argc, char const *argv[]) {
         cfg.verbLevel = 2;
       cout << "[Sim] Verbose Output \n";
     }
-
-    Tile* tile = new ExampleTile(simulator,1000000000);
+   
+    Tile* tile = new ExampleTile(simulator,2000);
+    
     simulator->registerTile(tile,1);
     /********
     register the other tiles here
