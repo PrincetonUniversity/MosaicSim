@@ -3,6 +3,10 @@ Here is a roadmap for all the key actions required for setting up this Example F
 First run the setup script with:
 ./setup.sh
 
+This script replaces the "traditional" simulator files with their counterparts that reflect the changes required for this example accelerator tile. So, please do not push to github after running these tests below
+
+Rather, type "git reset --hard HEAD" to revert back to default Pythia
+
 It moves the modified code for the example tile and core to their respective folders
 
 Source code of the example tile:
