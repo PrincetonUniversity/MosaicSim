@@ -255,6 +255,12 @@ bool Core::process() {
   }
   context_to_create -= context_created;   // some contexts can be left pending for later cycles
   cycles++;
-   
+  
+  //kill the accelerator tile, so digestor doesn't call it's process() anymore and can eventually end the simulation
+  if(!simulate) {
+    ExampleTransaction* newt=new ExampleTransaction(0,id,1);
+    newt->type=TILE_COMPLETE;
+    sim->InsertTransaction(newt, cycles);
+  }
   return simulate;
 }

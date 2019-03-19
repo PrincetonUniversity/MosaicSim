@@ -5,6 +5,10 @@
 #include "misc/Reader.h"
 #include "graph/GraphOpt.h"
 #include "tile/Core.h"
+#include <bits/stdc++.h>
+#include <numeric>
+
+
 using namespace std;
 
 
@@ -40,7 +44,7 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
   core->sim=this;
-  cout << "register core id " << id << endl;
+  //cout << "register core id " << id << endl;
   core->initialize(id);
   
   registerTile(core, id);  
@@ -88,49 +92,107 @@ void Simulator::registerTile(Tile* tile) {
   tile->id=tileCount;
   tiles[tileCount]=tile;
   tileCount++;
-  tile->sim=this;  
+  tile->sim=this;
+  clockspeedVec.push_back(tile->clockspeed);
 }
 
 void Simulator::registerTile(Tile* tile, int tid) {
-  cout << "register tile id " << tid << endl;
+  //cout << "register tile id " << tid << endl;
   assert(tiles.find(tid)==tiles.end());
   tile->id=tid;
   tiles[tid]=tile;
   tile->sim=this;
+  clockspeedVec.push_back(tile->clockspeed);
 }
 
-void Simulator::run() {
-  int simulate = 1;
-  while(simulate > 0) {
 
-    simulate = 0;
-    vector<pair<Transaction*,uint64_t>> rejected_transactions;
+//LCM 
+// Utility function to find
+// GCD of 'a' and 'b'
+uint64_t gcd(uint64_t a, uint64_t b)
+{
+  if (b == 0)
+    return a;
+  return gcd(b, a % b);
+}
+
+// Returns LCM of array elements
+uint64_t findlcm(vector<uint64_t> numbers, int n)
+{
+  // Initialize result
+  uint64_t ans = numbers[0];
+
+  // ans contains LCM of numbers[0], ..numbers[i]
+  // after i'th iteration,
+  for (int i = 1; i < n; i++)
+    ans = (((numbers[i] * ans)) /
+           (gcd(numbers[i], ans)));
+
+  return ans;
+}
+
+/* Driver Code
+int main()
+{
+  vector<uint64_t> numbers = { 2, 7, 3, 9, 4 };
+  int n = numbers.size();
+  printf("%lld", findlcm(numbers, n));
+  return 0;
+} 
+*/
+
+void Simulator::run() {
+  std::vector<int> processVec(tiles.size(), 0);
+  int simulate = 1;
+  clockspeed=findlcm(clockspeedVec,clockspeedVec.size());
+  cout << "clockspeed : " << clockspeed << endl;
+  
+  while(simulate > 0) {
+    if(simulate==0) {
+      break;
+    }
     for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
+    
       Tile* tile = it->second;
-      simulate += tile->process();
-      //process transactions
-      priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
-      while(true) {
-        if(pq.empty() || pq.top().second >= tile->cycles)
-          break;
-        Transaction* t=pq.top().first;
-        uint64_t cycles=pq.top().second;
-        if(!tile->ReceiveTransaction(t)) {
-          rejected_transactions.push_back({t,cycles});
-        }      
-        pq.pop();    
+      uint64_t norm_tile_frequency=clockspeed / tile->clockspeed; //normalized cloockspeed. i.e., update every x cycles. note: automatically always an integer because of global clockspeed is lcm of local clockspeeds
+     
+      if(cycles%norm_tile_frequency==0 && (processVec.at(tile->id)==1 || tile->cycles==0) ) { //don't call process() on tile that has quit
+        vector<pair<Transaction*,uint64_t>> rejected_transactions;         
+        //assume tiles never go from completed (process() returning false) back to not completed (process() returning true)
+        processVec.at(it->first)=tile->process();
+        
+        //process transactions
+        priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
+        while(true) {
+          if(pq.empty() || pq.top().second >= tile->cycles)
+            break;
+          Transaction* t=pq.top().first;
+          uint64_t cycles=pq.top().second;
+          if(!tile->ReceiveTransaction(t)) {
+            rejected_transactions.push_back({t,cycles});
+          }      
+          pq.pop();    
+        }
+        //push back all the rejected transactions
+        for(auto& trans_cycle: rejected_transactions) {
+          pq.push(trans_cycle);
+        }
+        rejected_transactions.clear();
+        
+        //use same clockspeed as 1st tile (probably a core)
+        if(it->first==0) {
+          simulate += cache->process();    
+          memInterface->process();
+          descq->process();
+        }
       }
-      //push back all the rejected transactions
-      for(auto& trans_cycle: rejected_transactions) {
-        pq.push(trans_cycle);
-      }
-      rejected_transactions.clear();
-    }    
-    simulate += cache->process();    
-    memInterface->process();
-    descq->process();
+
+
+    }
     
+    simulate = accumulate(processVec.begin(), processVec.end(), 0);
     
+   
     //---printing stats---    
     if(tiles[0]->cycles % 1000000 == 0 && tiles[0]->cycles !=0) {
       
@@ -152,7 +214,9 @@ void Simulator::run() {
       last_time = Clock::now();
       last_instr_count = 0;
     }
-
+    
+    cycles++;
+  
   }
   
   //print stats for each pythia tile

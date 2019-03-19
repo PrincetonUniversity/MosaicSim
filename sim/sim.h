@@ -20,9 +20,12 @@ public:
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time;
   uint64_t last_instr_count;
+  uint64_t cycles=0;
   uint64_t total_instructions=0;
   map<int,Tile*> tiles;
   int tileCount=0;
+
+  vector<uint64_t> clockspeedVec;
   DESCQ* descq;
   Cache* cache;
   //every tile has a transaction priority queue

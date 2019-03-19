@@ -26,7 +26,7 @@ class Tile {
   virtual bool ReceiveTransaction(Transaction* t)=0;
 };
 
-typedef enum {DEFAULT, EXAMPLE1, EXAMPLE2, MEMORY, INTERRUPT, CONVOLUTION} TransType;
+typedef enum {DEFAULT, EXAMPLE1, TILE_COMPLETE, MEMORY, INTERRUPT, CONVOLUTION} TransType;
 typedef pair<Transaction*, uint64_t> TransactionOp;
 class TransactionOpCompare {
 public:

@@ -3,7 +3,7 @@
 #include "sim.h"
 #include <chrono>
 
-
+#include "tile/ExampleTile.cc"
 
 using namespace std;
   
@@ -56,6 +56,11 @@ int main(int argc, char const *argv[]) {
         cfg.verbLevel = 2;
       cout << "[Sim] Verbose Output \n";
     }
+
+    //IMult accelerator tile clocked at 3,333 MHz, while core tile clocked at 2000MHz
+    Tile* tile = new ExampleTile(simulator,3333); 
+        
+    simulator->registerTile(tile,1);
     
     /********
     register the other tiles here

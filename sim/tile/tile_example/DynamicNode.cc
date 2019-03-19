@@ -247,11 +247,31 @@ void Context::process() {
       //depends on lazy eval, as descq will insert if *its* resources are available
     }
     
-    
-    else {
-      res = res && d->issueCompNode(); //depends on lazy eval
+    else { //compute instructions      
+      //offloading instruction to external functional unit
+      if(d->type==FP_MULT) {
+        d->n->lat=0;        
+        if(!d->acc_initiated) {
+          ExampleTransaction* newt=new ExampleTransaction(trans_id,core->id,1);
+          trans_id++;
+          //data_width and _height are just showing how an accelerator tile can have a performance model based on information packaged in a transaction
+          newt->data_width=2; 
+          newt->data_height=2;
+          core->sim->InsertTransaction(newt, core->cycles);
+          cout << "Sent Transaction at Cycle: " << core->cycles << endl;
+          d->t=newt;
+          d->acc_initiated=true;
+          d->t->complete=false;          
+          res=false;
+        }
+        else {                
+          res=res && d->t->complete && d->issueCompNode();      
+        }
+      }           
+      else {
+        res = res && d->issueCompNode(); //depends on lazy eval
+      }
     }
-  
     if(!res) {
       //if(core->cycles >= 1000000)
       //  d->print(Issue_Failed, 0);
