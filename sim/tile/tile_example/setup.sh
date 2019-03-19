@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 cp Core.cc ..
 cp DynamicNode.cc ..
 cp ExampleTile.cc ..
