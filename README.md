@@ -54,3 +54,8 @@ Note:
 The config files are in pythia/sim/config for different preset modes (in order, out of order, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
 
 The "-v" for verbose mode is optional. 
+
+## API Documentation
+
+In order to integrate other core or accelerator models with Pythia and have them interract together, we have documented an API. Here is the link:
+https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb
