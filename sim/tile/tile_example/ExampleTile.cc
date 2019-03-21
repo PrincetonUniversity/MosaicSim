@@ -1,7 +1,7 @@
 #include "../sim.h"
 #include "Tile.h"
 
-//An example tile showing how to implement Tile abstract class and how communication across tiles can be accomplished. This tile simply receives messages from a core to perform some fixed function accelerator operation on some data. Based on the Transaction Type and data sizes indicated in the transaction (i.e., some performance model), a response is sent back to the source after x cycles.
+//An example tile showing how to implement Tile abstract class and how communication across tiles can be accomplished. This tile models 2 fixed function accelerators chained together, one receiving data from the core, sending it to another accelerato, which then sends it back to the core. Based on the Transaction Type and data sizes indicated in the transaction (i.e., some performance model), a response is sent after x cycles.
 
 class ExampleTile: public Tile {  
 public:
@@ -35,8 +35,19 @@ public:
       }
       Transaction* currentTransaction = pq.top().first;
       uint64_t final_cycle=pq.top().second;
-      currentTransaction->dst_id=currentTransaction->src_id;
-      currentTransaction->src_id=id;
+      if(currentTransaction->src_id==0) {
+        currentTransaction->dst_id=2;
+        currentTransaction->src_id=1;
+        cout << "Tile 1: Sending Transaction to Tile 2 on Cycle " << cycles << endl;
+      }
+      else if (currentTransaction->src_id==1) {
+        currentTransaction->dst_id=0;
+        currentTransaction->src_id=2;
+        cout << "Tile 2: Sending Transaction to Tile 0 on Cycle " << cycles << endl;
+      }
+      else {
+        assert(false);
+      }
       sim->InsertTransaction(currentTransaction, final_cycle);      
       pq.pop();
     }

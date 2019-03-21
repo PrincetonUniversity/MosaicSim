@@ -58,9 +58,13 @@ int main(int argc, char const *argv[]) {
     }
 
     //IMult accelerator tile clocked at 3,333 MHz, while core tile clocked at 2000MHz
-    Tile* tile = new ExampleTile(simulator,3333); 
+    Tile* tile1 = new ExampleTile(simulator,2000); 
+    
+    simulator->registerTile(tile1,1);
+    
+    Tile* tile2 = new ExampleTile(simulator,2000); 
         
-    simulator->registerTile(tile,1);
+    simulator->registerTile(tile2,2);
     
     /********
     register the other tiles here

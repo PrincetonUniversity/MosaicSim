@@ -258,9 +258,12 @@ bool Core::process() {
   
   //kill the accelerator tile, so digestor doesn't call it's process() anymore and can eventually end the simulation
   if(!simulate) {
-    ExampleTransaction* newt=new ExampleTransaction(0,id,1);
-    newt->type=TILE_COMPLETE;
-    sim->InsertTransaction(newt, cycles);
+    ExampleTransaction* newt1=new ExampleTransaction(0,id,1);
+    newt1->type=TILE_COMPLETE;
+    sim->InsertTransaction(newt1, cycles);
+    ExampleTransaction* newt2=new ExampleTransaction(0,id,2);
+    newt2->type=TILE_COMPLETE;
+    sim->InsertTransaction(newt2, cycles);
   }
   return simulate;
 }
