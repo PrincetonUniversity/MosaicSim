@@ -156,9 +156,12 @@ void Simulator::run() {
       Tile* tile = it->second;
       uint64_t norm_tile_frequency=clockspeed / tile->clockspeed; //normalized cloockspeed. i.e., update every x cycles. note: automatically always an integer because of global clockspeed is lcm of local clockspeeds
      
-      if(cycles%norm_tile_frequency==0 && (processVec.at(tile->id)==1 || tile->cycles==0) ) { //don't call process() on tile that has quit
+      if(cycles%norm_tile_frequency==0) {
+        
         vector<pair<Transaction*,uint64_t>> rejected_transactions;         
         //assume tiles never go from completed (process() returning false) back to not completed (process() returning true)
+
+        
         processVec.at(it->first)=tile->process();
         
         //process transactions
