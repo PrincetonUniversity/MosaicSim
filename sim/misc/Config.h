@@ -32,12 +32,12 @@ public:
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
-  // L1 cache
+  // cache
   bool ideal_cache;
-  int L1_latency = 1;  // cycles
-  int L1_size;     // KB
-  int L1_assoc = 8; 
-  int L1_linesize = 64; // bytes
+  int cache_latency = 1;  // cycles
+  int cache_size;     // KB
+  int cache_assoc = 8; 
+  int cache_linesize = 64; // bytes
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
 
@@ -45,7 +45,7 @@ public:
   int supply_size=512; //desc comm queue size
   int term_buffer_size=32; //desc terminal load buffer size
   int desc_latency=5; //desc queue latency
-  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"l1_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"L1_latency",11}, {"L1_assoc",12}, {"L1_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"consume_size", 16}, {"supply_size",17}, {"term_buffer_size",18},  {"desc_latency",19}}; 
+  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"consume_size", 16}, {"supply_size",17}, {"term_buffer_size",18},  {"desc_latency",19}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   //it allows us reorder and group variables at will in the config file or even omit them
 
@@ -76,12 +76,12 @@ public:
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
-  // L1 cache
+  // cache
   bool ideal_cache;
-  int L1_latency = 1;  // cycles
-  int L1_size;     // KB
-  int L1_assoc = 8; 
-  int L1_linesize = 64; // bytes
+  int cache_latency = 1;  // cycles
+  int cache_size;     // KB
+  int cache_assoc = 8; 
+  int cache_linesize = 64; // bytes
 };
 
 #endif

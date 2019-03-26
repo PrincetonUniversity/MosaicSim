@@ -6,9 +6,9 @@
 #include <boost/algorithm/string.hpp>
 using namespace std;
 Config::Config() {    
-  //L1_latency = 1;
-  //L1_assoc = 8;
-  //L1_linesize = 64;
+  //cache_latency = 1;
+  //cache_assoc = 8;
+  //cache_linesize = 64;
   instr_latency[I_ADDSUB] = 1;
   instr_latency[I_MULT] = 3;
   instr_latency[I_DIV] = 26;
@@ -92,7 +92,7 @@ void Config::getCfg(int id, int val) {
     ideal_cache = val;
     break;
   case 6:
-    L1_size = val;
+    cache_size = val;
     break;
   case 7:
     cache_load_ports = val;
@@ -107,13 +107,13 @@ void Config::getCfg(int id, int val) {
     mem_store_ports = val;
     break;
   case 11:
-    L1_latency = val;
+    cache_latency = val;
     break;
   case 12:
-    L1_assoc = val;
+    cache_assoc = val;
     break;
   case 13:
-    L1_linesize = val;
+    cache_linesize = val;
     break;
   case 14:
     window_size = val;
