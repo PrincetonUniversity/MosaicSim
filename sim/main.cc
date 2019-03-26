@@ -36,7 +36,7 @@ int main(int argc, char const *argv[]) {
   simulator->init_time=chrono::high_resolution_clock::now();
 
   if(test) {
-    simulator->registerCore("../workloads/test", cfgname, 0);
+    simulator->registerCore("../workloads/test", cfgname, 0);    
   }
   else {
     int arg_index=4;
@@ -64,14 +64,17 @@ int main(int argc, char const *argv[]) {
     
     simulator->registerTile(tile,1);
 
-    Tile* tile = new Core(simulator,2000000000); //"cast" as a tile
+    Tile* tile = new Core(simulator,2000); //"cast" as a tile
     
     simulator->registerTile(tile); //get assigned tile id
     or
     simulator->registerTile(tile, tid); //pick tile id, but unique from other already assigned ones, starting from num_cores
-    *********/
+    *********/        
     
-  }  
+  }
+
+  //set the DRAMSim clockspeed based on Tile0's clockspeed
+  simulator->initDRAM();
   simulator->run();
   return 0;
 } 

@@ -24,7 +24,7 @@ public:
   uint64_t total_instructions=0;
   map<int,Tile*> tiles;
   int tileCount=0;
-
+  
   vector<uint64_t> clockspeedVec;
   DESCQ* descq;
   Cache* cache;
@@ -39,6 +39,7 @@ public:
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();
+  void initDRAM();
   bool canAccess(Core* core, bool isLoad);
   void access(Transaction *t);
   void accessComplete(MemTransaction *t);

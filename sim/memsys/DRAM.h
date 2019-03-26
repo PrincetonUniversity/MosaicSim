@@ -28,7 +28,7 @@ public:
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
     mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
-    mem->setCPUClockSpeed(2000000000);
+    
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }

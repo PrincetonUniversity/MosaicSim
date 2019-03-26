@@ -107,7 +107,6 @@ void Simulator::registerTile(Tile* tile, int tid) {
   clockspeedVec.push_back(tile->clockspeed);
 }
 
-
 //LCM 
 // Utility function to find
 // GCD of 'a' and 'b'
@@ -133,17 +132,13 @@ uint64_t findlcm(vector<uint64_t> numbers, int n)
   return ans;
 }
 
-/* Driver Code
-int main()
-{
-  vector<uint64_t> numbers = { 2, 7, 3, 9, 4 };
-  int n = numbers.size();
-  printf("%lld", findlcm(numbers, n));
-  return 0;
-} 
-*/
+void Simulator::initDRAM() {
+  //set the DRAMSim clockspeed based on Tile0's clockspeed
+  memInterface->mem->setCPUClockSpeed((tiles[0]->clockspeed)*1000000);
+}
 
 void Simulator::run() {
+  
   std::vector<int> processVec(tiles.size(), 0);
   int simulate = 1;
   clockspeed=findlcm(clockspeedVec,clockspeedVec.size());
