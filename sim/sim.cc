@@ -7,6 +7,8 @@
 #include "tile/Core.h"
 #include <bits/stdc++.h>
 #include <numeric>
+#include <fstream>
+#include <iostream>
 
 
 using namespace std;
@@ -252,8 +254,14 @@ void Simulator::run() {
 
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
   if(descq->send_runahead_map.size()>0) {
+    ofstream outfile;
+    outfile.open("decouplingStats");
+    
     uint64_t send_runahead_sum=0;
+    outfile << "NODE_ID CONTEXT_ID DECOUPLING_ID RUNAHEAD_DIST" << endl;
     for(auto it=descq->send_runahead_map.begin(); it!=descq->send_runahead_map.end(); ++it) {
+      DynamicNode* send_node = descq->send_map[it->first];
+      outfile << send_node->n->id << " " << send_node->c->id << " " << it->first << " " << it->second << endl;
       send_runahead_sum+=it->second;    
     }
     uint64_t avg_send_runahead=send_runahead_sum/descq->send_runahead_map.size();
