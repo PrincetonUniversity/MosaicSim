@@ -68,26 +68,26 @@ open pass/preproc.sh and set PYTHIA_HOME to the full path to the pythia installa
 cd workloads/shoc/triad
 To compile Triad.cpp with the DECADES compiler, run:
 
-   DEC++ -spp ../../../pass/preproc.sh Triad.cpp
+      DEC++ -spp ../../../pass/preproc.sh Triad.cpp
 To execute natively and get the trace files (control flow and memory) required by Pythia:
 
-   cd decoupled
-   python run.py
-   python run_addr.py
+      cd decoupled
+      python run.py
+      python run_addr.py
 To execute the non-decoupled version on the simulator:
 
-   cd inlined
-   ./inlined
+      cd inlined
+      ./inlined
 To run on the simulator:
 
-   cd pythia/bin
+      cd pythia/bin
 To run decoupled (no term load optimization):
-   ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply default ../workloads/shoc/triad/decoupled/compute default
+      ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply default ../workloads/shoc/triad/decoupled/compute default
 
 To run decoupled (with term load optimization):
 
-   ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply_addr default ../workloads/shoc/triad/decoupled/compute default
+      ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply_addr default ../workloads/shoc/triad/decoupled/compute default
 
 To run non-decoupled version:
 
-   ./sim -n 1 default ../workloads/shoc/triad/inlined default
+      ./sim -n 1 default ../workloads/shoc/triad/inlined default
