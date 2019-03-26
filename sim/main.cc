@@ -40,7 +40,7 @@ int main(int argc, char const *argv[]) {
   }
   else {
     int arg_index=4;
-    //register the core tiles, they're treated specially
+    //register the core tiles
     cout << "numcores is" << num_cores << endl;
     for (int i=0; i<num_cores; i++) {
       string wlpath(argv[arg_index]);
