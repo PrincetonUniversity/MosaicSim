@@ -93,3 +93,5 @@ To run decoupled (with term load optimization):
 To run non-decoupled version:
 
       ./sim -n 1 default ../workloads/shoc/triad/inlined default
+
+Statistics on runahead distances (# cycles between commits of a PRODUCE or LOAD_PRODUCE instructions and commits of corresponding CONSUME instructions) will be outputted to pythia/bin/decouplingStats
