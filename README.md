@@ -82,6 +82,7 @@ To run on the simulator:
 
       cd pythia/bin
 To run decoupled (no term load optimization):
+
       ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply default ../workloads/shoc/triad/decoupled/compute default
 
 To run decoupled (with term load optimization):
