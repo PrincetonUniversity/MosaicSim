@@ -49,11 +49,13 @@ Here is an example:
 
     ./sim -n 2 default ../workloads/shoc/triad/ default ../workloads/shoc/triad default
 
-Note:
+Note: The "-v" for verbose mode is optional. 
 
-The config files are in pythia/sim/config for different preset modes (in order, out of order, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
+CONFIGURATION FILES:
 
-The "-v" for verbose mode is optional. 
+The config files are in pythia/sim/config for different preset modes (in order, out of order, perfect, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
+
+The first config file "sig_config_name" above get applied to the L2 cache and DRAM, while the other config files "core_n_config" above are applied to the respective core n's private L1 cache and microarchitectural features. All other entries that are not applicable are simply ignored by the simulator. 
 
 ## API Documentation
 
