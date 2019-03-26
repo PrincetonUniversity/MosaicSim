@@ -11,7 +11,7 @@ This project was built with the following tools:
  + `ninja` 1.8.2
  + `clang`/LLVM toolchain, 7.0.0+ (with C++14 support)
 
-No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible. :-)
+No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
 ### Building the Simulator
 
