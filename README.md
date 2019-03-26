@@ -59,8 +59,7 @@ The first config file "sig_config_name" above get applied to the L2 cache and DR
 
 ## API Documentation
 
-In order to integrate other core or accelerator models with Pythia and have them interract together, we have documented an API. Here is the link:
-https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb
+In order to integrate other core or accelerator models with Pythia and have them interract together, we have documented an API. See Section E in the linked document: https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb
 
 ## Decoupling 
 Below are instructions for running decoupling on Pythia. This requires setting up the DECADES compiler DEC++ (https://github.com/PrincetonUniversity/DECADES_compiler) 
