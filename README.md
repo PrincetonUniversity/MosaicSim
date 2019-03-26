@@ -65,7 +65,8 @@ Below are instructions for running decoupling on Pythia. This requires setting u
 
       cd pythia
 open pass/preproc.sh and set PYTHIA_HOME to the full path to the pythia installation directory
-cd workloads/shoc/triad
+
+      cd workloads/shoc/triad
 To compile Triad.cpp with the DECADES compiler, run:
 
       DEC++ -spp ../../../pass/preproc.sh Triad.cpp
