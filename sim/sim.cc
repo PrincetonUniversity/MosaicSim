@@ -284,6 +284,26 @@ void Simulator::run() {
     cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
   }
 
+  //calculate and print stats on load latencies
+  if(load_stats_map.size()>0) {
+    ofstream loadfile;
+    loadfile.open("loadStats");
+    uint64_t totalLatency=0;
+    string outstring="";
+    for(auto entry:load_stats_map) {
+      uint64_t issue_cycle=entry.second.first;
+      uint64_t return_cycle=entry.second.second;
+      int node_id=entry.first->n->id;
+      
+      totalLatency+=return_cycle-issue_cycle;
+      outstring+= to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + "\n";
+    }
+    
+    loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
+    loadfile << "Node_ID Issue_Cycle Return_Cycle" << endl;
+    loadfile << outstring;
+  }
+
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 
 }

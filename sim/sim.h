@@ -34,6 +34,7 @@ public:
   int clockspeed=2000; //default clockspeed in MHz
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
+  map<DynamicNode*, pair<uint64_t, uint64_t>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
   
   Simulator();
   bool communicate(DynamicNode* d);

@@ -14,6 +14,11 @@ bool Core::communicate(DynamicNode *d) {
   return sim->communicate(d);
 }
 void Core::access(DynamicNode* d) {
+  //collect stats on load latency
+  assert(sim->load_stats_map.find(d)==sim->load_stats_map.end());
+  sim->load_stats_map[d]=make_pair(cycles,0); //(issue cycle, return cycle)
+
+  
   int tid = tracker_id.front();
  
   tracker_id.pop();
