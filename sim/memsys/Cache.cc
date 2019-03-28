@@ -184,11 +184,13 @@ void Cache::TransactionComplete(MemTransaction *t) {
   if(isL1) {
     sim->accessComplete(t);
 
-    assert(sim->load_stats_map.find(t->d)!=sim->load_stats_map.end());
-    uint64_t issue_cycle = sim->load_stats_map[t->d].first;
-    uint64_t current_cycle = t->d->core->cycles; 
-    sim->load_stats_map[t->d]=make_pair(issue_cycle,current_cycle);
-    
+    //update load latency stats
+    if(t->d->type==LD || t->d->type==LD_PROD) {
+      assert(sim->load_stats_map.find(t->d)!=sim->load_stats_map.end());
+      uint64_t issue_cycle = sim->load_stats_map[t->d].first;
+      uint64_t current_cycle = t->d->core->cycles; 
+      sim->load_stats_map[t->d]=make_pair(issue_cycle,current_cycle);
+    }
     
   }
   else {
