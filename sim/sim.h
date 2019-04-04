@@ -52,7 +52,6 @@ public:
 };
 
 
-
 class DESCQ {
 public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
@@ -75,13 +74,11 @@ public:
   map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
   //map of address to ordered set of staddr dynamic nodes storing to that address
   
-  
   map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
   //map of desc id (of stval, also staddr) to #forwards to be expected
 
   map<uint64_t, uint64_t> recv_map;
   //map of desc id (same for ld_prod and recv) to desc id (stval)
-  
   
   map<DynamicNode*, uint64_t> final_cycle; 
   uint64_t cycles=0;

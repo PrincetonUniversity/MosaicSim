@@ -17,7 +17,7 @@ public:
 
   // Config parameters
   int  verbLevel; // verbosity level
-  bool cf_mode; // 0: one at a time / 1: all together
+  bool cf_mode;   // 0: one at a time / 1: all together
   bool mem_speculate;
   bool mem_forward;
   // Resources
@@ -48,7 +48,6 @@ public:
   map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"consume_size", 16}, {"supply_size",17}, {"term_buffer_size",18},  {"desc_latency",19}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   //it allows us reorder and group variables at will in the config file or even omit them
-
 };
 
 class CacheConfig {

@@ -1,6 +1,6 @@
 #!/bin/bash
 CC=clang++
-PYTHIA_HOME=/home/luwa/pythia
+PYTHIA_HOME=/home/jlaragon/pythia
 CURR_PASS=$1
 DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})

@@ -4,11 +4,8 @@
 
 //#define NDEBUG
 #include "assert.h"
-
 #include <regex>
-
 #include <boost/algorithm/string.hpp>
-
 
 using namespace std;
 
@@ -30,20 +27,20 @@ public:
     ifstream cfile(name);
     cout << "Opened file: " << name << endl ;
     if (cfile.is_open()) {
+      string line;
       string temp;
       getline(cfile,temp);
-      int numBB = stoi(temp);  
+      int numBBs = stoi(temp);  
       getline(cfile,temp);
-      int numNode = stoi(temp);
+      int numNodes = stoi(temp);
+      getline(cfile,temp);  
+      int numEdges = stoi(temp);
 
-      getline(cfile,temp);
-      
-      int numEdge = stoi(temp);
-      string line;
-      for (int i=0; i<numBB; i++)
+      // add the list of Basic Blocks to the Graph
+      for (int i=0; i<numBBs; i++)
         g.addBasicBlock(i);
-
       
+      // Now start adding ALL the nodes
       while (true) {        
         getline(cfile,line);
         //sime
@@ -86,15 +83,17 @@ public:
 
         g.addNode( id, type, bbid, name, cfg.instr_latency[type], vec_width);
 
-        if(id+1==numNode) {
+        if(id+1==numNodes) {
           //cout << "ID "<< (id+1) << endl;
-          //cout << "Num Nodes " << numNode << endl;
+          //cout << "Num Nodes " << numNodes << endl;
           break;
         }
       }
       //cout << "Done with Nodes " << endl;
+
+      // Now start adding ALL the edges
       int i=0;
-      while (i<numEdge) {
+      while (i<numEdges) {
         //cout << "edge iter: " <<i << endl;
 
         getline(cfile,line);
@@ -123,7 +122,6 @@ public:
           cout << "Reached end because of: " << line << endl;
           break;
           }*/
-        
         
         if(edgeT >= 0) {
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));

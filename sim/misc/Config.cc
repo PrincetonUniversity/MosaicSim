@@ -4,7 +4,9 @@
 #include <fstream>
 #include <sstream> 
 #include <boost/algorithm/string.hpp>
+
 using namespace std;
+
 Config::Config() {    
   //cache_latency = 1;
   //cache_assoc = 8;
@@ -71,6 +73,7 @@ vector<string> Config::split(const string &s, char delim) {
    }
    return tokens;
 }
+
 void Config::getCfg(int id, int val) {
   switch (id) { 
   case 0:
@@ -137,6 +140,7 @@ void Config::getCfg(int id, int val) {
     break;
   }
 }
+
 void Config::read(std::string name) {
   string line;
   string last_line;
