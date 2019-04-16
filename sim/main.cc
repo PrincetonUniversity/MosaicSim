@@ -3,8 +3,6 @@
 #include "sim.h"
 #include <chrono>
 
-
-
 using namespace std;
   
 Statistics stat;
@@ -30,7 +28,7 @@ int main(int argc, char const *argv[]) {
     cfgname = argv[3];
   }
   
-  cfgpath = "../sim/config/" + cfgname+".txt";
+  cfgpath = "../sim/config/" + cfgname + ".txt";
   cfg.read(cfgpath);
   Simulator* simulator=new Simulator();
   simulator->init_time=chrono::high_resolution_clock::now();

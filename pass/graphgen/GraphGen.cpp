@@ -1,11 +1,14 @@
 #include <cassert>
 #include <fstream>
+#include <string>
 #include "Graph.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/ScalarEvolution.h"
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
-#define KERNEL_STR "_kernel_"
+std::string KERNEL_STR = "_kernel_";
+bool found_kernel = false;
+
 using namespace apollo;
 class GraphGen : public FunctionPass {
 public:
@@ -47,10 +50,17 @@ void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
   au.setPreservesAll();
 }
 bool GraphGen::runOnFunction(Function &func) {
+  auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
+  if (decades_kernel_str) {
+    KERNEL_STR = decades_kernel_str;
+  }
+  
   LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
-  if (isKernelFunction(func)) { 
+  if (isKernelFunction(func)) {
+    assert(!found_kernel);
+    found_kernel = true;
     constructGraph(func);
     errs() << "Done constructing graph" << func.getName().str() << "\n";
     addDataEdges(func);
@@ -181,10 +191,10 @@ void GraphGen::analyzeLoop() {
           depGraph.removeEdge(phisrc, n, Edge_Phi);
         }
       }
-    }
-    
+    }    
   }
 }
+
 void GraphGen::constructGraph(Function &func) {
   int uid =0;
   for (auto &bb : func) {

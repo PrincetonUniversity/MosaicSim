@@ -3,14 +3,24 @@ source_filename = "tracer.cc"
 target datalayout = "e-m:e-i64:64-f80:128-n8:16:32:64-S128"
 target triple = "x86_64-unknown-linux-gnu"
 
-%"class.std::ios_base::Init" = type { i8 }
-%"class.std::basic_ofstream" = type { %"class.std::basic_ostream.base", %"class.std::basic_filebuf", %"class.std::basic_ios" }
-%"class.std::basic_ostream.base" = type { i32 (...)** }
-%"class.std::basic_filebuf" = type { %"class.std::basic_streambuf", %union.pthread_mutex_t, %"class.std::__basic_file", i32, %struct.__mbstate_t, %struct.__mbstate_t, %struct.__mbstate_t, i8*, i64, i8, i8, i8, i8, i8*, i8*, i8, %"class.std::codecvt"*, i8*, i64, i8*, i8* }
-%"class.std::basic_streambuf" = type { i32 (...)**, i8*, i8*, i8*, i8*, i8*, i8*, %"class.std::locale" }
+%"class.std::basic_ostream" = type { i32 (...)**, %"class.std::basic_ios" }
+%"class.std::basic_ios" = type { %"class.std::ios_base", %"class.std::basic_ostream"*, i8, i8, %"class.std::basic_streambuf"*, %"class.std::ctype"*, %"class.std::num_put"*, %"class.std::num_get"* }
+%"class.std::ios_base" = type { i32 (...)**, i64, i64, i32, i32, i32, %"struct.std::ios_base::_Callback_list"*, %"struct.std::ios_base::_Words", [8 x %"struct.std::ios_base::_Words"], i32, %"struct.std::ios_base::_Words"*, %"class.std::locale" }
+%"struct.std::ios_base::_Callback_list" = type { %"struct.std::ios_base::_Callback_list"*, void (i32, %"class.std::ios_base"*, i32)*, i32, i32 }
+%"struct.std::ios_base::_Words" = type { i8*, i64 }
 %"class.std::locale" = type { %"class.std::locale::_Impl"* }
 %"class.std::locale::_Impl" = type { i32, %"class.std::locale::facet"**, i64, %"class.std::locale::facet"**, i8** }
 %"class.std::locale::facet" = type <{ i32 (...)**, i32, [4 x i8] }>
+%"class.std::basic_streambuf" = type { i32 (...)**, i8*, i8*, i8*, i8*, i8*, i8*, %"class.std::locale" }
+%"class.std::ctype" = type <{ %"class.std::locale::facet.base", [4 x i8], %struct.__locale_struct*, i8, [7 x i8], i32*, i32*, i16*, i8, [256 x i8], [256 x i8], i8, [6 x i8] }>
+%"class.std::locale::facet.base" = type <{ i32 (...)**, i32 }>
+%struct.__locale_struct = type { [13 x %struct.__locale_data*], i16*, i32*, i32*, [13 x i8*] }
+%struct.__locale_data = type opaque
+%"class.std::num_put" = type { %"class.std::locale::facet.base", [4 x i8] }
+%"class.std::num_get" = type { %"class.std::locale::facet.base", [4 x i8] }
+%"class.std::basic_ofstream" = type { %"class.std::basic_ostream.base", %"class.std::basic_filebuf", %"class.std::basic_ios" }
+%"class.std::basic_ostream.base" = type { i32 (...)** }
+%"class.std::basic_filebuf" = type { %"class.std::basic_streambuf", %union.pthread_mutex_t, %"class.std::__basic_file", i32, %struct.__mbstate_t, %struct.__mbstate_t, %struct.__mbstate_t, i8*, i64, i8, i8, i8, i8, i8*, i8*, i8, %"class.std::codecvt"*, i8*, i64, i8*, i8* }
 %union.pthread_mutex_t = type { %"struct.(anonymous union)::__pthread_mutex_s" }
 %"struct.(anonymous union)::__pthread_mutex_s" = type { i32, i32, i32, i32, i32, i16, i16, %struct.__pthread_internal_list }
 %struct.__pthread_internal_list = type { %struct.__pthread_internal_list*, %struct.__pthread_internal_list* }
@@ -21,380 +31,717 @@ target triple = "x86_64-unknown-linux-gnu"
 %union.anon = type { i32 }
 %"class.std::codecvt" = type { %"class.std::__codecvt_abstract_base.base", %struct.__locale_struct* }
 %"class.std::__codecvt_abstract_base.base" = type { %"class.std::locale::facet.base" }
-%"class.std::locale::facet.base" = type <{ i32 (...)**, i32 }>
-%struct.__locale_struct = type { [13 x %struct.__locale_data*], i16*, i32*, i32*, [13 x i8*] }
-%struct.__locale_data = type opaque
-%"class.std::basic_ios" = type { %"class.std::ios_base", %"class.std::basic_ostream"*, i8, i8, %"class.std::basic_streambuf"*, %"class.std::ctype"*, %"class.std::num_put"*, %"class.std::num_get"* }
-%"class.std::ios_base" = type { i32 (...)**, i64, i64, i32, i32, i32, %"struct.std::ios_base::_Callback_list"*, %"struct.std::ios_base::_Words", [8 x %"struct.std::ios_base::_Words"], i32, %"struct.std::ios_base::_Words"*, %"class.std::locale" }
-%"struct.std::ios_base::_Callback_list" = type { %"struct.std::ios_base::_Callback_list"*, void (i32, %"class.std::ios_base"*, i32)*, i32, i32 }
-%"struct.std::ios_base::_Words" = type { i8*, i64 }
-%"class.std::basic_ostream" = type { i32 (...)**, %"class.std::basic_ios" }
-%"class.std::ctype" = type <{ %"class.std::locale::facet.base", [4 x i8], %struct.__locale_struct*, i8, [7 x i8], i32*, i32*, i16*, i8, [256 x i8], [256 x i8], i8, [6 x i8] }>
-%"class.std::num_put" = type { %"class.std::locale::facet.base", [4 x i8] }
-%"class.std::num_get" = type { %"class.std::locale::facet.base", [4 x i8] }
+%"class.std::ios_base::Init" = type { i8 }
+%"class.std::allocator" = type { i8 }
+%"class.std::basic_ostringstream" = type { %"class.std::basic_ostream.base", %"class.std::basic_stringbuf", %"class.std::basic_ios" }
+%"class.std::basic_stringbuf" = type { %"class.std::basic_streambuf", i32, %"class.std::basic_string" }
+%"class.std::basic_string" = type { %"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider" }
+%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Alloc_hider" = type { i8* }
+%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep" = type { %"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep_base" }
+%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep_base" = type { i64, i64, i32 }
 %struct.__va_list_tag = type { i32, i32, i8*, i8* }
 
+@_ZSt4cout = external dso_local global %"class.std::basic_ostream", align 8
+@.str = private unnamed_addr constant [72 x i8] c"ERROR: Unable to log for all threads! Increase MAX_THREADS in tracer.cc\00", align 1
+@.str.1 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
+@.str.2 = private unnamed_addr constant [2 x i8] c"0\00", align 1
+@.str.3 = private unnamed_addr constant [10 x i8] c"tracer.cc\00", align 1
+@__PRETTY_FUNCTION__._Z12get_dir_namePcPKc = private unnamed_addr constant [47 x i8] c"const char *get_dir_name(char *, const char *)\00", align 1
+@.str.4 = private unnamed_addr constant [8 x i8] c"output_\00", align 1
+@.str.5 = private unnamed_addr constant [2 x i8] c"_\00", align 1
+@.str.6 = private unnamed_addr constant [2 x i8] c"/\00", align 1
+@f1 = dso_local global [1024 x %"class.std::basic_ofstream"] zeroinitializer, align 16
+@.str.7 = private unnamed_addr constant [9 x i8] c"ctrl.txt\00", align 1
+@.str.8 = private unnamed_addr constant [3 x i8] c"B,\00", align 1
+@.str.9 = private unnamed_addr constant [2 x i8] c",\00", align 1
+@.str.10 = private unnamed_addr constant [6 x i8] c"false\00", align 1
+@__PRETTY_FUNCTION__._Z12printuBranchPcS_S_ = private unnamed_addr constant [42 x i8] c"void printuBranch(char *, char *, char *)\00", align 1
+@.str.11 = private unnamed_addr constant [3 x i8] c"U,\00", align 1
+@f2 = dso_local global [1024 x %"class.std::basic_ofstream"] zeroinitializer, align 16
+@.str.12 = private unnamed_addr constant [8 x i8] c"mem.txt\00", align 1
+@.str.13 = private unnamed_addr constant [3 x i8] c"L,\00", align 1
+@.str.14 = private unnamed_addr constant [3 x i8] c"S,\00", align 1
 @_ZStL8__ioinit = internal global %"class.std::ios_base::Init" zeroinitializer, align 1
 @__dso_handle = external hidden global i8
-@f1 = dso_local global %"class.std::basic_ofstream" zeroinitializer, align 8
-@f2 = dso_local global %"class.std::basic_ofstream" zeroinitializer, align 8
-@.str = private unnamed_addr constant [16 x i8] c"output/ctrl.txt\00", align 1
-@.str.3 = private unnamed_addr constant [3 x i8] c"B,\00", align 1
-@.str.4 = private unnamed_addr constant [2 x i8] c",\00", align 1
-@.str.5 = private unnamed_addr constant [2 x i8] c"\0A\00", align 1
-@.str.6 = private unnamed_addr constant [6 x i8] c"false\00", align 1
-@.str.7 = private unnamed_addr constant [10 x i8] c"tracer.cc\00", align 1
-@__PRETTY_FUNCTION__._Z12printuBranchPcS_ = private unnamed_addr constant [34 x i8] c"void printuBranch(char *, char *)\00", align 1
-@.str.8 = private unnamed_addr constant [3 x i8] c"U,\00", align 1
-@.str.9 = private unnamed_addr constant [15 x i8] c"output/mem.txt\00", align 1
-@.str.10 = private unnamed_addr constant [3 x i8] c"L,\00", align 1
-@.str.11 = private unnamed_addr constant [3 x i8] c"S,\00", align 1
-@.str.13 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
+@_ZTVSt15basic_streambufIcSt11char_traitsIcEE = external dso_local unnamed_addr constant { [16 x i8*] }
+@_ZNSs4_Rep20_S_empty_rep_storageE = external dso_local global [0 x i64], align 8
+@_ZTTSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE = external unnamed_addr constant [4 x i8*]
+@_ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE = external dso_local unnamed_addr constant { [16 x i8*] }
+@.str.20 = private unnamed_addr constant [74 x i8] c"vector::_M_range_check: __n (which is %zu) >= this->size() (which is %zu)\00", align 1
 @llvm.global_ctors = appending global [1 x { i32, void ()*, i8* }] [{ i32, void ()*, i8* } { i32 65535, void ()* @_GLOBAL__sub_I_tracer.cc, i8* null }]
 
-declare dso_local void @_ZNSt8ios_base4InitC1Ev(%"class.std::ios_base::Init"*) unnamed_addr #0
+; Function Attrs: uwtable
+define dso_local i8* @_Z12get_dir_namePcPKc(i8* %kernel_type, i8* %type) local_unnamed_addr #0 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) {
+entry:
+  %ref.tmp.i.i.i.i49 = alloca %"class.std::allocator", align 1
+  %ref.tmp.i.i.i.i = alloca %"class.std::allocator", align 1
+  %ref.tmp.i = alloca %"class.std::allocator", align 1
+  %ret = alloca %"class.std::basic_ostringstream", align 8
+  %ref.tmp = alloca %"class.std::basic_string", align 8
+  %call = tail call i32 @omp_get_thread_num() #7
+  %cmp = icmp sgt i32 %call, 1023
+  br i1 %cmp, label %if.then, label %if.end
+
+if.then:                                          ; preds = %entry
+  %call1 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) @_ZSt4cout, i8* getelementptr inbounds ([72 x i8], [72 x i8]* @.str, i64 0, i64 0))
+  %call2 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call1, i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0))
+  tail call void @__assert_fail(i8* getelementptr inbounds ([2 x i8], [2 x i8]* @.str.2, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.3, i64 0, i64 0), i32 19, i8* getelementptr inbounds ([47 x i8], [47 x i8]* @__PRETTY_FUNCTION__._Z12get_dir_namePcPKc, i64 0, i64 0)) #14
+  unreachable
+
+if.end:                                           ; preds = %entry
+  %0 = bitcast %"class.std::basic_ostringstream"* %ret to i8*
+  call void @llvm.lifetime.start.p0i8(i64 352, i8* nonnull %0) #7
+  call void @_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode(%"class.std::basic_ostringstream"* nonnull %ret, i32 16)
+  %1 = bitcast %"class.std::basic_ostringstream"* %ret to %"class.std::basic_ostream"*
+  %call1.i20 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %1, i8* nonnull getelementptr inbounds ([8 x i8], [8 x i8]* @.str.4, i64 0, i64 0), i64 7)
+          to label %invoke.cont unwind label %lpad
+
+invoke.cont:                                      ; preds = %if.end
+  %tobool.i = icmp eq i8* %kernel_type, null
+  br i1 %tobool.i, label %if.then.i, label %if.else.i
+
+if.then.i:                                        ; preds = %invoke.cont
+  %2 = bitcast %"class.std::basic_ostringstream"* %ret to i8**
+  %vtable.i = load i8*, i8** %2, align 8, !tbaa !2
+  %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
+  %3 = bitcast i8* %vbase.offset.ptr.i to i64*
+  %vbase.offset.i = load i64, i64* %3, align 8
+  %add.ptr.i = getelementptr inbounds i8, i8* %0, i64 %vbase.offset.i
+  %4 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
+  %5 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
+  %6 = load i32, i32* %5, align 8, !tbaa !5
+  %or.i.i.i = or i32 %6, 1
+  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %4, i32 %or.i.i.i)
+          to label %invoke.cont4 unwind label %lpad
+
+if.else.i:                                        ; preds = %invoke.cont
+  %call.i.i21 = call i64 @strlen(i8* nonnull %kernel_type) #7
+  %call1.i22 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %1, i8* nonnull %kernel_type, i64 %call.i.i21)
+          to label %invoke.cont4 unwind label %lpad
+
+invoke.cont4:                                     ; preds = %if.then.i, %if.else.i
+  %call1.i27 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %1, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
+          to label %invoke.cont6 unwind label %lpad
+
+invoke.cont6:                                     ; preds = %invoke.cont4
+  %call8 = call i32 @omp_get_thread_num() #7
+  %call10 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %1, i32 %call8)
+          to label %invoke.cont9 unwind label %lpad
+
+invoke.cont9:                                     ; preds = %invoke.cont6
+  %call1.i32 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call10, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.6, i64 0, i64 0), i64 1)
+          to label %invoke.cont11 unwind label %lpad
+
+invoke.cont11:                                    ; preds = %invoke.cont9
+  %tobool.i34 = icmp eq i8* %type, null
+  br i1 %tobool.i34, label %if.then.i41, label %if.else.i43
+
+if.then.i41:                                      ; preds = %invoke.cont11
+  %7 = bitcast %"class.std::basic_ostream"* %call10 to i8**
+  %vtable.i35 = load i8*, i8** %7, align 8, !tbaa !2
+  %vbase.offset.ptr.i36 = getelementptr i8, i8* %vtable.i35, i64 -24
+  %8 = bitcast i8* %vbase.offset.ptr.i36 to i64*
+  %vbase.offset.i37 = load i64, i64* %8, align 8
+  %9 = bitcast %"class.std::basic_ostream"* %call10 to i8*
+  %add.ptr.i38 = getelementptr inbounds i8, i8* %9, i64 %vbase.offset.i37
+  %10 = bitcast i8* %add.ptr.i38 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i39 = getelementptr inbounds i8, i8* %add.ptr.i38, i64 32
+  %11 = bitcast i8* %_M_streambuf_state.i.i.i39 to i32*
+  %12 = load i32, i32* %11, align 8, !tbaa !5
+  %or.i.i.i40 = or i32 %12, 1
+  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %10, i32 %or.i.i.i40)
+          to label %invoke.cont13 unwind label %lpad
+
+if.else.i43:                                      ; preds = %invoke.cont11
+  %call.i.i42 = call i64 @strlen(i8* nonnull %type) #7
+  %call1.i46 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call10, i8* nonnull %type, i64 %call.i.i42)
+          to label %invoke.cont13 unwind label %lpad
+
+invoke.cont13:                                    ; preds = %if.then.i41, %if.else.i43
+  %13 = bitcast %"class.std::basic_string"* %ref.tmp to i8*
+  call void @llvm.lifetime.start.p0i8(i64 8, i8* nonnull %13) #7
+  %_M_stringbuf.i = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1
+  invoke void @_ZNKSt15basic_stringbufIcSt11char_traitsIcESaIcEE3strEv(%"class.std::basic_string"* nonnull sret %ref.tmp, %"class.std::basic_stringbuf"* nonnull %_M_stringbuf.i)
+          to label %invoke.cont16 unwind label %lpad15
+
+invoke.cont16:                                    ; preds = %invoke.cont13
+  %_M_p.i.i = getelementptr inbounds %"class.std::basic_string", %"class.std::basic_string"* %ref.tmp, i64 0, i32 0, i32 0
+  %14 = load i8*, i8** %_M_p.i.i, align 8, !tbaa !15
+  %arrayidx.i.i = getelementptr inbounds i8, i8* %14, i64 -24
+  %15 = bitcast i8* %arrayidx.i.i to %"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"*
+  %16 = getelementptr inbounds %"class.std::allocator", %"class.std::allocator"* %ref.tmp.i, i64 0, i32 0
+  call void @llvm.lifetime.start.p0i8(i64 1, i8* nonnull %16) #7
+  %cmp.i.i = icmp eq i8* %arrayidx.i.i, bitcast ([0 x i64]* @_ZNSs4_Rep20_S_empty_rep_storageE to i8*)
+  br i1 %cmp.i.i, label %_ZNSsD2Ev.exit, label %if.then.i.i, !prof !18
+
+if.then.i.i:                                      ; preds = %invoke.cont16
+  %_M_refcount.i.i = getelementptr inbounds i8, i8* %14, i64 -8
+  %17 = bitcast i8* %_M_refcount.i.i to i32*
+  br i1 icmp ne (i8* bitcast (i32 (i32*, void (i8*)*)* @__pthread_key_create to i8*), i8* null), label %if.then.i.i.i, label %if.else.i.i.i
+
+if.then.i.i.i:                                    ; preds = %if.then.i.i
+  %18 = atomicrmw volatile add i32* %17, i32 -1 acq_rel
+  br label %invoke.cont.i.i
+
+if.else.i.i.i:                                    ; preds = %if.then.i.i
+  %19 = load i32, i32* %17, align 4, !tbaa !19
+  %add.i.i.i.i = add nsw i32 %19, -1
+  store i32 %add.i.i.i.i, i32* %17, align 4, !tbaa !19
+  br label %invoke.cont.i.i
+
+invoke.cont.i.i:                                  ; preds = %if.else.i.i.i, %if.then.i.i.i
+  %retval.0.i.i.i = phi i32 [ %18, %if.then.i.i.i ], [ %19, %if.else.i.i.i ]
+  %cmp3.i.i = icmp slt i32 %retval.0.i.i.i, 1
+  br i1 %cmp3.i.i, label %if.then4.i.i, label %_ZNSsD2Ev.exit
+
+if.then4.i.i:                                     ; preds = %invoke.cont.i.i
+  call void @_ZNSs4_Rep10_M_destroyERKSaIcE(%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"* nonnull %15, %"class.std::allocator"* nonnull dereferenceable(1) %ref.tmp.i) #7
+  br label %_ZNSsD2Ev.exit
+
+_ZNSsD2Ev.exit:                                   ; preds = %invoke.cont16, %invoke.cont.i.i, %if.then4.i.i
+  call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %16) #7
+  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %13) #7
+  %20 = load i64, i64* bitcast ([4 x i8*]* @_ZTTSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE to i64*), align 8
+  %21 = bitcast %"class.std::basic_ostringstream"* %ret to i64*
+  store i64 %20, i64* %21, align 8, !tbaa !2
+  %22 = load i64, i64* bitcast (i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE, i64 0, i64 3) to i64*), align 8
+  %vtable.cast.i.i = inttoptr i64 %20 to i8*
+  %vbase.offset.ptr.i.i = getelementptr i8, i8* %vtable.cast.i.i, i64 -24
+  %23 = bitcast i8* %vbase.offset.ptr.i.i to i64*
+  %vbase.offset.i.i = load i64, i64* %23, align 8
+  %add.ptr.i.i = getelementptr inbounds i8, i8* %0, i64 %vbase.offset.i.i
+  %24 = bitcast i8* %add.ptr.i.i to i64*
+  store i64 %22, i64* %24, align 8, !tbaa !2
+  %25 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 0, i32 0
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE, i64 0, inrange i32 0, i64 2) to i32 (...)**), i32 (...)*** %25, align 8, !tbaa !2
+  %_M_p.i.i.i.i.i.i = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 2, i32 0, i32 0
+  %26 = load i8*, i8** %_M_p.i.i.i.i.i.i, align 8, !tbaa !15
+  %arrayidx.i.i.i.i.i = getelementptr inbounds i8, i8* %26, i64 -24
+  %27 = bitcast i8* %arrayidx.i.i.i.i.i to %"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"*
+  %28 = getelementptr inbounds %"class.std::allocator", %"class.std::allocator"* %ref.tmp.i.i.i.i, i64 0, i32 0
+  call void @llvm.lifetime.start.p0i8(i64 1, i8* nonnull %28) #7
+  %cmp.i.i.i.i.i = icmp eq i8* %arrayidx.i.i.i.i.i, bitcast ([0 x i64]* @_ZNSs4_Rep20_S_empty_rep_storageE to i8*)
+  br i1 %cmp.i.i.i.i.i, label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit, label %if.then.i.i.i.i.i, !prof !18
+
+if.then.i.i.i.i.i:                                ; preds = %_ZNSsD2Ev.exit
+  %_M_refcount.i.i.i.i.i = getelementptr inbounds i8, i8* %26, i64 -8
+  %29 = bitcast i8* %_M_refcount.i.i.i.i.i to i32*
+  br i1 icmp ne (i8* bitcast (i32 (i32*, void (i8*)*)* @__pthread_key_create to i8*), i8* null), label %if.then.i.i.i.i.i.i, label %if.else.i.i.i.i.i.i
+
+if.then.i.i.i.i.i.i:                              ; preds = %if.then.i.i.i.i.i
+  %30 = atomicrmw volatile add i32* %29, i32 -1 acq_rel
+  br label %invoke.cont.i.i.i.i.i
+
+if.else.i.i.i.i.i.i:                              ; preds = %if.then.i.i.i.i.i
+  %31 = load i32, i32* %29, align 4, !tbaa !19
+  %add.i.i.i.i.i.i.i = add nsw i32 %31, -1
+  store i32 %add.i.i.i.i.i.i.i, i32* %29, align 4, !tbaa !19
+  br label %invoke.cont.i.i.i.i.i
+
+invoke.cont.i.i.i.i.i:                            ; preds = %if.else.i.i.i.i.i.i, %if.then.i.i.i.i.i.i
+  %retval.0.i.i.i.i.i.i = phi i32 [ %30, %if.then.i.i.i.i.i.i ], [ %31, %if.else.i.i.i.i.i.i ]
+  %cmp3.i.i.i.i.i = icmp slt i32 %retval.0.i.i.i.i.i.i, 1
+  br i1 %cmp3.i.i.i.i.i, label %if.then4.i.i.i.i.i, label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit
+
+if.then4.i.i.i.i.i:                               ; preds = %invoke.cont.i.i.i.i.i
+  call void @_ZNSs4_Rep10_M_destroyERKSaIcE(%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"* nonnull %27, %"class.std::allocator"* nonnull dereferenceable(1) %ref.tmp.i.i.i.i) #7
+  br label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit
+
+_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit: ; preds = %_ZNSsD2Ev.exit, %invoke.cont.i.i.i.i.i, %if.then4.i.i.i.i.i
+  call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %28) #7
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_streambufIcSt11char_traitsIcEE, i64 0, inrange i32 0, i64 2) to i32 (...)**), i32 (...)*** %25, align 8, !tbaa !2
+  %_M_buf_locale.i.i.i.i = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 0, i32 7
+  call void @_ZNSt6localeD1Ev(%"class.std::locale"* nonnull %_M_buf_locale.i.i.i.i) #7
+  %32 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 2, i32 0
+  call void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"* nonnull %32) #7
+  call void @llvm.lifetime.end.p0i8(i64 352, i8* nonnull %0) #7
+  ret i8* %14
+
+lpad:                                             ; preds = %if.else.i43, %if.then.i41, %invoke.cont9, %invoke.cont4, %if.else.i, %if.then.i, %if.end, %invoke.cont6
+  %33 = landingpad { i8*, i32 }
+          cleanup
+  %34 = extractvalue { i8*, i32 } %33, 0
+  %35 = extractvalue { i8*, i32 } %33, 1
+  br label %ehcleanup
+
+lpad15:                                           ; preds = %invoke.cont13
+  %36 = landingpad { i8*, i32 }
+          cleanup
+  %37 = extractvalue { i8*, i32 } %36, 0
+  %38 = extractvalue { i8*, i32 } %36, 1
+  call void @llvm.lifetime.end.p0i8(i64 8, i8* nonnull %13) #7
+  br label %ehcleanup
+
+ehcleanup:                                        ; preds = %lpad15, %lpad
+  %exn.slot.0 = phi i8* [ %37, %lpad15 ], [ %34, %lpad ]
+  %ehselector.slot.0 = phi i32 [ %38, %lpad15 ], [ %35, %lpad ]
+  %39 = load i64, i64* bitcast ([4 x i8*]* @_ZTTSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE to i64*), align 8
+  %40 = bitcast %"class.std::basic_ostringstream"* %ret to i64*
+  store i64 %39, i64* %40, align 8, !tbaa !2
+  %41 = load i64, i64* bitcast (i8** getelementptr inbounds ([4 x i8*], [4 x i8*]* @_ZTTSt19basic_ostringstreamIcSt11char_traitsIcESaIcEE, i64 0, i64 3) to i64*), align 8
+  %vtable.cast.i.i50 = inttoptr i64 %39 to i8*
+  %vbase.offset.ptr.i.i51 = getelementptr i8, i8* %vtable.cast.i.i50, i64 -24
+  %42 = bitcast i8* %vbase.offset.ptr.i.i51 to i64*
+  %vbase.offset.i.i52 = load i64, i64* %42, align 8
+  %add.ptr.i.i53 = getelementptr inbounds i8, i8* %0, i64 %vbase.offset.i.i52
+  %43 = bitcast i8* %add.ptr.i.i53 to i64*
+  store i64 %41, i64* %43, align 8, !tbaa !2
+  %44 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 0, i32 0
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_stringbufIcSt11char_traitsIcESaIcEE, i64 0, inrange i32 0, i64 2) to i32 (...)**), i32 (...)*** %44, align 8, !tbaa !2
+  %_M_p.i.i.i.i.i.i54 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 2, i32 0, i32 0
+  %45 = load i8*, i8** %_M_p.i.i.i.i.i.i54, align 8, !tbaa !15
+  %arrayidx.i.i.i.i.i55 = getelementptr inbounds i8, i8* %45, i64 -24
+  %46 = bitcast i8* %arrayidx.i.i.i.i.i55 to %"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"*
+  %47 = getelementptr inbounds %"class.std::allocator", %"class.std::allocator"* %ref.tmp.i.i.i.i49, i64 0, i32 0
+  call void @llvm.lifetime.start.p0i8(i64 1, i8* nonnull %47) #7
+  %cmp.i.i.i.i.i56 = icmp eq i8* %arrayidx.i.i.i.i.i55, bitcast ([0 x i64]* @_ZNSs4_Rep20_S_empty_rep_storageE to i8*)
+  br i1 %cmp.i.i.i.i.i56, label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit67, label %if.then.i.i.i.i.i58, !prof !18
+
+if.then.i.i.i.i.i58:                              ; preds = %ehcleanup
+  %_M_refcount.i.i.i.i.i57 = getelementptr inbounds i8, i8* %45, i64 -8
+  %48 = bitcast i8* %_M_refcount.i.i.i.i.i57 to i32*
+  br i1 icmp ne (i8* bitcast (i32 (i32*, void (i8*)*)* @__pthread_key_create to i8*), i8* null), label %if.then.i.i.i.i.i.i59, label %if.else.i.i.i.i.i.i61
+
+if.then.i.i.i.i.i.i59:                            ; preds = %if.then.i.i.i.i.i58
+  %49 = atomicrmw volatile add i32* %48, i32 -1 acq_rel
+  br label %invoke.cont.i.i.i.i.i64
+
+if.else.i.i.i.i.i.i61:                            ; preds = %if.then.i.i.i.i.i58
+  %50 = load i32, i32* %48, align 4, !tbaa !19
+  %add.i.i.i.i.i.i.i60 = add nsw i32 %50, -1
+  store i32 %add.i.i.i.i.i.i.i60, i32* %48, align 4, !tbaa !19
+  br label %invoke.cont.i.i.i.i.i64
+
+invoke.cont.i.i.i.i.i64:                          ; preds = %if.else.i.i.i.i.i.i61, %if.then.i.i.i.i.i.i59
+  %retval.0.i.i.i.i.i.i62 = phi i32 [ %49, %if.then.i.i.i.i.i.i59 ], [ %50, %if.else.i.i.i.i.i.i61 ]
+  %cmp3.i.i.i.i.i63 = icmp slt i32 %retval.0.i.i.i.i.i.i62, 1
+  br i1 %cmp3.i.i.i.i.i63, label %if.then4.i.i.i.i.i65, label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit67
+
+if.then4.i.i.i.i.i65:                             ; preds = %invoke.cont.i.i.i.i.i64
+  call void @_ZNSs4_Rep10_M_destroyERKSaIcE(%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"* nonnull %46, %"class.std::allocator"* nonnull dereferenceable(1) %ref.tmp.i.i.i.i49) #7
+  br label %_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit67
+
+_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEED1Ev.exit67: ; preds = %ehcleanup, %invoke.cont.i.i.i.i.i64, %if.then4.i.i.i.i.i65
+  call void @llvm.lifetime.end.p0i8(i64 1, i8* nonnull %47) #7
+  store i32 (...)** bitcast (i8** getelementptr inbounds ({ [16 x i8*] }, { [16 x i8*] }* @_ZTVSt15basic_streambufIcSt11char_traitsIcEE, i64 0, inrange i32 0, i64 2) to i32 (...)**), i32 (...)*** %44, align 8, !tbaa !2
+  %_M_buf_locale.i.i.i.i66 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 1, i32 0, i32 7
+  call void @_ZNSt6localeD1Ev(%"class.std::locale"* nonnull %_M_buf_locale.i.i.i.i66) #7
+  %51 = getelementptr inbounds %"class.std::basic_ostringstream", %"class.std::basic_ostringstream"* %ret, i64 0, i32 2, i32 0
+  call void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"* nonnull %51) #7
+  call void @llvm.lifetime.end.p0i8(i64 352, i8* nonnull %0) #7
+  %lpad.val = insertvalue { i8*, i32 } undef, i8* %exn.slot.0, 0
+  %lpad.val19 = insertvalue { i8*, i32 } %lpad.val, i32 %ehselector.slot.0, 1
+  resume { i8*, i32 } %lpad.val19
+}
 
 ; Function Attrs: nounwind
-declare dso_local void @_ZNSt8ios_base4InitD1Ev(%"class.std::ios_base::Init"*) unnamed_addr #1
+declare dso_local i32 @omp_get_thread_num() local_unnamed_addr #1
 
-; Function Attrs: nounwind
-declare dso_local i32 @__cxa_atexit(void (i8*)*, i8*, i8*) local_unnamed_addr #2
+; Function Attrs: inlinehint uwtable
+declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc(%"class.std::basic_ostream"* dereferenceable(272), i8*) local_unnamed_addr #2
+
+; Function Attrs: noreturn nounwind
+declare dso_local void @__assert_fail(i8*, i8*, i32, i8*) local_unnamed_addr #3
+
+; Function Attrs: argmemonly nounwind
+declare void @llvm.lifetime.start.p0i8(i64, i8* nocapture) #4
 
 ; Function Attrs: uwtable
-declare dso_local void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"*) unnamed_addr #3 align 2
+declare dso_local void @_ZNSt19basic_ostringstreamIcSt11char_traitsIcESaIcEEC1ESt13_Ios_Openmode(%"class.std::basic_ostringstream"*, i32) unnamed_addr #0 align 2
 
-; Function Attrs: nounwind uwtable
-declare dso_local void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"*) unnamed_addr #4 align 2
+declare dso_local i32 @__gxx_personality_v0(...)
+
+declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"*, i32) local_unnamed_addr #5
+
+; Function Attrs: argmemonly nounwind
+declare void @llvm.lifetime.end.p0i8(i64, i8* nocapture) #4
 
 ; Function Attrs: noinline uwtable
-define dso_local void @_Z11printBranchPciS_S_(i8* %name, i32 %cond, i8* %n1, i8* %n2) local_unnamed_addr #5 {
+define dso_local void @_Z11printBranchPcS_iS_S_(i8* %name, i8* %kernel_type, i32 %cond, i8* %n1, i8* %n2) local_unnamed_addr #6 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
+  %call = tail call i32 @omp_get_thread_num() #7
+  %idxprom = sext i32 %call to i64
+  %_M_file.i.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom, i32 1, i32 2
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull %_M_file.i.i) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
-  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @.str, i64 0, i64 0), i32 48)
+  %call2 = tail call i32 @omp_get_thread_num() #7
+  %idxprom3 = sext i32 %call2 to i64
+  %arrayidx4 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3
+  %call5 = tail call i8* @_Z12get_dir_namePcPKc(i8* %kernel_type, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.7, i64 0, i64 0))
+  %_M_filebuf.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3, i32 1
+  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull %_M_filebuf.i, i8* %call5, i32 48)
   %tobool.i = icmp eq %"class.std::basic_filebuf"* %call2.i, null
-  %vtable3.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+  %0 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8**
+  %vtable3.i = load i8*, i8** %0, align 16, !tbaa !2
   %vbase.offset.ptr4.i = getelementptr i8, i8* %vtable3.i, i64 -24
-  %0 = bitcast i8* %vbase.offset.ptr4.i to i64*
-  %vbase.offset5.i = load i64, i64* %0, align 8
-  %add.ptr6.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset5.i
-  %1 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
+  %1 = bitcast i8* %vbase.offset.ptr4.i to i64*
+  %vbase.offset5.i = load i64, i64* %1, align 8
+  %2 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8*
+  %add.ptr6.i = getelementptr inbounds i8, i8* %2, i64 %vbase.offset5.i
+  %3 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
   br i1 %tobool.i, label %if.then.i, label %if.else.i
 
 if.then.i:                                        ; preds = %if.then
   %_M_streambuf_state.i.i.i = getelementptr inbounds i8, i8* %add.ptr6.i, i64 32
-  %2 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
-  %3 = load i32, i32* %2, align 8, !tbaa !5
-  %or.i.i.i = or i32 %3, 4
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 %or.i.i.i)
+  %4 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
+  %5 = load i32, i32* %4, align 8, !tbaa !5
+  %or.i.i.i = or i32 %5, 4
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 %or.i.i.i)
   br label %if.end
 
 if.else.i:                                        ; preds = %if.then
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 0)
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 0)
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
   %cmp = icmp eq i32 %cond, 0
   %n1.n2 = select i1 %cmp, i8* %n1, i8* %n2
-  %call1.i12 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.3, i64 0, i64 0), i64 2)
-  %tobool.i14 = icmp eq i8* %name, null
-  br i1 %tobool.i14, label %if.then.i17, label %if.else.i20
+  %call9 = tail call i32 @omp_get_thread_num() #7
+  %idxprom10 = sext i32 %call9 to i64
+  %arrayidx11 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom10
+  %6 = bitcast %"class.std::basic_ofstream"* %arrayidx11 to %"class.std::basic_ostream"*
+  %call1.i20 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.8, i64 0, i64 0), i64 2)
+  %tobool.i22 = icmp eq i8* %name, null
+  br i1 %tobool.i22, label %if.then.i25, label %if.else.i28
 
-if.then.i17:                                      ; preds = %if.end
-  %vtable.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+if.then.i25:                                      ; preds = %if.end
+  %7 = bitcast %"class.std::basic_ofstream"* %arrayidx11 to i8**
+  %vtable.i = load i8*, i8** %7, align 16, !tbaa !2
   %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
-  %4 = bitcast i8* %vbase.offset.ptr.i to i64*
-  %vbase.offset.i = load i64, i64* %4, align 8
-  %add.ptr.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i
-  %5 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i15 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
-  %6 = bitcast i8* %_M_streambuf_state.i.i.i15 to i32*
-  %7 = load i32, i32* %6, align 8, !tbaa !5
-  %or.i.i.i16 = or i32 %7, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %5, i32 %or.i.i.i16)
+  %8 = bitcast i8* %vbase.offset.ptr.i to i64*
+  %vbase.offset.i = load i64, i64* %8, align 8
+  %9 = bitcast %"class.std::basic_ofstream"* %arrayidx11 to i8*
+  %add.ptr.i = getelementptr inbounds i8, i8* %9, i64 %vbase.offset.i
+  %10 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i23 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
+  %11 = bitcast i8* %_M_streambuf_state.i.i.i23 to i32*
+  %12 = load i32, i32* %11, align 8, !tbaa !5
+  %or.i.i.i24 = or i32 %12, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %10, i32 %or.i.i.i24)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-if.else.i20:                                      ; preds = %if.end
-  %call.i.i18 = tail call i64 @strlen(i8* nonnull %name) #2
-  %call1.i19 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i18)
+if.else.i28:                                      ; preds = %if.end
+  %call.i.i26 = tail call i64 @strlen(i8* nonnull %name) #7
+  %call1.i27 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %name, i64 %call.i.i26)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i17, %if.else.i20
-  %call1.i22 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %tobool.i24 = icmp eq i8* %n1.n2, null
-  br i1 %tobool.i24, label %if.then.i31, label %if.else.i34
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i25, %if.else.i28
+  %call1.i30 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %tobool.i32 = icmp eq i8* %n1.n2, null
+  br i1 %tobool.i32, label %if.then.i39, label %if.else.i42
 
-if.then.i31:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %vtable.i25 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
-  %vbase.offset.ptr.i26 = getelementptr i8, i8* %vtable.i25, i64 -24
-  %8 = bitcast i8* %vbase.offset.ptr.i26 to i64*
-  %vbase.offset.i27 = load i64, i64* %8, align 8
-  %add.ptr.i28 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i27
-  %9 = bitcast i8* %add.ptr.i28 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i29 = getelementptr inbounds i8, i8* %add.ptr.i28, i64 32
-  %10 = bitcast i8* %_M_streambuf_state.i.i.i29 to i32*
-  %11 = load i32, i32* %10, align 8, !tbaa !5
-  %or.i.i.i30 = or i32 %11, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %9, i32 %or.i.i.i30)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit35
+if.then.i39:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %13 = bitcast %"class.std::basic_ofstream"* %arrayidx11 to i8**
+  %vtable.i33 = load i8*, i8** %13, align 16, !tbaa !2
+  %vbase.offset.ptr.i34 = getelementptr i8, i8* %vtable.i33, i64 -24
+  %14 = bitcast i8* %vbase.offset.ptr.i34 to i64*
+  %vbase.offset.i35 = load i64, i64* %14, align 8
+  %15 = bitcast %"class.std::basic_ofstream"* %arrayidx11 to i8*
+  %add.ptr.i36 = getelementptr inbounds i8, i8* %15, i64 %vbase.offset.i35
+  %16 = bitcast i8* %add.ptr.i36 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i37 = getelementptr inbounds i8, i8* %add.ptr.i36, i64 32
+  %17 = bitcast i8* %_M_streambuf_state.i.i.i37 to i32*
+  %18 = load i32, i32* %17, align 8, !tbaa !5
+  %or.i.i.i38 = or i32 %18, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %16, i32 %or.i.i.i38)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit43
 
-if.else.i34:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %call.i.i32 = tail call i64 @strlen(i8* nonnull %n1.n2) #2
-  %call1.i33 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %n1.n2, i64 %call.i.i32)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit35
+if.else.i42:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %call.i.i40 = tail call i64 @strlen(i8* nonnull %n1.n2) #7
+  %call1.i41 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %n1.n2, i64 %call.i.i40)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit43
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit35: ; preds = %if.then.i31, %if.else.i34
-  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit43: ; preds = %if.then.i39, %if.else.i42
+  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0), i64 1)
   ret void
 }
 
-; Function Attrs: argmemonly nounwind
-declare void @llvm.lifetime.start.p0i8(i64, i8* nocapture) #6
-
-; Function Attrs: argmemonly nounwind
-declare void @llvm.lifetime.end.p0i8(i64, i8* nocapture) #6
-
 ; Function Attrs: noinline uwtable
-define dso_local void @_Z12printuBranchPcS_(i8* %name, i8* %n1) local_unnamed_addr #5 {
+define dso_local void @_Z12printuBranchPcS_S_(i8* %name, i8* %kernel_type, i8* %n1) local_unnamed_addr #6 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
+  %call = tail call i32 @omp_get_thread_num() #7
+  %idxprom = sext i32 %call to i64
+  %_M_file.i.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom, i32 1, i32 2
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull %_M_file.i.i) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
-  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @.str, i64 0, i64 0), i32 48)
+  %call2 = tail call i32 @omp_get_thread_num() #7
+  %idxprom3 = sext i32 %call2 to i64
+  %arrayidx4 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3
+  %call5 = tail call i8* @_Z12get_dir_namePcPKc(i8* %kernel_type, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.7, i64 0, i64 0))
+  %_M_filebuf.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3, i32 1
+  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull %_M_filebuf.i, i8* %call5, i32 48)
   %tobool.i = icmp eq %"class.std::basic_filebuf"* %call2.i, null
-  %vtable3.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+  %0 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8**
+  %vtable3.i = load i8*, i8** %0, align 16, !tbaa !2
   %vbase.offset.ptr4.i = getelementptr i8, i8* %vtable3.i, i64 -24
-  %0 = bitcast i8* %vbase.offset.ptr4.i to i64*
-  %vbase.offset5.i = load i64, i64* %0, align 8
-  %add.ptr6.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset5.i
-  %1 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
+  %1 = bitcast i8* %vbase.offset.ptr4.i to i64*
+  %vbase.offset5.i = load i64, i64* %1, align 8
+  %2 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8*
+  %add.ptr6.i = getelementptr inbounds i8, i8* %2, i64 %vbase.offset5.i
+  %3 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
   br i1 %tobool.i, label %if.then.i, label %if.else.i
 
 if.then.i:                                        ; preds = %if.then
   %_M_streambuf_state.i.i.i = getelementptr inbounds i8, i8* %add.ptr6.i, i64 32
-  %2 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
-  %3 = load i32, i32* %2, align 8, !tbaa !5
-  %or.i.i.i = or i32 %3, 4
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 %or.i.i.i)
+  %4 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
+  %5 = load i32, i32* %4, align 8, !tbaa !5
+  %or.i.i.i = or i32 %5, 4
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 %or.i.i.i)
   br label %if.end
 
 if.else.i:                                        ; preds = %if.then
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 0)
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 0)
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
-  %call.i.i11 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
-  br i1 %call.i.i11, label %if.end4, label %if.then3
+  %call7 = tail call i32 @omp_get_thread_num() #7
+  %idxprom8 = sext i32 %call7 to i64
+  %_M_file.i.i22 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom8, i32 1, i32 2
+  %call.i.i23 = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull %_M_file.i.i22) #15
+  br i1 %call.i.i23, label %if.end12, label %if.then11
 
-if.then3:                                         ; preds = %if.end
-  tail call void @__assert_fail(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.6, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.7, i64 0, i64 0), i32 27, i8* getelementptr inbounds ([34 x i8], [34 x i8]* @__PRETTY_FUNCTION__._Z12printuBranchPcS_, i64 0, i64 0)) #14
+if.then11:                                        ; preds = %if.end
+  tail call void @__assert_fail(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.str.10, i64 0, i64 0), i8* getelementptr inbounds ([10 x i8], [10 x i8]* @.str.3, i64 0, i64 0), i32 48, i8* getelementptr inbounds ([42 x i8], [42 x i8]* @__PRETTY_FUNCTION__._Z12printuBranchPcS_S_, i64 0, i64 0)) #14
   unreachable
 
-if.end4:                                          ; preds = %if.end
-  %call1.i13 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.8, i64 0, i64 0), i64 2)
-  %tobool.i15 = icmp eq i8* %name, null
-  br i1 %tobool.i15, label %if.then.i18, label %if.else.i21
+if.end12:                                         ; preds = %if.end
+  %call13 = tail call i32 @omp_get_thread_num() #7
+  %idxprom14 = sext i32 %call13 to i64
+  %arrayidx15 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom14
+  %6 = bitcast %"class.std::basic_ofstream"* %arrayidx15 to %"class.std::basic_ostream"*
+  %call1.i25 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
+  %tobool.i27 = icmp eq i8* %name, null
+  br i1 %tobool.i27, label %if.then.i30, label %if.else.i33
 
-if.then.i18:                                      ; preds = %if.end4
-  %vtable.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+if.then.i30:                                      ; preds = %if.end12
+  %7 = bitcast %"class.std::basic_ofstream"* %arrayidx15 to i8**
+  %vtable.i = load i8*, i8** %7, align 16, !tbaa !2
   %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
-  %4 = bitcast i8* %vbase.offset.ptr.i to i64*
-  %vbase.offset.i = load i64, i64* %4, align 8
-  %add.ptr.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i
-  %5 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i16 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
-  %6 = bitcast i8* %_M_streambuf_state.i.i.i16 to i32*
-  %7 = load i32, i32* %6, align 8, !tbaa !5
-  %or.i.i.i17 = or i32 %7, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %5, i32 %or.i.i.i17)
+  %8 = bitcast i8* %vbase.offset.ptr.i to i64*
+  %vbase.offset.i = load i64, i64* %8, align 8
+  %9 = bitcast %"class.std::basic_ofstream"* %arrayidx15 to i8*
+  %add.ptr.i = getelementptr inbounds i8, i8* %9, i64 %vbase.offset.i
+  %10 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i28 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
+  %11 = bitcast i8* %_M_streambuf_state.i.i.i28 to i32*
+  %12 = load i32, i32* %11, align 8, !tbaa !5
+  %or.i.i.i29 = or i32 %12, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %10, i32 %or.i.i.i29)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-if.else.i21:                                      ; preds = %if.end4
-  %call.i.i19 = tail call i64 @strlen(i8* nonnull %name) #2
-  %call1.i20 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i19)
+if.else.i33:                                      ; preds = %if.end12
+  %call.i.i31 = tail call i64 @strlen(i8* nonnull %name) #7
+  %call1.i32 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %name, i64 %call.i.i31)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i18, %if.else.i21
-  %call1.i23 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %tobool.i25 = icmp eq i8* %n1, null
-  br i1 %tobool.i25, label %if.then.i32, label %if.else.i35
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i30, %if.else.i33
+  %call1.i35 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %tobool.i37 = icmp eq i8* %n1, null
+  br i1 %tobool.i37, label %if.then.i44, label %if.else.i47
 
-if.then.i32:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %vtable.i26 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
-  %vbase.offset.ptr.i27 = getelementptr i8, i8* %vtable.i26, i64 -24
-  %8 = bitcast i8* %vbase.offset.ptr.i27 to i64*
-  %vbase.offset.i28 = load i64, i64* %8, align 8
-  %add.ptr.i29 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i28
-  %9 = bitcast i8* %add.ptr.i29 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i30 = getelementptr inbounds i8, i8* %add.ptr.i29, i64 32
-  %10 = bitcast i8* %_M_streambuf_state.i.i.i30 to i32*
-  %11 = load i32, i32* %10, align 8, !tbaa !5
-  %or.i.i.i31 = or i32 %11, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %9, i32 %or.i.i.i31)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36
+if.then.i44:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %13 = bitcast %"class.std::basic_ofstream"* %arrayidx15 to i8**
+  %vtable.i38 = load i8*, i8** %13, align 16, !tbaa !2
+  %vbase.offset.ptr.i39 = getelementptr i8, i8* %vtable.i38, i64 -24
+  %14 = bitcast i8* %vbase.offset.ptr.i39 to i64*
+  %vbase.offset.i40 = load i64, i64* %14, align 8
+  %15 = bitcast %"class.std::basic_ofstream"* %arrayidx15 to i8*
+  %add.ptr.i41 = getelementptr inbounds i8, i8* %15, i64 %vbase.offset.i40
+  %16 = bitcast i8* %add.ptr.i41 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i42 = getelementptr inbounds i8, i8* %add.ptr.i41, i64 32
+  %17 = bitcast i8* %_M_streambuf_state.i.i.i42 to i32*
+  %18 = load i32, i32* %17, align 8, !tbaa !5
+  %or.i.i.i43 = or i32 %18, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %16, i32 %or.i.i.i43)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit48
 
-if.else.i35:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
-  %call.i.i33 = tail call i64 @strlen(i8* nonnull %n1) #2
-  %call1.i34 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %n1, i64 %call.i.i33)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36
+if.else.i47:                                      ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+  %call.i.i45 = tail call i64 @strlen(i8* nonnull %n1) #7
+  %call1.i46 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %n1, i64 %call.i.i45)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit48
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit36: ; preds = %if.then.i32, %if.else.i35
-  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit48: ; preds = %if.then.i44, %if.else.i47
+  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0), i64 1)
   ret void
 }
 
-; Function Attrs: noreturn nounwind
-declare dso_local void @__assert_fail(i8*, i8*, i32, i8*) local_unnamed_addr #7
-
 ; Function Attrs: noinline uwtable
-define dso_local void @_Z8printMemPcbxi(i8* %name, i1 zeroext %type, i64 %addr, i32 %size) local_unnamed_addr #5 {
+define dso_local void @_Z8printMemPcS_bxi(i8* %name, i8* %kernel_type, i1 zeroext %type, i64 %addr, i32 %size) local_unnamed_addr #6 {
 entry:
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1, i32 2)) #13
+  %call = tail call i32 @omp_get_thread_num() #7
+  %idxprom = sext i32 %call to i64
+  %_M_file.i.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 %idxprom, i32 1, i32 2
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull %_M_file.i.i) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
-  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f2, i64 0, i32 1), i8* getelementptr inbounds ([15 x i8], [15 x i8]* @.str.9, i64 0, i64 0), i32 48)
+  %call2 = tail call i32 @omp_get_thread_num() #7
+  %idxprom3 = sext i32 %call2 to i64
+  %arrayidx4 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 %idxprom3
+  %call5 = tail call i8* @_Z12get_dir_namePcPKc(i8* %kernel_type, i8* getelementptr inbounds ([8 x i8], [8 x i8]* @.str.12, i64 0, i64 0))
+  %_M_filebuf.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 %idxprom3, i32 1
+  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull %_M_filebuf.i, i8* %call5, i32 48)
   %tobool.i = icmp eq %"class.std::basic_filebuf"* %call2.i, null
-  %vtable3.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f2 to i8**), align 8, !tbaa !2
+  %0 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8**
+  %vtable3.i = load i8*, i8** %0, align 16, !tbaa !2
   %vbase.offset.ptr4.i = getelementptr i8, i8* %vtable3.i, i64 -24
-  %0 = bitcast i8* %vbase.offset.ptr4.i to i64*
-  %vbase.offset5.i = load i64, i64* %0, align 8
-  %add.ptr6.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f2 to i8*), i64 %vbase.offset5.i
-  %1 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
+  %1 = bitcast i8* %vbase.offset.ptr4.i to i64*
+  %vbase.offset5.i = load i64, i64* %1, align 8
+  %2 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8*
+  %add.ptr6.i = getelementptr inbounds i8, i8* %2, i64 %vbase.offset5.i
+  %3 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
   br i1 %tobool.i, label %if.then.i, label %if.else.i
 
 if.then.i:                                        ; preds = %if.then
   %_M_streambuf_state.i.i.i = getelementptr inbounds i8, i8* %add.ptr6.i, i64 32
-  %2 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
-  %3 = load i32, i32* %2, align 8, !tbaa !5
-  %or.i.i.i = or i32 %3, 4
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 %or.i.i.i)
+  %4 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
+  %5 = load i32, i32* %4, align 8, !tbaa !5
+  %or.i.i.i = or i32 %5, 4
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 %or.i.i.i)
   br label %if.end
 
 if.else.i:                                        ; preds = %if.then
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 0)
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 0)
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
-  br i1 %type, label %if.then13, label %if.then2
+  %call22 = tail call i32 @omp_get_thread_num() #7
+  %idxprom23 = sext i32 %call22 to i64
+  %arrayidx24 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 %idxprom23
+  %6 = bitcast %"class.std::basic_ofstream"* %arrayidx24 to %"class.std::basic_ostream"*
+  br i1 %type, label %if.then21, label %if.then7
 
-if.then2:                                         ; preds = %if.end
-  %call1.i29 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.10, i64 0, i64 0), i64 2)
-  %tobool.i31 = icmp eq i8* %name, null
-  br i1 %tobool.i31, label %if.then.i34, label %if.else.i37
+if.then7:                                         ; preds = %if.end
+  %call1.i40 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.13, i64 0, i64 0), i64 2)
+  %tobool.i42 = icmp eq i8* %name, null
+  br i1 %tobool.i42, label %if.then.i45, label %if.else.i48
 
-if.then.i34:                                      ; preds = %if.then2
-  %vtable.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f2 to i8**), align 8, !tbaa !2
+if.then.i45:                                      ; preds = %if.then7
+  %7 = bitcast %"class.std::basic_ofstream"* %arrayidx24 to i8**
+  %vtable.i = load i8*, i8** %7, align 16, !tbaa !2
   %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
-  %4 = bitcast i8* %vbase.offset.ptr.i to i64*
-  %vbase.offset.i = load i64, i64* %4, align 8
-  %add.ptr.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f2 to i8*), i64 %vbase.offset.i
-  %5 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i32 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
-  %6 = bitcast i8* %_M_streambuf_state.i.i.i32 to i32*
-  %7 = load i32, i32* %6, align 8, !tbaa !5
-  %or.i.i.i33 = or i32 %7, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %5, i32 %or.i.i.i33)
+  %8 = bitcast i8* %vbase.offset.ptr.i to i64*
+  %vbase.offset.i = load i64, i64* %8, align 8
+  %9 = bitcast %"class.std::basic_ofstream"* %arrayidx24 to i8*
+  %add.ptr.i = getelementptr inbounds i8, i8* %9, i64 %vbase.offset.i
+  %10 = bitcast i8* %add.ptr.i to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i43 = getelementptr inbounds i8, i8* %add.ptr.i, i64 32
+  %11 = bitcast i8* %_M_streambuf_state.i.i.i43 to i32*
+  %12 = load i32, i32* %11, align 8, !tbaa !5
+  %or.i.i.i44 = or i32 %12, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %10, i32 %or.i.i.i44)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-if.else.i37:                                      ; preds = %if.then2
-  %call.i.i35 = tail call i64 @strlen(i8* nonnull %name) #2
-  %call1.i36 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i35)
+if.else.i48:                                      ; preds = %if.then7
+  %call.i.i46 = tail call i64 @strlen(i8* nonnull %name) #7
+  %call1.i47 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %name, i64 %call.i.i46)
   br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i34, %if.else.i37
-  %call1.i39 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %call.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"* bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i64 %addr)
-  %call1.i42 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call.i, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %call8 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call.i, i32 %size)
-  %call1.i45 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call8, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
-  br label %if.end22
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit: ; preds = %if.then.i45, %if.else.i48
+  %call1.i50 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %call.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"* nonnull %6, i64 %addr)
+  %call1.i53 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call.i, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %call16 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call.i, i32 %size)
+  %call1.i56 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call16, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0), i64 1)
+  br label %if.end33
 
-if.then13:                                        ; preds = %if.end
-  %call1.i48 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
-  %tobool.i50 = icmp eq i8* %name, null
-  br i1 %tobool.i50, label %if.then.i57, label %if.else.i60
+if.then21:                                        ; preds = %if.end
+  %call1.i59 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.14, i64 0, i64 0), i64 2)
+  %tobool.i61 = icmp eq i8* %name, null
+  br i1 %tobool.i61, label %if.then.i68, label %if.else.i71
 
-if.then.i57:                                      ; preds = %if.then13
-  %vtable.i51 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f2 to i8**), align 8, !tbaa !2
-  %vbase.offset.ptr.i52 = getelementptr i8, i8* %vtable.i51, i64 -24
-  %8 = bitcast i8* %vbase.offset.ptr.i52 to i64*
-  %vbase.offset.i53 = load i64, i64* %8, align 8
-  %add.ptr.i54 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f2 to i8*), i64 %vbase.offset.i53
-  %9 = bitcast i8* %add.ptr.i54 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i55 = getelementptr inbounds i8, i8* %add.ptr.i54, i64 32
-  %10 = bitcast i8* %_M_streambuf_state.i.i.i55 to i32*
-  %11 = load i32, i32* %10, align 8, !tbaa !5
-  %or.i.i.i56 = or i32 %11, 1
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %9, i32 %or.i.i.i56)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit61
+if.then.i68:                                      ; preds = %if.then21
+  %13 = bitcast %"class.std::basic_ofstream"* %arrayidx24 to i8**
+  %vtable.i62 = load i8*, i8** %13, align 16, !tbaa !2
+  %vbase.offset.ptr.i63 = getelementptr i8, i8* %vtable.i62, i64 -24
+  %14 = bitcast i8* %vbase.offset.ptr.i63 to i64*
+  %vbase.offset.i64 = load i64, i64* %14, align 8
+  %15 = bitcast %"class.std::basic_ofstream"* %arrayidx24 to i8*
+  %add.ptr.i65 = getelementptr inbounds i8, i8* %15, i64 %vbase.offset.i64
+  %16 = bitcast i8* %add.ptr.i65 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i66 = getelementptr inbounds i8, i8* %add.ptr.i65, i64 32
+  %17 = bitcast i8* %_M_streambuf_state.i.i.i66 to i32*
+  %18 = load i32, i32* %17, align 8, !tbaa !5
+  %or.i.i.i67 = or i32 %18, 1
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %16, i32 %or.i.i.i67)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit72
 
-if.else.i60:                                      ; preds = %if.then13
-  %call.i.i58 = tail call i64 @strlen(i8* nonnull %name) #2
-  %call1.i59 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i58)
-  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit61
+if.else.i71:                                      ; preds = %if.then21
+  %call.i.i69 = tail call i64 @strlen(i8* nonnull %name) #7
+  %call1.i70 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull %name, i64 %call.i.i69)
+  br label %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit72
 
-_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit61: ; preds = %if.then.i57, %if.else.i60
-  %call1.i63 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %call.i65 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"* bitcast (%"class.std::basic_ofstream"* @f2 to %"class.std::basic_ostream"*), i64 %addr)
-  %call1.i67 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call.i65, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-  %call19 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call.i65, i32 %size)
-  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call19, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
-  br label %if.end22
+_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit72: ; preds = %if.then.i68, %if.else.i71
+  %call1.i74 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %6, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %call.i76 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"* nonnull %6, i64 %addr)
+  %call1.i78 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call.i76, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+  %call30 = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"* nonnull %call.i76, i32 %size)
+  %call1.i = tail call dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %call30, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0), i64 1)
+  br label %if.end33
 
-if.end22:                                         ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit61, %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
+if.end33:                                         ; preds = %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit72, %_ZStlsISt11char_traitsIcEERSt13basic_ostreamIcT_ES5_PKc.exit
   ret void
 }
 
-declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSolsEi(%"class.std::basic_ostream"*, i32) local_unnamed_addr #0
-
 ; Function Attrs: noinline uwtable
-define dso_local void @_Z7printSwPciS_iz(i8* %name, i32 %value, i8* %def, i32 %n, ...) local_unnamed_addr #5 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) {
+define dso_local void @_Z7printSwPcS_iS_iz(i8* %name, i8* %kernel_type, i32 %value, i8* %def, i32 %n, ...) local_unnamed_addr #6 personality i8* bitcast (i32 (...)* @__gxx_personality_v0 to i8*) {
 entry:
   %vl = alloca [1 x %struct.__va_list_tag], align 16
-  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1, i32 2)) #13
+  %call = tail call i32 @omp_get_thread_num() #7
+  %idxprom = sext i32 %call to i64
+  %_M_file.i.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom, i32 1, i32 2
+  %call.i.i = tail call zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"* nonnull %_M_file.i.i) #15
   br i1 %call.i.i, label %if.end, label %if.then
 
 if.then:                                          ; preds = %entry
-  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull getelementptr inbounds (%"class.std::basic_ofstream", %"class.std::basic_ofstream"* @f1, i64 0, i32 1), i8* getelementptr inbounds ([16 x i8], [16 x i8]* @.str, i64 0, i64 0), i32 48)
+  %call2 = tail call i32 @omp_get_thread_num() #7
+  %idxprom3 = sext i32 %call2 to i64
+  %arrayidx4 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3
+  %call5 = tail call i8* @_Z12get_dir_namePcPKc(i8* %kernel_type, i8* getelementptr inbounds ([9 x i8], [9 x i8]* @.str.7, i64 0, i64 0))
+  %_M_filebuf.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom3, i32 1
+  %call2.i = tail call %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"* nonnull %_M_filebuf.i, i8* %call5, i32 48)
   %tobool.i = icmp eq %"class.std::basic_filebuf"* %call2.i, null
-  %vtable3.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+  %0 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8**
+  %vtable3.i = load i8*, i8** %0, align 16, !tbaa !2
   %vbase.offset.ptr4.i = getelementptr i8, i8* %vtable3.i, i64 -24
-  %0 = bitcast i8* %vbase.offset.ptr4.i to i64*
-  %vbase.offset5.i = load i64, i64* %0, align 8
-  %add.ptr6.i = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset5.i
-  %1 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
+  %1 = bitcast i8* %vbase.offset.ptr4.i to i64*
+  %vbase.offset5.i = load i64, i64* %1, align 8
+  %2 = bitcast %"class.std::basic_ofstream"* %arrayidx4 to i8*
+  %add.ptr6.i = getelementptr inbounds i8, i8* %2, i64 %vbase.offset5.i
+  %3 = bitcast i8* %add.ptr6.i to %"class.std::basic_ios"*
   br i1 %tobool.i, label %if.then.i, label %if.else.i
 
 if.then.i:                                        ; preds = %if.then
   %_M_streambuf_state.i.i.i = getelementptr inbounds i8, i8* %add.ptr6.i, i64 32
-  %2 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
-  %3 = load i32, i32* %2, align 8, !tbaa !5
-  %or.i.i.i = or i32 %3, 4
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 %or.i.i.i)
+  %4 = bitcast i8* %_M_streambuf_state.i.i.i to i32*
+  %5 = load i32, i32* %4, align 8, !tbaa !5
+  %or.i.i.i = or i32 %5, 4
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 %or.i.i.i)
   br label %if.end
 
 if.else.i:                                        ; preds = %if.then
-  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %1, i32 0)
+  tail call void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %3, i32 0)
   br label %if.end
 
 if.end:                                           ; preds = %if.else.i, %if.then.i, %entry
-  %4 = bitcast [1 x %struct.__va_list_tag]* %vl to i8*
-  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %4) #2
-  call void @llvm.va_start(i8* nonnull %4)
-  %cmp239 = icmp sgt i32 %n, 0
-  br i1 %cmp239, label %for.body.lr.ph, label %for.cond.cleanup
+  %6 = bitcast [1 x %struct.__va_list_tag]* %vl to i8*
+  call void @llvm.lifetime.start.p0i8(i64 24, i8* nonnull %6) #7
+  call void @llvm.va_start(i8* nonnull %6)
+  %cmp247 = icmp sgt i32 %n, 0
+  br i1 %cmp247, label %for.body.lr.ph, label %for.cond.cleanup
 
 for.body.lr.ph:                                   ; preds = %if.end
   %gp_offset_p = getelementptr inbounds [1 x %struct.__va_list_tag], [1 x %struct.__va_list_tag]* %vl, i64 0, i64 0, i32 0
-  %5 = getelementptr inbounds [1 x %struct.__va_list_tag], [1 x %struct.__va_list_tag]* %vl, i64 0, i64 0, i32 3
+  %7 = getelementptr inbounds [1 x %struct.__va_list_tag], [1 x %struct.__va_list_tag]* %vl, i64 0, i64 0, i32 3
   %overflow_arg_area_p = getelementptr inbounds [1 x %struct.__va_list_tag], [1 x %struct.__va_list_tag]* %vl, i64 0, i64 0, i32 2
   br label %for.body
 
-for.cond.cleanup.loopexit:                        ; preds = %invoke.cont16
+for.cond.cleanup.loopexit:                        ; preds = %invoke.cont21
   %vals.sroa.11.1.le = ptrtoint i32* %vals.sroa.11.1.in to i64
   %strs.sroa.10.1.le = ptrtoint i8** %strs.sroa.10.1.in to i64
   br label %for.cond.cleanup
@@ -404,24 +751,24 @@ for.cond.cleanup:                                 ; preds = %for.cond.cleanup.lo
   %strs.sroa.10.0.lcssa = phi i64 [ 0, %if.end ], [ %strs.sroa.10.1.le, %for.cond.cleanup.loopexit ]
   %strs.sroa.0.0.lcssa = phi i64 [ 0, %if.end ], [ %strs.sroa.0.1, %for.cond.cleanup.loopexit ]
   %vals.sroa.11.0.lcssa = phi i64 [ 0, %if.end ], [ %vals.sroa.11.1.le, %for.cond.cleanup.loopexit ]
-  call void @llvm.va_end(i8* nonnull %4)
+  call void @llvm.va_end(i8* nonnull %6)
   %sub.ptr.sub.i = sub i64 %vals.sroa.11.0.lcssa, %vals.sroa.0.0.lcssa
   %sub.ptr.div.i = ashr exact i64 %sub.ptr.sub.i, 2
-  %cmp22237 = icmp eq i64 %sub.ptr.sub.i, 0
-  br i1 %cmp22237, label %cleanup, label %invoke.cont27.lr.ph
+  %cmp27245 = icmp eq i64 %sub.ptr.sub.i, 0
+  br i1 %cmp27245, label %cleanup, label %invoke.cont32.lr.ph
 
-invoke.cont27.lr.ph:                              ; preds = %for.cond.cleanup
-  %6 = inttoptr i64 %vals.sroa.0.0.lcssa to i32*
-  br label %invoke.cont27
+invoke.cont32.lr.ph:                              ; preds = %for.cond.cleanup
+  %8 = inttoptr i64 %vals.sroa.0.0.lcssa to i32*
+  br label %invoke.cont32
 
-for.body:                                         ; preds = %for.body.lr.ph, %invoke.cont16
-  %i.0246 = phi i32 [ 0, %for.body.lr.ph ], [ %inc, %invoke.cont16 ]
-  %vals.sroa.18.0245 = phi i32* [ null, %for.body.lr.ph ], [ %vals.sroa.18.1, %invoke.cont16 ]
-  %vals.sroa.11.0244 = phi i64 [ 0, %for.body.lr.ph ], [ %vals.sroa.11.1, %invoke.cont16 ]
-  %strs.sroa.0.0243 = phi i64 [ 0, %for.body.lr.ph ], [ %strs.sroa.0.1, %invoke.cont16 ]
-  %strs.sroa.10.0242 = phi i64 [ 0, %for.body.lr.ph ], [ %strs.sroa.10.1, %invoke.cont16 ]
-  %strs.sroa.17.0241 = phi i8** [ null, %for.body.lr.ph ], [ %strs.sroa.17.1, %invoke.cont16 ]
-  %vals.sroa.0.0240 = phi i64 [ 0, %for.body.lr.ph ], [ %vals.sroa.0.1, %invoke.cont16 ]
+for.body:                                         ; preds = %for.body.lr.ph, %invoke.cont21
+  %i.0254 = phi i32 [ 0, %for.body.lr.ph ], [ %inc, %invoke.cont21 ]
+  %vals.sroa.18.0253 = phi i32* [ null, %for.body.lr.ph ], [ %vals.sroa.18.1, %invoke.cont21 ]
+  %vals.sroa.11.0252 = phi i64 [ 0, %for.body.lr.ph ], [ %vals.sroa.11.1, %invoke.cont21 ]
+  %strs.sroa.0.0251 = phi i64 [ 0, %for.body.lr.ph ], [ %strs.sroa.0.1, %invoke.cont21 ]
+  %strs.sroa.10.0250 = phi i64 [ 0, %for.body.lr.ph ], [ %strs.sroa.10.1, %invoke.cont21 ]
+  %strs.sroa.17.0249 = phi i8** [ null, %for.body.lr.ph ], [ %strs.sroa.17.1, %invoke.cont21 ]
+  %vals.sroa.0.0248 = phi i64 [ 0, %for.body.lr.ph ], [ %vals.sroa.0.1, %invoke.cont21 ]
   %gp_offset = load i32, i32* %gp_offset_p, align 16
   %fits_in_gp = icmp ult i32 %gp_offset, 41
   br i1 %fits_in_gp, label %vaarg.end, label %vaarg.end.thread
@@ -430,52 +777,52 @@ vaarg.end.thread:                                 ; preds = %for.body
   %overflow_arg_area = load i8*, i8** %overflow_arg_area_p, align 8
   %overflow_arg_area.next = getelementptr i8, i8* %overflow_arg_area, i64 8
   store i8* %overflow_arg_area.next, i8** %overflow_arg_area_p, align 8
-  %vaarg.addr261 = bitcast i8* %overflow_arg_area to i32*
-  %7 = load i32, i32* %vaarg.addr261, align 4
-  br label %vaarg.in_mem10
+  %vaarg.addr269 = bitcast i8* %overflow_arg_area to i32*
+  %9 = load i32, i32* %vaarg.addr269, align 4
+  br label %vaarg.in_mem15
 
 vaarg.end:                                        ; preds = %for.body
-  %reg_save_area = load i8*, i8** %5, align 16
-  %8 = sext i32 %gp_offset to i64
-  %9 = getelementptr i8, i8* %reg_save_area, i64 %8
-  %10 = add i32 %gp_offset, 8
-  store i32 %10, i32* %gp_offset_p, align 16
-  %vaarg.addr = bitcast i8* %9 to i32*
-  %11 = load i32, i32* %vaarg.addr, align 4
-  %fits_in_gp7 = icmp ult i32 %10, 41
-  br i1 %fits_in_gp7, label %vaarg.in_reg8, label %vaarg.in_mem10
+  %reg_save_area = load i8*, i8** %7, align 16
+  %10 = sext i32 %gp_offset to i64
+  %11 = getelementptr i8, i8* %reg_save_area, i64 %10
+  %12 = add i32 %gp_offset, 8
+  store i32 %12, i32* %gp_offset_p, align 16
+  %vaarg.addr = bitcast i8* %11 to i32*
+  %13 = load i32, i32* %vaarg.addr, align 4
+  %fits_in_gp12 = icmp ult i32 %12, 41
+  br i1 %fits_in_gp12, label %vaarg.in_reg13, label %vaarg.in_mem15
 
-vaarg.in_reg8:                                    ; preds = %vaarg.end
-  %reg_save_area9 = load i8*, i8** %5, align 16
-  %12 = sext i32 %10 to i64
-  %13 = getelementptr i8, i8* %reg_save_area9, i64 %12
-  %14 = add i32 %gp_offset, 16
-  store i32 %14, i32* %gp_offset_p, align 16
-  br label %vaarg.end14
+vaarg.in_reg13:                                   ; preds = %vaarg.end
+  %reg_save_area14 = load i8*, i8** %7, align 16
+  %14 = sext i32 %12 to i64
+  %15 = getelementptr i8, i8* %reg_save_area14, i64 %14
+  %16 = add i32 %gp_offset, 16
+  store i32 %16, i32* %gp_offset_p, align 16
+  br label %vaarg.end19
 
-vaarg.in_mem10:                                   ; preds = %vaarg.end.thread, %vaarg.end
-  %15 = phi i32 [ %7, %vaarg.end.thread ], [ %11, %vaarg.end ]
-  %overflow_arg_area12 = load i8*, i8** %overflow_arg_area_p, align 8
-  %overflow_arg_area.next13 = getelementptr i8, i8* %overflow_arg_area12, i64 8
-  store i8* %overflow_arg_area.next13, i8** %overflow_arg_area_p, align 8
-  br label %vaarg.end14
+vaarg.in_mem15:                                   ; preds = %vaarg.end.thread, %vaarg.end
+  %17 = phi i32 [ %9, %vaarg.end.thread ], [ %13, %vaarg.end ]
+  %overflow_arg_area17 = load i8*, i8** %overflow_arg_area_p, align 8
+  %overflow_arg_area.next18 = getelementptr i8, i8* %overflow_arg_area17, i64 8
+  store i8* %overflow_arg_area.next18, i8** %overflow_arg_area_p, align 8
+  br label %vaarg.end19
 
-vaarg.end14:                                      ; preds = %vaarg.in_mem10, %vaarg.in_reg8
-  %16 = phi i32 [ %11, %vaarg.in_reg8 ], [ %15, %vaarg.in_mem10 ]
-  %vaarg.addr15.in = phi i8* [ %13, %vaarg.in_reg8 ], [ %overflow_arg_area12, %vaarg.in_mem10 ]
-  %17 = bitcast i8* %vaarg.addr15.in to i64*
-  %18 = load i64, i64* %17, align 8
-  %19 = inttoptr i64 %vals.sroa.11.0244 to i32*
-  %cmp.i = icmp eq i32* %vals.sroa.18.0245, %19
-  br i1 %cmp.i, label %if.else.i68, label %if.then.i67
+vaarg.end19:                                      ; preds = %vaarg.in_mem15, %vaarg.in_reg13
+  %18 = phi i32 [ %13, %vaarg.in_reg13 ], [ %17, %vaarg.in_mem15 ]
+  %vaarg.addr20.in = phi i8* [ %15, %vaarg.in_reg13 ], [ %overflow_arg_area17, %vaarg.in_mem15 ]
+  %19 = bitcast i8* %vaarg.addr20.in to i64*
+  %20 = load i64, i64* %19, align 8
+  %21 = inttoptr i64 %vals.sroa.11.0252 to i32*
+  %cmp.i = icmp eq i32* %vals.sroa.18.0253, %21
+  br i1 %cmp.i, label %if.else.i76, label %if.then.i75
 
-if.then.i67:                                      ; preds = %vaarg.end14
-  store i32 %16, i32* %19, align 4, !tbaa !15
-  %incdec.ptr.i = getelementptr inbounds i32, i32* %19, i64 1
+if.then.i75:                                      ; preds = %vaarg.end19
+  store i32 %18, i32* %21, align 4, !tbaa !19
+  %incdec.ptr.i = getelementptr inbounds i32, i32* %21, i64 1
   br label %invoke.cont
 
-if.else.i68:                                      ; preds = %vaarg.end14
-  %sub.ptr.sub.i21.i.i = sub i64 %vals.sroa.11.0244, %vals.sroa.0.0240
+if.else.i76:                                      ; preds = %vaarg.end19
+  %sub.ptr.sub.i21.i.i = sub i64 %vals.sroa.11.0252, %vals.sroa.0.0248
   %sub.ptr.div.i22.i.i = ashr exact i64 %sub.ptr.sub.i21.i.i, 2
   %cmp.i.i.i = icmp eq i64 %sub.ptr.sub.i21.i.i, 0
   %.sroa.speculated.i.i = select i1 %cmp.i.i.i, i64 1, i64 %sub.ptr.div.i22.i.i
@@ -487,365 +834,505 @@ if.else.i68:                                      ; preds = %vaarg.end14
   %cmp.i67.i = icmp eq i64 %cond.i.i, 0
   br i1 %cmp.i67.i, label %invoke.cont.i, label %cond.true.i.i
 
-cond.true.i.i:                                    ; preds = %if.else.i68
+cond.true.i.i:                                    ; preds = %if.else.i76
   %cmp.i.i.i.i = icmp ugt i64 %cond.i.i, 4611686018427387903
   br i1 %cmp.i.i.i.i, label %if.then.i.i.i.i, label %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i
 
 if.then.i.i.i.i:                                  ; preds = %cond.true.i.i
-  invoke void @_ZSt17__throw_bad_allocv() #15
-          to label %.noexc71 unwind label %lpad.loopexit.split-lp
+  invoke void @_ZSt17__throw_bad_allocv() #16
+          to label %.noexc79 unwind label %lpad.loopexit.split-lp
 
-.noexc71:                                         ; preds = %if.then.i.i.i.i
+.noexc79:                                         ; preds = %if.then.i.i.i.i
   unreachable
 
 _ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i: ; preds = %cond.true.i.i
   %mul.i.i.i.i = shl i64 %cond.i.i, 2
-  %call2.i.i.i.i72 = invoke i8* @_Znwm(i64 %mul.i.i.i.i)
+  %call2.i.i.i.i80 = invoke i8* @_Znwm(i64 %mul.i.i.i.i)
           to label %call2.i.i.i.i.noexc unwind label %lpad.loopexit
 
 call2.i.i.i.i.noexc:                              ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i
-  %20 = bitcast i8* %call2.i.i.i.i72 to i32*
+  %22 = bitcast i8* %call2.i.i.i.i80 to i32*
   br label %invoke.cont.i
 
-invoke.cont.i:                                    ; preds = %call2.i.i.i.i.noexc, %if.else.i68
-  %21 = phi i8* [ %call2.i.i.i.i72, %call2.i.i.i.i.noexc ], [ null, %if.else.i68 ]
-  %cond.i68.i = phi i32* [ %20, %call2.i.i.i.i.noexc ], [ null, %if.else.i68 ]
+invoke.cont.i:                                    ; preds = %call2.i.i.i.i.noexc, %if.else.i76
+  %23 = phi i8* [ %call2.i.i.i.i80, %call2.i.i.i.i.noexc ], [ null, %if.else.i76 ]
+  %cond.i68.i = phi i32* [ %22, %call2.i.i.i.i.noexc ], [ null, %if.else.i76 ]
   %add.ptr.i = getelementptr inbounds i32, i32* %cond.i68.i, i64 %sub.ptr.div.i22.i.i
-  store i32 %16, i32* %add.ptr.i, align 4, !tbaa !15
+  store i32 %18, i32* %add.ptr.i, align 4, !tbaa !19
   br i1 %cmp.i.i.i, label %invoke.cont15.i, label %if.then.i.i.i.i.i.i.i.i78.i
 
 if.then.i.i.i.i.i.i.i.i78.i:                      ; preds = %invoke.cont.i
-  %22 = inttoptr i64 %vals.sroa.0.0240 to i8*
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 4 %21, i8* align 4 %22, i64 %sub.ptr.sub.i21.i.i, i1 false) #2
+  %24 = inttoptr i64 %vals.sroa.0.0248 to i8*
+  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 4 %23, i8* align 4 %24, i64 %sub.ptr.sub.i21.i.i, i1 false) #7
   br label %invoke.cont15.i
 
 invoke.cont15.i:                                  ; preds = %invoke.cont.i, %if.then.i.i.i.i.i.i.i.i78.i
   %add.ptr.i.i.i.i.i.i.i.i79.i = getelementptr inbounds i32, i32* %cond.i68.i, i64 1
-  %incdec.ptr.i69 = getelementptr inbounds i32, i32* %add.ptr.i.i.i.i.i.i.i.i79.i, i64 %sub.ptr.div.i22.i.i
-  %tobool.i69.i = icmp eq i64 %vals.sroa.0.0240, 0
+  %incdec.ptr.i77 = getelementptr inbounds i32, i32* %add.ptr.i.i.i.i.i.i.i.i79.i, i64 %sub.ptr.div.i22.i.i
+  %tobool.i69.i = icmp eq i64 %vals.sroa.0.0248, 0
   br i1 %tobool.i69.i, label %.noexc, label %if.then.i70.i
 
 if.then.i70.i:                                    ; preds = %invoke.cont15.i
-  %23 = inttoptr i64 %vals.sroa.0.0240 to i8*
-  call void @_ZdlPv(i8* %23) #2
+  %25 = inttoptr i64 %vals.sroa.0.0248 to i8*
+  call void @_ZdlPv(i8* %25) #7
   br label %.noexc
 
 .noexc:                                           ; preds = %if.then.i70.i, %invoke.cont15.i
-  %24 = ptrtoint i8* %21 to i64
+  %26 = ptrtoint i8* %23 to i64
   %add.ptr39.i = getelementptr inbounds i32, i32* %cond.i68.i, i64 %cond.i.i
   br label %invoke.cont
 
-invoke.cont:                                      ; preds = %.noexc, %if.then.i67
-  %vals.sroa.0.1 = phi i64 [ %24, %.noexc ], [ %vals.sroa.0.0240, %if.then.i67 ]
-  %vals.sroa.11.1.in = phi i32* [ %incdec.ptr.i69, %.noexc ], [ %incdec.ptr.i, %if.then.i67 ]
-  %vals.sroa.18.1 = phi i32* [ %add.ptr39.i, %.noexc ], [ %vals.sroa.18.0245, %if.then.i67 ]
+invoke.cont:                                      ; preds = %.noexc, %if.then.i75
+  %vals.sroa.0.1 = phi i64 [ %26, %.noexc ], [ %vals.sroa.0.0248, %if.then.i75 ]
+  %vals.sroa.11.1.in = phi i32* [ %incdec.ptr.i77, %.noexc ], [ %incdec.ptr.i, %if.then.i75 ]
+  %vals.sroa.18.1 = phi i32* [ %add.ptr39.i, %.noexc ], [ %vals.sroa.18.0253, %if.then.i75 ]
   %vals.sroa.11.1 = ptrtoint i32* %vals.sroa.11.1.in to i64
-  %25 = inttoptr i64 %strs.sroa.10.0242 to i8**
-  %cmp.i75 = icmp eq i8** %strs.sroa.17.0241, %25
-  br i1 %cmp.i75, label %if.else.i78, label %if.then.i77
+  %27 = inttoptr i64 %strs.sroa.10.0250 to i8**
+  %cmp.i83 = icmp eq i8** %strs.sroa.17.0249, %27
+  br i1 %cmp.i83, label %if.else.i86, label %if.then.i85
 
-if.then.i77:                                      ; preds = %invoke.cont
-  %26 = inttoptr i64 %strs.sroa.10.0242 to i64*
-  store i64 %18, i64* %26, align 8, !tbaa !16
-  %incdec.ptr.i76 = getelementptr inbounds i8*, i8** %25, i64 1
-  br label %invoke.cont16
+if.then.i85:                                      ; preds = %invoke.cont
+  %28 = inttoptr i64 %strs.sroa.10.0250 to i64*
+  store i64 %20, i64* %28, align 8, !tbaa !20
+  %incdec.ptr.i84 = getelementptr inbounds i8*, i8** %27, i64 1
+  br label %invoke.cont21
 
-if.else.i78:                                      ; preds = %invoke.cont
-  %sub.ptr.sub.i21.i.i81 = sub i64 %strs.sroa.10.0242, %strs.sroa.0.0243
-  %sub.ptr.div.i22.i.i82 = ashr exact i64 %sub.ptr.sub.i21.i.i81, 3
-  %cmp.i.i.i83 = icmp eq i64 %sub.ptr.sub.i21.i.i81, 0
-  %.sroa.speculated.i.i84 = select i1 %cmp.i.i.i83, i64 1, i64 %sub.ptr.div.i22.i.i82
-  %add.i.i85 = add nsw i64 %.sroa.speculated.i.i84, %sub.ptr.div.i22.i.i82
-  %cmp7.i.i86 = icmp ult i64 %add.i.i85, %sub.ptr.div.i22.i.i82
-  %cmp9.i.i87 = icmp ugt i64 %add.i.i85, 2305843009213693951
-  %or.cond.i.i88 = or i1 %cmp7.i.i86, %cmp9.i.i87
-  %cond.i.i89 = select i1 %or.cond.i.i88, i64 2305843009213693951, i64 %add.i.i85
-  %cmp.i67.i92 = icmp eq i64 %cond.i.i89, 0
-  br i1 %cmp.i67.i92, label %invoke.cont.i104, label %cond.true.i.i94
+if.else.i86:                                      ; preds = %invoke.cont
+  %sub.ptr.sub.i21.i.i89 = sub i64 %strs.sroa.10.0250, %strs.sroa.0.0251
+  %sub.ptr.div.i22.i.i90 = ashr exact i64 %sub.ptr.sub.i21.i.i89, 3
+  %cmp.i.i.i91 = icmp eq i64 %sub.ptr.sub.i21.i.i89, 0
+  %.sroa.speculated.i.i92 = select i1 %cmp.i.i.i91, i64 1, i64 %sub.ptr.div.i22.i.i90
+  %add.i.i93 = add nsw i64 %.sroa.speculated.i.i92, %sub.ptr.div.i22.i.i90
+  %cmp7.i.i94 = icmp ult i64 %add.i.i93, %sub.ptr.div.i22.i.i90
+  %cmp9.i.i95 = icmp ugt i64 %add.i.i93, 2305843009213693951
+  %or.cond.i.i96 = or i1 %cmp7.i.i94, %cmp9.i.i95
+  %cond.i.i97 = select i1 %or.cond.i.i96, i64 2305843009213693951, i64 %add.i.i93
+  %cmp.i67.i100 = icmp eq i64 %cond.i.i97, 0
+  br i1 %cmp.i67.i100, label %invoke.cont.i112, label %cond.true.i.i102
 
-cond.true.i.i94:                                  ; preds = %if.else.i78
-  %cmp.i.i.i.i93 = icmp ugt i64 %cond.i.i89, 2305843009213693951
-  br i1 %cmp.i.i.i.i93, label %if.then.i.i.i.i95, label %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
+cond.true.i.i102:                                 ; preds = %if.else.i86
+  %cmp.i.i.i.i101 = icmp ugt i64 %cond.i.i97, 2305843009213693951
+  br i1 %cmp.i.i.i.i101, label %if.then.i.i.i.i103, label %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
 
-if.then.i.i.i.i95:                                ; preds = %cond.true.i.i94
-  invoke void @_ZSt17__throw_bad_allocv() #15
-          to label %.noexc119 unwind label %lpad.loopexit.split-lp
+if.then.i.i.i.i103:                               ; preds = %cond.true.i.i102
+  invoke void @_ZSt17__throw_bad_allocv() #16
+          to label %.noexc127 unwind label %lpad.loopexit.split-lp
 
-.noexc119:                                        ; preds = %if.then.i.i.i.i95
+.noexc127:                                        ; preds = %if.then.i.i.i.i103
   unreachable
 
-_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i: ; preds = %cond.true.i.i94
-  %mul.i.i.i.i96 = shl i64 %cond.i.i89, 3
-  %call2.i.i.i.i121 = invoke i8* @_Znwm(i64 %mul.i.i.i.i96)
-          to label %call2.i.i.i.i.noexc120 unwind label %lpad.loopexit
+_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i: ; preds = %cond.true.i.i102
+  %mul.i.i.i.i104 = shl i64 %cond.i.i97, 3
+  %call2.i.i.i.i129 = invoke i8* @_Znwm(i64 %mul.i.i.i.i104)
+          to label %call2.i.i.i.i.noexc128 unwind label %lpad.loopexit
 
-call2.i.i.i.i.noexc120:                           ; preds = %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
-  %27 = bitcast i8* %call2.i.i.i.i121 to i8**
-  br label %invoke.cont.i104
+call2.i.i.i.i.noexc128:                           ; preds = %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
+  %29 = bitcast i8* %call2.i.i.i.i129 to i8**
+  br label %invoke.cont.i112
 
-invoke.cont.i104:                                 ; preds = %call2.i.i.i.i.noexc120, %if.else.i78
-  %28 = phi i8* [ %call2.i.i.i.i121, %call2.i.i.i.i.noexc120 ], [ null, %if.else.i78 ]
-  %cond.i68.i98 = phi i8** [ %27, %call2.i.i.i.i.noexc120 ], [ null, %if.else.i78 ]
-  %add.ptr.i99 = getelementptr inbounds i8*, i8** %cond.i68.i98, i64 %sub.ptr.div.i22.i.i82
-  %29 = bitcast i8** %add.ptr.i99 to i64*
-  store i64 %18, i64* %29, align 8, !tbaa !16
-  br i1 %cmp.i.i.i83, label %invoke.cont15.i116, label %if.then.i.i.i.i.i.i.i.i78.i105
+invoke.cont.i112:                                 ; preds = %call2.i.i.i.i.noexc128, %if.else.i86
+  %30 = phi i8* [ %call2.i.i.i.i129, %call2.i.i.i.i.noexc128 ], [ null, %if.else.i86 ]
+  %cond.i68.i106 = phi i8** [ %29, %call2.i.i.i.i.noexc128 ], [ null, %if.else.i86 ]
+  %add.ptr.i107 = getelementptr inbounds i8*, i8** %cond.i68.i106, i64 %sub.ptr.div.i22.i.i90
+  %31 = bitcast i8** %add.ptr.i107 to i64*
+  store i64 %20, i64* %31, align 8, !tbaa !20
+  br i1 %cmp.i.i.i91, label %invoke.cont15.i124, label %if.then.i.i.i.i.i.i.i.i78.i113
 
-if.then.i.i.i.i.i.i.i.i78.i105:                   ; preds = %invoke.cont.i104
-  %30 = inttoptr i64 %strs.sroa.0.0243 to i8*
-  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 8 %28, i8* align 8 %30, i64 %sub.ptr.sub.i21.i.i81, i1 false) #2
-  br label %invoke.cont15.i116
+if.then.i.i.i.i.i.i.i.i78.i113:                   ; preds = %invoke.cont.i112
+  %32 = inttoptr i64 %strs.sroa.0.0251 to i8*
+  call void @llvm.memmove.p0i8.p0i8.i64(i8* align 8 %30, i8* align 8 %32, i64 %sub.ptr.sub.i21.i.i89, i1 false) #7
+  br label %invoke.cont15.i124
 
-invoke.cont15.i116:                               ; preds = %invoke.cont.i104, %if.then.i.i.i.i.i.i.i.i78.i105
-  %add.ptr.i.i.i.i.i.i.i.i79.i106 = getelementptr inbounds i8*, i8** %cond.i68.i98, i64 1
-  %incdec.ptr.i107 = getelementptr inbounds i8*, i8** %add.ptr.i.i.i.i.i.i.i.i79.i106, i64 %sub.ptr.div.i22.i.i82
-  %tobool.i69.i115 = icmp eq i64 %strs.sroa.0.0243, 0
-  br i1 %tobool.i69.i115, label %.noexc79, label %if.then.i70.i117
+invoke.cont15.i124:                               ; preds = %invoke.cont.i112, %if.then.i.i.i.i.i.i.i.i78.i113
+  %add.ptr.i.i.i.i.i.i.i.i79.i114 = getelementptr inbounds i8*, i8** %cond.i68.i106, i64 1
+  %incdec.ptr.i115 = getelementptr inbounds i8*, i8** %add.ptr.i.i.i.i.i.i.i.i79.i114, i64 %sub.ptr.div.i22.i.i90
+  %tobool.i69.i123 = icmp eq i64 %strs.sroa.0.0251, 0
+  br i1 %tobool.i69.i123, label %.noexc87, label %if.then.i70.i125
 
-if.then.i70.i117:                                 ; preds = %invoke.cont15.i116
-  %31 = inttoptr i64 %strs.sroa.0.0243 to i8*
-  call void @_ZdlPv(i8* %31) #2
-  br label %.noexc79
+if.then.i70.i125:                                 ; preds = %invoke.cont15.i124
+  %33 = inttoptr i64 %strs.sroa.0.0251 to i8*
+  call void @_ZdlPv(i8* %33) #7
+  br label %.noexc87
 
-.noexc79:                                         ; preds = %if.then.i70.i117, %invoke.cont15.i116
-  %32 = ptrtoint i8* %28 to i64
-  %add.ptr39.i118 = getelementptr inbounds i8*, i8** %cond.i68.i98, i64 %cond.i.i89
-  br label %invoke.cont16
+.noexc87:                                         ; preds = %if.then.i70.i125, %invoke.cont15.i124
+  %34 = ptrtoint i8* %30 to i64
+  %add.ptr39.i126 = getelementptr inbounds i8*, i8** %cond.i68.i106, i64 %cond.i.i97
+  br label %invoke.cont21
 
-invoke.cont16:                                    ; preds = %.noexc79, %if.then.i77
-  %strs.sroa.17.1 = phi i8** [ %add.ptr39.i118, %.noexc79 ], [ %strs.sroa.17.0241, %if.then.i77 ]
-  %strs.sroa.10.1.in = phi i8** [ %incdec.ptr.i107, %.noexc79 ], [ %incdec.ptr.i76, %if.then.i77 ]
-  %strs.sroa.0.1 = phi i64 [ %32, %.noexc79 ], [ %strs.sroa.0.0243, %if.then.i77 ]
+invoke.cont21:                                    ; preds = %.noexc87, %if.then.i85
+  %strs.sroa.17.1 = phi i8** [ %add.ptr39.i126, %.noexc87 ], [ %strs.sroa.17.0249, %if.then.i85 ]
+  %strs.sroa.10.1.in = phi i8** [ %incdec.ptr.i115, %.noexc87 ], [ %incdec.ptr.i84, %if.then.i85 ]
+  %strs.sroa.0.1 = phi i64 [ %34, %.noexc87 ], [ %strs.sroa.0.0251, %if.then.i85 ]
   %strs.sroa.10.1 = ptrtoint i8** %strs.sroa.10.1.in to i64
-  %inc = add nuw nsw i32 %i.0246, 1
+  %inc = add nuw nsw i32 %i.0254, 1
   %cmp = icmp slt i32 %inc, %n
   br i1 %cmp, label %for.body, label %for.cond.cleanup.loopexit
 
 lpad.loopexit:                                    ; preds = %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i, %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i
-  %vals.sroa.0.2.ph = phi i64 [ %vals.sroa.0.0240, %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i ], [ %vals.sroa.0.1, %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i ]
-  %lpad.loopexit217 = landingpad { i8*, i32 }
+  %vals.sroa.0.2.ph = phi i64 [ %vals.sroa.0.0248, %_ZNSt16allocator_traitsISaIiEE8allocateERS0_m.exit.i.i ], [ %vals.sroa.0.1, %_ZNSt16allocator_traitsISaIPcEE8allocateERS1_m.exit.i.i ]
+  %lpad.loopexit225 = landingpad { i8*, i32 }
           cleanup
-  br label %ehcleanup51
+  br label %ehcleanup59
 
-lpad.loopexit.split-lp:                           ; preds = %if.then.i.i.i.i, %if.then.i.i.i.i95
-  %vals.sroa.0.2.ph216 = phi i64 [ %vals.sroa.0.0240, %if.then.i.i.i.i ], [ %vals.sroa.0.1, %if.then.i.i.i.i95 ]
-  %lpad.loopexit.split-lp218 = landingpad { i8*, i32 }
+lpad.loopexit.split-lp:                           ; preds = %if.then.i.i.i.i, %if.then.i.i.i.i103
+  %vals.sroa.0.2.ph224 = phi i64 [ %vals.sroa.0.0248, %if.then.i.i.i.i ], [ %vals.sroa.0.1, %if.then.i.i.i.i103 ]
+  %lpad.loopexit.split-lp226 = landingpad { i8*, i32 }
           cleanup
-  br label %ehcleanup51
+  br label %ehcleanup59
 
-for.cond20:                                       ; preds = %invoke.cont27
-  %cmp22 = icmp ugt i64 %sub.ptr.div.i, %indvars.iv.next
-  br i1 %cmp22, label %invoke.cont27, label %cleanup
+for.cond25:                                       ; preds = %invoke.cont32
+  %cmp27 = icmp ugt i64 %sub.ptr.div.i, %indvars.iv.next
+  br i1 %cmp27, label %invoke.cont32, label %cleanup
 
-invoke.cont27:                                    ; preds = %invoke.cont27.lr.ph, %for.cond20
-  %indvars.iv = phi i64 [ 0, %invoke.cont27.lr.ph ], [ %indvars.iv.next, %for.cond20 ]
-  %add.ptr.i.i = getelementptr inbounds i32, i32* %6, i64 %indvars.iv
-  %33 = load i32, i32* %add.ptr.i.i, align 4, !tbaa !15
-  %cmp29 = icmp eq i32 %33, %value
+invoke.cont32:                                    ; preds = %invoke.cont32.lr.ph, %for.cond25
+  %indvars.iv = phi i64 [ 0, %invoke.cont32.lr.ph ], [ %indvars.iv.next, %for.cond25 ]
+  %add.ptr.i.i = getelementptr inbounds i32, i32* %8, i64 %indvars.iv
+  %35 = load i32, i32* %add.ptr.i.i, align 4, !tbaa !19
+  %cmp34 = icmp eq i32 %35, %value
   %indvars.iv.next = add nuw i64 %indvars.iv, 1
-  br i1 %cmp29, label %if.then30, label %for.cond20
+  br i1 %cmp34, label %if.then35, label %for.cond25
 
-if.then30:                                        ; preds = %invoke.cont27
-  %sub.ptr.sub.i.i.i125 = sub i64 %strs.sroa.10.0.lcssa, %strs.sroa.0.0.lcssa
-  %sub.ptr.div.i.i.i126 = ashr exact i64 %sub.ptr.sub.i.i.i125, 3
-  %cmp.i.i127 = icmp ugt i64 %sub.ptr.div.i.i.i126, %indvars.iv
-  br i1 %cmp.i.i127, label %35, label %if.then.i.i128
+if.then35:                                        ; preds = %invoke.cont32
+  %sub.ptr.sub.i.i.i133 = sub i64 %strs.sroa.10.0.lcssa, %strs.sroa.0.0.lcssa
+  %sub.ptr.div.i.i.i134 = ashr exact i64 %sub.ptr.sub.i.i.i133, 3
+  %cmp.i.i135 = icmp ugt i64 %sub.ptr.div.i.i.i134, %indvars.iv
+  br i1 %cmp.i.i135, label %37, label %if.then.i.i136
 
-if.then.i.i128:                                   ; preds = %if.then30
-  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.13, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i126) #15
-          to label %.noexc130 unwind label %lpad26
+if.then.i.i136:                                   ; preds = %if.then35
+  invoke void (i8*, ...) @_ZSt24__throw_out_of_range_fmtPKcz(i8* getelementptr inbounds ([74 x i8], [74 x i8]* @.str.20, i64 0, i64 0), i64 %indvars.iv, i64 %sub.ptr.div.i.i.i134) #16
+          to label %.noexc138 unwind label %lpad31
 
-.noexc130:                                        ; preds = %if.then.i.i128
+.noexc138:                                        ; preds = %if.then.i.i136
   unreachable
 
-lpad26:                                           ; preds = %if.then.i.i128
-  %34 = landingpad { i8*, i32 }
+lpad31:                                           ; preds = %if.then.i.i136
+  %36 = landingpad { i8*, i32 }
           cleanup
-  br label %ehcleanup51
+  br label %ehcleanup59
 
-; <label>:35:                                     ; preds = %if.then30
-  %36 = inttoptr i64 %strs.sroa.0.0.lcssa to i8**
-  %add.ptr.i.i129 = getelementptr inbounds i8*, i8** %36, i64 %indvars.iv
-  %37 = load i8*, i8** %add.ptr.i.i129, align 8, !tbaa !16
+; <label>:37:                                     ; preds = %if.then35
+  %38 = inttoptr i64 %strs.sroa.0.0.lcssa to i8**
+  %add.ptr.i.i137 = getelementptr inbounds i8*, i8** %38, i64 %indvars.iv
+  %39 = load i8*, i8** %add.ptr.i.i137, align 8, !tbaa !20
   br label %cleanup
 
-cleanup:                                          ; preds = %for.cond20, %for.cond.cleanup, %35
-  %38 = phi i8* [ %37, %35 ], [ %def, %for.cond.cleanup ], [ %def, %for.cond20 ]
-  %call1.i133 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.11, i64 0, i64 0), i64 2)
-          to label %invoke.cont41 unwind label %lpad40
+cleanup:                                          ; preds = %for.cond25, %for.cond.cleanup, %37
+  %40 = phi i8* [ %39, %37 ], [ %def, %for.cond.cleanup ], [ %def, %for.cond25 ]
+  %call45 = call i32 @omp_get_thread_num() #7
+  %idxprom46 = sext i32 %call45 to i64
+  %arrayidx47 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %idxprom46
+  %41 = bitcast %"class.std::basic_ofstream"* %arrayidx47 to %"class.std::basic_ostream"*
+  %call1.i141 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %41, i8* nonnull getelementptr inbounds ([3 x i8], [3 x i8]* @.str.14, i64 0, i64 0), i64 2)
+          to label %invoke.cont49 unwind label %lpad48
 
-invoke.cont41:                                    ; preds = %cleanup
-  %tobool.i134 = icmp eq i8* %name, null
-  br i1 %tobool.i134, label %if.then.i138, label %if.else.i140
+invoke.cont49:                                    ; preds = %cleanup
+  %tobool.i142 = icmp eq i8* %name, null
+  br i1 %tobool.i142, label %if.then.i146, label %if.else.i148
 
-if.then.i138:                                     ; preds = %invoke.cont41
-  %vtable.i = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
+if.then.i146:                                     ; preds = %invoke.cont49
+  %42 = bitcast %"class.std::basic_ofstream"* %arrayidx47 to i8**
+  %vtable.i = load i8*, i8** %42, align 16, !tbaa !2
   %vbase.offset.ptr.i = getelementptr i8, i8* %vtable.i, i64 -24
-  %39 = bitcast i8* %vbase.offset.ptr.i to i64*
-  %vbase.offset.i = load i64, i64* %39, align 8
-  %add.ptr.i135 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i
-  %40 = bitcast i8* %add.ptr.i135 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i136 = getelementptr inbounds i8, i8* %add.ptr.i135, i64 32
-  %41 = bitcast i8* %_M_streambuf_state.i.i.i136 to i32*
-  %42 = load i32, i32* %41, align 8, !tbaa !5
-  %or.i.i.i137 = or i32 %42, 1
-  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %40, i32 %or.i.i.i137)
-          to label %invoke.cont43 unwind label %lpad40
+  %43 = bitcast i8* %vbase.offset.ptr.i to i64*
+  %vbase.offset.i = load i64, i64* %43, align 8
+  %44 = bitcast %"class.std::basic_ofstream"* %arrayidx47 to i8*
+  %add.ptr.i143 = getelementptr inbounds i8, i8* %44, i64 %vbase.offset.i
+  %45 = bitcast i8* %add.ptr.i143 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i144 = getelementptr inbounds i8, i8* %add.ptr.i143, i64 32
+  %46 = bitcast i8* %_M_streambuf_state.i.i.i144 to i32*
+  %47 = load i32, i32* %46, align 8, !tbaa !5
+  %or.i.i.i145 = or i32 %47, 1
+  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %45, i32 %or.i.i.i145)
+          to label %invoke.cont51 unwind label %lpad48
 
-if.else.i140:                                     ; preds = %invoke.cont41
-  %call.i.i139 = call i64 @strlen(i8* nonnull %name) #2
-  %call1.i142 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %name, i64 %call.i.i139)
-          to label %invoke.cont43 unwind label %lpad40
+if.else.i148:                                     ; preds = %invoke.cont49
+  %call.i.i147 = call i64 @strlen(i8* nonnull %name) #7
+  %call1.i150 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %41, i8* nonnull %name, i64 %call.i.i147)
+          to label %invoke.cont51 unwind label %lpad48
 
-invoke.cont43:                                    ; preds = %if.then.i138, %if.else.i140
-  %call1.i147 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.4, i64 0, i64 0), i64 1)
-          to label %invoke.cont45 unwind label %lpad40
+invoke.cont51:                                    ; preds = %if.then.i146, %if.else.i148
+  %call1.i155 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %41, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.9, i64 0, i64 0), i64 1)
+          to label %invoke.cont53 unwind label %lpad48
 
-invoke.cont45:                                    ; preds = %invoke.cont43
-  %tobool.i149 = icmp eq i8* %38, null
-  br i1 %tobool.i149, label %if.then.i156, label %if.else.i158
+invoke.cont53:                                    ; preds = %invoke.cont51
+  %tobool.i157 = icmp eq i8* %40, null
+  br i1 %tobool.i157, label %if.then.i164, label %if.else.i166
 
-if.then.i156:                                     ; preds = %invoke.cont45
-  %vtable.i150 = load i8*, i8** bitcast (%"class.std::basic_ofstream"* @f1 to i8**), align 8, !tbaa !2
-  %vbase.offset.ptr.i151 = getelementptr i8, i8* %vtable.i150, i64 -24
-  %43 = bitcast i8* %vbase.offset.ptr.i151 to i64*
-  %vbase.offset.i152 = load i64, i64* %43, align 8
-  %add.ptr.i153 = getelementptr inbounds i8, i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i64 %vbase.offset.i152
-  %44 = bitcast i8* %add.ptr.i153 to %"class.std::basic_ios"*
-  %_M_streambuf_state.i.i.i154 = getelementptr inbounds i8, i8* %add.ptr.i153, i64 32
-  %45 = bitcast i8* %_M_streambuf_state.i.i.i154 to i32*
-  %46 = load i32, i32* %45, align 8, !tbaa !5
-  %or.i.i.i155 = or i32 %46, 1
-  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %44, i32 %or.i.i.i155)
-          to label %invoke.cont47 unwind label %lpad40
+if.then.i164:                                     ; preds = %invoke.cont53
+  %48 = bitcast %"class.std::basic_ofstream"* %arrayidx47 to i8**
+  %vtable.i158 = load i8*, i8** %48, align 16, !tbaa !2
+  %vbase.offset.ptr.i159 = getelementptr i8, i8* %vtable.i158, i64 -24
+  %49 = bitcast i8* %vbase.offset.ptr.i159 to i64*
+  %vbase.offset.i160 = load i64, i64* %49, align 8
+  %50 = bitcast %"class.std::basic_ofstream"* %arrayidx47 to i8*
+  %add.ptr.i161 = getelementptr inbounds i8, i8* %50, i64 %vbase.offset.i160
+  %51 = bitcast i8* %add.ptr.i161 to %"class.std::basic_ios"*
+  %_M_streambuf_state.i.i.i162 = getelementptr inbounds i8, i8* %add.ptr.i161, i64 32
+  %52 = bitcast i8* %_M_streambuf_state.i.i.i162 to i32*
+  %53 = load i32, i32* %52, align 8, !tbaa !5
+  %or.i.i.i163 = or i32 %53, 1
+  invoke void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"* %51, i32 %or.i.i.i163)
+          to label %invoke.cont55 unwind label %lpad48
 
-if.else.i158:                                     ; preds = %invoke.cont45
-  %call.i.i157 = call i64 @strlen(i8* nonnull %38) #2
-  %call1.i161 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull %38, i64 %call.i.i157)
-          to label %invoke.cont47 unwind label %lpad40
+if.else.i166:                                     ; preds = %invoke.cont53
+  %call.i.i165 = call i64 @strlen(i8* nonnull %40) #7
+  %call1.i169 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %41, i8* nonnull %40, i64 %call.i.i165)
+          to label %invoke.cont55 unwind label %lpad48
 
-invoke.cont47:                                    ; preds = %if.then.i156, %if.else.i158
-  %call1.i166 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) bitcast (%"class.std::basic_ofstream"* @f1 to %"class.std::basic_ostream"*), i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.5, i64 0, i64 0), i64 1)
-          to label %invoke.cont49 unwind label %lpad40
+invoke.cont55:                                    ; preds = %if.then.i164, %if.else.i166
+  %call1.i174 = invoke dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* nonnull dereferenceable(272) %41, i8* nonnull getelementptr inbounds ([2 x i8], [2 x i8]* @.str.1, i64 0, i64 0), i64 1)
+          to label %invoke.cont57 unwind label %lpad48
 
-invoke.cont49:                                    ; preds = %invoke.cont47
-  %tobool.i.i.i169 = icmp eq i64 %strs.sroa.0.0.lcssa, 0
-  br i1 %tobool.i.i.i169, label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit, label %if.then.i.i.i171
+invoke.cont57:                                    ; preds = %invoke.cont55
+  %tobool.i.i.i177 = icmp eq i64 %strs.sroa.0.0.lcssa, 0
+  br i1 %tobool.i.i.i177, label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit, label %if.then.i.i.i179
 
-if.then.i.i.i171:                                 ; preds = %invoke.cont49
-  %47 = inttoptr i64 %strs.sroa.0.0.lcssa to i8*
-  call void @_ZdlPv(i8* %47) #2
+if.then.i.i.i179:                                 ; preds = %invoke.cont57
+  %54 = inttoptr i64 %strs.sroa.0.0.lcssa to i8*
+  call void @_ZdlPv(i8* %54) #7
   br label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit
 
-_ZNSt6vectorIPcSaIS0_EED2Ev.exit:                 ; preds = %invoke.cont49, %if.then.i.i.i171
-  %tobool.i.i.i173 = icmp eq i64 %vals.sroa.0.0.lcssa, 0
-  br i1 %tobool.i.i.i173, label %_ZNSt6vectorIiSaIiEED2Ev.exit176, label %if.then.i.i.i175
+_ZNSt6vectorIPcSaIS0_EED2Ev.exit:                 ; preds = %invoke.cont57, %if.then.i.i.i179
+  %tobool.i.i.i181 = icmp eq i64 %vals.sroa.0.0.lcssa, 0
+  br i1 %tobool.i.i.i181, label %_ZNSt6vectorIiSaIiEED2Ev.exit184, label %if.then.i.i.i183
 
-if.then.i.i.i175:                                 ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit
-  %48 = inttoptr i64 %vals.sroa.0.0.lcssa to i8*
-  call void @_ZdlPv(i8* %48) #2
-  br label %_ZNSt6vectorIiSaIiEED2Ev.exit176
+if.then.i.i.i183:                                 ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit
+  %55 = inttoptr i64 %vals.sroa.0.0.lcssa to i8*
+  call void @_ZdlPv(i8* %55) #7
+  br label %_ZNSt6vectorIiSaIiEED2Ev.exit184
 
-_ZNSt6vectorIiSaIiEED2Ev.exit176:                 ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit, %if.then.i.i.i175
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %4) #2
+_ZNSt6vectorIiSaIiEED2Ev.exit184:                 ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit, %if.then.i.i.i183
+  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %6) #7
   ret void
 
-lpad40:                                           ; preds = %invoke.cont47, %if.else.i158, %if.then.i156, %invoke.cont43, %if.else.i140, %if.then.i138, %cleanup
-  %49 = landingpad { i8*, i32 }
+lpad48:                                           ; preds = %invoke.cont55, %if.else.i166, %if.then.i164, %invoke.cont51, %if.else.i148, %if.then.i146, %cleanup
+  %56 = landingpad { i8*, i32 }
           cleanup
-  br label %ehcleanup51
+  br label %ehcleanup59
 
-ehcleanup51:                                      ; preds = %lpad.loopexit, %lpad.loopexit.split-lp, %lpad26, %lpad40
-  %.sink285 = phi { i8*, i32 } [ %34, %lpad26 ], [ %49, %lpad40 ], [ %lpad.loopexit217, %lpad.loopexit ], [ %lpad.loopexit.split-lp218, %lpad.loopexit.split-lp ]
-  %strs.sroa.0.0226 = phi i64 [ %strs.sroa.0.0.lcssa, %lpad26 ], [ %strs.sroa.0.0.lcssa, %lpad40 ], [ %strs.sroa.0.0243, %lpad.loopexit ], [ %strs.sroa.0.0243, %lpad.loopexit.split-lp ]
-  %vals.sroa.0.3 = phi i64 [ %vals.sroa.0.0.lcssa, %lpad26 ], [ %vals.sroa.0.0.lcssa, %lpad40 ], [ %vals.sroa.0.2.ph, %lpad.loopexit ], [ %vals.sroa.0.2.ph216, %lpad.loopexit.split-lp ]
-  %tobool.i.i.i178 = icmp eq i64 %strs.sroa.0.0226, 0
-  br i1 %tobool.i.i.i178, label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit181, label %if.then.i.i.i180
+ehcleanup59:                                      ; preds = %lpad.loopexit, %lpad.loopexit.split-lp, %lpad31, %lpad48
+  %.sink293 = phi { i8*, i32 } [ %36, %lpad31 ], [ %56, %lpad48 ], [ %lpad.loopexit225, %lpad.loopexit ], [ %lpad.loopexit.split-lp226, %lpad.loopexit.split-lp ]
+  %strs.sroa.0.0234 = phi i64 [ %strs.sroa.0.0.lcssa, %lpad31 ], [ %strs.sroa.0.0.lcssa, %lpad48 ], [ %strs.sroa.0.0251, %lpad.loopexit ], [ %strs.sroa.0.0251, %lpad.loopexit.split-lp ]
+  %vals.sroa.0.3 = phi i64 [ %vals.sroa.0.0.lcssa, %lpad31 ], [ %vals.sroa.0.0.lcssa, %lpad48 ], [ %vals.sroa.0.2.ph, %lpad.loopexit ], [ %vals.sroa.0.2.ph224, %lpad.loopexit.split-lp ]
+  %tobool.i.i.i186 = icmp eq i64 %strs.sroa.0.0234, 0
+  br i1 %tobool.i.i.i186, label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit189, label %if.then.i.i.i188
 
-if.then.i.i.i180:                                 ; preds = %ehcleanup51
-  %50 = inttoptr i64 %strs.sroa.0.0226 to i8*
-  call void @_ZdlPv(i8* %50) #2
-  br label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit181
+if.then.i.i.i188:                                 ; preds = %ehcleanup59
+  %57 = inttoptr i64 %strs.sroa.0.0234 to i8*
+  call void @_ZdlPv(i8* %57) #7
+  br label %_ZNSt6vectorIPcSaIS0_EED2Ev.exit189
 
-_ZNSt6vectorIPcSaIS0_EED2Ev.exit181:              ; preds = %ehcleanup51, %if.then.i.i.i180
+_ZNSt6vectorIPcSaIS0_EED2Ev.exit189:              ; preds = %ehcleanup59, %if.then.i.i.i188
   %tobool.i.i.i = icmp eq i64 %vals.sroa.0.3, 0
   br i1 %tobool.i.i.i, label %_ZNSt6vectorIiSaIiEED2Ev.exit, label %if.then.i.i.i
 
-if.then.i.i.i:                                    ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit181
-  %51 = inttoptr i64 %vals.sroa.0.3 to i8*
-  call void @_ZdlPv(i8* %51) #2
+if.then.i.i.i:                                    ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit189
+  %58 = inttoptr i64 %vals.sroa.0.3 to i8*
+  call void @_ZdlPv(i8* %58) #7
   br label %_ZNSt6vectorIiSaIiEED2Ev.exit
 
-_ZNSt6vectorIiSaIiEED2Ev.exit:                    ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit181, %if.then.i.i.i
-  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %4) #2
-  resume { i8*, i32 } %.sink285
+_ZNSt6vectorIiSaIiEED2Ev.exit:                    ; preds = %_ZNSt6vectorIPcSaIS0_EED2Ev.exit189, %if.then.i.i.i
+  call void @llvm.lifetime.end.p0i8(i64 24, i8* nonnull %6) #7
+  resume { i8*, i32 } %.sink293
 }
 
 ; Function Attrs: nounwind
-declare void @llvm.va_start(i8*) #2
-
-declare dso_local i32 @__gxx_personality_v0(...)
+declare void @llvm.va_start(i8*) #7
 
 ; Function Attrs: nounwind
-declare void @llvm.va_end(i8*) #2
+declare void @llvm.va_end(i8*) #7
 
-; Function Attrs: nounwind readonly
-declare dso_local zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"*) local_unnamed_addr #8
+declare dso_local void @_ZNSt8ios_base4InitC1Ev(%"class.std::ios_base::Init"*) unnamed_addr #5
 
-declare dso_local %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"*, i8*, i32) local_unnamed_addr #0
+; Function Attrs: nounwind
+declare dso_local void @_ZNSt8ios_base4InitD1Ev(%"class.std::ios_base::Init"*) unnamed_addr #1
 
-declare dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"*, i32) local_unnamed_addr #0
+; Function Attrs: nounwind
+declare dso_local i32 @__cxa_atexit(void (i8*)*, i8*, i8*) local_unnamed_addr #7
 
-declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* dereferenceable(272), i8*, i64) local_unnamed_addr #0
+; Function Attrs: uwtable
+declare dso_local void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"*) unnamed_addr #0 align 2
+
+; Function Attrs: nounwind uwtable
+declare dso_local void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"*) unnamed_addr #8 align 2
+
+; Function Attrs: nounwind uwtable
+define internal void @__cxx_global_array_dtor(i8* nocapture readnone) #8 section ".text.startup" {
+entry:
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 1023)) #7
+  br label %arraydestroy.body.split
+
+arraydestroy.body.split:                          ; preds = %entry, %arraydestroy.body.split
+  %1 = phi %"class.std::basic_ofstream"* [ getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 1023), %entry ], [ %arraydestroy.element3, %arraydestroy.body.split ]
+  %arraydestroy.element3 = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %1, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element3) #7
+  %arraydestroy.done = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element3, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 0)
+  br i1 %arraydestroy.done, label %arraydestroy.done1, label %arraydestroy.body.split
+
+arraydestroy.done1:                               ; preds = %arraydestroy.body.split
+  ret void
+}
+
+; Function Attrs: nounwind
+declare dso_local void @_ZNSt6localeD1Ev(%"class.std::locale"*) unnamed_addr #1
+
+; Function Attrs: nounwind
+declare dso_local void @_ZNSt8ios_baseD2Ev(%"class.std::ios_base"*) unnamed_addr #1
+
+; Function Attrs: nounwind uwtable
+define internal void @__cxx_global_array_dtor.17(i8* nocapture readnone) #8 section ".text.startup" {
+entry:
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 1023)) #7
+  br label %arraydestroy.body.split
+
+arraydestroy.body.split:                          ; preds = %entry, %arraydestroy.body.split
+  %1 = phi %"class.std::basic_ofstream"* [ getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 1023), %entry ], [ %arraydestroy.element3, %arraydestroy.body.split ]
+  %arraydestroy.element3 = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %1, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element3) #7
+  %arraydestroy.done = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element3, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 0)
+  br i1 %arraydestroy.done, label %arraydestroy.done1, label %arraydestroy.body.split
+
+arraydestroy.done1:                               ; preds = %arraydestroy.body.split
+  ret void
+}
+
+; Function Attrs: nounwind
+declare dso_local void @_ZNSs4_Rep10_M_destroyERKSaIcE(%"struct.std::basic_string<char, std::char_traits<char>, std::allocator<char> >::_Rep"*, %"class.std::allocator"* dereferenceable(1)) local_unnamed_addr #1
+
+; Function Attrs: nounwind
+declare extern_weak dso_local i32 @__pthread_key_create(i32*, void (i8*)*) #1
+
+declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZSt16__ostream_insertIcSt11char_traitsIcEERSt13basic_ostreamIT_T0_ES6_PKS3_l(%"class.std::basic_ostream"* dereferenceable(272), i8*, i64) local_unnamed_addr #5
+
+declare dso_local void @_ZNSt9basic_iosIcSt11char_traitsIcEE5clearESt12_Ios_Iostate(%"class.std::basic_ios"*, i32) local_unnamed_addr #5
 
 ; Function Attrs: argmemonly nounwind readonly
 declare dso_local i64 @strlen(i8* nocapture) local_unnamed_addr #9
 
-declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"*, i64) local_unnamed_addr #0
+; Function Attrs: uwtable
+declare dso_local void @_ZNKSt15basic_stringbufIcSt11char_traitsIcESaIcEE3strEv(%"class.std::basic_string"* noalias sret, %"class.std::basic_stringbuf"*) local_unnamed_addr #0 align 2
+
+; Function Attrs: nounwind readonly
+declare dso_local zeroext i1 @_ZNKSt12__basic_fileIcE7is_openEv(%"class.std::__basic_file"*) local_unnamed_addr #10
+
+declare dso_local %"class.std::basic_filebuf"* @_ZNSt13basic_filebufIcSt11char_traitsIcEE4openEPKcSt13_Ios_Openmode(%"class.std::basic_filebuf"*, i8*, i32) local_unnamed_addr #5
+
+declare dso_local dereferenceable(272) %"class.std::basic_ostream"* @_ZNSo9_M_insertIxEERSoT_(%"class.std::basic_ostream"*, i64) local_unnamed_addr #5
 
 ; Function Attrs: nobuiltin nounwind
-declare dso_local void @_ZdlPv(i8*) local_unnamed_addr #10
+declare dso_local void @_ZdlPv(i8*) local_unnamed_addr #11
 
 ; Function Attrs: noreturn
-declare dso_local void @_ZSt17__throw_bad_allocv() local_unnamed_addr #11
+declare dso_local void @_ZSt17__throw_bad_allocv() local_unnamed_addr #12
 
 ; Function Attrs: nobuiltin
-declare dso_local noalias nonnull i8* @_Znwm(i64) local_unnamed_addr #12
+declare dso_local noalias nonnull i8* @_Znwm(i64) local_unnamed_addr #13
 
 ; Function Attrs: argmemonly nounwind
-declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i1) #6
+declare void @llvm.memmove.p0i8.p0i8.i64(i8* nocapture, i8* nocapture readonly, i64, i1) #4
 
 ; Function Attrs: noreturn
-declare dso_local void @_ZSt24__throw_out_of_range_fmtPKcz(i8*, ...) local_unnamed_addr #11
+declare dso_local void @_ZSt24__throw_out_of_range_fmtPKcz(i8*, ...) local_unnamed_addr #12
 
 ; Function Attrs: uwtable
-define internal void @_GLOBAL__sub_I_tracer.cc() #3 section ".text.startup" {
+define internal void @_GLOBAL__sub_I_tracer.cc() #0 section ".text.startup" personality i32 (...)* @__gxx_personality_v0 {
 entry:
   tail call void @_ZNSt8ios_base4InitC1Ev(%"class.std::ios_base::Init"* nonnull @_ZStL8__ioinit)
-  %0 = tail call i32 @__cxa_atexit(void (i8*)* bitcast (void (%"class.std::ios_base::Init"*)* @_ZNSt8ios_base4InitD1Ev to void (i8*)*), i8* getelementptr inbounds (%"class.std::ios_base::Init", %"class.std::ios_base::Init"* @_ZStL8__ioinit, i64 0, i32 0), i8* nonnull @__dso_handle) #2
-  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"* nonnull @f1)
-  %1 = tail call i32 @__cxa_atexit(void (i8*)* bitcast (void (%"class.std::basic_ofstream"*)* @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev to void (i8*)*), i8* bitcast (%"class.std::basic_ofstream"* @f1 to i8*), i8* nonnull @__dso_handle) #2
-  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"* nonnull @f2)
-  %2 = tail call i32 @__cxa_atexit(void (i8*)* bitcast (void (%"class.std::basic_ofstream"*)* @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev to void (i8*)*), i8* bitcast (%"class.std::basic_ofstream"* @f2 to i8*), i8* nonnull @__dso_handle) #2
+  %0 = tail call i32 @__cxa_atexit(void (i8*)* bitcast (void (%"class.std::ios_base::Init"*)* @_ZNSt8ios_base4InitD1Ev to void (i8*)*), i8* getelementptr inbounds (%"class.std::ios_base::Init", %"class.std::ios_base::Init"* @_ZStL8__ioinit, i64 0, i32 0), i8* nonnull @__dso_handle) #7
+  br label %arrayctor.loop.i
+
+arrayctor.loop.i:                                 ; preds = %invoke.cont.i, %entry
+  %arrayctor.cur.idx.i = phi i64 [ 0, %entry ], [ %arrayctor.cur.add.i, %invoke.cont.i ]
+  %arrayctor.cur.ptr.i = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 %arrayctor.cur.idx.i
+  invoke void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"* nonnull %arrayctor.cur.ptr.i)
+          to label %invoke.cont.i unwind label %lpad.i
+
+invoke.cont.i:                                    ; preds = %arrayctor.loop.i
+  %arrayctor.cur.add.i = add nuw nsw i64 %arrayctor.cur.idx.i, 1
+  %arrayctor.done.i = icmp eq i64 %arrayctor.cur.add.i, 1024
+  br i1 %arrayctor.done.i, label %__cxx_global_var_init.15.exit, label %arrayctor.loop.i
+
+lpad.i:                                           ; preds = %arrayctor.loop.i
+  %1 = landingpad { i8*, i32 }
+          cleanup
+  %arraydestroy.isempty.i = icmp eq i64 %arrayctor.cur.idx.i, 0
+  br i1 %arraydestroy.isempty.i, label %eh.resume.i, label %lpad.split.i
+
+lpad.split.i:                                     ; preds = %lpad.i
+  %arraydestroy.element3.i = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %arrayctor.cur.ptr.i, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element3.i) #7
+  %arraydestroy.done7.i = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element3.i, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 0)
+  br i1 %arraydestroy.done7.i, label %eh.resume.i, label %arraydestroy.body.split.i
+
+arraydestroy.body.split.i:                        ; preds = %lpad.split.i, %arraydestroy.body.split.i
+  %2 = phi %"class.std::basic_ofstream"* [ %arraydestroy.element4.i, %arraydestroy.body.split.i ], [ %arraydestroy.element3.i, %lpad.split.i ]
+  %arraydestroy.element4.i = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %2, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element4.i) #7
+  %arraydestroy.done.i = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element4.i, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f1, i64 0, i64 0)
+  br i1 %arraydestroy.done.i, label %eh.resume.i, label %arraydestroy.body.split.i
+
+eh.resume.i:                                      ; preds = %arraydestroy.body.split.i, %lpad.split.i, %lpad.i
+  resume { i8*, i32 } %1
+
+__cxx_global_var_init.15.exit:                    ; preds = %invoke.cont.i
+  %3 = tail call i32 @__cxa_atexit(void (i8*)* nonnull @__cxx_global_array_dtor, i8* null, i8* nonnull @__dso_handle) #7
+  br label %arrayctor.loop.i3
+
+arrayctor.loop.i3:                                ; preds = %invoke.cont.i6, %__cxx_global_var_init.15.exit
+  %arrayctor.cur.idx.i1 = phi i64 [ 0, %__cxx_global_var_init.15.exit ], [ %arrayctor.cur.add.i4, %invoke.cont.i6 ]
+  %arrayctor.cur.ptr.i2 = getelementptr inbounds [1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 %arrayctor.cur.idx.i1
+  invoke void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEEC1Ev(%"class.std::basic_ofstream"* nonnull %arrayctor.cur.ptr.i2)
+          to label %invoke.cont.i6 unwind label %lpad.i8
+
+invoke.cont.i6:                                   ; preds = %arrayctor.loop.i3
+  %arrayctor.cur.add.i4 = add nuw nsw i64 %arrayctor.cur.idx.i1, 1
+  %arrayctor.done.i5 = icmp eq i64 %arrayctor.cur.add.i4, 1024
+  br i1 %arrayctor.done.i5, label %__cxx_global_var_init.16.exit, label %arrayctor.loop.i3
+
+lpad.i8:                                          ; preds = %arrayctor.loop.i3
+  %4 = landingpad { i8*, i32 }
+          cleanup
+  %arraydestroy.isempty.i7 = icmp eq i64 %arrayctor.cur.idx.i1, 0
+  br i1 %arraydestroy.isempty.i7, label %eh.resume.i15, label %lpad.split.i11
+
+lpad.split.i11:                                   ; preds = %lpad.i8
+  %arraydestroy.element3.i9 = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %arrayctor.cur.ptr.i2, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element3.i9) #7
+  %arraydestroy.done7.i10 = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element3.i9, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 0)
+  br i1 %arraydestroy.done7.i10, label %eh.resume.i15, label %arraydestroy.body.split.i14
+
+arraydestroy.body.split.i14:                      ; preds = %lpad.split.i11, %arraydestroy.body.split.i14
+  %5 = phi %"class.std::basic_ofstream"* [ %arraydestroy.element4.i12, %arraydestroy.body.split.i14 ], [ %arraydestroy.element3.i9, %lpad.split.i11 ]
+  %arraydestroy.element4.i12 = getelementptr inbounds %"class.std::basic_ofstream", %"class.std::basic_ofstream"* %5, i64 -1
+  tail call void @_ZNSt14basic_ofstreamIcSt11char_traitsIcEED1Ev(%"class.std::basic_ofstream"* nonnull %arraydestroy.element4.i12) #7
+  %arraydestroy.done.i13 = icmp eq %"class.std::basic_ofstream"* %arraydestroy.element4.i12, getelementptr inbounds ([1024 x %"class.std::basic_ofstream"], [1024 x %"class.std::basic_ofstream"]* @f2, i64 0, i64 0)
+  br i1 %arraydestroy.done.i13, label %eh.resume.i15, label %arraydestroy.body.split.i14
+
+eh.resume.i15:                                    ; preds = %arraydestroy.body.split.i14, %lpad.split.i11, %lpad.i8
+  resume { i8*, i32 } %4
+
+__cxx_global_var_init.16.exit:                    ; preds = %invoke.cont.i6
+  %6 = tail call i32 @__cxa_atexit(void (i8*)* nonnull @__cxx_global_array_dtor.17, i8* null, i8* nonnull @__dso_handle) #7
   ret void
 }
 
-attributes #0 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #0 = { uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #1 = { nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #2 = { nounwind }
-attributes #3 = { uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #4 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #5 = { noinline uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #6 = { argmemonly nounwind }
-attributes #7 = { noreturn nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #8 = { nounwind readonly "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #2 = { inlinehint uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #3 = { noreturn nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #4 = { argmemonly nounwind }
+attributes #5 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #6 = { noinline uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #7 = { nounwind }
+attributes #8 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #9 = { argmemonly nounwind readonly "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #10 = { nobuiltin nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #11 = { noreturn "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #12 = { nobuiltin "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
-attributes #13 = { nounwind readonly }
+attributes #10 = { nounwind readonly "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #11 = { nobuiltin nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #12 = { noreturn "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+attributes #13 = { nobuiltin "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
 attributes #14 = { noreturn nounwind }
-attributes #15 = { noreturn }
+attributes #15 = { nounwind readonly }
+attributes #16 = { noreturn }
 
 !llvm.module.flags = !{!0}
 !llvm.ident = !{!1}
@@ -865,5 +1352,9 @@ attributes #15 = { noreturn }
 !12 = !{!"_ZTSNSt8ios_base6_WordsE", !11, i64 0, !7, i64 8}
 !13 = !{!"int", !8, i64 0}
 !14 = !{!"_ZTSSt6locale", !11, i64 0}
-!15 = !{!13, !13, i64 0}
-!16 = !{!11, !11, i64 0}
+!15 = !{!16, !11, i64 0}
+!16 = !{!"_ZTSSs", !17, i64 0}
+!17 = !{!"_ZTSNSs12_Alloc_hiderE", !11, i64 0}
+!18 = !{!"branch_weights", i32 2000, i32 1}
+!19 = !{!13, !13, i64 0}
+!20 = !{!11, !11, i64 0}
