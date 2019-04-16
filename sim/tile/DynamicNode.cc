@@ -64,30 +64,33 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
+
     if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD) {
       if(core->memory.find(n->id)==core->memory.end()) {
-        cout << "Assertion about to fail for: " << n->name << endl;        
-      }
+        cout << "Assertion about to fail for: " << n->name << endl;         }
 
       assert(core->memory.find(n->id)!=core->memory.end());
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
-      
-      core->lsq.insert(d); 
+
+      if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR) {
+        core->lsq.insert(d);
+      }
     }
     else {
       d = new DynamicNode(n, this, core); 
       nodes.insert(make_pair(n, d));          
     }
-    
+
     d->width=n->width;
     if(d->n->typeInstr==BS_VECTOR_INC) {
       core->sim->load_count+=d->width;
     }
-    if(d->isDESC) { 
-      core->sim->orderDESC(d);    
+
+    if(d->isDESC) {        
+      core->sim->orderDESC(d);
     }
     core->window.insertDN(d);
   }
@@ -209,12 +212,13 @@ void DynamicNode::register_issue_success() {
 uint64_t trans_id=0;
 
 void Context::process() {
-
+  
   bool window_full=false;
   bool issue_stats_mode=false; 
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
    
     DynamicNode *d = *it;
+    
     if(window_full) {     
       if (issue_stats_mode) {
         d->register_issue_try();
@@ -234,7 +238,7 @@ void Context::process() {
     assert(!d->issued);
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
-      d->completed = true;
+      //d->completed = true;
       d->issued = true;
       if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
         core->context_to_create++;     
@@ -246,30 +250,30 @@ void Context::process() {
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
     }
-    
-    
+       
     else {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
   
     if(!res) {
-      //if(core->cycles >= 1000000)
-      //  d->print(Issue_Failed, 0);
       if(issue_stats_mode) {
         next_issue_set.insert(d);
       }
       ++it;
-      //if(d->type == RECV && d->c->core->sim->descq->consume_count<d->c->core->sim->descq->consume_size) {        
-      //}
-      
+                 
     }
-    else {      
+    else {
       core->window.issue();
       d->issued=true;
+      
+      if(cfg.verbLevel == 2) {
+        cout << "Cycle: " << core->cycles << " \n"; 
+        d->print("Issued", -10);
+      }
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      //d->print(Issue_Succesful,0);
+      
       
       if(issue_stats_mode) {
         d->register_issue_success();
@@ -312,10 +316,8 @@ void Context::complete() {
   nodes_to_complete.clear();
   if (completed_nodes.size() == bb->inst_count) {
     live = false;   
-    if (core->local_cfg.max_active_contexts_BB > 0) {
-      
-      core->outstanding_contexts.at(bb)++;
-      
+    if (core->local_cfg.max_active_contexts_BB > 0) {      
+      core->outstanding_contexts.at(bb)++;      
     }
     print("Finished (BB:" + to_string(bb->id) + ") ", 0);
     // update GLOBAL Stats    
@@ -459,7 +461,13 @@ void DynamicNode::print(string str, int level) {
 }
 
 void DynamicNode::handleMemoryReturn() {
-  
+      //update load latency stats
+  if(type==LD || type==LD_PROD) {
+    assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
+    long long issue_cycle = core->sim->load_stats_map[this].first;
+    long long current_cycle = core->cycles; 
+    core->sim->load_stats_map[this]=make_pair(issue_cycle,current_cycle);
+  }
   print(Memory_Data_Ready, 1);
   print(to_string(outstanding_accesses), 1);
   if(type == LD || type == LD_PROD) {
@@ -472,10 +480,11 @@ void DynamicNode::handleMemoryReturn() {
     if(type == LD) {
       c->insertQ(this);
     }
+    //luwa desc modification
     if(type == LD_PROD) {
-      //here we push to descq
-      core->communicate(this);
-      //assert(false);
+      
+      //here tell descq to move       
+      mem_status=RETURNED; //this signals DESCQ, it can move it from term ld buff to commQ and finally complete
     }
   }
 }
@@ -484,27 +493,29 @@ void DynamicNode::tryActivate() {
   if(pending_parents > 0 || pending_external_parents > 0 || (core->local_cfg.cf_mode==1 && type==TERMINATOR && (issued || completed))) {
     return;
   }
-
+  if(type==RECV) {
+    //assert(desc_id!=833);
+  }
   if(issued || completed) {
     //this->print("",-10);
     assert(false);
   }
   /*  if(type == TERMINATOR) {    
-    c->completed_nodes.insert(this);
-    issued = true;
-    completed = true;
-    if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
+      c->completed_nodes.insert(this);
+      issued = true;
+      completed = true;
+      if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
       core->context_to_create++;       
       }*/
   //else {
   assert((core->local_cfg.cf_mode == 1 && type == TERMINATOR) || c->issue_set.find(this) == c->issue_set.end());
-    
-    if(isMem || type==STADDR || type==LD_PROD) { //luwa just added
-      addr_resolved = true;
-      core->lsq.resolveAddress(this);
-    }
-    c->issue_set.insert(this);
-    //}
+  
+  if(isMem || type==STADDR) { 
+    addr_resolved = true;
+    core->lsq.resolveAddress(this);
+  }
+  c->issue_set.insert(this);
+  //}
 }
 
 bool DynamicNode::issueCompNode() { 
@@ -526,8 +537,13 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1; 
   // FIXME
-  if(!core->canAccess(type == LD))
+  if(!core->canAccess(type == LD)) { 
     return false;
+  }
+  //check DESCQ's Store Address Buffer for conflicts
+  if(type==LD && (core->sim->descq->sab_has_dependency(this)!=NULL)) { //sab_has_dependency() returns null if nothing found
+    return false; 
+  }
   if(type == LD && core->local_cfg.mem_forward) {
     forwardRes = core->lsq.check_forwarding(this);
     if(forwardRes == 0 && core->local_cfg.mem_speculate) {
@@ -540,8 +556,10 @@ bool DynamicNode::issueMemNode() {
       core->local_stat.update("forwarded");
     }
   }
+  
   if(type == LD && forwardRes == -1) {
     int res = core->lsq.check_load_issue(this, core->local_cfg.mem_speculate);
+  
     if(res == 0) {
       stat.update("speculated");
       core->local_stat.update("speculated");
@@ -588,46 +606,99 @@ bool DynamicNode::issueMemNode() {
   }
   return true;
 }
-
+int stl_fwd_count=0;
+int lsq_fwd_count=0;
 bool DynamicNode::issueDESCNode() {
   bool can_issue=true;
-  bool lpd_can_forward=false;
-  if(type == STADDR) {
+ 
+  //luwa rob fix
+  /*if(type == STADDR) {
     if(!core->lsq.check_store_issue(this)) {
       can_issue = false; 
     }
   }
+  */
  
+  int lsq_result=0;
+  bool can_forward_from_lsq = false;
+  bool can_forward_from_svb = false;
+  DynamicNode* forwarding_staddr=NULL;
   if(type == LD_PROD) {
+    can_forward_from_lsq = (core->lsq.check_forwarding(this)==1);
+
+      //0 means can forward speculatively from lsq
+      //1 means we found a closest older STORE (not STADDR) in lsq that has completed, no speculation
+   
+    lsq_result = core->lsq.check_load_issue(this, false);
+    // -1 can't issue at all, no matter what
+    //0 can issue with speculation (perhaps unresolved matching older store)
+    //1 is can definitely issue (nothing uncompleted or unresolved above)
+    //2 is there's an issued staddr above, can *possibly* do stl fwding
+    can_issue=can_issue && lsq_result!=-1 && lsq_result!=0;
+
+    forwarding_staddr = core->sim->descq->sab_has_dependency(this);
     
-    can_issue=core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)==1;
-    lpd_can_forward=can_issue && core->sim->descq->updateSAB(this);
-    //luwa: this breaks abstraction, but we can change it later
+    //make sure the RECV has been issued to avoid deadlock from LARGE runahead distance where the RECV never actually enters the RoB
     
-    if(lpd_can_forward) {
-      can_issue=can_issue && core->communicate(this);
+    can_forward_from_svb = forwarding_staddr!=NULL && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued; //tells us there's a matching staddr that can bypass and forward store value
+
+    //here ld_prod must go to memory, check if mem system can accept
+    if(!can_forward_from_lsq && !can_forward_from_svb) {
+      mem_status=PENDING; //must issue mem request below
+      can_issue=can_issue && core->canAccess(true);
+     
     }
-    else {
-      can_issue=can_issue && core->canAccess(true); //here, must rely on memsystem
+    else if(can_forward_from_lsq) {
+      mem_status=LSQ_FWD;
       
-    } 
+    }
+    else if(can_forward_from_svb) {
+      mem_status=DESC_FWD;
+      
+    }
   }
+
+  //insert into the desc structures if there's space, insert() returns false otherwise
+  //note: relies on lazy evaluation of booleans, must call insert() last
+  can_issue=can_issue && core->sim->descq->insert(this,forwarding_staddr);
   
-  if(type != LD_PROD) { 
-    can_issue=can_issue && core->communicate(this);
+  if(!can_issue) {
+    mem_status=NONE; //reset mem status 
   }
   
   if(can_issue) {
-    //issued=true;
+    //collect stats on runahead distance
+    if(type==LD_PROD || type==SEND) {
+      if(core->sim->descq->send_runahead_map.find(desc_id)!=core->sim->descq->send_runahead_map.end()) {
+        core->sim->descq->send_runahead_map[desc_id] =  core->sim->descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+      }
+      else {
+        core->sim->descq->send_runahead_map[desc_id] = core->cycles;
+      }
+    }
+    
+    if(type==RECV) {
+      if(core->sim->descq->send_runahead_map.find(desc_id)!=core->sim->descq->send_runahead_map.end()) {
+        core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+      }
+      else {
+        core->sim->descq->send_runahead_map[desc_id] = core->cycles;
+      }
+    }
+    
     if(type == STVAL) {
+ 
+      can_exit_rob=true;
       stat.update(stval_issue_success);
       core->local_stat.update(stval_issue_success);
     }
     if (type == STADDR) {
+      can_exit_rob=true;
       stat.update(staddr_issue_success);
       core->local_stat.update(staddr_issue_success);
     }
     if(type == RECV) {
+
       stat.update(recv_issue_success);
       core->local_stat.update(recv_issue_success);
     }
@@ -636,12 +707,25 @@ bool DynamicNode::issueDESCNode() {
       core->local_stat.update(send_issue_success);
     }
     if(type == LD_PROD) {
+      can_exit_rob=true; //allow rob to remove this if it's the head
+      core->sim->descq->debug_send_set.insert(desc_id);
+      //a RECV could get the forwarded value before finishNode() is called
       
-      //send to memsys
-      
-      if (!lpd_can_forward) { //can't forward
+      if(can_forward_from_lsq) {
+        //do nothing, ld_prod goes to term_ld_buff lsq has fed value
+        //assert(false);
+        lsq_fwd_count++;
+        //cout << "LSQ_FWD: " << lsq_fwd_count << endl;
+      }
+      else if(can_forward_from_svb) { 
+        //can do decoupled stl fwding
+        stl_fwd_count++;
+        //cout << "SVB_FWD: " << stl_fwd_count << endl;
+      }
+      else { //must go to memory
         print(Access_Memory_Hierarchy, 1);
-        core->access(this); //handlememoryreturn() calls communicate on ld_prod
+        core->access(this); //send out load to mem hier
+        
       }
       stat.update(ld_prod_issue_success);
       core->local_stat.update(ld_prod_issue_success);
@@ -652,29 +736,35 @@ bool DynamicNode::issueDESCNode() {
 
 
 void DynamicNode::finishNode() {
-  if(completed) {
-    return;
-    //print("shouldn't be completed ", -10);
-    //assert(false);
-  } 
-  //these assertions test to make sure decoupling dependencies are maintained
-  DynamicNode* d=this;
-  if(d->c->id==35682 && d->n->id==14 && d->core->id==0) {
-    
-    //assert(false);
-  }
-  assert(!(n->typeInstr==RECV) || core->sim->descq->debug_send_set.find(desc_id)!=core->sim->descq->debug_send_set.end());         
+
   
-  assert(!(n->typeInstr==STADDR) || core->sim->descq->debug_stval_set.find(desc_id)!=core->sim->descq->debug_send_set.end());
-
-  if(type==SEND||type==LD_PROD) {
-    assert( core->sim->descq->send_runahead_map.find(desc_id)==core->sim->descq->send_runahead_map.end());
-    core->sim->descq->send_runahead_map[desc_id]=core->cycles;    
+  if(type==SEND || type==LD_PROD) {
+    
+    core->sim->descq->debug_send_set.insert(desc_id);
+  }
+  if(type==STVAL) {
+    core->sim->descq->debug_stval_set.insert(desc_id);
   }
 
-  if(type==RECV) {
-    core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+  if(completed) {
+    print("already completed ", -10);
+    assert(false);
   }
+  if(cfg.verbLevel == 2) {
+    cout << "Cycle: " << core->cycles << " \n"; 
+    print("Completed", -10);
+  }
+    
+  //these assertions test to make sure decoupling dependencies are maintained
+  if(n->typeInstr==RECV && core->sim->descq->debug_send_set.find(desc_id)==core->sim->descq->debug_send_set.end()) {
+    cout << "Assertion about to fail for DESCID " << desc_id << endl;
+    print("recv trying to jump", -10);
+  }
+
+  
+  assert(!((n->typeInstr==RECV) && core->sim->descq->debug_send_set.find(desc_id)==core->sim->descq->debug_send_set.end()));         
+  
+  assert(!((n->typeInstr==STADDR) && core->sim->descq->debug_stval_set.find(desc_id)==core->sim->descq->debug_send_set.end()));
 
   if(type==STVAL) {
     core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
@@ -686,7 +776,7 @@ void DynamicNode::finishNode() {
 
   
   c->completed_nodes.insert(this);
-  //assert(this->type!=LD_PROD); this fails, which is good
+
   completed = true;
 
   // Handle Resource limits

@@ -9,12 +9,13 @@ class Core;
 
 class LoadStoreQ {
 public:
-  Core* core;
+  //  Core* core;
   deque<DynamicNode*> lq;
   deque<DynamicNode*> sq;
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> lm;
   //program order sorted set of dynamic nodes (loads) that access an address
   unordered_map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> sm;
+  bool mem_speculate;
   //program order sorted set of dynamic nodes (stores) that access an address
   set<DynamicNode*, DynamicNodePointerCompare> us;
   set<DynamicNode*, DynamicNodePointerCompare> ul;
@@ -25,7 +26,7 @@ public:
   int size;
   bool set_processed = false;
 
-  LoadStoreQ(Core* thecore);
+  LoadStoreQ(bool speculate);
   void resolveAddress(DynamicNode *d);
   void insert(DynamicNode *d);
   bool checkSize(int num_ld, int num_st);

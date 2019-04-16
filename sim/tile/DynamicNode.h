@@ -15,7 +15,9 @@ class DynamicNode;
 class Context;
 class ExampleTransaction;
 typedef pair<DynamicNode*, uint64_t> Operator;
+typedef enum {NONE, DESC_FWD, LSQ_FWD, PENDING, RETURNED, FWD_COMPLETE} MemStatus; //pending: sent to mem system, returned: was sent and has returned back, none: no mem access required, desc_fwd:can be handled by decoupled stl fwding, lsq_fwd: can be handled by lsq forwarding
 
+typedef enum {DISPATCH, LEFT_ROB} Stage; //stage of "pipeline" of dynamic node 
 class DynamicNode {
 public:
   Node *n;
@@ -24,9 +26,12 @@ public:
   TInstr type;
   bool issued = false;
   bool completed = false;
+  bool can_exit_rob = false;
+  Stage stage=DISPATCH; 
+  MemStatus mem_status = NONE;
   bool isMem;
   bool isDESC;
-  int desc_id;
+  uint64_t desc_id;
   bool acc_initiated=false;
   ExampleTransaction* t;
   /* Memory */

@@ -43,9 +43,9 @@ void Node::eraseDependent(Node *dest, TEdge type) {
 void BasicBlock::addInst(Node* n) {
   inst.push_back(n);
   inst_count++;
-  if(n->typeInstr == LD)
+  if(n->typeInstr == LD || n->typeInstr == LD_PROD)
     ld_count++;
-  else if(n->typeInstr == ST)
+  else if(n->typeInstr == ST || n->typeInstr == STADDR)
     st_count++;
 }
 

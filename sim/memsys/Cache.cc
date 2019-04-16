@@ -108,18 +108,24 @@ void Cache::execute(MemTransaction* t) {
  
   if(!ideal) {
     res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
-
   }
+  //luwa change, just testing!!!
+  /*
+  if(t->src_id!=-1 && t->d->type==LD) {
+    res=true;
+  }
+  else {
+    res=false;
+  }
+  */
   if (res) {                
     //d->print("Cache Hit", 1);
     if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache      
       if(isL1) {
-        
         sim->accessComplete(t); 
         stat.update("cache_hit"); //luwa todo l1 hit
       }
       else {
-
         int64_t evictedAddr = -1;
 
         Cache* child_cache=t->cache_q->front();
@@ -143,7 +149,7 @@ void Cache::execute(MemTransaction* t) {
 
     }
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
-      assert(false);
+      
       delete t; 
     }
      
@@ -157,14 +163,18 @@ void Cache::execute(MemTransaction* t) {
   }
 }
 void Cache::addTransaction(MemTransaction *t) {
-  //d->print("Cache Transaction Added", 1);
-  
+
   stat.update("cache_access");
   if(t->isLoad)
     free_load_ports--;
   else
-    free_store_ports--;  
-  pq.push(make_pair(t, cycles+latency));
+    free_store_ports--;
+
+  //luwa change this!!! Testing!!!
+  /*  if(t->src_id!=-1 && t->d->type==LD)
+    pq.push(make_pair(t, cycles+1));
+    else */
+  pq.push(make_pair(t, cycles+latency)); 
 }
 
 bool Cache::willAcceptTransaction(MemTransaction *t) {  
@@ -180,18 +190,10 @@ bool Cache::willAcceptTransaction(MemTransaction *t) {
 }
 
 void Cache::TransactionComplete(MemTransaction *t) {
+ 
   
   if(isL1) {
-    sim->accessComplete(t);
-
-    //update load latency stats
-    if(t->d->type==LD || t->d->type==LD_PROD) {
-      assert(sim->load_stats_map.find(t->d)!=sim->load_stats_map.end());
-      uint64_t issue_cycle = sim->load_stats_map[t->d].first;
-      uint64_t current_cycle = t->d->core->cycles; 
-      sim->load_stats_map[t->d]=make_pair(issue_cycle,current_cycle);
-    }
-    
+    sim->accessComplete(t);    
   }
   else {
 

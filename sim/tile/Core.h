@@ -34,6 +34,7 @@ public:
   uint64_t window_end=window_size-1;
   int issueWidth=1;//8; //total # issues per cycle
   int issueCount=0;
+  uint64_t cycles=0;
   void insertDN(DynamicNode* d);
   bool canIssue(DynamicNode* d);
   void process();
@@ -81,7 +82,7 @@ public:
   unordered_map<int, Context*> curr_owner;
   
   /* LSQ */
-  LoadStoreQ lsq=LoadStoreQ(this);
+  LoadStoreQ lsq=LoadStoreQ(false);
 
   Core(Simulator* sim, int clockspeed);
   

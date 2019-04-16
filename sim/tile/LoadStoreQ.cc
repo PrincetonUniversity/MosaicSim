@@ -2,8 +2,8 @@
 #include "LoadStoreQ.h"
 #include "Core.h"
 
-LoadStoreQ::LoadStoreQ(Core* thecore) {
-  core=thecore;
+LoadStoreQ::LoadStoreQ(bool speculate) {
+  mem_speculate=speculate;
 }
 
 void LoadStoreQ::resolveAddress(DynamicNode *d) {
@@ -40,7 +40,7 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
     return true;
   if(ld_need > 0) {
     for(auto it = lq.begin(); it!= lq.end(); ++it) {
-      if((*it)->completed)
+      if((*it)->stage==LEFT_ROB)
         ld_ct++;
       else
         break;
@@ -50,7 +50,7 @@ bool LoadStoreQ::checkSize(int num_ld, int num_st) {
   }
   if(st_need > 0) {
     for(auto it = sq.begin(); it!= sq.end(); ++it) {
-      if((*it)->completed)
+      if((*it)->stage==LEFT_ROB)
         st_ct++;
       else
         break;
@@ -88,9 +88,6 @@ bool LoadStoreQ::check_unresolved_load(DynamicNode *in) {
     return false;
   DynamicNode *d = *(unresolved_ld_set.begin());
   if(*d < *in || *d == *in) {
-    //if(d->type==LD) {
-    //  cout << "reg ld is delaying \n";
-    //}
     return true;
   }
   else {
@@ -104,7 +101,7 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
     return false;
   DynamicNode *d = *(unresolved_st_set.begin());
 
-  if(core->local_cfg.mem_speculate) {
+  if(mem_speculate) {
     for(auto it=unresolved_st_set.begin(); it!=unresolved_st_set.end();it++) {
       if (*in < **it || *in == **it) {        
         return false;
@@ -142,10 +139,25 @@ int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
   set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
   for(auto it = s.begin(); it!= s.end(); ++it) {
     DynamicNode *d = *it;
-    if(*in < *d)
+    if(*in < *d) {
       return 1;
-    else if(!d->completed)
-      return -1;
+    } 
+    if(!(d->stage==LEFT_ROB)) {
+      if(in->type==LD) {
+        if(!d->issued) {
+          return -1;
+        }
+      }
+      else { //issued staddr instruction -> we can do dec stl fwd with conflicting staddr
+        if(d->type!=STADDR || !d->issued) {
+          return -1;
+        }
+        else {
+          return 2; //be careful of deadlock between insertQ of stval and finishNode() call. basically, it could be completed by the time recv instruction wants it
+          //should really check stval buffer here
+        }
+      }
+    }
   }
   return 1;
 }
@@ -157,8 +169,6 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
     return false;
   
   if(check_unresolved_load(in)) {
-    //if(in->type==STADDR)
-      //cout<<"it's unresolved load \n";
     return false;
   }
   if(sm.at(in->addr).size() == 1)
@@ -171,7 +181,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
       DynamicNode *d = *it;
       if(*in < *d || *d == *in)
         break;
-      else if(!d->completed)
+      else if(!(d->stage==LEFT_ROB))
         return 0;
     }
   }
@@ -181,7 +191,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
       DynamicNode *d = *it;
       if(*in < *d)
         break;
-      else if(!d->completed)
+      else if(!(d->stage==LEFT_ROB))
         return 0;
     }
   }
@@ -194,8 +204,6 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
     return -1;
   set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);
   
-
-  DynamicNode test = *in;
   auto it = s.rbegin();
   auto uit = unresolved_st_set.rbegin();
 
@@ -239,17 +247,6 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   if(it == s.rend())
     return -1;
 
-  //previous version
-  //unresolved one is older than relevant one with the address
-  //but shouldn't it be the other way around??
-  //shouldn't you get the forward from the most recent store, which is the younger between *(*it) and *(*uit)? That is, closest to *in. 
-
-  /*
-  if(uit != unresolved_st_set.rend() && *(*uit) < *(*it)) {
-    speculative = true;
-  } 
-  */
-  //corrected version
   //here, unresolved store *(*uit) is closest to *in. Technically, we don't know
   //the address is irrelevant yet and that *(*it) is the relevant one, so it would be speculative. 
   if(uit != unresolved_st_set.rend() &&   *(*it) < *(*uit)) { //unresolved is younger, should be getting from them if address matched, which you don't know
@@ -257,11 +254,11 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   }
   
   DynamicNode *d = *it;
-  if(d->completed && !speculative)
+  if((d->stage==LEFT_ROB) && d->type!=STADDR && !speculative)
     return 1;
-  else if(d->completed && speculative) //just get from most recent completed with addr anyway
+  else if((d->stage==LEFT_ROB) && d->type!=STADDR && speculative) //just get from most recent completed with addr anyway
     return 0;
-  else if(!d->completed)
+  else if(!(d->stage==LEFT_ROB))
     return -1;
   return -1;
 }

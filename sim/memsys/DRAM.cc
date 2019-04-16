@@ -22,12 +22,12 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     assert(c->isLLC);
     t->cache_q->pop_front();
     
-    c->fc->insert(addr/64, &evictedAddr);
+    c->fc->insert(addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {
 
       assert(evictedAddr >= 0);
       stat.update("cache_evict");
-      c->to_evict.push_back(evictedAddr*64);
+      c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     
     c->TransactionComplete(t);

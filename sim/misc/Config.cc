@@ -122,16 +122,22 @@ void Config::getCfg(int id, int val) {
     issueWidth = val;
     break;
   case 16:
-    consume_size = val;
+    commBuff_size = val;
     break;
   case 17:
-    supply_size = val;
+    commQ_size = val;
     break;
   case 18:
     term_buffer_size = val;
     break;
   case 19:
+    SAB_size = val;
+    break;
+  case 20:
     desc_latency = val;
+    break;
+  case 21:
+    SVB_size = val;  
     break;
   default:
     break;

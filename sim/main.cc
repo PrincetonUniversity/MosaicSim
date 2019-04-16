@@ -74,7 +74,7 @@ int main(int argc, char const *argv[]) {
   }
 
   //set the DRAMSim clockspeed based on Tile0's clockspeed
-  simulator->initDRAM();
+  simulator->initDRAM(simulator->tiles[0]->clockspeed);
   simulator->run();
   return 0;
 } 

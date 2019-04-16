@@ -1,5 +1,6 @@
 #include "DynamicNode.h"
 #include "Core.h"
+//#include "LoadStoreQ.h"
 #include "../memsys/Cache.h"
 #define ID_POOL 1000000
 
@@ -17,7 +18,8 @@ void Core::access(DynamicNode* d) {
   //collect stats on load latency
   if(d->type==LD || d->type==LD_PROD) {
     assert(sim->load_stats_map.find(d)==sim->load_stats_map.end());
-    sim->load_stats_map[d]=make_pair(cycles,0); //(issue cycle, return cycle)
+    long long current_cycle=cycles;
+    sim->load_stats_map[d]=make_pair(current_cycle,0); //(issue cycle, return cycle)
   }
   
   int tid = tracker_id.front();
@@ -27,9 +29,9 @@ void Core::access(DynamicNode* d) {
   
   MemTransaction *t = new MemTransaction(tid, id, id, d->addr, d->type == LD || d->type == LD_PROD);
   t->d=d;
-  //assert(tid!=-1);
+  
   cache->addTransaction(t);
-  //sim->access(t);
+  
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
@@ -40,8 +42,6 @@ void IssueWindow::insertDN(DynamicNode* d) {
 bool IssueWindow::canIssue(DynamicNode* d) {
   assert(issueMap.find(d)!=issueMap.end());
   uint64_t position=issueMap.at(d);
-  //cout << "window size is " << window_size << endl;
-  //cout << "issue width is " << issueWidth << endl; 
   
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
     return true;
@@ -52,32 +52,25 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
-  /*
-  if(d->core->cycles >= 1000000 && d->core->cycles %500000==0) {
-    
-    if(position<window_start || position>window_end)
-      d->print("rob full", -10);
-    //cout<<"STILL PROCESSING CONTEXTS \n";
-  }
-  */
+  
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
 void IssueWindow::process() {
   issueCount=0;
-  vector<DynamicNode*> eraseVector;
+  //shift RoB
   for(auto it=issueMap.begin(); it!=issueMap.end();) {
-    if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when Load_Produce is at head of RoB, you can remove it, even if it's been issued but not completed
- 
+    if (it->first->completed || it->first->can_exit_rob) {//when Load_Produce, STADDR, and STVAL are marked as can_exit_rob if there are resources available, meaning you can remove them from RoB when they are at the head
+      it->first->stage=LEFT_ROB;
       window_start=it->second+1;
       window_end=(window_size+window_start)-1;
       it=issueMap.erase(it); //erases and gets next element, i.e., it++
-      //eraseVector.push_back(it->first);
     }
     else {
       break;
     }
   }
+  cycles++;
 }
 
 void IssueWindow::issue() {
@@ -119,7 +112,7 @@ void Core::initialize(int id) {
   cache->parent_cache=sim->cache;
   cache->isL1=true;
   cache->memInterface = sim->memInterface;
-  
+  lsq.mem_speculate=local_cfg.mem_speculate;
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
@@ -187,22 +180,25 @@ bool Core::createContext() {
   
   BasicBlock *bb = g.bbs.at(bbid);
   // Check LSQ Availability
-  if(!lsq.checkSize(bb->ld_count, bb->st_count))
+  if(!lsq.checkSize(bb->ld_count, bb->st_count)) {
     return false;
+  }
+    
   // check the limit of contexts per BB
   if (local_cfg.max_active_contexts_BB > 0) {
     if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
       outstanding_contexts.insert(make_pair(bb, local_cfg.max_active_contexts_BB));
     }
-    else if(outstanding_contexts.at(bb) == 0)
+    else if(outstanding_contexts.at(bb) == 0) {
       return false;
+    }
     outstanding_contexts.at(bb)--;
   }
   Context *c = new Context(cid, this);
   context_list.push_back(c);
   live_context.push_back(c);
   c->initialize(bb, next_bbid, prev_bbid);
-
+  
   return true;
 }
 
