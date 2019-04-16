@@ -12,7 +12,7 @@
 -1,max_active_contexts_BB
 
 #Cache
-1,ideal_cache   #set 1 for always cache hit
+0,ideal_cache   #set 1 for always cache hit
 32,cache_size_in_kb
 1,cache_latency
 8,cache_assoc

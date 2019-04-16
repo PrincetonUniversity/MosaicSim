@@ -14,10 +14,10 @@
 4,mem_store_ports
 
 #DESC
-1280,SAB_size #prev 128
-1280,SVB_size #prev 128
+128,SAB_size #prev 128
+128,SVB_size #prev 128
 64,commBuff_size
-5120,commQ_size #prev 512
-320,term_buffer_size # prev 32
+512,commQ_size #prev 512
+32,term_buffer_size # prev 32
 3,desc_latency # prev 3
 
