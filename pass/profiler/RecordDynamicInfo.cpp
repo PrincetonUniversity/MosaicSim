@@ -10,7 +10,8 @@
 #include <string>
 
 using namespace llvm;
-#define KERNEL_STR "_kernel_"
+std::string KERNEL_STR = "_kernel_";
+std::string KERNEL_TYPE = "_no_type_";
 
 namespace {
   struct RecordDynamicInfo : public ModulePass {
@@ -25,26 +26,44 @@ namespace {
     RecordDynamicInfo() : ModulePass(ID) {}
     bool runOnModule(Module &M) override {
       mod = &(M);
-      std::string k1 = "_Z12printuBranchPcS_";
-      std::string k2 = "_Z11printBranchPciS_S_";
-      std::string k3 = "_Z7printSwPciS_iz";
-      std::string k4 = "_Z8printMemPcbxi";
+      //Could be solved easily by making tracer.cc functions "extern "C""
+      //std::string k1 = "_Z12printuBranchPcS_";
+      std::string k1 = "_Z12printuBranchPcS_S_";
+      //std::string k2 = "_Z11printBranchPciS_S_";
+      std::string k2 = "_Z11printBranchPcS_iS_S_";
+      //std::string k3 = "_Z7printSwPciS_iz";
+      std::string k3 = "_Z7printSwPcS_iS_iz";
+      //std::string k4 = "_Z8printMemPcbxi";
+      std::string k4 = "_Z8printMemPcS_bxi";
+
+      auto decades_kernel_type = getenv("DECADES_KERNEL_TYPE");
+      if (decades_kernel_type) {
+        KERNEL_TYPE = decades_kernel_type;
+      }
 
       LLVMContext& ctx = M.getContext();
-      Constant *printuBRFunc = M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
-      Constant *printBRFunc = M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
+      Constant *printuBRFunc = M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
+      Constant *printBRFunc = M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
       std::vector<Type*> targs;
+      targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt32Ty(ctx));
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt32Ty(ctx));
       FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
       Constant *printSwitchFunc = M.getOrInsertFunction(k3, sF);
-      Constant *printMemFunc = M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
+      Constant *printMemFunc = M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
       printuBR = cast<Function>(printuBRFunc);
       printBR= cast<Function>(printBRFunc);
       printSw= cast<Function>(printSwitchFunc);
       printMem = cast<Function>(printMemFunc);
+      
+      auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
+      if (decades_kernel_str) {
+	KERNEL_STR = decades_kernel_str;
+      }
+
+
       for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
         if (isFoI(*fI)) {
           assignID(*fI);
@@ -87,7 +106,8 @@ namespace {
       std::string bbname = std::to_string(findBID(pi->getParent()));
       Value *name = Builder.CreateGlobalStringPtr(bbname);
       Value *name1= Builder.CreateGlobalStringPtr(p);
-      Value* args[] = {name, name1};
+      Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+      Value* args[] = {name, ktype, name1};
       CallInst* cI = Builder.CreateCall(printuBR, args);
     }
     void printBranch(BranchInst *pi, int conditional) {
@@ -114,7 +134,8 @@ namespace {
         Value *name = Builder.CreateGlobalStringPtr(bbname);
         Value *name1= Builder.CreateGlobalStringPtr(p1);
         Value *name2= Builder.CreateGlobalStringPtr(p2);
-        Value* args[] = {name, castI, name1, name2};
+	Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+        Value* args[] = {name, ktype, castI, name1, name2};
         CallInst* cI = Builder.CreateCall(printBR, args);
       }
       else {
@@ -125,7 +146,8 @@ namespace {
         std::string bbname = std::to_string(findBID(pi->getParent()));
         Value *name = Builder.CreateGlobalStringPtr(bbname);
         Value *name1= Builder.CreateGlobalStringPtr(p);
-        Value* args[] = {name, name1};
+	Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+        Value* args[] = {name, ktype, name1};
         CallInst* cI = Builder.CreateCall(printuBR, args);
       }
     }
@@ -147,7 +169,9 @@ namespace {
       BasicBlock *bdefault = dyn_cast<BasicBlock>(pi->getOperand(1));
       std::string defstr = std::to_string(findBID(bdefault));
       Value *def = Builder.CreateGlobalStringPtr(defstr);
+      Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
       args.push_back(name);
+      args.push_back(ktype);
       args.push_back(castI);
       args.push_back(def);
       args.push_back(length);
@@ -190,7 +214,8 @@ namespace {
       PointerType* vPtrType = cast<PointerType>(v->getType());
       uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
       ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
-      Value* args[] = {name, ctype, castI, csize};
+      Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+      Value* args[] = {name, ktype, ctype, castI, csize};
   
       CallInst* cI = Builder.CreateCall(printMem, args);
   
@@ -237,7 +262,8 @@ namespace {
                 PointerType* vPtrType = cast<PointerType>(v->getType());
                 uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
                 ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
-                Value* args[] = {name, ctype, castI, csize};
+		Value* ktype = Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+                Value* args[] = {name, ktype, ctype, castI, csize};
  
                 CallInst* cI = Builder.CreateCall(printMem, args);
                 //for(int i=0; i<1000; i++) {
@@ -267,7 +293,8 @@ namespace {
                 PointerType* vPtrType = cast<PointerType>(v->getType());
                 uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
                 ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
-                Value* args[] = {name, ctype, castI, csize};
+		Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+                Value* args[] = {name, ktype, ctype, castI, csize};
  
                 CallInst* cI = Builder.CreateCall(printMem, args);
                 //for(int i=0; i<1000; i++) {
