@@ -724,7 +724,7 @@ bool DynamicNode::issueDESCNode() {
       }
       else { //must go to memory
         print(Access_Memory_Hierarchy, 1);
-        //core->access(this); //send out load to mem hier
+        core->access(this); //send out load to mem hier
         
       }
       stat.update(ld_prod_issue_success);
