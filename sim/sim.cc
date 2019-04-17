@@ -457,6 +457,17 @@ bool DESCQ::execute(DynamicNode* d) {
     
     d->mem_status=FWD_COMPLETE; //indicate that it's ready to forward
     //can't complete until corresponding staddr is at front of SAB
+
+    //if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
+    if(SVB.find(d->desc_id)!=SVB.end()) {
+      //loop through all ld_prod and mark their mem_status as fwd_complete, so recv can get the value
+      for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
+        assert(commQ.find(*it)!=commQ.end());
+        
+        commQ[*it]->mem_status=FWD_COMPLETE;       
+      }
+      
+    }
     
     if(SAB.size()==0) { //STADDR is still behind (rare, but possible)  
       return false;
@@ -476,18 +487,9 @@ bool DESCQ::execute(DynamicNode* d) {
     if(stval_map.find(d->desc_id)==stval_map.end()) {
       return false;
     }
-    auto sab_front=SAB.begin();
+    //auto sab_front=SAB.begin();
     
-    if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
-     
-      //loop through all ld_prod and mark their mem_status as fwd_complete, so recv can get the value
-      for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
-        assert(commQ.find(*it)!=commQ.end());
         
-        commQ[*it]->mem_status=FWD_COMPLETE;       
-      }
-
-    }    
     //note: corresponding sval would only have completed when this becomes front of SAB
     if(stval_map.at(d->desc_id)->completed) {
       auto sab_front=SAB.begin();

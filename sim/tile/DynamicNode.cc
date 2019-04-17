@@ -641,7 +641,8 @@ bool DynamicNode::issueDESCNode() {
     
     //make sure the RECV has been issued to avoid deadlock from LARGE runahead distance where the RECV never actually enters the RoB
     
-    can_forward_from_svb = forwarding_staddr!=NULL && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued; //tells us there's a matching staddr that can bypass and forward store value
+    can_forward_from_svb = forwarding_staddr!=NULL; /* && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued;*/
+    //tells us there's a matching staddr that can bypass and forward store value
     //other condition avoids deadlock due to super young recv not getting a chance to enter RoB to get value from stval because a lot of instructions already fill RoB 
 
     //here ld_prod must go to memory, check if mem system can accept
@@ -651,12 +652,10 @@ bool DynamicNode::issueDESCNode() {
      
     }
     else if(can_forward_from_lsq) {
-      mem_status=LSQ_FWD;
-      
+      mem_status=LSQ_FWD;      
     }
     else if(can_forward_from_svb) {
-      mem_status=DESC_FWD;
-      
+      mem_status=DESC_FWD;   
     }
   }
 
@@ -717,12 +716,12 @@ bool DynamicNode::issueDESCNode() {
         //do nothing, ld_prod goes to term_ld_buff lsq has fed value
         //assert(false);
         lsq_fwd_count++;
-        //cout << "LSQ_FWD: " << lsq_fwd_count << endl;
+        cout << "LSQ_FWD: " << lsq_fwd_count << endl;
       }
       else if(can_forward_from_svb) { 
         //can do decoupled stl fwding
         stl_fwd_count++;
-        //cout << "SVB_FWD: " << stl_fwd_count << endl;
+        cout << "SVB_FWD: " << stl_fwd_count << endl;
       }
       else { //must go to memory
         print(Access_Memory_Hierarchy, 1);
