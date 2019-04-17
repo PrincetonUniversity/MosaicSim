@@ -715,7 +715,7 @@ bool DynamicNode::issueDESCNode() {
         //do nothing, ld_prod goes to term_ld_buff lsq has fed value
         //assert(false);
         lsq_fwd_count++;
-        cout << "LSQ_FWD: " << lsq_fwd_count << endl;
+        //cout << "LSQ_FWD: " << lsq_fwd_count << endl;
       }
       else if(can_forward_from_svb) { 
         //can do decoupled stl fwding
