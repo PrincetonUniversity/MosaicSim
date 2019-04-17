@@ -445,7 +445,7 @@ bool DESCQ::execute(DynamicNode* d) {
         
         assert(SVB.find(stval_desc_id)!=SVB.end());
         SVB[stval_desc_id].erase(d->desc_id); //remove desc_id of ld_prod. eventually, it'll be empty, which allows STVAL to complete
-        STLMap.erase(d->desc_id);       
+        STLMap.erase(d->desc_id); //save space       
       }
       commQ_count--; //free up commQ entry
       commQ.erase(d->desc_id);
@@ -462,11 +462,12 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     
-    uint64_t f_desc_id=SAB.begin()->first;
+    uint64_t f_desc_id=SAB.begin()->first; //get the desc_id of front of SAB
       
     if(d->desc_id==f_desc_id && (SVB.find(d->desc_id)==SVB.end() || SVB[d->desc_id].size()==0)) { //STADDR is head of SAB and nothing to forward to RECV instr     
       SVB_count--;
       SVB_back++;
+      SVB.erase(d->desc_id); //Luwa: just added
       d->c->insertQ(d);
       return true;     
     }
@@ -526,16 +527,16 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
         canInsert=false;
       }
       else {
-        if(d->mem_status==DESC_FWD /*&&  d->core->sim->descq->recv_map.find(d->desc_id)!=d->core->sim->descq->recv_map.end() && d->core->sim->descq->recv_map[d->desc_id]->issued*/) {
-         
+        if(d->mem_status==DESC_FWD) {
+       
           //here, connect the queues          
           assert(STLMap.find(d->desc_id)==STLMap.end());
           STLMap[d->desc_id]=forwarding_staddr->desc_id; //this allows corresponding RECV to find desc id of STVAL to get data from
           
-          //next, we set the count of pending forwards that an STVAL has to wait for before completing
+          //next, we set the set desc ids of pending forwards that an STVAL has to wait for before completing
           SVB[forwarding_staddr->desc_id].insert(d->desc_id);
         }
-        else {
+        else { //e.g., LSQ_FWD
           d->mem_status=NONE;
         }
         commQ_count++;

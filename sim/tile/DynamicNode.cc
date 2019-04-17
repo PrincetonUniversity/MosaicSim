@@ -594,7 +594,7 @@ bool DynamicNode::issueMemNode() {
     }
     else {
       print(Access_Memory_Hierarchy, 1);
-      core->access(this);
+      core->access(this);  //send to mem hierarchy
       if (speculate) {
         outstanding_accesses++;
       }
@@ -602,10 +602,11 @@ bool DynamicNode::issueMemNode() {
   }
   else if (type == ST) {
     print(Access_Memory_Hierarchy, 1);
-    core->access(this);
+    core->access(this); //send to mem hierarchy
   }
   return true;
 }
+
 int stl_fwd_count=0;
 int lsq_fwd_count=0;
 bool DynamicNode::issueDESCNode() {
@@ -641,6 +642,7 @@ bool DynamicNode::issueDESCNode() {
     //make sure the RECV has been issued to avoid deadlock from LARGE runahead distance where the RECV never actually enters the RoB
     
     can_forward_from_svb = forwarding_staddr!=NULL && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued; //tells us there's a matching staddr that can bypass and forward store value
+    //other condition avoids deadlock due to super young recv not getting a chance to enter RoB to get value from stval because a lot of instructions already fill RoB 
 
     //here ld_prod must go to memory, check if mem system can accept
     if(!can_forward_from_lsq && !can_forward_from_svb) {

@@ -110,8 +110,9 @@ void Cache::execute(MemTransaction* t) {
     res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
   }
   //luwa change, just testing!!!
+  //go to dram
   /*
-  if(t->src_id!=-1 && t->d->type==LD) {
+  if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) {
     res=true;
   }
   else {
@@ -170,11 +171,12 @@ void Cache::addTransaction(MemTransaction *t) {
   else
     free_store_ports--;
 
+  //inf BW
   //luwa change this!!! Testing!!!
-  /*  if(t->src_id!=-1 && t->d->type==LD)
-    pq.push(make_pair(t, cycles+1));
-    else */
-  pq.push(make_pair(t, cycles+latency)); 
+  //if(t->src_id!=-1 && t->d->type==LD)
+  //  pq.push(make_pair(t, cycles+1));
+  //else 
+    pq.push(make_pair(t, cycles+latency)); 
 }
 
 bool Cache::willAcceptTransaction(MemTransaction *t) {  
