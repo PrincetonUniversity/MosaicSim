@@ -640,7 +640,7 @@ bool DynamicNode::issueDESCNode() {
     forwarding_staddr = core->sim->descq->sab_has_dependency(this);
     
    
-    can_forward_from_svb = forwarding_staddr!=NULL; /* && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued;*/
+    can_forward_from_svb = forwarding_staddr!=NULL && core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued;
     //tells us there's a matching staddr that can bypass and forward store value
     //other condition avoids deadlock due to super young recv not getting a chance to enter RoB to get value from stval because a lot of instructions already fill RoB 
 
@@ -724,8 +724,7 @@ bool DynamicNode::issueDESCNode() {
       }
       else { //must go to memory
         print(Access_Memory_Hierarchy, 1);
-        core->access(this); //send out load to mem hier
-        
+        core->access(this); //send out load to mem hier       
       }
       stat.update(ld_prod_issue_success);
       core->local_stat.update(ld_prod_issue_success);

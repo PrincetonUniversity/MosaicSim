@@ -17,7 +17,10 @@ bool Core::communicate(DynamicNode *d) {
 void Core::access(DynamicNode* d) {
   //collect stats on load latency
   if(d->type==LD || d->type==LD_PROD) {
-    assert(sim->load_stats_map.find(d)==sim->load_stats_map.end());
+    if(sim->load_stats_map.find(d)!=sim->load_stats_map.end()) {
+      //d->print("assertion to fail", -10);
+      //assert(false);
+    }
     long long current_cycle=cycles;
     sim->load_stats_map[d]=make_pair(current_cycle,0); //(issue cycle, return cycle)
   }
