@@ -43,11 +43,11 @@ To run Pythia, first navigate to pythia/bin.
 
 The run syntax is:
 
-    ./sim -n [num_cores] [sim_config_name] [path_to_workload_1] [core_1_config] [path_to_workload_2] [core_2_config] ... [path_to_workload_n] [core_n_config] [-v]
+    ./sim -n [num_cores] [sim_config_name] [path_to_workload_1_output] [core_1_config] [path_to_workload_2_output] [core_2_config] ... [path_to_workload_n_output] [core_n_config] [-v]
 
 Here is an example:
 
-    ./sim -n 2 default ../workloads/shoc/triad/ default ../workloads/shoc/triad default
+    ./sim -n 2 default ../workloads/shoc/triad/output default ../workloads/shoc/triad/output default
 
 Note: The "-v" for verbose mode is optional. 
 
