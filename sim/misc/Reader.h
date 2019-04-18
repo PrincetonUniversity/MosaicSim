@@ -100,28 +100,10 @@ public:
         //cout << line << endl;
         string stripped_line = line;
         boost::trim_left(stripped_line);
-        //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
-        /*if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
-          cout << "BAD LINE: " << line << endl;
-          continue;
-          }*/
         vector<string> s = split(line, ',');
-
-        // if(i==6789 || i==6788) {
-        //   cout << i << " At the failing edge \n";
-        //   cout << line << endl;
-        // }
         int edgeT;
 
         edgeT = stoi(s.at(2));
-        /*
-        try {
-          edgeT = stoi(s.at(2));
-        }
-        catch (...) {
-          cout << "Reached end because of: " << line << endl;
-          break;
-          }*/
         
         if(edgeT >= 0) {
           TEdge type = static_cast<TEdge>(stoi(s.at(2)));
@@ -142,13 +124,12 @@ public:
     }
     cfile.close();
     cout << "[2] Finished Reading Graph (" << name << ") \n";
-
-    //cout << g << endl; luwa commented out, graph can be large
     
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
   void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
+
     string line;
     string last_line;
     ifstream cfile(name);

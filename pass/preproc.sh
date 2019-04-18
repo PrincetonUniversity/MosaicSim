@@ -6,7 +6,7 @@
 # fourth - end : ids for the tiles
 
 CC=clang++
-PYTHIA_HOME=/home/ts20/pythia_git/pythia/
+PYTHIA_HOME=/home/luwa/pythia
 CURR_PASS=$1; shift 
 TILE_NAME=$1; shift
 LINK_FLAG=$1; shift
@@ -28,14 +28,16 @@ done
 echo "Executing: mkdir -p ${DIR_NAME}/output_${TILE_NAME}" &&
 mkdir -p ${DIR_NAME}/output
 
-
-echo "Executing: opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}"
-opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}
-
 echo "Executing: cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null"
 cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
 
 cd -;
+
+echo "Executing: opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}"
+opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}
+
+
+
 
 for i in "${TILE_IDS[@]}"
 do
@@ -44,9 +46,9 @@ done
 
 rm -r ${DIR_NAME}/output
 
+
 if [ "$LINK_FLAG" -eq 1 ];
 then
     echo "Executing: llvm-link -S ${PYTHIA_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}"
     llvm-link -S ${PYTHIA_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}
 fi
-

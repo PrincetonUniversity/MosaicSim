@@ -59,7 +59,7 @@ bool GraphGen::runOnFunction(Function &func) {
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
   if (isKernelFunction(func)) {
-    assert(!found_kernel);
+    //assert(!found_kernel);
     found_kernel = true;
     constructGraph(func);
     errs() << "Done constructing graph" << func.getName().str() << "\n";
