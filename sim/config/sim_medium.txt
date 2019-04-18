@@ -18,6 +18,6 @@
 128,SVB_size #prev 128
 64,commBuff_size
 512,commQ_size #prev 512
-1024,term_buffer_size # prev 32
+128,term_buffer_size # prev 32
 3,desc_latency # prev 3
 

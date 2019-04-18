@@ -178,7 +178,7 @@ void Cache::addTransaction(MemTransaction *t) {
     //if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) 
     pq.push(make_pair(t, cycles+1)); 
   else */  
-    pq.push(make_pair(t, cycles+latency));  
+  pq.push(make_pair(t, cycles+latency));  
 }
 
 bool Cache::willAcceptTransaction(MemTransaction *t) {  

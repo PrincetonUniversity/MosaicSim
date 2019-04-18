@@ -625,7 +625,7 @@ bool DynamicNode::issueDESCNode() {
   bool can_forward_from_svb = false;
   DynamicNode* forwarding_staddr=NULL;
   if(type == LD_PROD) {
-    can_forward_from_lsq = (core->lsq.check_forwarding(this)==1);
+    can_forward_from_lsq = core->local_cfg.mem_forward && (core->lsq.check_forwarding(this)==1);
 
       //0 means can forward speculatively from lsq
       //1 means we found a closest older STORE (not STADDR) in lsq that has completed, no speculation
