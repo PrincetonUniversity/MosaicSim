@@ -70,7 +70,6 @@ public:
   bool InsertTransaction(Transaction* t, uint64_t cycle);
 };
 
-
 class DESCQ {
 public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
@@ -86,8 +85,6 @@ public:
 
   map<uint64_t, DynamicNode*> commBuff; //for OoO data consumption by compute
   map<uint64_t, uint64_t> STLMap; //map from recv desc_id to desc_id of send doing stl fwd
-
-
   
   map<uint64_t, set<uint64_t>> SVB; //mapping from desc id of STVAL to STVAL instrn and desc id of RECVs awaiting forwards
   map<uint64_t, DynamicNode*> TLBuffer; //terminal load buffer, just to hold DNs waiting for mem response
@@ -111,18 +108,15 @@ public:
   map<uint64_t, int64_t> send_runahead_map;
 
   //map of runahead distance in cycles between when a send (or ld_produce) completes and a receive completes
-  
   map<uint64_t, int64_t> stval_runahead_map;
   map<uint64_t, int64_t> recv_delay_map; 
-  
- 
 
-  map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
   //map of address to ordered set of staddr dynamic nodes storing to that address
+  map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
   
-  map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
   //map of desc id (of stval, also staddr) to #forwards to be expected
-
+  map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
+  
   //map<uint64_t, uint64_t> recv_map;
   //map of desc id (same for ld_prod and recv) to desc id (stval)
   map<DynamicNode*, uint64_t> final_cycle; 
@@ -133,8 +127,8 @@ public:
   uint64_t last_staddr_id;
   int latency=5;
 
-
   Config config;
+
   DESCQ(Config cfg) {
     commBuff_size=cfg.commBuff_size;
     commQ_size=cfg.commQ_size;
