@@ -17,9 +17,11 @@ public:
 
   // Config parameters
   int  verbLevel; // verbosity level
-  bool cf_mode;   // 0: one at a time / 1: all together
+  bool cf_mode;   // 0: one at a time / 1: all together+ prefect prediction
   bool mem_speculate;
   bool mem_forward;
+  bool branch_prediction=false; // one at a time + prediction
+  int misprediction_penalty=1; //number of cycles to insert before creation of next context..model misprediction
   // Resources
   
   int lsq_size;
@@ -49,7 +51,8 @@ public:
   int SVB_size=128; //store value buffer size
   int term_buffer_size=32; //max size of terminal load buffer
   int desc_latency=5; //desc queue latency
-  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19},  {"desc_latency",20}, {"SVB_size",21}}; 
+  
+  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19},  {"desc_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}}; 
   //this converts the text in the config file to the variable using the getCfg function above
 };
 

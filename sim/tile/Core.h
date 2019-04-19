@@ -52,11 +52,11 @@ public:
   //Simulator* sim;
   Cache* cache;
   Statistics local_stat;
-
+  
   chrono::high_resolution_clock::time_point curr;
   chrono::high_resolution_clock::time_point last;
   uint64_t last_processed_contexts;
-
+  
   vector<Context*> context_list;
   vector<Context*> live_context;
   int context_to_create = 0;
@@ -95,6 +95,7 @@ public:
   bool communicate(DynamicNode *d);
   void accessComplete(MemTransaction *t);
   void printActivity();
+  bool predict_branch(DynamicNode* d);
   string instrToStr(TInstr instr);
 };
 #endif

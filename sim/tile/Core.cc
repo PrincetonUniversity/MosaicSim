@@ -165,6 +165,14 @@ void Core::printActivity() {
     cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";  
 }
 
+//return boolean indicating whether or not the branch was mispredicted
+//we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
+
+bool Core::predict_branch(DynamicNode* d) {
+  assert(!d->issued);
+  return true;
+}
+
 bool Core::createContext() {
   unsigned int cid = context_list.size();
   if (cf.size() == cid) // reached end of <cf> so no more contexts to create

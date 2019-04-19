@@ -142,6 +142,12 @@ void Config::getCfg(int id, int val) {
   case 21:
     SVB_size = val;  
     break;
+  case 22:
+    branch_prediction = val;  
+    break;
+  case 23:
+    misprediction_penalty = val;  
+    break;
   default:
     break;
   }
@@ -169,8 +175,8 @@ void Config::read(std::string name) {
         cout <<"[ERROR] Can't find config mapping of: "  << s.at(1) << endl;
         assert(false);
       }
-      id=param_map.at(param);
-      getCfg(id, stoi(s.at(0)));
+      id=param_map.at(param); //convert text variable "param" to id corresponding to cfg variable
+      getCfg(id, stoi(s.at(0))); //set cfg variables to value in config file
       cout << "("<<id<<")"<< " " << param << ": " << stoi(s.at(0)) << endl;
       //id++;
     }

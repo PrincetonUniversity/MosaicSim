@@ -92,7 +92,11 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     if(d->isDESC) {        
       core->sim->orderDESC(d);
     }
-    core->window.insertDN(d);
+
+
+    
+    
+    core->window.insertDN(d); //this helps maitain a program-order ordering of all instructions
   }
 
   if(core->curr_owner.find(bb->id) == core->curr_owner.end())
@@ -126,6 +130,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       }
     }
   }
+  
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
     assert(!it->second->issued && !it->second->completed);
     DynamicNode* d=it->second;
@@ -134,7 +139,16 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       d->pending_parents=0;
       d->pending_external_parents=0;
     }
-    d->tryActivate();
+    //here, if branch prediction is enabled we're going to launch the terminator instruction, which will in turn launch the next contexts upon completion of finishNode()
+    //if there's a misprediction, we will add a penalty latency, which delays the completion of the terminator after issue, which in turn delays the launching of the next context 
+    if (d->type == TERMINATOR && core->local_cfg.branch_prediction) {
+      //if branch predictor mispredicts, add penalty 
+      if(!core->predict_branch(d)) {
+        d->n->lat=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
+      }
+    }
+    //if it's a TERMINATOR with branch prediction mode, it'll just get activated
+    d->tryActivate(); 
   }
   print("Created (BB:" + to_string(bb->id) + ") " , 0);
 }
@@ -236,6 +250,7 @@ void Context::process() {
     bool res = window_available;
 
     assert(!d->issued);
+    /*
     if(d->type == TERMINATOR && res) {    
       d->c->completed_nodes.insert(d);
       //d->completed = true;
@@ -243,14 +258,14 @@ void Context::process() {
       if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
         core->context_to_create++;     
     }
-    else if(d->isMem)
+    */
+    if(d->isMem)
       res = res && d->issueMemNode();
     else if (d->isDESC) {     
       
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
-    }
-       
+    }       
     else {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
@@ -490,14 +505,20 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  if(pending_parents > 0 || pending_external_parents > 0 || (core->local_cfg.cf_mode==1 && type==TERMINATOR && (issued || completed))) {
+  //if cf_mode==1 or branch prediction is on, we immidiately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
+  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_prediction));
+  
+  if(must_wait_for_parents && (pending_parents > 0 || pending_external_parents > 0)) {  //not ready to activate
     return;
   }
-  if(type==RECV) {
-    //assert(desc_id!=833);
+
+  //don't activate multiple times when branch prediction is on
+  if(!must_wait_for_parents && issued) {
+    return;
   }
+
   if(issued || completed) {
-    //this->print("",-10);
+    this->print("trying to activate issued or completed instruction",-10);
     assert(false);
   }
   /*  if(type == TERMINATOR) {    
@@ -508,7 +529,12 @@ void DynamicNode::tryActivate() {
       core->context_to_create++;       
       }*/
   //else {
-  assert((core->local_cfg.cf_mode == 1 && type == TERMINATOR) || c->issue_set.find(this) == c->issue_set.end());
+  
+  //if you don't need to wait for parents, 2 parents can tryActivate() in same cycle, which 
+  if(must_wait_for_parents && c->issue_set.find(this) != c->issue_set.end()) {
+    print("should not already be issued" , -10);
+    assert(false);
+  }
   
   if(isMem || type==STADDR) { 
     addr_resolved = true;
@@ -795,9 +821,15 @@ void DynamicNode::finishNode() {
     }
   }
 
-  if(isMem)       
+  //Handle Terminator Node, Launch Context
+  //if cf_mode was 1, then all the contexts would already have been launched
+  if (core->local_cfg.cf_mode == 0 && type == TERMINATOR) {
+    core->context_to_create++;    
+  }
+  
+  if(isMem) {      
     speculated = false;
-
+  }
   // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
   set<Node*>::iterator it;
   for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
@@ -810,8 +842,7 @@ void DynamicNode::finishNode() {
     }
     dst->pending_parents--;
    
-    dst->tryActivate();
-    
+    dst->tryActivate();    
   }
 
   // The same for external dependents: decrease parent's count & try to launch them
