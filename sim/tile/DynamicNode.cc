@@ -50,10 +50,13 @@ void Context::print(string str, int level) {
     cout << (*this) << str << endl;
 }
 void Context::insertQ(DynamicNode *d) {
-  if(d->n->lat > 0)
-    pq.push(make_pair(d, core->cycles+d->n->lat-1));
-  else
+  if(d->n->lat > 0) {
+    //pq.push(make_pair(d, core->cycles+d->n->lat-1));
+    pq.push(make_pair(d, core->cycles+d->n->lat));
+  }
+  else {
     pq.push(make_pair(d, core->cycles));
+  }
 }
 void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   this->bb = bb;

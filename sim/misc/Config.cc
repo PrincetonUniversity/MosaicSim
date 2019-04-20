@@ -25,7 +25,7 @@ Config::Config() {
   instr_latency[LD] = -1;
   instr_latency[ST] = 1;
   instr_latency[TERMINATOR] = 1;
-  instr_latency[PHI] = 1;     // JLA: should it be 0 ?
+  instr_latency[PHI] = 0;     // JLA: should it be 0 ?
   instr_latency[SEND] = 1;
   instr_latency[RECV] = 1;
   instr_latency[STADDR] = 1;
