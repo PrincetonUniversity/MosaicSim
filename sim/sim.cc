@@ -26,9 +26,9 @@ Simulator::Simulator() {
 void Simulator::registerCore(string wlpath, string cfgname, int id) {
   string name = "Pythia Core";
   string cfgpath = "../sim/config/" + cfgname+".txt";
-  string cname = wlpath + "/output/ctrl.txt";     
-  string gname = wlpath + "/output/graphOutput.txt";
-  string mname = wlpath + "/output/mem.txt";   
+  string cname = wlpath + "/ctrl.txt";     
+  string gname = wlpath + "/graphOutput.txt";
+  string mname = wlpath + "/mem.txt";   
   
   Core* core = new Core(this, clockspeed);
   core->local_cfg.read(cfgpath);
