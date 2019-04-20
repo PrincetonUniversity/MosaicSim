@@ -5,7 +5,7 @@
 #include <map>
 using namespace std;
 
-#define NUM_INST_TYPES 26
+#define NUM_INST_TYPES  26
 #define word_size_bytes  4  // TODO: allow different sizes. Now, word_size is a constant
 
 class Config {
@@ -20,10 +20,9 @@ public:
   bool cf_mode;   // 0: one at a time / 1: all together+ prefect prediction
   bool mem_speculate;
   bool mem_forward;
-  bool branch_prediction=false; // one at a time + prediction
-  int misprediction_penalty=1; //number of cycles to insert before creation of next context..model misprediction
+  bool branch_prediction = false; // one at a time + prediction
+  int  misprediction_penalty = 1; // number of cycles to insert before creation of next context. Models misprediction
   // Resources
-  
   int lsq_size;
   int cache_load_ports;
   int cache_store_ports;
@@ -44,7 +43,7 @@ public:
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
 
-
+  // DeSC relater parameters
   int commBuff_size=64; //comm buff size
   int commQ_size=512; //comm queue size
   int SAB_size=128; //store address buffer size
