@@ -6,14 +6,17 @@
 # fourth - end : ids for the tiles
 
 CC=clang++
-PYTHIA_HOME=/home/luwa/pythia
 CURR_PASS=$1; shift 
 TILE_NAME=$1; shift
 LINK_FLAG=$1; shift
 TILE_IDS=( "$@" );
 
+PYTHIA_HOME=$(dirname ${BASH_SOURCE})/..
 DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})
+
+
+echo ${PYTHIA_HOME}" is printing"
 
 echo ${DIR_NAME}
 
