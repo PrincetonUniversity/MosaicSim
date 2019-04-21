@@ -22,32 +22,10 @@ bool Cache::process() {
     if(isLLC) {
       
       if((t->src_id!=-1) && memInterface->willAcceptTransaction(dramaddr,  t->isLoad)) {
-
-        if(t->id!=-1) {
-          DynamicNode *d = t->d;
-          if((d->c->id==35683 && d->n->id==14 && d->core->id==0)) {
-            cout << t->addr << " weird addr"<< endl;
-          }
-        }
-        
         
         //assert(t->isLoad);
         t->cache_q->push_front(this);
-        
-        
-        DynamicNode *d = t->d;
-        if(d->c->id==35682 && d->n->id==14 && d->core->id==0) {
-          assert(t->isLoad);
-          cout << t->addr << " is address \n";
-          
-        }
-        /*
-        if(t->addr!=dramaddr)
-          {
-            cout << "t->addr: " << t->addr << "\n" << "dramaddr: " << dramaddr << endl;
-          }
-        */
-          //apparently this fails!!
+              
         memInterface->addTransaction(t, dramaddr, t->isLoad);
         it = to_send.erase(it);        
       }
@@ -121,12 +99,22 @@ void Cache::execute(MemTransaction* t) {
   */
   if (res) {                
     //d->print("Cache Hit", 1);
-    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache      
+    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache
+      DynamicNode* d = t->d;
       if(isL1) {
+        //enter into load stats map
+        
+        if(d->type==LD || d->type==LD_PROD) {
+          assert(d->core->sim->load_stats_map.find(d)!=d->core->sim->load_stats_map.end());
+          auto& entry_tuple = d->core->sim->load_stats_map[d];
+          get<2>(entry_tuple)=true;
+        }
+        
         sim->accessComplete(t); 
         stat.update("cache_hit"); //luwa todo l1 hit
       }
       else {
+
         int64_t evictedAddr = -1;
 
         Cache* child_cache=t->cache_q->front();

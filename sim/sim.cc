@@ -290,20 +290,26 @@ void Simulator::run() {
     long long totalLatency=0;
     string outstring="";
     for(auto entry:load_stats_map) {
-      long long issue_cycle=entry.second.first;
-      long long return_cycle=entry.second.second;
+      auto entry_tuple=entry.second;
+      long long issue_cycle=get<0>(entry_tuple);
+      long long return_cycle=get<1>(entry_tuple);
+      
+      string isHit="Hit";
+      if (!get<2>(entry.second)) {
+        isHit="Miss";
+      }
       int node_id=entry.first->n->id;
       long long diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
       //cout << "ret: " << return_cycle << ", issue: "<< issue_cycle << ", diff: " << diff << endl;
       //assert(diff>0);
-      outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + "\n";
+      outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
     
     loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
     loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-    loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency" << endl;
+    loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
 
     loadfile << outstring;
   }

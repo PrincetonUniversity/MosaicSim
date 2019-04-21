@@ -22,7 +22,7 @@ void Core::access(DynamicNode* d) {
       //assert(false);
     }
     long long current_cycle=cycles;
-    sim->load_stats_map[d]=make_pair(current_cycle,0); //(issue cycle, return cycle)
+    sim->load_stats_map[d]=make_tuple(current_cycle,0,false); //(issue cycle, return cycle)
   }
   
   int tid = tracker_id.front();

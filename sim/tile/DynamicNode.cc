@@ -482,9 +482,10 @@ void DynamicNode::handleMemoryReturn() {
       //update load latency stats
   if(type==LD || type==LD_PROD) {
     assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
-    long long issue_cycle = core->sim->load_stats_map[this].first;
-    long long current_cycle = core->cycles; 
-    core->sim->load_stats_map[this]=make_pair(issue_cycle,current_cycle);
+    long long current_cycle = core->cycles;
+    auto& entry_tuple=core->sim->load_stats_map[this];
+    get<1>(entry_tuple)=current_cycle;
+    
   }
   print(Memory_Data_Ready, 1);
   print(to_string(outstanding_accesses), 1);
