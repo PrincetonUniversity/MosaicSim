@@ -147,7 +147,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     if (d->type == TERMINATOR && core->local_cfg.branch_prediction) {
       //if branch predictor mispredicts, add penalty 
       if(!core->predict_branch(d)) {
-        d->n->lat=d->n->lat+core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
+        d->n->lat=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
       }
     }
     //if it's a TERMINATOR with branch prediction mode, it'll just get activated
@@ -671,7 +671,7 @@ bool DynamicNode::issueDESCNode() {
    
     can_forward_from_svb = forwarding_staddr!=NULL && forwarding_staddr!=core->sim->descq->SAB.begin()->second; /*&& core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued*/;
     //tells us there's a matching staddr that can bypass and forward store value
-    //other condition avoids deadlock by ensuring that staddr is not at head of SAB, meaning the corresponding STVAL would be about to complete without waiting to serve the forwards
+    //other condition avoids deadlock due to super young recv not getting a chance to enter RoB to get value from stval because a lot of instructions already fill RoB 
 
     //here ld_prod must go to memory, check if mem system can accept
     if(!can_forward_from_lsq && !can_forward_from_svb) {

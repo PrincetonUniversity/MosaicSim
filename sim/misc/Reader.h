@@ -51,7 +51,7 @@ public:
           //cout << "BAD LINE: " << line << endl;
           continue;
         }
-        //can't parse switch statement cuz it's multiple lines
+         //can't parse switch statement cuz it's multiple lines
         //switch statements span multiple lines and are of the form e.g.,
         /* 
            7,13,2,  switch i31 %trunc, label %sw.default [

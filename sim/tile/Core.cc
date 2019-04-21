@@ -1,5 +1,6 @@
 #include "DynamicNode.h"
 #include "Core.h"
+//#include "LoadStoreQ.h"
 #include "../memsys/Cache.h"
 #define ID_POOL 1000000
 
@@ -33,6 +34,7 @@ void Core::access(DynamicNode* d) {
   t->d=d;
   
   cache->addTransaction(t);
+  
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
@@ -53,6 +55,7 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
+  
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
@@ -78,7 +81,7 @@ void IssueWindow::issue() {
   issueCount++;
 }
 
-//handle completed memory transactions
+ //handle completed memory transactions
 void Core::accessComplete(MemTransaction *t) {
   int tid = t->id;
 
@@ -144,6 +147,7 @@ void Core::initialize(int id) {
   }
   //cout << "Total Instructions is: " << sim->total_instructions << endl;
   //assert(false);
+  
 }
 
 string Core::instrToStr(TInstr instr) {  
@@ -151,6 +155,7 @@ string Core::instrToStr(TInstr instr) {
 }
 
 void Core::printActivity() {
+  
   std::string InstrName[] =  { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID",  "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC"};
   cout << "-----------Simulator " << name << " Activity-----------\n";
   cout << "Cycles: " << cycles << endl;
@@ -160,8 +165,9 @@ void Core::printActivity() {
     cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";  
 }
 
-// return boolean indicating whether or not the branch was mispredicted
-// we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
+//return boolean indicating whether or not the branch was mispredicted
+//we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
+
 bool Core::predict_branch(DynamicNode* d) {
   assert(!d->issued);
   return true;
@@ -188,6 +194,7 @@ bool Core::createContext() {
   if(!lsq.checkSize(bb->ld_count, bb->st_count)) {
     return false;
   }
+    
   // check the limit of contexts per BB
   if (local_cfg.max_active_contexts_BB > 0) {
     if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
@@ -234,11 +241,14 @@ bool Core::process() {
   }
  
   for(auto it = live_context.begin(); it!=live_context.end();) {
+    
     Context *c = *it;
     c->complete();
+    
     if(it!=live_context.begin()) {   
       assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
     }
+    
     if(c->live)
       it++;
     else

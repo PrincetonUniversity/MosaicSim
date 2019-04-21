@@ -42,12 +42,12 @@ Config::Config() {
   num_units[BS_WAKE] = -1;
   num_units[BS_VECTOR_INC] = -1;
   num_units[I_ADDSUB] = 8;
-  num_units[I_MULT] =  2;
-  num_units[I_DIV] = 2;
+  num_units[I_MULT] =  1;
+  num_units[I_DIV] = 1;
   num_units[I_REM] = 2;
-  num_units[FP_ADDSUB] = 8;
-  num_units[FP_MULT] = 2;
-  num_units[FP_DIV] = 2;
+  num_units[FP_ADDSUB] = 1;
+  num_units[FP_MULT] = 1;
+  num_units[FP_DIV] = 1;
   num_units[FP_REM] = 1;
   num_units[LOGICAL] = 2;
   num_units[CAST] = 2;
