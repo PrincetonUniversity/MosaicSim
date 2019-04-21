@@ -148,6 +148,9 @@ void Config::getCfg(int id, int val) {
   case 23:
     misprediction_penalty = val;  
     break;
+  case 24:
+    prefetch_distance = val;  
+    break;
   default:
     break;
   }

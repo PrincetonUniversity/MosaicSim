@@ -109,7 +109,7 @@ void Core::initialize(int id) {
   this->id = id;
     
   // Set up cache
-  cache = new Cache(local_cfg.cache_latency, local_cfg.cache_size, local_cfg.cache_assoc, local_cfg.cache_linesize, local_cfg.cache_load_ports, local_cfg.cache_store_ports, local_cfg.ideal_cache);
+  cache = new Cache(local_cfg);
   
   cache->sim = sim;
   cache->parent_cache=sim->cache;

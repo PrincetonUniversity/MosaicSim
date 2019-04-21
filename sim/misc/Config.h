@@ -43,7 +43,7 @@ public:
   int cache_linesize = 64; // bytes
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
-
+  int prefetch_distance=0; // number of cachelines ahead to prefetch
 
   int commBuff_size=64; //comm buff size
   int commQ_size=512; //comm queue size
@@ -52,7 +52,7 @@ public:
   int term_buffer_size=32; //max size of terminal load buffer
   int desc_latency=5; //desc queue latency
   
-  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19},  {"desc_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}}; 
+  map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},{"ideal_cache",5},{"cache_size_in_kb",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},{"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19},  {"desc_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}, {"prefetch_distance", 24}}; 
   //this converts the text in the config file to the variable using the getCfg function above
 };
 

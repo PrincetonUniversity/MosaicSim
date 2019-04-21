@@ -21,6 +21,7 @@
 64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
+10,prefetch_distance #num of cachelines to prefetch ahead
 
 #Memory
 4,mem_load_ports

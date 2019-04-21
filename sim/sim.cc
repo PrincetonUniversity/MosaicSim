@@ -15,7 +15,7 @@ using namespace std;
 
 
 Simulator::Simulator() {         
-  cache = new Cache(cfg.cache_latency, cfg.cache_size, cfg.cache_assoc, cfg.cache_linesize, cfg.cache_load_ports, cfg.cache_store_ports, cfg.ideal_cache);
+  cache = new Cache(cfg);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
   cache->isLLC=true;

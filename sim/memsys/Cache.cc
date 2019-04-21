@@ -104,17 +104,20 @@ void Cache::execute(MemTransaction* t) {
       if(isL1) {
         //enter into load stats map
         
-        if(d->type==LD || d->type==LD_PROD) {
+        if(!t->isPrefetch && (d->type==LD || d->type==LD_PROD)) {
           assert(d->core->sim->load_stats_map.find(d)!=d->core->sim->load_stats_map.end());
           auto& entry_tuple = d->core->sim->load_stats_map[d];
           get<2>(entry_tuple)=true;
         }
-        
-        sim->accessComplete(t); 
-        stat.update("cache_hit"); //luwa todo l1 hit
+
+        //don't do anything with prefetch instructions
+        if(!t->isPrefetch) {
+          sim->accessComplete(t);
+          stat.update("cache_hit"); //luwa todo l1 hit
+        }
       }
       else {
-
+        
         int64_t evictedAddr = -1;
 
         Cache* child_cache=t->cache_q->front();
@@ -133,7 +136,7 @@ void Cache::execute(MemTransaction* t) {
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("cache_hit"); //luwa todo l2 hit
+        //stat.update("cache_hit"); //luwa todo l2 hit
       }
 
     }
@@ -147,17 +150,30 @@ void Cache::execute(MemTransaction* t) {
 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print("Cache Miss", 1);
-    
-    stat.update("cache_miss");
+    if(!t->isPrefetch) {
+      stat.update("cache_miss");
+    }
   }
 }
 void Cache::addTransaction(MemTransaction *t) {
 
+
+  pq.push(make_pair(t, cycles+latency));
   stat.update("cache_access");
   if(t->isLoad)
     free_load_ports--;
   else
     free_store_ports--;
+
+  //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch
+  if(isL1 && t->src_id!=-1 && !t->issuedPrefetch && !t->isPrefetch) {
+    for(int i=0; i<prefetch_distance; i++) {
+      MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr+(i+1)*size_of_cacheline, true);
+      prefetch_t->d=t->d;
+      prefetch_t->isPrefetch=true;
+      pq.push(make_pair(prefetch_t, cycles+latency));      
+    }
+  }
 
   //inf BW
   //luwa change this!!! Testing!!!
@@ -166,7 +182,7 @@ void Cache::addTransaction(MemTransaction *t) {
     //if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) 
     pq.push(make_pair(t, cycles+1)); 
   else */  
-  pq.push(make_pair(t, cycles+latency));  
+
 }
 
 bool Cache::willAcceptTransaction(MemTransaction *t) {  
@@ -181,17 +197,17 @@ bool Cache::willAcceptTransaction(MemTransaction *t) {
   }
 }
 
-void Cache::TransactionComplete(MemTransaction *t) {
- 
-  
+void Cache::TransactionComplete(MemTransaction *t) { 
   if(isL1) {
-    sim->accessComplete(t);    
+    if(!t->isPrefetch) {
+      sim->accessComplete(t);
+    }
   }
   else {
 
     int64_t evictedAddr = -1;
     Cache* c = t->cache_q->front();
-   
+    
     t->cache_q->pop_front();    
     c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {

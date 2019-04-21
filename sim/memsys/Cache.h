@@ -31,13 +31,13 @@ public:
   int free_store_ports;
   uint64_t cycles = 0;
   bool ideal;
-  
+  int prefetch_distance=0;
   FunctionalCache *fc;
-  Cache(int latency, int size, int assoc, int linesize, int load_ports, int store_ports, bool ideal): 
-    latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal), fc(new FunctionalCache(size, assoc)) {
-      free_load_ports = load_ports;
-      free_store_ports = store_ports;
-    }
+  Cache(Config cache_cfg): 
+    latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), fc(new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc)) {
+    free_load_ports = load_ports;
+    free_store_ports = store_ports;
+  }
   bool process();
   void execute(MemTransaction* t);
   void addTransaction(MemTransaction *t);

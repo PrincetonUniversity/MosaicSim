@@ -65,6 +65,8 @@ public:
 
   uint64_t addr;
   bool isLoad;
+  bool isPrefetch = false;
+  bool issuedPrefetch = false;
   DynamicNode* d; //originating dynamic node, useful for core and cache model
   deque<Cache*>* cache_q = new deque<Cache*>(); //trail of originating caches
   ~MemTransaction(){

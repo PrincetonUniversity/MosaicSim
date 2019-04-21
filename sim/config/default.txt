@@ -12,6 +12,7 @@
 -1,max_active_contexts_BB
 1,branch_prediction 
 10,misprediction_penalty # enter penalty of 0 for perfect prediction
+10,prefetch_distance #num of cachelines to prefetch ahead
 
 #Cache
 1,ideal_cache   #set 1 for always cache hit
