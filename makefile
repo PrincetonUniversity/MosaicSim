@@ -4,9 +4,9 @@ all:
 	mkdir -p lib
 	cd sim/power_model/cacti-p && make
 	cd sim/memsys/DRAMSim2 && make && make libdramsim.so && cp libdramsim.so ../../../lib
-	chmod +x build/pythia_env.sh	
+	chmod +x pass/preproc.sh
 	#echo "export PYTHIA_HOME="${PWD} > build/pythia_env.sh
-	#chmod +x pass/preproc.sh
+	#chmod +x build/pythia_env.sh		
 # Clean up the CMake and Ninja build files.
 clean:
 	find . -name "*.a"            -type f -delete
