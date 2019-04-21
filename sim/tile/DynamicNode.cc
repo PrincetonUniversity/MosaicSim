@@ -147,7 +147,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     if (d->type == TERMINATOR && core->local_cfg.branch_prediction) {
       //if branch predictor mispredicts, add penalty 
       if(!core->predict_branch(d)) {
-        d->n->lat=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
+        d->n->lat+=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
       }
     }
     //if it's a TERMINATOR with branch prediction mode, it'll just get activated
