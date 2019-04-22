@@ -168,9 +168,33 @@ void Core::printActivity() {
 //return boolean indicating whether or not the branch was mispredicted
 //we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
 
+//simple always taken predictor. we'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
 bool Core::predict_branch(DynamicNode* d) {
-  assert(!d->issued);
-  return true;
+  int context_id=d->c->id;
+  int next_context_id=context_id+1;
+
+
+  int current_bbid=cf.at(context_id);
+  
+  int cf_size = cf.size();
+  int next_bbid=-1;
+  if(next_context_id < cf_size) {
+    next_bbid=cf.at(next_context_id);
+  }
+  else {
+    return false;
+  }
+    
+  if(current_bbid==next_bbid) { //guess we'll remain in same basic block
+    //cout << "CORRECT prediction \n";
+    return true;   
+  }
+  else {
+   
+    //cout << "WRONG prediction \n";
+    return false;
+  }
+ 
 }
 
 bool Core::createContext() {
