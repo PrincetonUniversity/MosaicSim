@@ -157,8 +157,15 @@ void Cache::execute(MemTransaction* t) {
 }
 void Cache::addTransaction(MemTransaction *t) {
 
-
+  //inf BW
+  //luwa change this!!! Testing!!!
+  
+  //if(t->src_id!=-1 && (t->d->type==LD))  
+    //if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) 
+    //pq.push(make_pair(t, cycles+1)); 
+  //else  
   pq.push(make_pair(t, cycles+latency));
+  
   stat.update("cache_access");
   if(t->isLoad)
     free_load_ports--;
@@ -175,13 +182,7 @@ void Cache::addTransaction(MemTransaction *t) {
     }
   }
 
-  //inf BW
-  //luwa change this!!! Testing!!!
-  /*
-  if(t->src_id!=-1 && t->d->type==LD)  
-    //if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) 
-    pq.push(make_pair(t, cycles+1)); 
-  else */  
+  
 
 }
 
@@ -202,7 +203,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     if(!t->isPrefetch) {
       sim->accessComplete(t);
     }
-    else {
+    else{
       delete t;
     }
   }

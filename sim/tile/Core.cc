@@ -181,20 +181,15 @@ bool Core::predict_branch(DynamicNode* d) {
   if(next_context_id < cf_size) {
     next_bbid=cf.at(next_context_id);
   }
-  else {
-    return false;
-  }
     
   if(current_bbid==next_bbid) { //guess we'll remain in same basic block
     //cout << "CORRECT prediction \n";
     return true;   
   }
-  else {
-   
+  else {   
     //cout << "WRONG prediction \n";
     return false;
   }
- 
 }
 
 bool Core::createContext() {

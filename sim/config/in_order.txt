@@ -11,7 +11,7 @@
 0,mem_forward
 -1,max_active_contexts_BB
 1,branch_prediction 
-10,misprediction_penalty # enter penalty of 0 for perfect prediction
+0,misprediction_penalty # enter penalty of 0 for perfect prediction
 
 #Cache
 0,ideal_cache   #set 1 for always cache hit
@@ -21,7 +21,7 @@
 64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
-0,prefetch_distance #num of cachelines to prefetch ahead
+10,prefetch_distance #num of cachelines to prefetch ahead
 
 #Memory
 4,mem_load_ports
