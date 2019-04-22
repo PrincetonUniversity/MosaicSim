@@ -202,6 +202,9 @@ void Cache::TransactionComplete(MemTransaction *t) {
     if(!t->isPrefetch) {
       sim->accessComplete(t);
     }
+    else {
+      delete t;
+    }
   }
   else {
 
