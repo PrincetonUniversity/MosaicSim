@@ -97,6 +97,10 @@ To run on the simulator:
     cd $PYTHIA_HOME/bin
     ./sim -n 2 sim_medium ../workloads/shoc/triad/decades_decoupled_implicit/output_compute_0 default ../workloads/shoc/triad/decades_decoupled_implicit/output_supply_1 default
 
+## Statistics
+
+After completion, the simulator outputs run statistics directly to the console (e.g., # cache misses, # dram accesses, IPC, etc). It also prints out additional statistics to specific files, described below. 
+
 Statistics on runahead distances (# cycles between issues of a PRODUCE or LOAD_PRODUCE instructions and issues of corresponding CONSUME instructions) will be outputted to $PYTHIA_HOME/bin/decouplingStats 
 
 Statistics of latencies of each load instruction will be outputed to a $PYTHIA_HOME/bin/loadStats.
