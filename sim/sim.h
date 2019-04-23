@@ -46,6 +46,7 @@ public:
   
   vector<uint64_t> clockspeedVec;
   DESCQ* descq;
+  vector<DESCQ*> descq_vec;
   Cache* cache;
   //every tile has a transaction priority queue
   map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
@@ -68,6 +69,8 @@ public:
   void registerTile(Tile* tile);
   void InsertCaches(vector<Transaction*>& transVec);
   bool InsertTransaction(Transaction* t, uint64_t cycle);
+  DESCQ* get_descq(DynamicNode* d);
+  DESCQ* get_descq(Tile* tile);
 };
 
 

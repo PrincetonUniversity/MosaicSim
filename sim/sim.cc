@@ -21,7 +21,17 @@ Simulator::Simulator() {
   cache->isLLC=true;
   cache->memInterface = memInterface;
 
-  descq = new DESCQ(cfg);
+  //descq = new DESCQ(cfg);
+}
+
+DESCQ* Simulator::get_descq(DynamicNode* d) {
+  int tile_id =  d->core->id;
+  return descq_vec.at(tile_id/2);
+}
+
+DESCQ* Simulator::get_descq(Tile* tile) {
+  int tile_id =  tile->id;
+  return descq_vec.at(tile_id/2);
 }
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {
@@ -45,7 +55,12 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   //cout << "register core id " << id << endl;
   core->initialize(id);
   
-  registerTile(core, id);  
+  registerTile(core, id);
+
+  //create a descq for every 2nd core, starting with core 0
+  if(id % 2 == 0) {
+    descq_vec.push_back(new DESCQ(cfg));
+  }
 }
 
 int transactioncount=0;
@@ -176,13 +191,11 @@ void Simulator::run() {
         rejected_transactions.clear();
         
         //use same clockspeed as 1st tile (probably a core)
-        if(it->first==0) {
+        if(tile->id==0) {
           simulate += cache->process();    
-          memInterface->process();
-          descq->process();
-        }
+          memInterface->process();          
+        }                
       }
-
 
     }
     
@@ -244,6 +257,8 @@ void Simulator::run() {
     cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
 
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
+  
+  DESCQ* descq=descq_vec.at(0);
   if(descq->send_runahead_map.size()>0) {
     ofstream outfile;
     outfile.open("decouplingStats");
@@ -327,10 +342,12 @@ bool Simulator::canAccess(Core* core, bool isLoad) {
 }
 
 bool Simulator::communicate(DynamicNode* d) {
+  DESCQ* descq=get_descq(d);
   return descq->insert(d, NULL);
 }
 
 void Simulator::orderDESC(DynamicNode* d) {
+  DESCQ* descq=get_descq(d);
   if(d->n->typeInstr == SEND) {     
     descq->send_map.insert(make_pair(descq->last_send_id,d));
     d->desc_id=descq->last_send_id;

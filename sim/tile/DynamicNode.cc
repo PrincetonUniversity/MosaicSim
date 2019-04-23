@@ -570,8 +570,11 @@ bool DynamicNode::issueMemNode() {
   if(!core->canAccess(type == LD)) { 
     return false;
   }
+  
+  DESCQ* descq=core->sim->get_descq(this);
+  
   //check DESCQ's Store Address Buffer for conflicts
-  if(type==LD && (core->sim->descq->sab_has_dependency(this)!=NULL)) { //sab_has_dependency() returns null if nothing found
+  if(type==LD && (descq->sab_has_dependency(this)!=NULL)) { //sab_has_dependency() returns null if nothing found
     return false; 
   }
   if(type == LD && core->local_cfg.mem_forward) {
@@ -649,7 +652,7 @@ bool DynamicNode::issueDESCNode() {
     }
   }
   */
- 
+  DESCQ* descq=core->sim->get_descq(this);
   int lsq_result=0;
   bool can_forward_from_lsq = false;
   bool can_forward_from_svb = false;
@@ -667,10 +670,10 @@ bool DynamicNode::issueDESCNode() {
     //2 is there's an issued staddr above, can *possibly* do stl fwding
     can_issue=can_issue && lsq_result!=-1 && lsq_result!=0;
 
-    forwarding_staddr = core->sim->descq->sab_has_dependency(this);
+    forwarding_staddr = descq->sab_has_dependency(this);
     
    
-    can_forward_from_svb = forwarding_staddr!=NULL && forwarding_staddr!=core->sim->descq->SAB.begin()->second; /*&& core->sim->descq->recv_map.find(desc_id)!=core->sim->descq->recv_map.end() && core->sim->descq->recv_map[desc_id]->issued*/;
+    can_forward_from_svb = forwarding_staddr!=NULL && forwarding_staddr!=descq->SAB.begin()->second; /*&& descq->recv_map.find(desc_id)!=descq->recv_map.end() && descq->recv_map[desc_id]->issued*/;
     //tells us there's a matching staddr that can bypass and forward store value
     //other condition avoids deadlock due to super young recv not getting a chance to enter RoB to get value from stval because a lot of instructions already fill RoB 
 
@@ -690,7 +693,7 @@ bool DynamicNode::issueDESCNode() {
 
   //insert into the desc structures if there's space, insert() returns false otherwise
   //note: relies on lazy evaluation of booleans, must call insert() last
-  can_issue=can_issue && core->sim->descq->insert(this,forwarding_staddr);
+  can_issue=can_issue && descq->insert(this,forwarding_staddr);
   
   if(!can_issue) {
     mem_status=NONE; //reset mem status 
@@ -699,20 +702,20 @@ bool DynamicNode::issueDESCNode() {
   if(can_issue) {
     //collect stats on runahead distance
     if(type==LD_PROD || type==SEND) {
-      if(core->sim->descq->send_runahead_map.find(desc_id)!=core->sim->descq->send_runahead_map.end()) {
-        core->sim->descq->send_runahead_map[desc_id] =  core->sim->descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+      if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+        descq->send_runahead_map[desc_id] =  descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
       }
       else {
-        core->sim->descq->send_runahead_map[desc_id] = core->cycles;
+        descq->send_runahead_map[desc_id] = core->cycles;
       }
     }
     
     if(type==RECV) {
-      if(core->sim->descq->send_runahead_map.find(desc_id)!=core->sim->descq->send_runahead_map.end()) {
-        core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+      if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+        descq->send_runahead_map[desc_id] = core->cycles - descq->send_runahead_map[desc_id];
       }
       else {
-        core->sim->descq->send_runahead_map[desc_id] = core->cycles;
+        descq->send_runahead_map[desc_id] = core->cycles;
       }
     }
     
@@ -738,7 +741,7 @@ bool DynamicNode::issueDESCNode() {
     }
     if(type == LD_PROD) {
       can_exit_rob=true; //allow rob to remove this if it's the head
-      core->sim->descq->debug_send_set.insert(desc_id);
+      descq->debug_send_set.insert(desc_id);
       //a RECV could get the forwarded value before finishNode() is called
       
       if(can_forward_from_lsq) {
@@ -766,13 +769,13 @@ bool DynamicNode::issueDESCNode() {
 
 void DynamicNode::finishNode() {
 
-  
+  DESCQ* descq=core->sim->get_descq(this);
   if(type==SEND || type==LD_PROD) {
     
-    core->sim->descq->debug_send_set.insert(desc_id);
+    descq->debug_send_set.insert(desc_id);
   }
   if(type==STVAL) {
-    core->sim->descq->debug_stval_set.insert(desc_id);
+    descq->debug_stval_set.insert(desc_id);
   }
 
   if(completed) {
@@ -785,22 +788,22 @@ void DynamicNode::finishNode() {
   }
     
   //these assertions test to make sure decoupling dependencies are maintained
-  if(n->typeInstr==RECV && core->sim->descq->debug_send_set.find(desc_id)==core->sim->descq->debug_send_set.end()) {
+  if(n->typeInstr==RECV && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()) {
     cout << "Assertion about to fail for DESCID " << desc_id << endl;
     print("recv trying to jump", -10);
   }
 
   
-  assert(!((n->typeInstr==RECV) && core->sim->descq->debug_send_set.find(desc_id)==core->sim->descq->debug_send_set.end()));         
+  assert(!((n->typeInstr==RECV) && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()));         
   
-  assert(!((n->typeInstr==STADDR) && core->sim->descq->debug_stval_set.find(desc_id)==core->sim->descq->debug_send_set.end()));
+  assert(!((n->typeInstr==STADDR) && descq->debug_stval_set.find(desc_id)==descq->debug_send_set.end()));
 
   if(type==STVAL) {
-    core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
+    descq->stval_runahead_map[desc_id]=core->cycles;    
   }
 
   if(type==STADDR) {
-    core->sim->descq->stval_runahead_map[desc_id] = core->cycles - core->sim->descq->stval_runahead_map[desc_id];
+    descq->stval_runahead_map[desc_id] = core->cycles - descq->stval_runahead_map[desc_id];
   }
 
   

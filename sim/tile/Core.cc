@@ -233,8 +233,16 @@ bool Core::createContext() {
 }
 
 bool Core::process() {
-  window.process();  
+  //process the instruction window and RoB
+  window.process();
+  //process the private cache
   bool simulate = cache->process();
+
+  //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
+  if(id % 2 == 0) {
+    sim->get_descq(this)->process();    
+  }
+  
   
   if(cfg.verbLevel >= 0)
     cout << "[Cycle: " << cycles << "]\n";
@@ -287,6 +295,6 @@ bool Core::process() {
   }
   context_to_create -= context_created;   // some contexts can be left pending for later cycles
   cycles++;
-   
+  
   return simulate;
 }

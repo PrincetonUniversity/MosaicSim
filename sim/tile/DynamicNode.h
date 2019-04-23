@@ -4,9 +4,10 @@
 #include <set>
 #include <queue>
 #include "../graph/Graph.h"
+//#include "../sim.h"
 
 using namespace std;
-
+//class DESCQ;
 class Graph;
 class BasicBlock;
 class Node;
