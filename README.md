@@ -10,6 +10,8 @@ This project was built with the following tools:
  + `cmake` 3.11.4
  + `ninja` 1.8.2
  + `clang`/LLVM toolchain, 7.0.0+ (with C++14 support)
+ 
+DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
 
 No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
@@ -23,76 +25,82 @@ to generate compilation files in the `build` directory. Then, a simple run of
 
     ninja -C build
 
-in the root directory will compile the files. <location TBD>
+in the root directory will compile the files. 
 
-## Building Workloads
-Workloads must be specially prepared through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). The make files for the workloads do this automatically. 
-
-Navigate to the workload in the pythia/workloads directory. For benchmark suites, navigate to the relevant subdirectory. For example, to build triad in shoc, you'd navigate to pythia/workloads/shoc/triad. Then type:
-  
-    mkdir -p int output
-    make
-    make run 
+It may be convenient to add your installation directory as an environment variable. To do that, add the following line to your ~/.bashrc:
     
-"make run" may not be necessary, depending on how the makefile is written (i.e., it may already run the executable at the end)
-After making and running, there should be files generated in the "int" directory and the "output" directory (which is the most important). Check that output/ctrl.txt, output/mem.txt and output/graphOutput.txt are not empty. 
+    export PYTHIA_HOME=/path/to/installation/directory
+
+We'll use $PYTHIA_HOME to indicate the path below. 
+
+## Compiling Workloads
+Workloads must be specially prepared through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). For this, we must use the DECADES compiler (linked above) paired with a simulator preprocessor pass/preproc.sh. Then, the binary must be run natively. 
+
+For example, to compile the Triad benchmark in the Shoc suite, navigate to workloads/shoc/triad. Then type:
+  
+    DEC++ -spp $PYTHIA_HOME/pass/preproc.sh -m db Triad.cpp
+    cd decades_base
+    ./decades_base
+      
+After compiling and running, there should be files generated in a directory prefixed by "output". Check that output*/ctrl.txt, output*/mem.txt and output*/graphOutput.txt are not empty. 
 
 ## Running Pythia
 
-To run Pythia, first navigate to pythia/bin.
+To run Pythia, first navigate to $PYTHIA_HOME/bin.
 
 The run syntax is:
 
     ./sim -n [num_cores] [sim_config_name] [path_to_workload_1_output] [core_1_config] [path_to_workload_2_output] [core_2_config] ... [path_to_workload_n_output] [core_n_config] [-v]
 
-Here is an example:
+Here is an example trivially running the same code on 2 Pythia cores simultaneously:
 
-    ./sim -n 2 default ../workloads/shoc/triad/output default ../workloads/shoc/triad/output default
+    ./sim -n 2 sim_medium ../workloads/shoc/triad/output_compute_0 default ../workloads/shoc/triad/output_compute_0 default
 
 Note: The "-v" for verbose mode is optional. 
 
 CONFIGURATION FILES:
 
-The config files are in pythia/sim/config for different preset modes (in order, out of order, perfect, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
+There are config files in $PYTHIA_HOME/sim/config for different preset modes (in order, out of order, perfect, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
 
-The first config file "sig_config_name" above get applied to the L2 cache and DRAM, while the other config files "core_n_config" above are applied to the respective core n's private L1 cache and microarchitectural features. All other entries that are not applicable are simply ignored by the simulator. 
+The first config file "sim_config_name" above gets applied to the shared L2 cache and DRAM, while the other config files "core_n_config" above are applied to the respective core n's private L1 cache and microarchitectural features. All other entries that are not applicable are simply ignored by the simulator. 
+
+## Do-all Parallelism
+To run the simulator in parallel mode (do-all parallelism), first compile for that using DEC++:
+
+    DEC++ -spp $PYTHIA_HOME/pass/preproc.sh -m db -t 2 Triad.cpp
+
+Execute natively (to generate Pythia's dynamic trace files):
+
+    cd decades_base 
+    ./decades_base    
+
+Run on Pythia:
+
+    cd $PYTHIA_HOME/bin 
+    ./sim -n 2 sim_medium ../workloads/shoc/triad/decades_base/output_compute_0 default ../workloads/shoc/triad/decades_base/output_compute_1 default
+
+## Decoupling 
+To run decoupled execution in the style of "DeSC" (Ham et al., MICRO '15): 
+
+    cd $PYTHIA_HOME/workloads/shoc/triad
+Compile Triad.cpp with the DECADES compiler with the decoupled implicit flag:
+
+    DEC++ -spp $PYTHIA_HOME/pass/preproc.sh -m di Triad.cpp
+
+Execute natively (to generate Pythia's dynamic trace files):
+
+    cd decades_decoupled_implicit 
+    ./decades_decoupled_implicit
+      
+To run on the simulator:
+
+    cd $PYTHIA_HOME/bin
+    ./sim -n 2 sim_medium ../workloads/shoc/triad/decades_decoupled_implicit/output_compute_0 default ../workloads/shoc/triad/decades_decoupled_implicit/output_supply_1 default
+
+Statistics on runahead distances (# cycles between issues of a PRODUCE or LOAD_PRODUCE instructions and issues of corresponding CONSUME instructions) will be outputted to $PYTHIA_HOME/bin/decouplingStats 
+
+Statistics of latencies of each load instruction will be outputed to a $PYTHIA_HOME/bin/loadStats.
 
 ## API Documentation
 
 In order to integrate other core or accelerator models with Pythia and have them interract together, we have documented an API. See Section E in the linked document: https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb
-
-## Decoupling 
-Below are instructions for running decoupling on Pythia. This requires setting up the DECADES compiler DEC++ (https://github.com/PrincetonUniversity/DECADES_compiler) 
-
-      cd pythia
-open pass/preproc.sh and set PYTHIA_HOME to the full path to the pythia installation directory
-
-      cd workloads/shoc/triad
-To compile Triad.cpp with the DECADES compiler, run:
-
-      DEC++ -spp ../../../pass/preproc.sh Triad.cpp
-To execute natively and get the trace files (control flow and memory) required by Pythia:
-
-      cd decoupled
-      python run.py
-      python run_addr.py
-To execute the non-decoupled version on the simulator:
-
-      cd inlined
-      ./inlined
-To run on the simulator:
-
-      cd pythia/bin
-To run decoupled (no term load optimization):
-
-      ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply default ../workloads/shoc/triad/decoupled/compute default
-
-To run decoupled (with term load optimization):
-
-      ./sim -n 2 default ../workloads/shoc/triad/decoupled/supply_addr default ../workloads/shoc/triad/decoupled/compute default
-
-To run non-decoupled version:
-
-      ./sim -n 1 default ../workloads/shoc/triad/inlined default
-
-Statistics on runahead distances (# cycles between commits of a PRODUCE or LOAD_PRODUCE instructions and commits of corresponding CONSUME instructions) will be outputted to pythia/bin/decouplingStats
