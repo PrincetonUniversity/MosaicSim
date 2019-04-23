@@ -5,6 +5,7 @@
 #include "../common.h"
 #include "../sim.h"
 #include "FunctionalCache.h"
+#include <unordered_set>
 using namespace std;
 
 class DRAMSimInterface;
@@ -20,6 +21,13 @@ public:
   Cache* child_cache;
   bool isLLC=false;
   bool isL1=false;
+
+  int prefetch_set_size=128;
+  queue<uint64_t> prefetch_queue; //order of loads
+  unordered_set<uint64_t> prefetch_set;
+  int pattern_threshold=16; //how many close addresses to check to determine spatially local accesses
+  int min_stride=4; //bytes of strided access
+  
   vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
@@ -33,8 +41,9 @@ public:
   bool ideal;
   int prefetch_distance=0;
   FunctionalCache *fc;
+  
   Cache(Config cache_cfg): 
-    latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), fc(new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc)) {
+    latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), fc(new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize)) {
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }

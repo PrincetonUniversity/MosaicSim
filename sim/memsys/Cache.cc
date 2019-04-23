@@ -173,14 +173,70 @@ void Cache::addTransaction(MemTransaction *t) {
     free_store_ports--;
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch
-  if(isL1 && t->src_id!=-1 && !t->issuedPrefetch && !t->isPrefetch) {
-    for(int i=0; i<prefetch_distance; i++) {
-      MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr+(i+1)*size_of_cacheline, true);
-      prefetch_t->d=t->d;
-      prefetch_t->isPrefetch=true;
-      pq.push(make_pair(prefetch_t, cycles+latency));      
+  
+  if(isL1 && t->src_id!=-1 && prefetch_distance>0) {
+    //int cache_line = t->d->addr/size_of_cacheline;
+    bool pattern_detected=false;
+    bool single_stride=true;
+    bool double_stride=true;
+    int stride=min_stride;
+
+    //detect single stride
+    for(int i=1; i<(pattern_threshold+1); i++) {
+      if(prefetch_set.find(t->d->addr-stride*i)==prefetch_set.end()) {
+        single_stride=false;
+        break;
+      }
     }
+    //detect double stride
+    if(!single_stride) {
+      stride=2*min_stride;
+      for(int i=1; i<(pattern_threshold+1); i++) {
+        if(prefetch_set.find(t->d->addr-stride*i)==prefetch_set.end()) {
+          double_stride=false;
+          break;
+        }
+      }      
+    }
+    
+    pattern_detected=single_stride || double_stride;
+
+
+      
+    //don't prefetch or insert prefectch instrs into prefetch set
+    if(!t->issuedPrefetch && !t->isPrefetch) {
+      if(pattern_detected) { 
+
+        for (int i=0; i<64; i++) {
+          MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true); //prefetch some distance ahead
+          prefetch_t->d=t->d;
+          prefetch_t->isPrefetch=true;
+          pq.push(make_pair(prefetch_t, cycles+latency));                  
+        }
+        
+        if(t->d->type==LD_PROD) {
+          cout << "PREFETCHING LD_PROD addr: " << t->d->addr << endl;
+        }
+        
+        prefetch_set.insert(t->d->addr);
+        prefetch_set.erase(t->d->addr-stride*pattern_threshold); 
+       
+      }
+      else { //keep prefetch set size capped
+        int current_size = prefetch_queue.size();
+        if(current_size >= prefetch_set_size) {
+          prefetch_set.erase(prefetch_queue.front());
+          prefetch_queue.pop();
+          prefetch_set_size--;
+        }
+        prefetch_set.insert(t->d->addr);
+        prefetch_queue.push(t->d->addr);
+        prefetch_set_size++; 
+      }      
+    }   
   }
+  
+  
 
   
 
