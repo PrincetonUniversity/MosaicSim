@@ -215,7 +215,7 @@ void Cache::addTransaction(MemTransaction *t) {
         }
         
         if(t->d->type==LD_PROD) {
-          cout << "PREFETCHING LD_PROD addr: " << t->d->addr << endl;
+          //cout << "PREFETCHING LD_PROD addr: " << t->d->addr << endl;
         }
         
         prefetch_set.insert(t->d->addr);
