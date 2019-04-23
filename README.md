@@ -62,7 +62,7 @@ CONFIGURATION FILES:
 
 There are config files in $PYTHIA_HOME/sim/config for different preset modes (in order, out of order, perfect, etc.). You can modify the current ones to change the size of hardware resources or create new ones. Note that the command line arguments ommit the extensions of the config files. 
 
-The first config file "sim_config_name" above gets applied to the shared L2 cache and DRAM, while the other config files "core_n_config" above are applied to the respective core n's private L1 cache and microarchitectural features. All other entries that are not applicable are simply ignored by the simulator. 
+The first config file "sim_config_name" above gets applied to the shared L2 cache and DRAM, while the other config files "core_i_config" above are applied to the respective core i's private L1 cache and microarchitectural features. All other entries that are not applicable are simply ignored by the simulator. 
 
 ## Do-all Parallelism
 To run the simulator in parallel mode (do-all parallelism), first compile for that using DEC++:
