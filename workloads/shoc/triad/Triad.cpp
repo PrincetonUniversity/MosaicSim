@@ -3,10 +3,12 @@
 #define SIZE    2048
 #define SCALE   3
 #define MAX_NUM 10000
+#include "DECADES/DECADES.h"
 
-__attribute__((noinline)) void _kernel_triad(int a[], int b[], int c[], int s) {
+__attribute__((noinline))
+void _kernel_(int a[], int b[], int c[], int s, int tile_id, int num_tiles) {
   //#pragma clang loop unroll(disable)
-  for (int i = 0; i < SIZE; i++) {
+  for (int i = tile_id; i < SIZE; i+=num_tiles) {
     c[i] = a[i] + s * b[i];
   }
 }
@@ -26,7 +28,7 @@ int main(int argc, char* argv[]) {
     c[i] = 0;
   }
 
-  _kernel_triad(a, b, c, SCALE);
+  _kernel_(a, b, c, SCALE, 0, 1);
   std::cout << "finished with no errors \n";
   return 0;
 }
