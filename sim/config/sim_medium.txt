@@ -2,7 +2,7 @@
 
 #L2 Cache
 0,ideal_cache   #set 1 for always cache hit
-2048,cache_size_in_kb
+1048,cache_size_in_kb
 6,cache_latency
 8,cache_assoc
 64,cache_linesize

@@ -57,7 +57,7 @@ public:
   bool issueDESCNode();
   void finishNode();
   void register_issue_try();
-  void register_issue_success();
+  void register_issue_success(); 
 };
 
 class OpCompare {

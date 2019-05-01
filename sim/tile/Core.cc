@@ -271,6 +271,7 @@ bool Core::process() {
     
     Context *c = *it;
     c->complete();
+   
     
     if(it!=live_context.begin()) {   
       assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
@@ -278,8 +279,11 @@ bool Core::process() {
     
     if(c->live)
       it++;
-    else
+    else {
       it = live_context.erase(it);
+      
+    }
+    
   }
   if(live_context.size() > 0)
     simulate = true;

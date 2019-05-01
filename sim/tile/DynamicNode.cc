@@ -329,6 +329,7 @@ void Context::complete() {
   for(auto it = nodes_to_complete.begin(); it != nodes_to_complete.end(); ++it) {
     DynamicNode *d =*it;
     d->finishNode();
+  
   }
   
   nodes_to_complete.clear();
@@ -361,7 +362,8 @@ void Context::complete() {
       }
       
       stat.update(core->instrToStr(d->type));
-      core->local_stat.update(core->instrToStr(d->type));      
+      core->local_stat.update(core->instrToStr(d->type));
+      
     }
   }
 }

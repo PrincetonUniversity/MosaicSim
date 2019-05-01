@@ -46,8 +46,13 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   core->name=name;
   Reader r;
   r.readGraph(gname, core->g);
-  r.readProfMemory(mname , core->memory);
+  ifstream memfile(mname);
+  
+  r.readProfMemory(memfile , core->memory);
+  cout << "[3] Finished Reading Memory Profile (" << mname << ")\n";
+  
   r.readProfCF(cname, core->cf);
+
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();

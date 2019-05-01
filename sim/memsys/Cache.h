@@ -25,7 +25,7 @@ public:
   int prefetch_set_size=128;
   queue<uint64_t> prefetch_queue; //order of loads
   unordered_set<uint64_t> prefetch_set;
-  int pattern_threshold=16; //how many close addresses to check to determine spatially local accesses
+  int pattern_threshold=4; //how many close addresses to check to determine spatially local accesses
   int min_stride=4; //bytes of strided access
   
   vector<MemTransaction*> to_send;

@@ -128,13 +128,12 @@ public:
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
+  void readProfMemory(ifstream& memfile, std::unordered_map<int, std::queue<uint64_t> > &memory) {
 
     string line;
     string last_line;
-    ifstream cfile(name);
-    if (cfile.is_open()) {
-      while ( getline(cfile,line) ) {
+    if (memfile.is_open()) {
+      while ( getline(memfile,line) ) {
         vector<string> s = split(line, ',');
         assert(s.size() == 4);
         int id = stoi(s.at(1));
@@ -147,8 +146,8 @@ public:
       cout << "Error opening Memory profiling file\n";
       assert(false);
     }
-    cout << "[3] Finished Reading Memory Profile (" << name << ")\n";
-    cfile.close();
+
+    memfile.close();
   }
 
   // Read Dynamic Control Flow data from profiling file. 
