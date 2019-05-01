@@ -73,7 +73,7 @@ public:
         itype = LD;
       else if(op == Instruction::Store)
         itype = ST;
-      else if(isa<TerminatorInst>(val))
+      else if(inst->isTerminator())
         itype = TERMINATOR;
       else if(op == Instruction::PHI)
         itype = PHI;
