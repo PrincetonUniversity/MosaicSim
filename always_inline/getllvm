@@ -1,1 +1,0 @@
-clang -S -emit-llvm testbench.cc -o testbench.ll

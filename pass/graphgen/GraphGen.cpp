@@ -59,7 +59,7 @@ bool GraphGen::runOnFunction(Function &func) {
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
   if (isKernelFunction(func)) {
-    //assert(!found_kernel);
+    assert(!found_kernel);
     found_kernel = true;
     constructGraph(func);
     errs() << "Done constructing graph" << func.getName().str() << "\n";
@@ -288,7 +288,7 @@ void GraphGen::addDataEdges(Function &func) {
 
 void GraphGen::addControlEdges(Function &func) {
   for (auto &bb : func) {
-    TerminatorInst* term = bb.getTerminator();
+    Instruction* term = bb.getTerminator();
     auto src = nodeMap.at(&bb);
     for (auto &phiNode : bb.phis()) {
       auto phidst = nodeMap.at(&phiNode);
@@ -348,8 +348,11 @@ void GraphGen::visualize() {
         extra += ",fontcolor=red,pencolor=red";
       else if(isa<StoreInst>(n->val))
         extra += ",fontcolor=red,pencolor=red";
-      else if(isa<TerminatorInst>(n->val))
-        extra += ",fontcolor=blue,pencolor=blue";
+      else if(isa<Instruction>(n->val)) {
+	Instruction * tmp = dyn_cast<Instruction>(n->val);
+	if (tmp->isTerminator())
+	  extra += ",fontcolor=blue,pencolor=blue";
+      }
       else if(isa<BasicBlock>(n->val))
         extra += ",fontcolor=blue,pencolor=blue";
       fout << n->uid << "[label=\"" << n->name <<"\",fontsize=10"<< extra << "];\n";

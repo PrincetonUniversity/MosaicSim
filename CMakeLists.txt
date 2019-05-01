@@ -21,4 +21,3 @@ link_directories(${LLVM_LIBRARY_DIRS})
 # Recursively add the source files into the entire project.
 add_subdirectory(${CMAKE_SOURCE_DIR}/pass)
 add_subdirectory(${CMAKE_SOURCE_DIR}/sim)
-add_subdirectory(${CMAKE_SOURCE_DIR}/always_inline)

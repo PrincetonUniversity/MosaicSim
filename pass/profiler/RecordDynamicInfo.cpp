@@ -42,8 +42,8 @@ namespace {
       }
 
       LLVMContext& ctx = M.getContext();
-      Constant *printuBRFunc = M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
-      Constant *printBRFunc = M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx));
+      printuBR = (Function *) M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
+      printBR = (Function *) M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
       std::vector<Type*> targs;
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt8PtrTy(ctx));
@@ -51,12 +51,8 @@ namespace {
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt32Ty(ctx));
       FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
-      Constant *printSwitchFunc = M.getOrInsertFunction(k3, sF);
-      Constant *printMemFunc = M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx));
-      printuBR = cast<Function>(printuBRFunc);
-      printBR= cast<Function>(printBRFunc);
-      printSw= cast<Function>(printSwitchFunc);
-      printMem = cast<Function>(printMemFunc);
+      printSw  = (Function *) M.getOrInsertFunction(k3, sF).getCallee();
+      printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
@@ -316,8 +312,10 @@ namespace {
         }
         else if(auto *iI = dyn_cast<InvokeInst>(inst))
           printInvoke(iI);
-        else if(auto *tI = dyn_cast<TerminatorInst>(inst))
+        else if(inst->isTerminator()) {
           errs() << "[WARNING] Terminator Instruction not handled : " << *inst <<"\n";
+	}
+	
       }
     }
   };

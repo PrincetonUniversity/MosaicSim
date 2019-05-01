@@ -32,7 +32,7 @@ echo "Executing: mkdir -p ${DIR_NAME}/output_${TILE_NAME}" &&
 mkdir -p ${DIR_NAME}/output
 
 echo "Executing: cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null"
-cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
+cd ${DIR_NAME}; opt -S -instnamer -load ../${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
 
 cd -;
 
