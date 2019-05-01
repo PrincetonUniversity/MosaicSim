@@ -16,7 +16,7 @@ DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})
 
 
-echo ${PYTHIA_HOME}" is printing"
+echo ${PYTHIA_HOME}" is printing pythia home"
 
 echo ${DIR_NAME}
 
