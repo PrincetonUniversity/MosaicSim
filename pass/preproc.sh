@@ -11,7 +11,7 @@ TILE_NAME=$1; shift
 LINK_FLAG=$1; shift
 TILE_IDS=( "$@" );
 
-PYTHIA_HOME=$(dirname ${BASH_SOURCE})/..
+PYTHIA_HOME=$(dirname $(realpath -s ${0}../))/..
 DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})
 
@@ -32,7 +32,7 @@ echo "Executing: mkdir -p ${DIR_NAME}/output_${TILE_NAME}" &&
 mkdir -p ${DIR_NAME}/output
 
 echo "Executing: cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null"
-cd ${DIR_NAME}; opt -S -instnamer -load ../${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
+cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
 
 cd -;
 

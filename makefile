@@ -17,5 +17,5 @@ clean:
 	find . -name "*.cmake"        -type f -delete
 	find . -name "CMakeCache.txt" -type f -delete
 	cd sim/memsys/DRAMSim2 && make clean
-	cd sim/cacti-p && make clean
+	cd sim/power_model/cacti-p && make clean
 

@@ -34,7 +34,7 @@ int main(int argc, char const *argv[]) {
   simulator->init_time=chrono::high_resolution_clock::now();
 
   if(test) {
-    simulator->registerCore("../workloads/test", cfgname, 0);    
+    simulator->registerCore("../workloads/test/output", cfgname, 0);    
   }
   else {
     int arg_index=4;
