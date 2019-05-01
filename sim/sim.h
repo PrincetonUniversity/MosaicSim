@@ -30,7 +30,6 @@ public:
       return l<r; //yes, the pointers, just to make sure no 2 entries are equal
       } */
   }
-    
 };
 
 class Simulator {
@@ -43,7 +42,6 @@ public:
   uint64_t total_instructions=0;
   map<int,Tile*> tiles;
   int tileCount=0;
-  
   vector<uint64_t> clockspeedVec;
   DESCQ* descq;
   vector<DESCQ*> descq_vec;
@@ -73,7 +71,6 @@ public:
   DESCQ* get_descq(Tile* tile);
 };
 
-
 class DESCQ {
 public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
@@ -89,14 +86,12 @@ public:
 
   map<uint64_t, DynamicNode*> commBuff; //for OoO data consumption by compute
   map<uint64_t, uint64_t> STLMap; //map from recv desc_id to desc_id of send doing stl fwd
-
-
   
   map<uint64_t, set<uint64_t>> SVB; //mapping from desc id of STVAL to STVAL instrn and desc id of RECVs awaiting forwards
   map<uint64_t, DynamicNode*> TLBuffer; //terminal load buffer, just to hold DNs waiting for mem response
 
+  // Decoupling-related stuff
   int term_ld_count=0;
-  
   int commBuff_size=64; //comm buff size
   int commQ_size=512; //comm queue size
   int SAB_size=128; //store address buffer size
@@ -106,7 +101,6 @@ public:
   uint64_t SAB_issue_pointer=0; //DESC_ID of instruction next to issue 
   uint64_t SAB_back=127; //DESC ID of youngest STADDR instruction allowed to issue
   int commQ_count=0;
-
   int SVB_count=0;
   int SVB_size=128;
   uint64_t SVB_back=127;
@@ -114,17 +108,14 @@ public:
   map<uint64_t, int64_t> send_runahead_map;
 
   //map of runahead distance in cycles between when a send (or ld_produce) completes and a receive completes
-  
   map<uint64_t, int64_t> stval_runahead_map;
   map<uint64_t, int64_t> recv_delay_map; 
-  
- 
 
-  map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
   //map of address to ordered set of staddr dynamic nodes storing to that address
+  map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
   
-  map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
   //map of desc id (of stval, also staddr) to #forwards to be expected
+  map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
 
   //map<uint64_t, uint64_t> recv_map;
   //map of desc id (same for ld_prod and recv) to desc id (stval)
@@ -135,7 +126,6 @@ public:
   uint64_t last_recv_id;
   uint64_t last_staddr_id;
   int latency=5;
-
 
   Config config;
   DESCQ(Config cfg) {

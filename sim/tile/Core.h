@@ -72,7 +72,7 @@ public:
     int bytes_write;
   } activity_mem;
 
-  /* Profiled */
+  /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   

@@ -13,7 +13,6 @@
 
 using namespace std;
 
-
 Simulator::Simulator() {         
   cache = new Cache(cfg);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
@@ -88,12 +87,8 @@ bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
     //assert(false);
  
     //pq.push({t,final_cycle});
-    
-  
-  
   
   transq_map[t->dst_id].push({t,final_cycle});
-  
   
   return true;
 }
@@ -169,7 +164,6 @@ void Simulator::run() {
         vector<pair<Transaction*,uint64_t>> rejected_transactions;         
         //assume tiles never go from completed (process() returning false) back to not completed (process() returning true)
 
-        
         processVec.at(it->first)=tile->process();
         
         //process transactions
@@ -201,7 +195,6 @@ void Simulator::run() {
     
     simulate = accumulate(processVec.begin(), processVec.end(), 0);
     
-   
     //---printing stats---    
     if(tiles[0]->cycles % 1000000 == 0 && tiles[0]->cycles !=0) {
       
@@ -223,9 +216,7 @@ void Simulator::run() {
       last_time = Clock::now();
       last_instr_count = 0;
     }
-    
     cycles++;
-  
   }
   
   //print stats for each pythia tile
@@ -274,7 +265,6 @@ void Simulator::run() {
 
     long size= descq->send_runahead_map.size();
     long avg_send_runahead=send_runahead_sum/size;
-    
     cout<<"Avg SEND Runahead : " << avg_send_runahead << " cycles \n";
   }
 
@@ -284,7 +274,6 @@ void Simulator::run() {
       stval_runahead_sum+=it->second;    
     }
     long avg_stval_runahead=stval_runahead_sum/descq->stval_runahead_map.size();
-    
     cout<<"Avg STVAL Runahead : " << avg_stval_runahead << " cycles \n";
   }
 
@@ -294,7 +283,6 @@ void Simulator::run() {
       recv_delay_sum+=it->second;    
     }
     long avg_recv_delay=recv_delay_sum/descq->recv_delay_map.size();
-    
     cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
   }
 
@@ -325,10 +313,8 @@ void Simulator::run() {
     loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
     loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
     loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
-
     loadfile << outstring;
   }
-
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 
 }
@@ -364,7 +350,6 @@ void Simulator::orderDESC(DynamicNode* d) {
     descq->last_stval_id++;
   }
   else if (d->n->typeInstr == RECV) {
-   
     d->desc_id=descq->last_recv_id;
     descq->last_recv_id++;
     descq->recv_map.insert({d->desc_id,d});
@@ -393,7 +378,6 @@ void DESCQ::process() {
 
   //go through execution set sorted in desc id
   //this also allows us to send out as many staddr instructions (that become SAB head) back to back
-  
   for(auto it=execution_set.begin(); it!=execution_set.end();) {   
     if(execute(*it)) {     
       it=execution_set.erase(it); //gets next iteration
@@ -404,9 +388,8 @@ void DESCQ::process() {
   }
   
   //process terminal loads
-   //has already accessed mem hierarchy, which calls callback to remove from TLBuffer and decrement term_ld_count 
+  //has already accessed mem hierarchy, which calls callback to remove from TLBuffer and decrement term_ld_count 
   //must stall if no space in commQ or still waiting for mem results
-   
   for(auto it=TLBuffer.begin(); it!=TLBuffer.end();) {   
     DynamicNode* d=it->second;
     
@@ -459,9 +442,7 @@ bool DESCQ::execute(DynamicNode* d) {
     if(commQ.find(d->desc_id)==commQ.end() || !commQ[d->desc_id]->completed) { //RECV too far ahead
       return false;
     }
-
     if(commQ[d->desc_id]->mem_status==FWD_COMPLETE || commQ[d->desc_id]->mem_status==NONE) { //data is ready in commQ from a forward or completed terminal load or regular produce
-
       if(commQ[d->desc_id]->mem_status==FWD_COMPLETE) { //stl forwarding was used        
         assert(STLMap.find(d->desc_id)!=STLMap.end());
         uint64_t stval_desc_id=STLMap[d->desc_id];
@@ -489,7 +470,6 @@ bool DESCQ::execute(DynamicNode* d) {
         
         commQ[*it]->mem_status=FWD_COMPLETE;       
       }
-      
     }
     
     if(SAB.size()==0) { //STADDR is still behind (rare, but possible)  
@@ -497,7 +477,6 @@ bool DESCQ::execute(DynamicNode* d) {
     }
     
     uint64_t f_desc_id=SAB.begin()->first; //get the desc_id of front of SAB
-      
     if(d->desc_id==f_desc_id && (SVB.find(d->desc_id)==SVB.end() || SVB[d->desc_id].size()==0)) { //STADDR is head of SAB and nothing to forward to RECV instr     
       SVB_count--;
       SVB_back++;
@@ -511,7 +490,6 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     //auto sab_front=SAB.begin();
-    
         
     //note: corresponding sval would only have completed when this becomes front of SAB
     if(stval_map.at(d->desc_id)->completed) {
@@ -542,7 +520,6 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
         canInsert=false;        
       }
       else {
-    
         commQ_count++; //corresponding recv will decrement this count, signifying removing/freeing the entry from commQ
         term_ld_count++; //allocate space on TLBuff but don't insert yet until execute() to account for descq latency
       }
@@ -553,7 +530,6 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
       }
       else {
         if(d->mem_status==DESC_FWD) {
-       
           //here, connect the queues          
           assert(STLMap.find(d->desc_id)==STLMap.end());
           STLMap[d->desc_id]=forwarding_staddr->desc_id; //this allows corresponding RECV to find desc id of STVAL to get data from
@@ -594,21 +570,16 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
     }
   }
   else if(d->n->typeInstr==STVAL) {
-
     if(d->desc_id!=SVB_issue_pointer || d->desc_id>SVB_back ||  SVB_count==SVB_size) { //check SVB size, check that it's not younger than youngest allowed stval instruction, based on SVB size, force in order issue/dispatch of stvals
       canInsert=false;
-  
     }
     else {
-
       SVB_count++;
       SVB_issue_pointer++;
-      
     }
   }
   if(canInsert) {  
     pq.push(make_pair(d,cycles+latency));
   }
-
   return canInsert;
 }

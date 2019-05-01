@@ -50,7 +50,7 @@ Config::Config() {
   num_units[FP_DIV] = 1;
   num_units[FP_REM] = 1;
   num_units[LOGICAL] = 2;
-  num_units[CAST] = 2;
+  num_units[CAST] = -1;
   num_units[GEP] = -1;
   num_units[LD] = -1;
   num_units[ST] = -1;

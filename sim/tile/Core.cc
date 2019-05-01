@@ -2,8 +2,10 @@
 #include "Core.h"
 //#include "LoadStoreQ.h"
 #include "../memsys/Cache.h"
+
 #define ID_POOL 1000000
 
+// Declare instructions names to be able to print them for stats
 std::string InstrName[]={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC"};
 
 Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
@@ -26,15 +28,12 @@ void Core::access(DynamicNode* d) {
   }
   
   int tid = tracker_id.front();
- 
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
   
   MemTransaction *t = new MemTransaction(tid, id, id, d->addr, d->type == LD || d->type == LD_PROD);
   t->d=d;
-  
   cache->addTransaction(t);
-  
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
@@ -55,7 +54,6 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   if (issueWidth==-1) { //only instruction window availability matters
     return position>=window_start && position<=window_end;
   }
-  
   return issueCount<issueWidth && position>=window_start && position<=window_end;
 }
 
@@ -131,6 +129,7 @@ void Core::initialize(int id) {
     context_to_create = cf.size();
   else
     assert(false);
+
   // Initialize Activity counters
   for(int i=0; i<NUM_INST_TYPES; i++) {
     local_stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);
@@ -147,7 +146,6 @@ void Core::initialize(int id) {
   }
   //cout << "Total Instructions is: " << sim->total_instructions << endl;
   //assert(false);
-  
 }
 
 string Core::instrToStr(TInstr instr) {  
@@ -155,8 +153,6 @@ string Core::instrToStr(TInstr instr) {
 }
 
 void Core::printActivity() {
-  
-  std::string InstrName[] =  { "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID",  "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC"};
   cout << "-----------Simulator " << name << " Activity-----------\n";
   cout << "Cycles: " << cycles << endl;
   cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
@@ -165,14 +161,13 @@ void Core::printActivity() {
     cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";  
 }
 
-//return boolean indicating whether or not the branch was mispredicted
-//we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
+// return boolean indicating whether or not the branch was mispredicted
+// we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
 
-//simple always taken predictor. we'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
+// Simple Always-Taken predictor. We'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
 bool Core::predict_branch(DynamicNode* d) {
   int context_id=d->c->id;
   int next_context_id=context_id+1;
-
 
   int current_bbid=cf.at(context_id);
   
@@ -182,7 +177,7 @@ bool Core::predict_branch(DynamicNode* d) {
     next_bbid=cf.at(next_context_id);
   }
     
-  if(current_bbid==next_bbid) { //guess we'll remain in same basic block
+    if(current_bbid==next_bbid) { //guess we'll remain in same basic block
     //cout << "CORRECT prediction \n";
     return true;   
   }

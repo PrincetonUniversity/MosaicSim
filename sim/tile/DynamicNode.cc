@@ -86,19 +86,13 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       d = new DynamicNode(n, this, core); 
       nodes.insert(make_pair(n, d));          
     }
-
     d->width=n->width;
     if(d->n->typeInstr==BS_VECTOR_INC) {
       core->sim->load_count+=d->width;
     }
-
     if(d->isDESC) {        
       core->sim->orderDESC(d);
     }
-
-
-    
-    
     core->window.insertDN(d); //this helps maitain a program-order ordering of all instructions
   }
 
@@ -133,7 +127,6 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       }
     }
   }
-  
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
     assert(!it->second->issued && !it->second->completed);
     DynamicNode* d=it->second;
@@ -265,25 +258,21 @@ void Context::process() {
     if(d->isMem)
       res = res && d->issueMemNode();
     else if (d->isDESC) {     
-      
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
     }       
     else {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
-  
     if(!res) {
       if(issue_stats_mode) {
         next_issue_set.insert(d);
       }
       ++it;
-                 
     }
     else {
       core->window.issue();
       d->issued=true;
-      
       if(cfg.verbLevel == 2) {
         cout << "Cycle: " << core->cycles << " \n"; 
         d->print("Issued", -10);
@@ -291,8 +280,6 @@ void Context::process() {
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
       }
-      
-      
       if(issue_stats_mode) {
         d->register_issue_success();
         ++it;
@@ -346,7 +333,6 @@ void Context::complete() {
     core->local_stat.update(total_instructions, completed_nodes.size());
 
     // Update activity counters
-    
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;      
       
@@ -354,12 +340,10 @@ void Context::complete() {
         stat.update(bytes_read, word_size_bytes);
         core->local_stat.update(bytes_read, word_size_bytes);
       }
-      
       else if (d->type == ST || d->type == STADDR) {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
-      
       stat.update(core->instrToStr(d->type));
       core->local_stat.update(core->instrToStr(d->type));      
     }
@@ -477,7 +461,6 @@ void DynamicNode::print(string str, int level) {
   if( level < cfg.verbLevel )
     cout << (*this) << str << endl;
 }
-
 void DynamicNode::handleMemoryReturn() {
       //update load latency stats
   if(type==LD || type==LD_PROD) {
@@ -485,7 +468,6 @@ void DynamicNode::handleMemoryReturn() {
     long long current_cycle = core->cycles;
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
-    
   }
   print(Memory_Data_Ready, 1);
   print(to_string(outstanding_accesses), 1);
@@ -720,7 +702,6 @@ bool DynamicNode::issueDESCNode() {
     }
     
     if(type == STVAL) {
- 
       can_exit_rob=true;
       stat.update(stval_issue_success);
       core->local_stat.update(stval_issue_success);
@@ -731,7 +712,6 @@ bool DynamicNode::issueDESCNode() {
       core->local_stat.update(staddr_issue_success);
     }
     if(type == RECV) {
-
       stat.update(recv_issue_success);
       core->local_stat.update(recv_issue_success);
     }
@@ -743,7 +723,6 @@ bool DynamicNode::issueDESCNode() {
       can_exit_rob=true; //allow rob to remove this if it's the head
       descq->debug_send_set.insert(desc_id);
       //a RECV could get the forwarded value before finishNode() is called
-      
       if(can_forward_from_lsq) {
         //do nothing, ld_prod goes to term_ld_buff lsq has fed value
         //assert(false);
@@ -766,7 +745,6 @@ bool DynamicNode::issueDESCNode() {
   return can_issue;  
 }
 
-
 void DynamicNode::finishNode() {
 
   DESCQ* descq=core->sim->get_descq(this);
@@ -777,7 +755,6 @@ void DynamicNode::finishNode() {
   if(type==STVAL) {
     descq->debug_stval_set.insert(desc_id);
   }
-
   if(completed) {
     print("already completed ", -10);
     assert(false);
@@ -786,26 +763,21 @@ void DynamicNode::finishNode() {
     cout << "Cycle: " << core->cycles << " \n"; 
     print("Completed", -10);
   }
-    
   //these assertions test to make sure decoupling dependencies are maintained
   if(n->typeInstr==RECV && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()) {
     cout << "Assertion about to fail for DESCID " << desc_id << endl;
     print("recv trying to jump", -10);
   }
 
-  
   assert(!((n->typeInstr==RECV) && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()));         
-  
   assert(!((n->typeInstr==STADDR) && descq->debug_stval_set.find(desc_id)==descq->debug_send_set.end()));
 
   if(type==STVAL) {
     descq->stval_runahead_map[desc_id]=core->cycles;    
   }
-
   if(type==STADDR) {
     descq->stval_runahead_map[desc_id] = core->cycles - descq->stval_runahead_map[desc_id];
   }
-
   
   c->completed_nodes.insert(this);
 
@@ -848,7 +820,6 @@ void DynamicNode::finishNode() {
       core->lsq.resolveAddress(dst);      
     }
     dst->pending_parents--;
-   
     dst->tryActivate();    
   }
 

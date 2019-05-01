@@ -20,8 +20,6 @@ public:
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
     
-    
-    
     registerStat("cache_hit", 1);
     registerStat("cache_miss", 1);
     registerStat("cache_access", 1);
@@ -84,4 +82,3 @@ public:
 extern Statistics stats;
 
 #endif
-
