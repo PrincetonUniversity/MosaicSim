@@ -16,6 +16,7 @@ def main():
     parser.add_argument("-cc","--core_config",type=str,help="Config mode for cores and their private L1s", default="default")
     parser.add_argument("-n", "--num_cores", type=int, help="Number of cores to run with",default=1)
     parser.add_argument("-d", "--decoupled", help="Flag to run in decoupled Supply/Compute mode", action='store_true')
+    parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
     parser.add_argument("-o", "--output", type=str, help="Output file for Pythia run statistics (default is stdout)")
     args=parser.parse_args()
     numcores=args.num_cores
@@ -44,8 +45,13 @@ def main():
         if args.decoupled:
             cmd=cmd+" "+supply_path +" "+core_config_path
 
+    if args.verbose:
+        cmd=cmd+" -v"
     if args.output is not None:
         cmd=cmd+" > "+args.output
+
+    
+
     print(cmd)
     os.system(cmd)
     
