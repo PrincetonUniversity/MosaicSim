@@ -11,9 +11,9 @@ PYTHIA_BIN=PYTHIA_HOME+"/bin"
 
 def main():
     parser = argparse.ArgumentParser()    
-    parser.add_argument('source_directory',  nargs=1, help="Source directory containing Pythia 'output' folders")
-    parser.add_argument("-sc","--sim_config",type=str,help="Config mode for simulator, shared L2, and DRAM", default="default")
-    parser.add_argument("-cc","--core_config",type=str,help="Config mode for cores and their private L1s", default="default")
+    parser.add_argument('source_directory',  nargs=1, help="Source directory containing decades_base or decades_decoupled_inplicit folders")
+    parser.add_argument("-sc","--sim_config",type=str,help="Config mode for simulator, shared L2, and DRAM. \n Options: sim_default", default="sim_default")
+    parser.add_argument("-cc","--core_config",type=str,help="Config mode for cores and their private L1s. \n Options: core_inorder, core_ooo, core_inorder_perfcache, core_ooo_perfcache, core_accel", default="core_inorder")
     parser.add_argument("-n", "--num_cores", type=int, help="Number of cores to run with",default=1)
     parser.add_argument("-d", "--decoupled", help="Flag to run in decoupled Supply/Compute mode", action='store_true')
     parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
