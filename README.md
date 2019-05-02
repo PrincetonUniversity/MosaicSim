@@ -31,6 +31,10 @@ Add the following line to your ~/.bashrc
     
     export PATH=/path/to/DECADES/compiler/build/bin/:/path/to/pythia/tools/:$PATH
 
+Source it to enable the change:
+    
+    source ~/.bashrc
+
 ## Compiling Workloads
 Workloads must be specially compiled through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). For this, we must use a Pythia wrapper (PDEC++) around the DECADES compiler. Then, the generated binary must be run natively.
 
