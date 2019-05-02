@@ -42,7 +42,7 @@ Type PDEC++ -h for all compilation options.
 
 For example, to compile the graph projections benchmark for 2 threads with decoupled supply/compute, navigate to workloads/graph_projections/gp_count/decades. Then type:
        
-    PDEC++ -m di -t 2 Triad.cpp
+    PDEC++ -m di -t 2 main.cpp
     cd decades_base
     ./decades_base ../../../inputs/moreno_crime/x_to_y_graph.txt
       
