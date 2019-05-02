@@ -58,7 +58,7 @@ To run the workload on Pythia, navigate back to the parent folder of decades_bas
 
 CUSTOM CONFIGURATION FILES:
 
-There are config files in sim/config for the different preset modes "pythiarun -h" displays. You can modify the current ones to change the size of hardware resources or create new ones. Note that config files must be named in the form configname.txt. 
+There are config files in sim/config for the different preset modes "pythiarun -h" displays. You can modify the current ones to change the size of hardware resources or create new ones. Note that config files must be named in the form [configname].txt. 
 
 ## Statistics
 
