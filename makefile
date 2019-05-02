@@ -5,6 +5,7 @@ all:
 	cd sim/power_model/cacti-p && make
 	cd sim/memsys/DRAMSim2 && make && make libdramsim.so && cp libdramsim.so ../../../lib
 	chmod +x pass/preproc.sh
+	chmod +x tools/pythiarun
 # Clean up the CMake and Ninja build files.
 clean:
 	find . -name "*.a"            -type f -delete

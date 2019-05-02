@@ -13,7 +13,8 @@
 
 using namespace std;
 
-Simulator::Simulator() {         
+Simulator::Simulator(string home) {
+  pythia_home=home;
   cache = new Cache(cfg);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
@@ -35,7 +36,7 @@ DESCQ* Simulator::get_descq(Tile* tile) {
 
 void Simulator::registerCore(string wlpath, string cfgname, int id) {
   string name = "Pythia Core";
-  string cfgpath = "../sim/config/" + cfgname+".txt";
+  string cfgpath = cfgname;
   string cname = wlpath + "/ctrl.txt";     
   string gname = wlpath + "/graphOutput.txt";
   string mname = wlpath + "/mem.txt";   

@@ -160,8 +160,11 @@ void Config::read(std::string name) {
   string line;
   string last_line;
   ifstream cfile(name);
+  
   int id = 0;
+  
   cout << "\n---------CONFIGS---------\n";
+  cout << name << endl;
   if (cfile.is_open()) {
     while (getline (cfile,line)) {
       

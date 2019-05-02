@@ -11,6 +11,14 @@ Config cfg;
 class Core;
 
 int main(int argc, char const *argv[]) {
+
+  string filePath = argv[0];
+  
+  size_t slash = filePath.find_last_of("/");
+  
+  string dirPath = (slash != std::string::npos) ? filePath.substr(0, slash) : filePath;
+  string pythia_home= dirPath+"/..";
+    
   string wlpath;
   string cfgpath;
   string cfgname;
@@ -20,6 +28,8 @@ int main(int argc, char const *argv[]) {
     test = true;
     num_cores = 1;
     cfgname = "default";
+    cout << "not enough args" << endl;
+    assert(false);
   }
   else {
     string in(argv[1]);
@@ -27,10 +37,12 @@ int main(int argc, char const *argv[]) {
     num_cores = stoi(argv[2]);
     cfgname = argv[3];
   }
-  
-  cfgpath = "../sim/config/" + cfgname + ".txt";
+
+  cfgpath = cfgname;
   cfg.read(cfgpath);
-  Simulator* simulator=new Simulator();
+
+  Simulator* simulator=new Simulator(pythia_home);
+   
   simulator->init_time=chrono::high_resolution_clock::now();
 
   if(test) {

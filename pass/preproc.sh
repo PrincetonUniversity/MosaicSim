@@ -1,9 +1,13 @@
 #!/bin/bash
 
+#Bash script to pass to the DEC++ compiler in order for Pythia to run LLVM passes
+#generating static data dependency graphs and dynamic trace instrumentation
+
 # First arg: llvm file to be modified (and changed in place)
 # Second arg: tile name (e.g. compute, supply, biscuit)
 # third arg: a flag saying if we should link or not
 # fourth - end : ids for the tiles
+
 
 CC=clang++
 CURR_PASS=$1; shift 
@@ -11,12 +15,13 @@ TILE_NAME=$1; shift
 LINK_FLAG=$1; shift
 TILE_IDS=( "$@" );
 
-PYTHIA_HOME=$(dirname $(realpath -s ${0}../))/..
+#PYTHIA_HOME=$(dirname $(realpath -s ${0}../))/..
+PYTHIA_HOME=$(realpath -s $(dirname $(realpath -s ${0}))/..)
 DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})
 
 
-echo ${PYTHIA_HOME}" is printing pythia home"
+echo "Pythia Home: "${PYTHIA_HOME}
 
 echo ${DIR_NAME}
 

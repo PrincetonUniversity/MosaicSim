@@ -46,6 +46,7 @@ public:
   DESCQ* descq;
   vector<DESCQ*> descq_vec;
   Cache* cache;
+  string pythia_home;
   //every tile has a transaction priority queue
   map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
   int transq_latency=3;
@@ -54,7 +55,7 @@ public:
   DRAMSimInterface* memInterface;
   map<DynamicNode*, tuple<long long, long long, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
   
-  Simulator();
+  Simulator(string home);
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();

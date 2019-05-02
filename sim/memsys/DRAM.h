@@ -26,7 +26,7 @@ public:
   DRAMSimInterface(Simulator* sim, bool ideal, int load_ports, int store_ports) : sim(sim),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
-    mem = DRAMSim::getMemorySystemInstance("sim/config/DDR3_micron_16M_8B_x8_sg15.ini", "sim/config/dramsys.ini", "..", "Apollo", 16384); 
+    mem = DRAMSim::getMemorySystemInstance(sim->pythia_home+"/sim/config/DDR3_micron_16M_8B_x8_sg15.ini", sim->pythia_home+"/sim/config/dramsys.ini", "..", "Apollo", 16384); 
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
     
     free_load_ports = load_ports;
