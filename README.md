@@ -10,6 +10,7 @@ This project was built with the following tools:
  + `cmake` 3.11.4
  + `ninja` 1.8.2
  + `clang`/LLVM toolchain, 9.0.0+ (with C++14 support)
+ + `libopm` (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
  
 DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
 
@@ -29,7 +30,11 @@ in the root directory will compile the files.
 
 Add the following line to your ~/.bashrc
     
-    export PATH=/path/to/DECADES/compiler/build/bin/:/path/to/pythia/tools/:$PATH
+    export PATH=[DECADES_COMPILER_INSTALL_DIR]/build/bin/:[PYTHIA_INSTALL_DIR]/tools/:$PATH
+    
+Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to your ~/.bashrc:
+
+    export LD_LIBRARY_PATH=[PATH_TO_OMP_SHARED_LIB]:$LD_LIBRARY_PATH
 
 Source it to enable the change:
     
