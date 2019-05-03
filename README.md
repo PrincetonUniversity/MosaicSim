@@ -52,13 +52,21 @@ After compiling and running, there should be files generated in a directory pref
 
 Type pythiarun -h for all run options. 
 
-To run the workload on Pythia, navigate back to the parent folder of decades_base (i.e. cd ..). We must enter commandline arguments corresponding to what the workload was compiled for (for the example above, it would be decoupling with 2 threads). Type:
+To run the workload on Pythia, navigate back to the parent folder of decades_base (i.e. cd workloads/graph_projections/gp_count/decades). We must enter commandline arguments corresponding to what the workload was compiled for (for the example above, it would be decoupling with 2 threads). Type:
     
     pythiarun -n 2 -d .    
+
+This defaults to the explicit command (core_inorder and sim_default are the default configs):
+
+    pythiarun -n 2 -d -cc core_inorder -sc sim_default .
 
 CUSTOM CONFIGURATION FILES:
 
 There are config files in sim/config for the different preset modes "pythiarun -h" displays. You can modify the current ones to change the size of hardware resources or create new ones. Note that config files must be named in the form [configname].txt. 
+
+For a number of pre-automated compilation and test runs, navigate back to workloads/graph_projections/gp_count/decades. Type:
+
+    make
 
 ## Statistics
 
