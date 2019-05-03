@@ -10,7 +10,7 @@ This project was built with the following tools:
  + `cmake` 3.11.4
  + `ninja` 1.8.2
  + `clang`/LLVM toolchain, 9.0.0+ (with C++14 support)
- + `libopm` (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
+ + `libomp` (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
  
 DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
 
@@ -36,7 +36,9 @@ Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to
 
     export LD_LIBRARY_PATH=[PATH_TO_OMP_SHARED_LIB]:$LD_LIBRARY_PATH
 
-Source it to enable the change:
+(For CentOS, [PATH_TO_OMP_SHARED_LIB] would typically be /opt/rh/llvm-toolset-7/root/usr/lib64/)
+
+Source your bashrc to enable the change:
     
     source ~/.bashrc
 
