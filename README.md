@@ -10,11 +10,11 @@ This project was built with the following tools:
  + `cmake` 3.11.4
  + `ninja` 1.8.2
  + `clang`/LLVM toolchain, 9.0.0+ (with C++14 support)
- + `libomp` (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
+ + `libomp` 4.5 (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
  
 DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
 
-No compatibility is guaranteed for other compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
+No compatibility is guaranteed for older compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
 ### Building the Simulator
 
