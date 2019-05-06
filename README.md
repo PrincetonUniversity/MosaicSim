@@ -16,6 +16,9 @@ DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compile
 
 No compatibility is guaranteed for older compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
+### Video Demo
+Here is a link to a short video that demonstrates the required steps to compile and run applications on Pythia: https://youtu.be/hUThWUhkEWg. Below, we describe the steps in more depth.
+
 ### Building the Simulator
 
 To compile the LLVM pass and other libraries, navigate to the root directory of the project. To compile the files, simply run
