@@ -2,6 +2,7 @@
 #include <string>
 #include "sim.h"
 #include <chrono>
+#include "tile/Accelerator.h"
 
 using namespace std;
   
@@ -23,6 +24,7 @@ int main(int argc, char const *argv[]) {
   string cfgpath;
   string cfgname;
   int num_cores;
+  int arg_index=1;
   bool test = false;
   if(argc == 1) {
     test = true;
@@ -32,10 +34,10 @@ int main(int argc, char const *argv[]) {
     assert(false);
   }
   else {
-    string in(argv[1]);
+    string in(argv[arg_index++]);
     assert(in == "-n");
-    num_cores = stoi(argv[2]);
-    cfgname = argv[3];
+    num_cores = stoi(argv[arg_index++]);
+    cfgname = argv[arg_index++];
   }
 
   cfgpath = cfgname;
@@ -49,15 +51,12 @@ int main(int argc, char const *argv[]) {
     simulator->registerCore("../workloads/test/output", cfgname, 0);    
   }
   else {
-    int arg_index=4;
     //register the core tiles
     cout << "numcores is" << num_cores << endl;
     for (int i=0; i<num_cores; i++) {
-      string wlpath(argv[arg_index]);
-      arg_index++;
-      string cfgname(argv[arg_index]);
+      string wlpath(argv[arg_index++]);
+      string cfgname(argv[arg_index++]);
       simulator->registerCore(wlpath, cfgname, i);
-      arg_index++;
     }
     cfg.verbLevel = -1;
     if(argc > arg_index) {
@@ -66,6 +65,10 @@ int main(int argc, char const *argv[]) {
         cfg.verbLevel = 2;
       cout << "[Sim] Verbose Output \n";
     }
+
+    Tile* tile = new Accelerator(simulator,2000);
+   
+    simulator->registerTile(tile);
     
     /********
     register the other tiles here

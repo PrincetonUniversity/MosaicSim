@@ -60,8 +60,8 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   //cout << "register core id " << id << endl;
   core->initialize(id);
   
-  registerTile(core, id);
-
+  //registerTile(core, id);
+  registerTile(core);
   //create a descq for every 2nd core, starting with core 0
   if(id % 2 == 0) {
     descq_vec.push_back(new DESCQ(cfg));
@@ -157,6 +157,7 @@ void Simulator::run() {
   cout << "clockspeed : " << clockspeed << endl;
   
   while(simulate > 0) {
+
     if(simulate==0) {
       break;
     }
@@ -164,12 +165,16 @@ void Simulator::run() {
     
       Tile* tile = it->second;
       uint64_t norm_tile_frequency=clockspeed / tile->clockspeed; //normalized cloockspeed. i.e., update every x cycles. note: automatically always an integer because of global clockspeed is lcm of local clockspeeds
-     
+
+      //time for tile to be called
       if(cycles%norm_tile_frequency==0) {
         
         vector<pair<Transaction*,uint64_t>> rejected_transactions;         
         //assume tiles never go from completed (process() returning false) back to not completed (process() returning true)
 
+        //only core tiles can affect whether to continue processing, accelerator tiles return false
+
+        //register activity of tile
         processVec.at(it->first)=tile->process();
         
         //process transactions
@@ -192,13 +197,12 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
-          simulate += cache->process();    
+          cache->process();    
           memInterface->process();          
         }                
       }
 
     }
-    
     simulate = accumulate(processVec.begin(), processVec.end(), 0);
     
     //---printing stats---    
