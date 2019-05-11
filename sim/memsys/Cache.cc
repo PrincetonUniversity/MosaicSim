@@ -174,7 +174,7 @@ void Cache::addTransaction(MemTransaction *t) {
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch
   
-  if(isL1 && t->src_id!=-1 && prefetch_distance>0) {
+  if(isL1 && t->src_id!=-1 && num_prefetched_lines>0) {
     //int cache_line = t->d->addr/size_of_cacheline;
     bool pattern_detected=false;
     bool single_stride=true;
@@ -207,7 +207,7 @@ void Cache::addTransaction(MemTransaction *t) {
     if(!t->issuedPrefetch && !t->isPrefetch) {
       if(pattern_detected) { 
 
-        for (int i=0; i<64; i++) {
+        for (int i=0; i<num_prefetched_lines; i++) {
           MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true); //prefetch some distance ahead
           prefetch_t->d=t->d;
           prefetch_t->isPrefetch=true;

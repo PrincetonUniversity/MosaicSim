@@ -151,6 +151,9 @@ void Config::getCfg(int id, int val) {
   case 24:
     prefetch_distance = val;  
     break;
+  case 25:
+    num_prefetched_lines = val;
+    break;
   default:
     break;
   }
