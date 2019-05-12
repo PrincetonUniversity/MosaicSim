@@ -5,7 +5,8 @@ using namespace std;
 #define UNUSED 0
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
- 
+
+  
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
 
   if(UNUSED)
@@ -50,8 +51,7 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
     free_store_ports--;
   if(t!= NULL) {
      if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
-      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));
-      outstanding_read_map.at(addr).push(t);
+      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));      
       if(cfg.SimpleDRAM) {
        
         simpleDRAM->addTransaction(false,addr);
@@ -61,9 +61,9 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       }
       stat.update("dram_access");     
      }
-     else {
-       outstanding_read_map.at(addr).push(t);
-     }
+     
+     outstanding_read_map.at(addr).push(t);
+     
   }
   else { //write
     
