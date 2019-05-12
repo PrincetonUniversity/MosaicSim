@@ -5,6 +5,8 @@
 #include "tile/DynamicNode.h"
 #include "tile/Tile.h"
 #include "tile/LoadStoreQ.h"
+#include "memsys/SimpleDRAM.h"
+
 using namespace std;
 
 class Context;
@@ -14,6 +16,7 @@ class Cache;
 class Transaction;
 class DESCQ;
 class TransQueue;
+class SimpleDRAM;
 
 class DESCCompare {
 public:
@@ -53,6 +56,7 @@ public:
   int clockspeed=2000; //default clockspeed in MHz
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
+  SimpleDRAM* simpleDRAM;
   map<DynamicNode*, tuple<long long, long long, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
   
   Simulator(string home);

@@ -8,7 +8,6 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
  
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
 
-  
   if(UNUSED)
     cout << id << clock_cycle;
   queue<Transaction*> &q = outstanding_read_map.at(addr);
@@ -52,22 +51,37 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
   if(t!= NULL) {
      if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
       outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));
-      mem->addTransaction(false, addr);
+      outstanding_read_map.at(addr).push(t);
+      if(cfg.SimpleDRAM) {
+       
+        simpleDRAM->addTransaction(false,addr);
+      }
+      else {
+        mem->addTransaction(false, addr);
+      }
       stat.update("dram_access");     
-    }
-    outstanding_read_map.at(addr).push(t);
- 
+     }
+     else {
+       outstanding_read_map.at(addr).push(t);
+     }
   }
   else { //write
     
     assert(isLoad == false);
-    mem->addTransaction(true, addr);
+    if(cfg.SimpleDRAM) {
+      simpleDRAM->addTransaction(true, addr);
+    }
+    else {
+      mem->addTransaction(true, addr);
+    }
     stat.update("dram_access");
   }
 }
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
   if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))
     return false;
-  
+  if(cfg.SimpleDRAM) {
+    return simpleDRAM->willAcceptTransaction(addr); 
+  }
   return mem->willAcceptTransaction(addr);
 }

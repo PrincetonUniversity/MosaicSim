@@ -27,7 +27,7 @@ public:
   unordered_set<uint64_t> prefetch_set;
   int pattern_threshold=4; //how many close addresses to check to determine spatially local accesses
   int min_stride=4; //bytes of strided access
-  
+
   vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
@@ -42,8 +42,8 @@ public:
   int prefetch_distance=0;
   int num_prefetched_lines=1;
   FunctionalCache *fc;
-  
-  Cache(Config cache_cfg): 
+
+  Cache(Config cache_cfg):
     latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), fc(new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize)) {
     free_load_ports = load_ports;
     free_store_ports = store_ports;

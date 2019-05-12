@@ -3,8 +3,6 @@
 #include "DRAM.h"
 #include "../tile/Core.h"
 bool Cache::process() {
-
-
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
       break;

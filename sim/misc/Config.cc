@@ -154,6 +154,15 @@ void Config::getCfg(int id, int val) {
   case 25:
     num_prefetched_lines = val;
     break;
+  case 26:
+    SimpleDRAM = val;
+    break;
+  case 27:
+    dram_bw = val;
+    break;
+  case 28:
+    dram_latency = val;
+    break;
   default:
     break;
   }

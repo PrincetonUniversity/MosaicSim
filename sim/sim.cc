@@ -146,7 +146,7 @@ uint64_t findlcm(vector<uint64_t> numbers, int n)
 
 void Simulator::initDRAM(int clockspeed) {
   //set the DRAMSim clockspeed
-  memInterface->mem->setCPUClockSpeed(clockspeed * 1000000);
+  memInterface->initialize(clockspeed);
 }
 
 void Simulator::run() {
@@ -197,8 +197,8 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
-          cache->process();    
-          memInterface->process();          
+          cache->process();          
+          memInterface->process();                  
         }                
       }
 
