@@ -19,6 +19,7 @@ class Config;
 class Statistics;
 class Cache;
 
+
 extern Config cfg;
 extern Statistics stat;
 
