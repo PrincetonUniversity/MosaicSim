@@ -1,0 +1,6 @@
+db/
+mem/
+sc_components/
+verilog/
+*.lib
+memories
