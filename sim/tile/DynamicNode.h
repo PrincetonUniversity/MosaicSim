@@ -4,9 +4,9 @@
 #include <set>
 #include <queue>
 #include "../graph/Graph.h"
-//#include "../sim.h"
 
 using namespace std;
+
 //class DESCQ;
 class Graph;
 class BasicBlock;
@@ -17,8 +17,8 @@ class Context;
 class ExampleTransaction;
 typedef pair<DynamicNode*, uint64_t> Operator;
 typedef enum {NONE, DESC_FWD, LSQ_FWD, PENDING, RETURNED, FWD_COMPLETE} MemStatus; //pending: sent to mem system, returned: was sent and has returned back, none: no mem access required, desc_fwd:can be handled by decoupled stl fwding, lsq_fwd: can be handled by lsq forwarding
-
 typedef enum {DISPATCH, LEFT_ROB} Stage; //stage of "pipeline" of dynamic node 
+
 class DynamicNode {
 public:
   Node *n;
@@ -71,6 +71,7 @@ public:
       return false;
   }
 };
+
 class DynamicNodePointerCompare {
 public:
   bool operator() (const DynamicNode* l, const DynamicNode* r) const {
@@ -107,7 +108,5 @@ public:
   void process();
   void complete();
 };
-
-
 
 #endif

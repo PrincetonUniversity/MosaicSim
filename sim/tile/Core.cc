@@ -13,9 +13,11 @@ Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
 bool Core::canAccess(bool isLoad) {
   return sim->canAccess(this, isLoad);
 }
+
 bool Core::communicate(DynamicNode *d) {
   return sim->communicate(d);
 }
+
 void Core::access(DynamicNode* d) {
   //collect stats on load latency
   if(d->type==LD || d->type==LD_PROD) {
@@ -79,7 +81,7 @@ void IssueWindow::issue() {
   issueCount++;
 }
 
- //handle completed memory transactions
+//handle completed memory transactions
 void Core::accessComplete(MemTransaction *t) {
   int tid = t->id;
 
@@ -123,9 +125,9 @@ void Core::initialize(int id) {
   }
   
   // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
-  if (local_cfg.cf_mode == 0) 
+  if (local_cfg.cf_mode == 0)
     context_to_create = 1;
-  else if (local_cfg.cf_mode == 1)  
+  else if (local_cfg.cf_mode == 1)
     context_to_create = cf.size();
   else
     assert(false);
@@ -238,8 +240,7 @@ bool Core::process() {
     sim->get_descq(this)->process();    
   }
   
-  
-  if(cfg.verbLevel >= 0)
+  if(cfg.verbLevel >= 5)
     cout << "[Cycle: " << cycles << "]\n";
   if(cycles % 1000000 == 0 && cycles !=0) {
     curr = Clock::now();
@@ -266,8 +267,7 @@ bool Core::process() {
     
     Context *c = *it;
     c->complete();
-   
-    
+       
     if(it!=live_context.begin()) {   
       assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
     }
@@ -276,14 +276,14 @@ bool Core::process() {
       it++;
     else {
       it = live_context.erase(it);
-      
     }
-    
   }
+
   if(live_context.size() > 0)
     simulate = true;
+  
+  // create all the needed new contexts (eg, whenever a terminator node is reached a new context must be created)
   int context_created = 0;
-
   for (int i=0; i<context_to_create; i++) {
     if (createContext()) {
       simulate = true;
@@ -292,7 +292,7 @@ bool Core::process() {
     else
       break;
   }
-  context_to_create -= context_created;   // some contexts can be left pending for later cycles
+  context_to_create -= context_created;   // note that some contexts could be left pending for later cycles
   cycles++;
   
   return simulate;

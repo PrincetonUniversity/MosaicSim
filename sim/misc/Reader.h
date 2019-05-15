@@ -23,9 +23,7 @@ public:
   }
 
   void readGraph(std::string name, Graph &g) {
-    cout<< "Entered readgraph \n" ;
     ifstream cfile(name);
-    cout << "Opened file: " << name << endl ;
     if (cfile.is_open()) {
       string line;
       string temp;
@@ -114,24 +112,24 @@ public:
         }
         i++;
       }
-      cout << "Done reading edgelist \n";
+//      cout << "Done reading edgelist \n";
       if (getline(cfile,line))
         assert(false);
     }
     else {
-      cout << "Error opening Graph file\n";
+      cout << "[ERROR] Cannot open Graph file!\n";
       assert(false);
     }
     cfile.close();
-    cout << "[2] Finished Reading Graph (" << name << ") \n";
+    cout << "[SIM] Finished Reading Data Dependency Graph (" << name << ") \n";
     
   }
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
-  void readProfMemory(ifstream& memfile, std::unordered_map<int, std::queue<uint64_t> > &memory) {
-
+  void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
+    ifstream memfile(name);
     if (memfile.is_open()) {
       while ( getline(memfile,line) ) {
         vector<string> s = split(line, ',');
@@ -143,14 +141,14 @@ public:
       }
     }
     else {
-      cout << "Error opening Memory profiling file\n";
+      cout << "[ERROR] Cannot open Memory profiling file!\n";
       assert(false);
     }
-
+    cout << "[SIM] Finished Reading Memory trace (" << name << ")\n";
     memfile.close();
   }
 
-  // Read Dynamic Control Flow data from profiling file. 
+  // Read Dynamic Control Flow data from the profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
   // vector <cf> will be the sequential list of executed BBs
   void readProfCF(std::string name, std::vector<int> &cf) {
@@ -178,10 +176,10 @@ public:
       }
     }
     else {
-      cout << "Error opening CF profiling file\n";
+      cout << "[ERROR] Cannot open CF profiling file!\n";
       assert(false);
     }
-    cout <<"[4] Finished Reading CF - Total number of contexts : " << cf.size() << "\n";
+    cout <<"[SIM] Finished Reading ControlFlow trace - Total contexts: " << cf.size() << "\n";
     cfile.close();
   }
 };

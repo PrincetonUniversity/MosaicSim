@@ -14,7 +14,7 @@
 
 1,SimpleDRAM #set 1 for simple dram model, 0 for DRAMSim
 12,dram_bw #peak DRAM Bandwidth (GB/s)
-300,dram_latency #latency in cycles
+200,dram_latency #latency in cycles
 
 4,mem_load_ports
 4,mem_store_ports

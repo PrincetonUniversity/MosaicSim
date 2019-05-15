@@ -9,6 +9,7 @@
 #include <numeric>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 using namespace std;
@@ -34,25 +35,22 @@ DESCQ* Simulator::get_descq(Tile* tile) {
   return descq_vec.at(tile_id/2);
 }
 
-void Simulator::registerCore(string wlpath, string cfgname, int id) {
-  string name = "Pythia Core";
-  string cfgpath = cfgname;
+void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int id) {
+  string name = "Pythia Core "+ to_string(id);
+
   string cname = wlpath + "/ctrl.txt";     
   string gname = wlpath + "/graphOutput.txt";
   string mname = wlpath + "/mem.txt";   
   
   Core* core = new Core(this, clockspeed);
-  core->local_cfg.read(cfgpath);
+  core->local_cfg.read(cfgpath+cfgname);
   core->name=name;
+
+  // Read the Program's Static Data Dependency Graph + dynamic traces for control flow and memory
   Reader r;
   r.readGraph(gname, core->g);
-  ifstream memfile(mname);
-  
-  r.readProfMemory(memfile , core->memory);
-  cout << "[3] Finished Reading Memory Profile (" << mname << ")\n";
-  
+  r.readProfMemory(mname, core->memory);
   r.readProfCF(cname, core->cf);
-
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
@@ -154,7 +152,9 @@ void Simulator::run() {
   std::vector<int> processVec(tiles.size(), 0);
   int simulate = 1;
   clockspeed=findlcm(clockspeedVec,clockspeedVec.size());
-  cout << "clockspeed : " << clockspeed << endl;
+  cout << "\n[SIM] Clock Speed : " << clockspeed << endl;
+  
+  cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   
   while(simulate > 0) {
 
@@ -212,12 +212,12 @@ void Simulator::run() {
       uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
       //uint64_t tdiff_mins = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
       double instr_rate = ((double)(stat.get("total_instructions") - last_instr_count)) / tdiff;
-      cout << "Global Simulation Speed: " << instr_rate << " Instructions per ms \n";
+      cout << "\nGlobal Simulation Speed: " << instr_rate << " Instructions per ms \n";
       
       uint64_t remaining_instructions = total_instructions - last_instr_count; 
       
       double remaining_time = (double)remaining_instructions/(60000*instr_rate);
-      cout << "Remaining Time: " << (int)remaining_time << " mins \n Remaining Instructions: " << remaining_instructions << endl;
+      cout << "Remaining Time: " << (int)remaining_time << " mins \nRemaining Instructions: " << remaining_instructions << endl << endl;
       
       last_instr_count = stat.get("total_instructions");
       last_time = curr_time;
@@ -228,6 +228,7 @@ void Simulator::run() {
     }
     cycles++;
   }
+  cout << "[SIM] ------- End of Simulation!!! ------------------------" << endl << endl;
   
   //print stats for each pythia tile
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
@@ -235,13 +236,12 @@ void Simulator::run() {
     if(Core* core=dynamic_cast<Core*>(tile)) {
       stat.set("cycles", core->cycles);
       core->local_stat.set("cycles", core->cycles);
-      cout << "----------------" << core->name << " General Stats--------------\n";
+      cout << "----------------" << core->name << " Stats--------------\n";
       core->local_stat.print();
     }
   }
   
   cout << "----------------GLOBAL STATS--------------\n";
-  
   stat.print();
   memInterface->mem->printStats(true);
   curr_time=Clock::now();
@@ -298,8 +298,6 @@ void Simulator::run() {
 
   //calculate and print stats on load latencies
   if(load_stats_map.size()>0) {
-    ofstream loadfile;
-    loadfile.open("loadStats");
     long long totalLatency=0;
     string outstring="";
     for(auto entry:load_stats_map) {
@@ -319,11 +317,22 @@ void Simulator::run() {
       //assert(diff>0);
       outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
-    
-    loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
-    loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-    loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
-    loadfile << outstring;
+        
+    // JLA: push all the "Load Stats" into the standard error or into a file depending on the verbosity level (IMPROVE THIS!)
+    if(cfg.verbLevel >= 2) {
+      cerr << "Total Load Latency (cycles): " << totalLatency << endl;
+      cerr << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
+      cerr << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+      cerr << outstring;
+    }
+    else {
+      ofstream loadfile;
+      loadfile.open("loadStats");
+      loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
+      loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
+      loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+      loadfile << outstring;
+    }
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 
@@ -375,7 +384,6 @@ void Simulator::accessComplete(MemTransaction *t) {
     core->accessComplete(t);
   }
 }
-
 
 void DESCQ::process() {
   while(true) {

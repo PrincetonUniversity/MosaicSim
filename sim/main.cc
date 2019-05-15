@@ -1,7 +1,8 @@
 #include <iostream>
 #include <string>
-#include "sim.h"
 #include <chrono>
+#include <unistd.h>
+#include "sim.h"
 #include "tile/Accelerator.h"
 
 using namespace std;
@@ -13,61 +14,73 @@ class Core;
 
 int main(int argc, char const *argv[]) {
 
-  string filePath = argv[0];
-  
-  size_t slash = filePath.find_last_of("/");
-  
-  string dirPath = (slash != std::string::npos) ? filePath.substr(0, slash) : filePath;
-  string pythia_home= dirPath+"/..";
-    
+  string pythia_home;
   string wlpath;
   string cfgpath;
   string cfgname;
   int num_cores;
   int arg_index=1;
   bool test = false;
-  if(argc == 1) {
+
+  // set pythia home
+  if(const char *p = std::getenv("PYTHIA_HOME"))
+     pythia_home = p;
+  else {   // infer the home from the simulator binary's path
+     char f[1024]; string f2;
+     readlink("/proc/self/exe", f, 1024);
+     f2 = f;
+     pythia_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";
+  }
+
+  // set some default parameters
+  num_cores = 1;
+  cfgpath = pythia_home+"sim/config/";
+  cfgname = "sim_default.txt";
+
+  if(argc == 1)           // if no arguments provided then use default config files (or we could print an usage help text)
     test = true;
-    num_cores = 1;
-    cfgname = "default";
-    cout << "not enough args" << endl;
+  else if(argc == 2) {    // next argument must be -n, but if not followed by a number then abort
+    cout << "[ERROR] number of cores not properly set.\n";
     assert(false);
   }
-  else {
-    string in(argv[arg_index++]);
+  else if(argc >= 3) {
+    string in(argv[arg_index++]);    // the next paramenter -n indicates the number of cores
     assert(in == "-n");
     num_cores = stoi(argv[arg_index++]);
-    cfgname = argv[arg_index++];
+    cfgname = argv[arg_index++];     // next paramenter is the GLOBAL config file (we assume that it already includes the path)
+    cfgpath = "";
   }
-
-  cfgpath = cfgname;
-  cfg.read(cfgpath);
+  // read global configuration
+  cfg.read(cfgpath+cfgname);
+  cfg.verbLevel = -1;
 
   Simulator* simulator=new Simulator(pythia_home);
-   
   simulator->init_time=chrono::high_resolution_clock::now();
 
-  if(test) {
-    simulator->registerCore("../workloads/test/output", cfgname, 0);    
-  }
+  if(test)
+    simulator->registerCore("../workloads/test/output", cfgpath, "core_inorder.txt", 0);
   else {
-    //register the core tiles
-    cout << "numcores is" << num_cores << endl;
-    for (int i=0; i<num_cores; i++) {
-      string wlpath(argv[arg_index++]);
-      string cfgname(argv[arg_index++]);
-      simulator->registerCore(wlpath, cfgname, i);
+    // check the workload path and the local config is provided 
+    if(argc < 4) {
+       cout << "[ERROR] workload path or core's configuration not provided.\n";
+       assert(false);
     }
-    cfg.verbLevel = -1;
+    //register the core tiles
+    cout << "[SIM] NumCores is: " << num_cores << endl;
+    for (int i=0; i<num_cores; i++) {
+      string wlpath(argv[arg_index++]);   // next paramenter is the WORKLOAD path
+      string cfgname(argv[arg_index++]);  // next paramenter is the core configfile (we assume that it already includes the path)
+      cfgpath="";
+      simulator->registerCore(wlpath, cfgpath, cfgname, i);
+    }
     if(argc > arg_index) {
       string verbosity(argv[arg_index]);
       if(verbosity == "-v")
         cfg.verbLevel = 2;
-      cout << "[Sim] Verbose Output \n";
+      cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
     }
 
     Tile* tile = new Accelerator(simulator,2000);
-   
     simulator->registerTile(tile);
     
     /********
@@ -83,14 +96,10 @@ int main(int argc, char const *argv[]) {
     or
     simulator->registerTile(tile, tid); //pick tile id, but unique from other already assigned ones, starting from num_cores
     *********/        
-    
   }
 
   //set the DRAMSim clockspeed based on Tile0's clockspeed, assume tile 0 is a core
-  
   simulator->initDRAM(simulator->tiles[0]->clockspeed);    
-  
-
   
   simulator->run();
   return 0;

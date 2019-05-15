@@ -146,7 +146,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     //if it's a TERMINATOR with branch prediction mode, it'll just get activated
     d->tryActivate(); 
   }
-  print("Created (BB:" + to_string(bb->id) + ") " , 0);
+  print("Created (BB:" + to_string(bb->id) + ") " , 5);
 }
 
 void DynamicNode::register_issue_try() {
@@ -222,9 +222,9 @@ void DynamicNode::register_issue_success() {
 uint64_t trans_id=0;
 
 void Context::process() {
-  
   bool window_full=false;
   bool issue_stats_mode=false; 
+
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
    
     DynamicNode *d = *it;
@@ -232,7 +232,7 @@ void Context::process() {
     if(window_full) {     
       if (issue_stats_mode) {
         d->register_issue_try();
-        d->print(Issue_Failed, 0);     
+        d->print(Issue_Failed, 5);
         next_issue_set.insert(d);
         ++it;
         continue;
@@ -241,10 +241,10 @@ void Context::process() {
         break;
       }      
     }    
+
     bool window_available = core->window.canIssue(d);
     window_full=!window_available;
     bool res = window_available;
-
     assert(!d->issued);
     /*
     if(d->type == TERMINATOR && res) {    
@@ -273,9 +273,9 @@ void Context::process() {
     else {
       core->window.issue();
       d->issued=true;
-      if(cfg.verbLevel == 2) {
+      if(cfg.verbLevel >= 5) {
         cout << "Cycle: " << core->cycles << " \n"; 
-        d->print("Issued", -10);
+        d->print("Issued", 5);
       }
       if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
         insertQ(d);        
@@ -315,8 +315,7 @@ void Context::process() {
 void Context::complete() {
   for(auto it = nodes_to_complete.begin(); it != nodes_to_complete.end(); ++it) {
     DynamicNode *d =*it;
-    d->finishNode();
-  
+    d->finishNode();  
   }
   
   nodes_to_complete.clear();
@@ -325,7 +324,7 @@ void Context::complete() {
     if (core->local_cfg.max_active_contexts_BB > 0) {      
       core->outstanding_contexts.at(bb)++;      
     }
-    print("Finished (BB:" + to_string(bb->id) + ") ", 0);
+    print("Finished (BB:" + to_string(bb->id) + ") ", 5);
     // update GLOBAL Stats    
     stat.update("contexts");
     stat.update(total_instructions, completed_nodes.size());
@@ -348,6 +347,7 @@ void Context::complete() {
       stat.update(core->instrToStr(d->type));
       core->local_stat.update(core->instrToStr(d->type));
       
+      //delete d; //JLA
     }
   }
 }
@@ -399,9 +399,9 @@ bool DynamicNode::operator== (const DynamicNode &in) {
   catch(...) {
     cout << "Failing nodes: ";
     DynamicNode orig=*this;
-    orig.print("failing node", -10);
+    orig.print("failing node", 5);
     DynamicNode d=in;
-    d.print("failing node arg", -10);
+    d.print("failing node arg", 5);
     assert(false);
   }
   */
@@ -421,16 +421,15 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
   cout << "after sf \n";
   */
   //DynamicNode orig=*this;
-  //orig.print("failing node", -10);
+  //orig.print("failing node", 5);
   //DynamicNode d=in;
-  //d.print("failing node arg", -10);
+  //d.print("failing node arg", 5);
   if(c->id < in.c->id) 
     return true;
   if(c->id == in.c->id && n->id < in.n->id)
     return true;
   else
     return false;
-  
 /*  
   try {
     if(c->id < in.c->id) 
@@ -443,9 +442,9 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
   catch(...) {
     cout << "Failing nodes: ";
     DynamicNode orig=*this;
-    orig.print("failing node", -10);
+    orig.print("failing node", 5);
     DynamicNode d=in;
-    d.print("failing node arg", -10);
+    d.print("failing node arg", 5);
     assert(false);
   }
 */ 
@@ -455,7 +454,6 @@ ostream& operator<<(ostream &os, DynamicNode &d) {
   if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR ||  d.n->typeInstr==LD_PROD) {
     descid=" [DESC ID: " + to_string(d.desc_id) + "]";
   }
-  
   os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << "] [Instruction: " << d.n->name <<"] ";
   return os;
 }
@@ -471,8 +469,8 @@ void DynamicNode::handleMemoryReturn() {
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
   }
-  print(Memory_Data_Ready, 1);
-  print(to_string(outstanding_accesses), 1);
+  print(Memory_Data_Ready, 5);
+  print(to_string(outstanding_accesses), 5);
   if(type == LD || type == LD_PROD) {
     if(core->local_cfg.mem_speculate) {
       if(outstanding_accesses > 0)
@@ -506,7 +504,7 @@ void DynamicNode::tryActivate() {
   }
 
   if(issued || completed) {
-    this->print("trying to activate issued or completed instruction",-10);
+    this->print("trying to activate issued or completed instruction",5);
     assert(false);
   }
   /*  if(type == TERMINATOR) {    
@@ -520,7 +518,7 @@ void DynamicNode::tryActivate() {
   
   //if you don't need to wait for parents, 2 parents can tryActivate() in same cycle, which 
   if(must_wait_for_parents && c->issue_set.find(this) != c->issue_set.end()) {
-    print("should not already be issued" , -10);
+    print("should not already be issued" , 5);
     assert(false);
   }
   
@@ -529,7 +527,6 @@ void DynamicNode::tryActivate() {
     core->lsq.resolveAddress(this);
   }
   c->issue_set.insert(this);
-  //}
 }
 
 bool DynamicNode::issueCompNode() { 
@@ -602,15 +599,15 @@ bool DynamicNode::issueMemNode() {
   speculated = speculate;
   if (type == LD) {
     if(forwardRes == 1) { 
-      print("Retrieves Forwarded Data", 1);
+      print("Retrieves Forwarded Data", 5);
       c->insertQ(this);
     }
     else if(forwardRes == 0 && core->local_cfg.mem_speculate) { 
-      print("Retrieves Speculatively Forwarded Data", 1);
+      print("Retrieves Speculatively Forwarded Data", 5);
       c->speculated_set.insert(this);
     }
     else {
-      print(Access_Memory_Hierarchy, 1);
+      print(Access_Memory_Hierarchy, 5);
       core->access(this);  //send to mem hierarchy
       if (speculate) {
         outstanding_accesses++;
@@ -618,7 +615,7 @@ bool DynamicNode::issueMemNode() {
     }
   }
   else if (type == ST) {
-    print(Access_Memory_Hierarchy, 1);
+    print(Access_Memory_Hierarchy, 5);
     core->access(this); //send to mem hierarchy
   }
   return true;
@@ -693,7 +690,6 @@ bool DynamicNode::issueDESCNode() {
         descq->send_runahead_map[desc_id] = core->cycles;
       }
     }
-    
     if(type==RECV) {
       if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
         descq->send_runahead_map[desc_id] = core->cycles - descq->send_runahead_map[desc_id];
@@ -702,7 +698,6 @@ bool DynamicNode::issueDESCNode() {
         descq->send_runahead_map[desc_id] = core->cycles;
       }
     }
-    
     if(type == STVAL) {
       can_exit_rob=true;
       stat.update(stval_issue_success);
@@ -737,7 +732,7 @@ bool DynamicNode::issueDESCNode() {
         //cout << "SVB_FWD: " << stl_fwd_count << endl;
       }
       else { //must go to memory
-        print(Access_Memory_Hierarchy, 1);
+        print(Access_Memory_Hierarchy, 5);
         core->access(this); //send out load to mem hier       
       }
       stat.update(ld_prod_issue_success);
@@ -758,17 +753,17 @@ void DynamicNode::finishNode() {
     descq->debug_stval_set.insert(desc_id);
   }
   if(completed) {
-    print("already completed ", -10);
+    print("already completed ", 5);
     assert(false);
   }
-  if(cfg.verbLevel == 2) {
+  if(cfg.verbLevel >= 4) {
     cout << "Cycle: " << core->cycles << " \n"; 
-    print("Completed", -10);
+    print("Completed", 5);
   }
   //these assertions test to make sure decoupling dependencies are maintained
   if(n->typeInstr==RECV && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()) {
     cout << "Assertion about to fail for DESCID " << desc_id << endl;
-    print("recv trying to jump", -10);
+    print("recv trying to jump", 5);
   }
 
   assert(!((n->typeInstr==RECV) && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()));         

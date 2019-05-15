@@ -26,14 +26,23 @@ public:
   DRAMSim::MultiChannelMemorySystem *mem;
 
   DRAMSimInterface(Simulator* sim, bool ideal, int load_ports, int store_ports) : sim(sim),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
-    
- 
+
+    // create DRAMsim2 object
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
     DRAMSim::TransactionCompleteCB *write_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::write_complete);
-    mem = DRAMSim::getMemorySystemInstance(sim->pythia_home+"/sim/config/DDR3_micron_16M_8B_x8_sg15.ini", sim->pythia_home+"/sim/config/dramsys.ini", "..", "Apollo", 16384); 
-    mem->RegisterCallbacks(read_cb, write_cb, NULL);
+//    string ini_file="sim/config/DDR3_micron_16M_8B_x8_sg15.ini";
+    string ini_file="sim/config/DDR3_micron_16M_8B_x8_sg3.ini";
+//    string ini_file="sim/config/DDR3_micron_32M_8B_x8_sg25E.ini";
+//    string ini_file="sim/config/DDR3_micron_64M_8B_x4_sg15.ini";
+//    string ini_file="sim/config/DDR3_micron_64M_8B_x8_sg15.ini";
+//    string ini_file="sim/config/DDR3_micron_64M_8B_x8_sg3.ini";
     
+    mem = DRAMSim::getMemorySystemInstance(sim->pythia_home+ini_file, sim->pythia_home+"sim/config/dramsys.ini", "..", "Pythia", 65536); 
+    mem->RegisterCallbacks(read_cb, write_cb, NULL);
+
+    // create simple DRAM object
     simpleDRAM = new SimpleDRAM(sim, this, cfg);
+    
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }

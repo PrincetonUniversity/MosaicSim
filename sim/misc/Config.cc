@@ -175,8 +175,8 @@ void Config::read(std::string name) {
   
   int id = 0;
   
-  cout << "\n---------CONFIGS---------\n";
-  cout << name << endl;
+  cout << "\n----Reading CONFIGURATION file---------\n";
+  cout << "File: " << name << endl;
   if (cfile.is_open()) {
     while (getline (cfile,line)) {
       
@@ -198,12 +198,12 @@ void Config::read(std::string name) {
       cout << "("<<id<<")"<< " " << param << ": " << stoi(s.at(0)) << endl;
       //id++;
     }
-    cout << "----------------------------\n\n";
   }
   else {
-    cout << "[ERROR] Cannot open Config file\n";
+    cout << "[ERROR] Cannot open Config file.\n";
     assert(false);
   }
   cfile.close();
   cout << "[INFO] Finished Reading Config File (" << name << ") \n";
+  cout << "------------------------------------\n\n";
 }
