@@ -37,7 +37,7 @@ class SimpleDRAM {
   int Peak_BW=12; //GB/s
   priority_queue<MemOperator, vector<MemOperator>, MemOpCompare> pq;
   uint64_t trans_id=0;
-  int epoch_length=100; //cycles
+  int epoch_length=10; //cycles
   int bytes_per_req=4;
   long max_req_per_epoch;
   long request_count=0;

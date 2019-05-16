@@ -35,8 +35,18 @@ public:
   }
 };
 
+class Barrier {
+public:
+  int num_threads=0;
+  int count=0;
+  map<int, DynamicNode*> barrier_map; //map from tile_id to DN 
+  bool register_barrier(DynamicNode* d); //return true if barrier successfully registered, free all barriers once thread count is reached
+};
+
+
 class Simulator {
 public:
+
   chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time;
@@ -48,6 +58,7 @@ public:
   vector<uint64_t> clockspeedVec;
   DESCQ* descq;
   vector<DESCQ*> descq_vec;
+  Barrier* barrier = new Barrier();
   Cache* cache;
   string pythia_home;
   //every tile has a transaction priority queue

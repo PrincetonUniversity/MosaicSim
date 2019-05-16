@@ -85,6 +85,7 @@ void GraphGen::detectComm(Function &func) {
     for (auto &inst : bb) {
       Instruction *i = &(inst);
       Node *n = nodeMap[i];
+    
       if (CallInst *cinst = dyn_cast<CallInst>(&inst)) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
@@ -96,6 +97,7 @@ void GraphGen::detectComm(Function &func) {
             }
             else if(f->getName().str().find("desc_supply_load_produce") != std::string::npos) {
               //errs() << "[LD_PROD]"<< *i << "\n";
+              //assert(false);
               n->itype = LD_PROD;
               ld_prod_count++;
             }
@@ -113,6 +115,11 @@ void GraphGen::detectComm(Function &func) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = STVAL;
               stval_count++;
+            }
+            else if (f->getName().str().find("_kmpc_barrier") != std::string::npos) {
+              //errs() << "[BARRIER]"<< *i << "\n";
+              n->itype = BARRIER;
+              //assert(false);
             }
          
             else if(f->getName().str().find("dec_bs_vector_inc") != std::string::npos) {
@@ -145,6 +152,7 @@ void GraphGen::detectComm(Function &func) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = CORE_INTERRUPT;
             }
+           
           }
         }
       }

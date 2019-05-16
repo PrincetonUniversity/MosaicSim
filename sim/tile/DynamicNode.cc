@@ -277,7 +277,9 @@ void Context::process() {
         cout << "Cycle: " << core->cycles << " \n"; 
         d->print("Issued", -10);
       }
-      if(d->type != LD && !d->isDESC) { //DESC instructions are completed by desq
+
+  
+      if(d->type != LD && !d->isDESC && d->type!=BARRIER) { //DESC instructions are completed by desq and BARRIER instrs by the sim barrier object
         insertQ(d);        
       }
       if(issue_stats_mode) {
@@ -540,6 +542,13 @@ bool DynamicNode::issueCompNode() {
     else
       core->available_FUs.at(n->typeInstr)--;
   }
+
+  //free up all barriers or register this one
+  if(type == BARRIER) {    
+    return core->sim->barrier->register_barrier(this);;  
+  }
+  
+  
   stat.update(comp_issue_success);
   core->local_stat.update(comp_issue_success);
   //issued = true;
