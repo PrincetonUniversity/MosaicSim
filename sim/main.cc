@@ -59,7 +59,7 @@ int main(int argc, char const *argv[]) {
       simulator->registerCore(wlpath, cfgname, i);
     }
     cfg.verbLevel = -1;
-    //do a while loop here with same if statement, checking for decoupling, output and verbosity, and debug
+    //do a while loop here with same if statement, checking for decoupling, output and verbosity, and debug 
     if(argc > arg_index) {
       string verbosity(argv[arg_index]);
       if(verbosity == "-v")
