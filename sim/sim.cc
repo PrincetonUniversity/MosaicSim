@@ -71,7 +71,10 @@ void Simulator::registerCore(string wlpath, string cfgname, int id) {
   string mname = wlpath + "/mem.txt";   
   
   Core* core = new Core(this, clockspeed);
+  
+  //  if(!decoupling_mode || id % 2 ==0)   
   barrier->num_threads++;
+  
   core->local_cfg.read(cfgpath);
   core->name=name;
   Reader r;

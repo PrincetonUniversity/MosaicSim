@@ -57,6 +57,10 @@ public:
   int tileCount=0;
   vector<uint64_t> clockspeedVec;
   DESCQ* descq;
+  bool decoupling_mode=false;
+  bool debug_mode=false;
+  string output;
+  
   vector<DESCQ*> descq_vec;
   Barrier* barrier = new Barrier();
   Cache* cache;

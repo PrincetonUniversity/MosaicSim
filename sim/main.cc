@@ -59,14 +59,25 @@ int main(int argc, char const *argv[]) {
       simulator->registerCore(wlpath, cfgname, i);
     }
     cfg.verbLevel = -1;
-    //do a while loop here with same if statement, checking for decoupling, output and verbosity, and debug 
-    if(argc > arg_index) {
-      string verbosity(argv[arg_index]);
-      if(verbosity == "-v")
-        cfg.verbLevel = 2;
-      cout << "[Sim] Verbose Output \n";
-    }
+    //do a while loop here with same if statement, checking for decoupling, output and verbosity, and debug
 
+    while(argc > arg_index) {
+      string curr_arg(argv[arg_index++]);
+      if(curr_arg == "-v") {
+        cfg.verbLevel = 2;
+        cout << "[Sim] Verbose Output \n";      
+      }
+      else if(curr_arg == "-d") {
+        simulator->decoupling_mode=true;
+      }
+      else if(curr_arg == "-o") {
+        
+      }
+      else if(curr_arg == "-debug") {
+        simulator->debug_mode=true;
+      }
+
+    }
     Tile* tile = new Accelerator(simulator,2000);
    
     simulator->registerTile(tile);
