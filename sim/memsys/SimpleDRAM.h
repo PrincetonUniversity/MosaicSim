@@ -37,7 +37,7 @@ class SimpleDRAM {
   int Peak_BW=12; //GB/s
   priority_queue<MemOperator, vector<MemOperator>, MemOpCompare> pq;
   uint64_t trans_id=0;
-  int epoch_length=100; //cycles
+  int epoch_length=10; //cycles
   int bytes_per_req=4;
   long max_req_per_epoch;
   long request_count=0;
@@ -50,16 +50,8 @@ class SimpleDRAM {
   DRAMSimInterface* memInterface;
     
   unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
-  SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config) {
-    latency=dram_config.dram_latency; Peak_BW=dram_config.dram_bw; sim=simulator; memInterface=dramInterface; 
-  }
-  void initialize(int coreClockspeed) {
-    //GB/s rate / (bytes/req*clockspeed)
-    core_clockspeed=coreClockspeed;
-    long long num=(1000*Peak_BW*epoch_length);
-    long long denom=(bytes_per_req*core_clockspeed);
-    max_req_per_epoch=num/denom;
-  }
+  SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config); 
+  void initialize(int coreClockspeed);
   bool process();
   void addTransaction(bool isStore, uint64_t addr);
   bool willAcceptTransaction(uint64_t addr);

@@ -35,22 +35,51 @@ DESCQ* Simulator::get_descq(Tile* tile) {
   return descq_vec.at(tile_id/2);
 }
 
+bool Barrier::register_barrier(DynamicNode* d) {
+  //make sure you don't have 2 barriers from same core at once
+  
+  d->print("registered", -10);
+  cout << "num threads: " <<num_threads << endl;
+  if(barrier_map.find(d->core->id)!=barrier_map.end()) {
+    return false;
+  }
+
+  int map_size=barrier_map.size();
+  if(map_size==num_threads-1) {
+    d->print("freed all",-10);
+    DynamicNode* bd;
+     //free all barriers, remove from map
+    for(auto it=barrier_map.begin(); it!=barrier_map.end();) {
+
+      bd=it->second;
+      bd->c->insertQ(bd); //complete instruction
+      it=barrier_map.erase(it); //erase and get next barrier
+    }
+    d->c->insertQ(d);
+    return true;
+  }
+  barrier_map.insert({d->core->id,d});
+  return true;
+}
+
 void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int id) {
   string name = "Pythia Core "+ to_string(id);
-
-  string cname = wlpath + "/ctrl.txt";     
-  string gname = wlpath + "/graphOutput.txt";
-  string mname = wlpath + "/mem.txt";   
+  string gName = wlpath + "/graphOutput.txt";
+  string cfName = wlpath + "/ctrl.txt";     
+  string memName = wlpath + "/mem.txt";   
   
   Core* core = new Core(this, clockspeed);
   core->local_cfg.read(cfgpath+cfgname);
   core->name=name;
-
+  
+  //  if(!decoupling_mode || id % 2 ==0)   
+  barrier->num_threads++;
+  
   // Read the Program's Static Data Dependency Graph + dynamic traces for control flow and memory
   Reader r;
-  r.readGraph(gname, core->g);
-  r.readProfMemory(mname, core->memory);
-  r.readProfCF(cname, core->cf);
+  r.readGraph(gName, core->g);
+  r.readProfMemory(memName, core->memory);
+  r.readProfCF(cfName, core->cf);
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
@@ -101,6 +130,7 @@ bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
 void Simulator::registerTile(Tile* tile) {
   
   assert(tiles.find(tileCount)==tiles.end());
+  
   tile->id=tileCount;
   tiles[tileCount]=tile;
   tileCount++;
@@ -110,6 +140,7 @@ void Simulator::registerTile(Tile* tile) {
 
 void Simulator::registerTile(Tile* tile, int tid) {
   //cout << "register tile id " << tid << endl;
+   
   assert(tiles.find(tid)==tiles.end());
   tile->id=tid;
   tiles[tid]=tile;

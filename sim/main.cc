@@ -73,13 +73,24 @@ int main(int argc, char const *argv[]) {
       cfgpath="";
       simulator->registerCore(wlpath, cfgpath, cfgname, i);
     }
-    if(argc > arg_index) {
-      string verbosity(argv[arg_index]);
-      if(verbosity == "-v")
+    // do a while loop here checking for addition command line parameters: verbosity, decoupling, output and debug
+    while(argc > arg_index) {
+      string curr_arg(argv[arg_index++]);
+      if(curr_arg == "-v") {
         cfg.verbLevel = 2;
-      cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
+        cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
+      }
+      else if(curr_arg == "-d") {
+        simulator->decoupling_mode=true;
+      }
+      else if(curr_arg == "-o") {
+        
+      }
+      else if(curr_arg == "-debug") {
+        simulator->debug_mode=true;
+      }
     }
-
+    //register the acccelerator tiles
     Tile* tile = new Accelerator(simulator,2000);
     simulator->registerTile(tile);
     

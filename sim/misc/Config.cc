@@ -36,6 +36,7 @@ Config::Config() {
   instr_latency[CALL_BS] = 1;
   instr_latency[BS_WAKE] = 1;
   instr_latency[BS_VECTOR_INC] = 1;
+  instr_latency[BARRIER]=1;
   num_units[BS_DONE] = -1;
   num_units[CORE_INTERRUPT] = -1;
   num_units[CALL_BS] = -1;
@@ -62,6 +63,7 @@ Config::Config() {
   num_units[STVAL] = -1;
   num_units[LD_PROD] = -1;
   num_units[INVALID] = -1;
+  num_units[BARRIER] = -1;
 }
 
 vector<string> Config::split(const string &s, char delim) {

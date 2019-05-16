@@ -2,11 +2,12 @@
 #include "Core.h"
 //#include "LoadStoreQ.h"
 #include "../memsys/Cache.h"
+#include <vector>
 
 #define ID_POOL 1000000
+using namespace std;
 
-// Declare instructions names to be able to print them for stats
-std::string InstrName[]={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC"};
+vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER"};
 
 Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
 
