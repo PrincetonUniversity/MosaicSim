@@ -130,20 +130,24 @@ void system_t::load_memory()
 
     for (uint32_t d1 = 0; d1 < matrix_in1->dims[0]; ++d1)
     {
-       for (uint32_t d2 = 0; d2 < matrix_in1->dims[1]; ++d2)
-       {
+	bool high = false;
+	for (uint32_t d2 = 0; d2 < matrix_in1->dims[1]; ++d2)
+	{
             uint32_t k = d1 * matrix_in1->dims[1] + d2;
+	    
 
-
-            data = fp2bv<FPDATA, WORD_SIZE>(FPDATA(matrix_in1->data[k]));
+            data = fp2bv<FPDATA, WORD_SIZE>(FPDATA((float) matrix_in1->data[k]));
 
 // #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
 //             this->mem[index1++] = data.range(63, 32);
 //             this->mem[index1++] = data.range(31, 0);
 // #else
-            this->mem[index1++] = data;
-	    ESP_REPORT_INFO("tb store idx %d %lf", index1 - 1, matrix_in1->data[k]);
+	    if (!high)
+		(this->mem[index1]).range(31, 0) = data;
+	    else
+		(this->mem[index1++]).range(63, 32) = data;
 // #endif
+	    high = !high;
  	}
     }
 
@@ -166,8 +170,9 @@ void system_t::load_memory()
 
     for (uint32_t d1 = 0; d1 < matrix_in2->dims[0]; ++d1)
     {
-       for (uint32_t d2 = 0; d2 < matrix_in2->dims[1]; ++d2)
-       {
+	bool high = false;
+	for (uint32_t d2 = 0; d2 < matrix_in2->dims[1]; ++d2)
+	{
             uint32_t k = d1 * matrix_in2->dims[1] + d2;
 
             data = fp2bv<FPDATA, WORD_SIZE>(FPDATA(matrix_in2->data[k]));
@@ -176,10 +181,14 @@ void system_t::load_memory()
             // this->mem[index2++] = data.range(63, 32);
             // this->mem[index2++] = data.range(31, 0);
 // #else
-            this->mem[index2++] = data;
+	    if (!high)
+		(this->mem[index2]).range(31, 0) = data;
+	    else
+		(this->mem[index2++]).range(63, 32) = data;
 // #endif
+	    high = !high;
 
-	    ESP_REPORT_INFO("tb store idx %d %lf", index2 - 1, matrix_in2->data[k]);
+	    // ESP_REPORT_INFO("tb store idx %d %lf", index2 - 1, matrix_in2->data[k]);
  	}
     }
 
@@ -201,21 +210,28 @@ void system_t::dump_memory()
 
     for (uint32_t d1 = 0; d1 < matrix_in1->dims[0]; ++d1)
     {
-       for (uint32_t d2 = 0; d2 < matrix_in2->dims[0]; ++d2)
-       {
+	bool high = false;
+	for (uint32_t d2 = 0; d2 < matrix_in2->dims[0]; ++d2)
+	{
             uint32_t k = d1 * matrix_in2->dims[0] + d2;
 
 // #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
             // data.range(63, 32) = this->mem[index2++];
             // data.range(31, 0) = this->mem[index2++];
 // #else
-            data = this->mem[index2++];
+	    if (!high)
+		data = this->mem[index2].range(31, 0);
+	    else
+		data = this->mem[index2++].range(63, 32);
 // #endif
+
+	    high = !high;
+
             bv2fp<FPDATA, WORD_SIZE>(elem, data);
 
             matrix_out->data[k] = elem.to_double();
 
-	    ESP_REPORT_INFO("tb load idx %d %lf", index2 - 1, elem.to_double());
+	    // ESP_REPORT_INFO("tb load idx %d %lf", index2 - 1, elem.to_double());
         }
     }
 

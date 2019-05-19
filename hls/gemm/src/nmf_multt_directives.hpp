@@ -19,13 +19,13 @@
 // Using the same memories of A
 
 #define B_MEMORY_TYPE \
-  GENERATE_PLM_TYPE(A_MEMORY, DMA_WIDTH, DMA_CHUNK, 1)
+  GENERATE_PLM_TYPE(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
 #define B_MEMORY_NAME \
-  GENERATE_PLM_NAME(A_MEMORY, DMA_WIDTH, DMA_CHUNK, 1)
+  GENERATE_PLM_NAME(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
 #define B_MEMORY_HEADER \
-  GENERATE_PLM_HDR(A_MEMORY, DMA_WIDTH, DMA_CHUNK, 1)
+  GENERATE_PLM_HDR(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
 //
 // Floating/fixed point directives
@@ -47,55 +47,38 @@
     PLM2_A0.port1.reset(); \
     PLM2_A1.port1.reset(); \
     PLM2_A2.port1.reset(); \
-    PLM2_A3.port1.reset()
+    PLM2_A3.port1.reset(); \
+    PLM2_A0.port2.reset(); \
+    PLM2_A1.port2.reset(); \
+    PLM2_A2.port2.reset(); \
+    PLM2_A3.port2.reset()
 
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-// #define LOAD_INPUT_WRITE_PLM2(A_MEMORY)             \
-//     if (high)                                       \
-//       data_high = data;                             \
-//     else                                            \
-//       A_MEMORY.port1[0][i] = (data_high.to_uint64() \
-//          << 32ULL) + data.to_uint64()
-// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
-#define LOAD_INPUT_WRITE_PLM2(A_MEMORY)             \
-    A_MEMORY.port1[0][i] = data.to_uint64()
-//    ESP_REPORT_INFO("acc load: %d %lf", i, (bv2fp<FPDATA, WORD_SIZE>(data)).to_double())
-
-// #endif
-
-#define LOAD_INPUT_INCREMENT if (!high) i += 1
+#define LOAD_INPUT_WRITE_PLM2(A_MEMORY)				\
+    A_MEMORY.port1[0][i++] = data.range(31,0).to_uint();	\
+    A_MEMORY.port2[0][i++] = data.range(63,32).to_uint()
 
 #define STORE_OUTPUT_RESET_PORTS \
-    PLM2_B0.port2.reset()
+    PLM2_B0.port2.reset(); \
+    PLM2_B0.port3.reset()
 
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-// #define STORE_OUTPUT_READ_PLM2(B_MEMORY)         \
-//     if (high)                                    \
-//       data = B_MEMORY.port2[0][i].range(63, 32); \
-//     else                                         \
-//       data = B_MEMORY.port2[0][i].range(31, 0)
-// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
 #define STORE_OUTPUT_READ_PLM2(B_MEMORY)	\
-    data = B_MEMORY.port2[0][i]
-//    ESP_REPORT_INFO("acc store: %d %lf", i, (bv2fp<FPDATA, WORD_SIZE>(data)).to_double())
-// #endif
-
-#define STORE_OUTPUT_INCREMENT if (!high) i += 1
+    data.range(31,0) = B_MEMORY.port2[0][i++];	\
+    data.range(63,32) = B_MEMORY.port3[0][i++]
 
 // 1-port memory
 
 #if NUM_PORTS == 1
 
 #define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port2.reset(); \
-    PLM2_A1.port2.reset(); \
-    PLM2_A2.port2.reset(); \
-    PLM2_A3.port2.reset(); \
+    PLM2_A0.port3.reset(); \
+    PLM2_A1.port3.reset(); \
+    PLM2_A2.port3.reset(); \
+    PLM2_A3.port3.reset(); \
     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
-    FPDATA row_elem_1 = INT2FP(row.port2[0][k]); \
-    FPDATA col_elem_1 = INT2FP(col.port2[0][k]);
+    FPDATA row_elem_1 = INT2FP(row.port3[0][k]); \
+    FPDATA col_elem_1 = INT2FP(col.port3[0][k]);
 
 #if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
@@ -112,21 +95,21 @@
 #elif NUM_PORTS == 2
 
 #define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port2.reset(); \
+    PLM2_A0.port4.reset(); \
     PLM2_A0.port3.reset(); \
-    PLM2_A1.port2.reset(); \
+    PLM2_A1.port4.reset(); \
     PLM2_A1.port3.reset(); \
-    PLM2_A2.port2.reset(); \
+    PLM2_A2.port4.reset(); \
     PLM2_A2.port3.reset(); \
-    PLM2_A3.port2.reset(); \
+    PLM2_A3.port4.reset(); \
     PLM2_A3.port3.reset(); \
     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
-    FPDATA row_elem_1 = INT2FP(row.port2[0][k + 0]); \
-    FPDATA row_elem_2 = INT2FP(row.port3[0][k + 1]); \
-    FPDATA col_elem_1 = INT2FP(col.port2[0][k + 0]); \
-    FPDATA col_elem_2 = INT2FP(col.port3[0][k + 1])
+    FPDATA row_elem_1 = INT2FP(row.port3[0][k + 0]); \
+    FPDATA row_elem_2 = INT2FP(row.port4[0][k + 1]); \
+    FPDATA col_elem_1 = INT2FP(col.port3[0][k + 0]); \
+    FPDATA col_elem_2 = INT2FP(col.port4[0][k + 1])
 
 #if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
@@ -145,33 +128,33 @@
 #elif NUM_PORTS == 4
 
 #define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port2.reset(); \
+    PLM2_A0.port6.reset(); \
     PLM2_A0.port3.reset(); \
     PLM2_A0.port4.reset(); \
     PLM2_A0.port5.reset(); \
-    PLM2_A1.port2.reset(); \
+    PLM2_A1.port6.reset(); \
     PLM2_A1.port3.reset(); \
     PLM2_A1.port4.reset(); \
     PLM2_A1.port5.reset(); \
-    PLM2_A2.port2.reset(); \
+    PLM2_A2.port6.reset(); \
     PLM2_A2.port3.reset(); \
     PLM2_A2.port4.reset(); \
     PLM2_A2.port5.reset(); \
-    PLM2_A3.port2.reset(); \
+    PLM2_A3.port6.reset(); \
     PLM2_A3.port3.reset(); \
     PLM2_A3.port4.reset(); \
     PLM2_A3.port5.reset(); \
     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
-    FPDATA row_elem_1 = INT2FP(row.port2[0][k + 0]); \
-    FPDATA row_elem_2 = INT2FP(row.port3[0][k + 1]); \
-    FPDATA row_elem_3 = INT2FP(row.port4[0][k + 2]); \
-    FPDATA row_elem_4 = INT2FP(row.port5[0][k + 3]); \
-    FPDATA col_elem_1 = INT2FP(col.port2[0][k + 0]); \
-    FPDATA col_elem_2 = INT2FP(col.port3[0][k + 1]); \
-    FPDATA col_elem_3 = INT2FP(col.port4[0][k + 2]); \
-    FPDATA col_elem_4 = INT2FP(col.port5[0][k + 3])
+    FPDATA row_elem_1 = INT2FP(row.port3[0][k + 0]); \
+    FPDATA row_elem_2 = INT2FP(row.port4[0][k + 1]); \
+    FPDATA row_elem_3 = INT2FP(row.port5[0][k + 2]); \
+    FPDATA row_elem_4 = INT2FP(row.port6[0][k + 3]); \
+    FPDATA col_elem_1 = INT2FP(col.port3[0][k + 0]); \
+    FPDATA col_elem_2 = INT2FP(col.port4[0][k + 1]); \
+    FPDATA col_elem_3 = INT2FP(col.port5[0][k + 2]); \
+    FPDATA col_elem_4 = INT2FP(col.port6[0][k + 3])
 
 #if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
@@ -194,7 +177,7 @@
 #elif NUM_PORTS == 8
 
 #define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port2.reset(); \
+    PLM2_A0.port10.reset(); \
     PLM2_A0.port3.reset(); \
     PLM2_A0.port4.reset(); \
     PLM2_A0.port5.reset(); \
@@ -202,7 +185,7 @@
     PLM2_A0.port7.reset(); \
     PLM2_A0.port8.reset(); \
     PLM2_A0.port9.reset(); \
-    PLM2_A1.port2.reset(); \
+    PLM2_A1.port10.reset(); \
     PLM2_A1.port3.reset(); \
     PLM2_A1.port4.reset(); \
     PLM2_A1.port5.reset(); \
@@ -210,7 +193,7 @@
     PLM2_A1.port7.reset(); \
     PLM2_A1.port8.reset(); \
     PLM2_A1.port9.reset(); \
-    PLM2_A2.port2.reset(); \
+    PLM2_A2.port10.reset(); \
     PLM2_A2.port3.reset(); \
     PLM2_A2.port4.reset(); \
     PLM2_A2.port5.reset(); \
@@ -218,7 +201,7 @@
     PLM2_A2.port7.reset(); \
     PLM2_A2.port8.reset(); \
     PLM2_A2.port9.reset(); \
-    PLM2_A3.port2.reset(); \
+    PLM2_A3.port10.reset(); \
     PLM2_A3.port3.reset(); \
     PLM2_A3.port4.reset(); \
     PLM2_A3.port5.reset(); \
@@ -229,22 +212,22 @@
     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
-    FPDATA row_elem_1 = INT2FP(row.port2[0][k + 0]); \
-    FPDATA row_elem_2 = INT2FP(row.port3[0][k + 1]); \
-    FPDATA row_elem_3 = INT2FP(row.port4[0][k + 2]); \
-    FPDATA row_elem_4 = INT2FP(row.port5[0][k + 3]); \
-    FPDATA row_elem_5 = INT2FP(row.port6[0][k + 4]); \
-    FPDATA row_elem_6 = INT2FP(row.port7[0][k + 5]); \
-    FPDATA row_elem_7 = INT2FP(row.port8[0][k + 6]); \
-    FPDATA row_elem_8 = INT2FP(row.port9[0][k + 7]); \
-    FPDATA col_elem_1 = INT2FP(col.port2[0][k + 0]); \
-    FPDATA col_elem_2 = INT2FP(col.port3[0][k + 1]); \
-    FPDATA col_elem_3 = INT2FP(col.port4[0][k + 2]); \
-    FPDATA col_elem_4 = INT2FP(col.port5[0][k + 3]); \
-    FPDATA col_elem_5 = INT2FP(col.port6[0][k + 4]); \
-    FPDATA col_elem_6 = INT2FP(col.port7[0][k + 5]); \
-    FPDATA col_elem_7 = INT2FP(col.port8[0][k + 6]); \
-    FPDATA col_elem_8 = INT2FP(col.port9[0][k + 7])
+    FPDATA row_elem_1 = INT2FP(row.port3[0][k + 0]); \
+    FPDATA row_elem_2 = INT2FP(row.port4[0][k + 1]); \
+    FPDATA row_elem_3 = INT2FP(row.port5[0][k + 2]); \
+    FPDATA row_elem_4 = INT2FP(row.port6[0][k + 3]); \
+    FPDATA row_elem_5 = INT2FP(row.port7[0][k + 4]); \
+    FPDATA row_elem_6 = INT2FP(row.port8[0][k + 5]); \
+    FPDATA row_elem_7 = INT2FP(row.port9[0][k + 6]); \
+    FPDATA row_elem_8 = INT2FP(row.port10[0][k + 7]); \
+    FPDATA col_elem_1 = INT2FP(col.port3[0][k + 0]); \
+    FPDATA col_elem_2 = INT2FP(col.port4[0][k + 1]); \
+    FPDATA col_elem_3 = INT2FP(col.port5[0][k + 2]); \
+    FPDATA col_elem_4 = INT2FP(col.port6[0][k + 3]); \
+    FPDATA col_elem_5 = INT2FP(col.port7[0][k + 4]); \
+    FPDATA col_elem_6 = INT2FP(col.port8[0][k + 5]); \
+    FPDATA col_elem_7 = INT2FP(col.port9[0][k + 6]); \
+    FPDATA col_elem_8 = INT2FP(col.port10[0][k + 7])
 
 #if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \

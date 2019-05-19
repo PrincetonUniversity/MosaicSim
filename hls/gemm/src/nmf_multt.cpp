@@ -62,9 +62,6 @@ void nmf_multt::load_input()
 
         ld_offset1 = this->conf_info.read().ld_offset1;
         ld_offset2 = this->conf_info.read().ld_offset2;
-
-        // ESP_REPORT_INFO("-----> %d %d %d %d %d", matrix_d1, matrix_d2, matrix_d3,
-	// 		ld_offset1, ld_offset2);
    }
 
     // Compute
@@ -82,15 +79,10 @@ void nmf_multt::load_input()
             {
                 HLS_UNROLL_LOOP(OFF); // disabled
 
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-                // index_d1 = ld_offset1 + ((d1 * matrix_d2) << 1);
-                // index_d2 = ld_offset2 + ((d2 * matrix_d2) << 1);
-                // length = DMA_CHUNK << 1;
-// #else if (DMA_WIDTH == 64 && WORD_SIZE == 64)
-                index_d1 = ld_offset1 + ((d1 * matrix_d2));
-                index_d2 = ld_offset2 + ((d2 * matrix_d2));
-                length = DMA_CHUNK;
-// #endif
+                index_d1 = ld_offset1 + ((d1 * matrix_d2) >> 1);
+                index_d2 = ld_offset2 + ((d2 * matrix_d2) >> 1);
+                length = DMA_CHUNK >> 1;
+
                 for (uint32_t chk = 0; chk < matrix_chk; ++chk)
                 {
                     HLS_UNROLL_LOOP(OFF); // disabled
@@ -101,15 +93,10 @@ void nmf_multt::load_input()
 
                     if (chk == matrix_chk - 1 && matrix_rem != 0)
                        // the next is the last (smaller) chunk
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-//                        { length = matrix_rem << 1; }
-// #else if (DMA_WIDTH == 64 && WORD_SIZE == 64)
-                       { length = matrix_rem; }
-// #endif
+		    { length = matrix_rem >> 1; }
+
                     {
                         HLS_DEFINE_PROTOCOL("load-matrix1-info");
-
-			// ESP_REPORT_INFO("acc load: idx %d len %d", index_d1, length)
                         dma_info_t dma_info(index_d1, length);
                         this->dma_read_ctrl.put(dma_info);
                     }
@@ -123,7 +110,6 @@ void nmf_multt::load_input()
                     {
                         HLS_UNROLL_LOOP(OFF); // disabled
 
-//                        high = !high;
                         sc_dt::sc_bv<DMA_WIDTH> data;
 
                         data = this->dma_read_chnl.get();
@@ -142,8 +128,6 @@ void nmf_multt::load_input()
                                 LOAD_INPUT_WRITE_PLM2(PLM2_A1);
                             }
 
-                            LOAD_INPUT_INCREMENT;
-
                             wait(); // Only considered in behavioral simulation
                         }
                     }
@@ -154,8 +138,6 @@ void nmf_multt::load_input()
 
                     {
                         HLS_DEFINE_PROTOCOL("load-matrix2-info");
-
-			// ESP_REPORT_INFO("acc load: idx %d len %d", index_d2, length)
                         dma_info_t dma_info(index_d2, length);
                         this->dma_read_ctrl.put(dma_info);
                     }
@@ -167,8 +149,6 @@ void nmf_multt::load_input()
                     for (uint32_t k = 0; k < length; ++k)
                     {
                         HLS_UNROLL_LOOP(OFF); // disabled
-
-//                        high = !high;
 
                         sc_dt::sc_bv<DMA_WIDTH> data;
 
@@ -187,8 +167,6 @@ void nmf_multt::load_input()
                             {
                                 LOAD_INPUT_WRITE_PLM2(PLM2_A3);
                             }
-
-                            LOAD_INPUT_INCREMENT;
 
                             wait(); // Only considered in behavioral simulation
                         }
@@ -389,11 +367,7 @@ void nmf_multt::store_output()
 
         index = st_offset;
 
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-//         length = DMA_CHUNK << 1;
-// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
-        length = DMA_CHUNK;
-// #endif
+        length = DMA_CHUNK >> 1;
 
         for (uint32_t chk = 0; chk < matrix_chk; ++chk)
         {
@@ -401,11 +375,8 @@ void nmf_multt::store_output()
 
             if (chk == matrix_chk - 1 && matrix_rem != 0)
                // the next is the last (smaller) chunk
-// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
-//                { length = (matrix_rem << 1); }
-// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
-               { length = (matrix_rem); }
-// #endif
+	    { length = (matrix_rem >> 1); }
+
             // Wait the compute_process
             store_compute_handshake();
 
@@ -424,7 +395,6 @@ void nmf_multt::store_output()
             {
                 HLS_UNROLL_LOOP(OFF); // disabled
 
-//                high = !high;
                 sc_dt::sc_bv<DMA_WIDTH> data = 0;
 
                 {
@@ -433,8 +403,6 @@ void nmf_multt::store_output()
                     HLS_CONSTRAIN_LATENCY(0, 1, "store-matrix");
 
                     STORE_OUTPUT_READ_PLM2(PLM2_B0);
-
-                    STORE_OUTPUT_INCREMENT;
 
                     wait(); // Only considered in behavioral simulation
                 }

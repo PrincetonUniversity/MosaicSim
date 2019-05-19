@@ -82,11 +82,8 @@ append DMA_CHUNKS "32 "
 append DMA_CHUNKS "64 "
 append DMA_CHUNKS "128 "
 append DMA_CHUNKS "256 "
-append DMA_CHUNKS "512 "
-append DMA_CHUNKS "1024 "
-append DMA_CHUNKS "2048 "
 
-set DMA_WIDTH "32 64"
+set DMA_WIDTH "64"
 
 set NUM_PORTS ""
 #append NUM_PORTS "1 "

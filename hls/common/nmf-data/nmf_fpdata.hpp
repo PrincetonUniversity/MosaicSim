@@ -178,11 +178,11 @@ void fp2int(sc_dt::sc_int<N> &data_out, T data_in)
 
 // Data types
 
-const unsigned int WORD_SIZE = 64; // 64
+const unsigned int WORD_SIZE = 32; // 64
 
-const unsigned int FPDATA_ML = 52; // 52
+const unsigned int FPDATA_ML = 23; // 52
 
-const unsigned int FPDATA_EL = 11;
+const unsigned int FPDATA_EL = 8;
 
 typedef sc_dt::sc_uint<WORD_SIZE> FPDATA_WORD;
 
