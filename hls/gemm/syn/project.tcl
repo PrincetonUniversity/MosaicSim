@@ -17,7 +17,7 @@ use_hls_lib "./memlib"
 #
 
 if {$TECH eq "virtex7"} {
-    # Library is in ns, but simulation uses ps!                                                                                                                                                                   
+    # Library is in ns, but simulation uses ps!                                                        
     set CLOCK_PERIOD 10.0
     set SIM_CLOCK_PERIOD 10000.0
     set_attr default_input_delay      0.1
@@ -36,8 +36,17 @@ set SIM_RESET_PERIOD [expr $SIM_CLOCK_PERIOD * 30]
 
 set PRINT no
 set SCHED_ASAP no
-set COMMON_HLS_FLAGS "-DFIXED_POINT --clock_period=$CLOCK_PERIOD --prints=$PRINT --sched_asap=$SCHED_ASAP"
-set COMMON_CFG_FLAGS "-DFIXED_POINT -DCLOCK_PERIOD=$SIM_CLOCK_PERIOD -DRESET_PERIOD=$SIM_RESET_PERIOD"
+
+# if FIXED_POINT
+#set COMMON_HLS_FLAGS \
+#    "-DFIXED_POINT --clock_period=$CLOCK_PERIOD --prints=$PRINT --sched_asap=$SCHED_ASAP"
+#set COMMON_CFG_FLAGS \
+#    "-DFIXED_POINT -DCLOCK_PERIOD=$SIM_CLOCK_PERIOD -DRESET_PERIOD=$SIM_RESET_PERIOD"
+# if FLOAT_POINT
+set COMMON_HLS_FLAGS \
+    "-DFLOAT_POINT --clock_period=$CLOCK_PERIOD --prints=$PRINT --sched_asap=$SCHED_ASAP"
+set COMMON_CFG_FLAGS \
+    "-DFLOAT_POINT -DCLOCK_PERIOD=$SIM_CLOCK_PERIOD -DRESET_PERIOD=$SIM_RESET_PERIOD"
 
 #
 # Testbench or system level modules
@@ -45,6 +54,8 @@ set COMMON_CFG_FLAGS "-DFIXED_POINT -DCLOCK_PERIOD=$SIM_CLOCK_PERIOD -DRESET_PER
 
 define_system_module ../tb/multt.c
 define_system_module tb ../tb/system.cpp ../tb/sc_main.cpp
+
+# enable_waveform_logging -vcd
 
 #
 # System level modules to be synthesized
@@ -60,22 +71,27 @@ set INPUT_PATH  "../input"
 set OUTPUT_PATH "../output"
 
 set TESTBENCHES ""
-append TESTBENCHES "test1 "
+append TESTBENCHES "test1 test2 test3 test4 test5 "
 
 #
 # DSE configurations
 #
 
 set DMA_CHUNKS ""
+append DMA_CHUNKS "32 "
+append DMA_CHUNKS "64 "
+append DMA_CHUNKS "128 "
 append DMA_CHUNKS "256 "
 append DMA_CHUNKS "512 "
 append DMA_CHUNKS "1024 "
 append DMA_CHUNKS "2048 "
 
+set DMA_WIDTH "32 64"
+
 set NUM_PORTS ""
 #append NUM_PORTS "1 "
 append NUM_PORTS "2 " 
-#append NUM_PORTS "4 "
+append NUM_PORTS "4 "
 #append NUM_PORTS "8 "
 
 set BASIC_OPTIONS "$COMMON_HLS_FLAGS"
@@ -92,35 +108,45 @@ foreach chk $DMA_CHUNKS {
 
     foreach pts $NUM_PORTS {
 
-        set conf "CHK$chk\_PP$pts"
+	foreach dma $DMA_WIDTH {
 
-        define_io_config * IOCFG_$conf -DDMA_WIDTH=32 -DDMA_CHUNK=$chk -DNUM_PORTS=$pts $COMMON_CFG_FLAGS
+	    set conf "CHK$chk\_PP$pts\_DMA$dma"
 
-        define_hls_config nmf_multt BASIC_$conf -io_config IOCFG_$conf $COMMON_HLS_FLAGS
+	    define_io_config * IOCFG_$conf -DDMA_WIDTH=$dma -DDMA_CHUNK=$chk -DNUM_PORTS=$pts \
+		$COMMON_CFG_FLAGS
 
-        define_system_config tb TESTBENCH_$conf -io_config IOCFG_$conf
+	    define_hls_config nmf_multt BASIC_$conf -io_config IOCFG_$conf $COMMON_HLS_FLAGS
 
-        foreach tb $TESTBENCHES {
+	    define_system_config tb TESTBENCH_$conf -io_config IOCFG_$conf
 
-            set ARGV ""
-            append ARGV "$INPUT_PATH/$tb\_1.txt ";  # argv[1]
-            append ARGV "$INPUT_PATH/$tb\_2.txt ";  # argv[2]
-            append ARGV "$OUTPUT_PATH/$tb.txt ";    # argv[3]
+	    foreach tb $TESTBENCHES {
 
-            # Behavioral simulation
+		set ARGV ""
+		append ARGV "$INPUT_PATH/$tb\_1.txt ";  # argv[1]
+		append ARGV "$INPUT_PATH/$tb\_2.txt ";  # argv[2]
+		append ARGV "$OUTPUT_PATH/$tb.txt ";    # argv[3]
 
-            define_sim_config "BEHAV_$conf\_$tb" "nmf_multt BEH" "tb TESTBENCH_$conf" \
-                -io_config IOCFG_$conf -argv $ARGV
+		# Behavioral simulation
 
-            # RTL Verilog simulation
-	    if {$TECH_IS_XILINX == 1} {                            
-		define_sim_config "BASIC_$conf\_$tb\_V" "nmf_multt RTL_V BASIC_$conf" "tb TESTBENCH_$conf" \
-		    -io_config IOCFG_$conf -verilog_top_modules glbl -argv $ARGV
-	    } else {
-		define_sim_config "BASIC_$conf\_$tb\_V" "nmf_multt RTL_V BASIC_$conf" "tb TESTBENCH_$conf" \
+		define_sim_config "BEHAV_$conf\_$tb" "nmf_multt BEH" "tb TESTBENCH_$conf" \
 		    -io_config IOCFG_$conf -argv $ARGV
-	    }
-        }; # foreach tb
+
+		# RTL Verilog simulation
+		if {$TECH_IS_XILINX == 1} {                            
+		    define_sim_config "BASIC_$conf\_$tb\_V" "nmf_multt RTL_V BASIC_$conf" \
+			"tb TESTBENCH_$conf" -io_config IOCFG_$conf -verilog_top_modules glbl -argv $ARGV
+		    
+		} else {
+		    define_sim_config "BASIC_$conf\_$tb\_V" "nmf_multt RTL_V BASIC_$conf" \
+			"tb TESTBENCH_$conf" -io_config IOCFG_$conf -argv $ARGV
+
+		    # TODO: not working. Joules can't parse the PLMs Verilog, it throws errors.
+		    # define_power_config "P_BASIC_$conf\_$tb" "BASIC_$conf\_$tb\_V" -module nmf_multt \
+			#   -command bdw_runjoules
+		}
+	    }; # foreach tb
+
+	}; # foreach dma
 
     }; # foreach pts
 

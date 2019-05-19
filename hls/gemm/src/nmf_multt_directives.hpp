@@ -49,23 +49,36 @@
     PLM2_A2.port1.reset(); \
     PLM2_A3.port1.reset()
 
+// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
+// #define LOAD_INPUT_WRITE_PLM2(A_MEMORY)             \
+//     if (high)                                       \
+//       data_high = data;                             \
+//     else                                            \
+//       A_MEMORY.port1[0][i] = (data_high.to_uint64() \
+//          << 32ULL) + data.to_uint64()
+// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
 #define LOAD_INPUT_WRITE_PLM2(A_MEMORY)             \
-    if (high)                                       \
-      data_high = data;                             \
-    else                                            \
-      A_MEMORY.port1[0][i] = (data_high.to_uint64() \
-         << 32ULL) + data.to_uint64()
+    A_MEMORY.port1[0][i] = data.to_uint64()
+//    ESP_REPORT_INFO("acc load: %d %lf", i, (bv2fp<FPDATA, WORD_SIZE>(data)).to_double())
+
+// #endif
 
 #define LOAD_INPUT_INCREMENT if (!high) i += 1
 
 #define STORE_OUTPUT_RESET_PORTS \
     PLM2_B0.port2.reset()
 
-#define STORE_OUTPUT_READ_PLM2(B_MEMORY)         \
-    if (high)                                    \
-      data = B_MEMORY.port2[0][i].range(63, 32); \
-    else                                         \
-      data = B_MEMORY.port2[0][i].range(31, 0)
+// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
+// #define STORE_OUTPUT_READ_PLM2(B_MEMORY)         \
+//     if (high)                                    \
+//       data = B_MEMORY.port2[0][i].range(63, 32); \
+//     else                                         \
+//       data = B_MEMORY.port2[0][i].range(31, 0)
+// #else //if (DMA_WIDTH == 64 && WORD_SIZE == 64)
+#define STORE_OUTPUT_READ_PLM2(B_MEMORY)	\
+    data = B_MEMORY.port2[0][i]
+//    ESP_REPORT_INFO("acc store: %d %lf", i, (bv2fp<FPDATA, WORD_SIZE>(data)).to_double())
+// #endif
 
 #define STORE_OUTPUT_INCREMENT if (!high) i += 1
 
@@ -84,8 +97,13 @@
     FPDATA row_elem_1 = INT2FP(row.port2[0][k]); \
     FPDATA col_elem_1 = INT2FP(col.port2[0][k]);
 
+#if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
     if (k < length) accumulator[0] = esp_f64_add(accumulator[0].to_uint64(), esp_f64_mul(row_elem_1.to_uint64(), col_elem_1.to_uint64())); else break
+#else
+#define COMPUTE_KERNEL_MAIN_COMP \
+    if (k < length) accumulator[0] = accumulator[0] + (row_elem_1 * col_elem_1); else break
+#endif
 
 #define COMPUTE_KERNEL_MAIN_INCR k += 1
 
@@ -110,9 +128,15 @@
     FPDATA col_elem_1 = INT2FP(col.port2[0][k + 0]); \
     FPDATA col_elem_2 = INT2FP(col.port3[0][k + 1])
 
+#if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
     if (k + 0 < length) accumulator[0] = ADD(accumulator[0], MUL(row_elem_1, col_elem_1)); else break; \
     if (k + 1 < length) accumulator[1] = ADD(accumulator[1], MUL(row_elem_2, col_elem_2)); else break
+#else
+#define COMPUTE_KERNEL_MAIN_COMP \
+    if (k + 0 < length) accumulator[0] = accumulator[0] + (row_elem_1 * col_elem_1); else break; \
+    if (k + 1 < length) accumulator[1] = accumulator[1] + (row_elem_2 * col_elem_2); else break
+#endif
 
 #define COMPUTE_KERNEL_MAIN_INCR k += 2
 
@@ -149,11 +173,19 @@
     FPDATA col_elem_3 = INT2FP(col.port4[0][k + 2]); \
     FPDATA col_elem_4 = INT2FP(col.port5[0][k + 3])
 
+#if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
     if (k + 0 < length) accumulator[0] = ADD(accumulator[0], MUL(row_elem_1, col_elem_1)); else break; \
     if (k + 1 < length) accumulator[1] = ADD(accumulator[1], MUL(row_elem_2, col_elem_2)); else break; \
     if (k + 2 < length) accumulator[2] = ADD(accumulator[2], MUL(row_elem_3, col_elem_3)); else break; \
     if (k + 3 < length) accumulator[3] = ADD(accumulator[3], MUL(row_elem_4, col_elem_4)); else break
+#else
+#define COMPUTE_KERNEL_MAIN_COMP \
+    if (k + 0 < length) accumulator[0] = accumulator[0] + (row_elem_1 * col_elem_1); else break; \
+    if (k + 1 < length) accumulator[1] = accumulator[1] + (row_elem_2 * col_elem_2); else break; \
+    if (k + 2 < length) accumulator[2] = accumulator[2] + (row_elem_3 * col_elem_3); else break; \
+    if (k + 3 < length) accumulator[3] = accumulator[3] + (row_elem_4 * col_elem_4); else break
+#endif
 
 #define COMPUTE_KERNEL_MAIN_INCR k += 4
 
@@ -214,6 +246,7 @@
     FPDATA col_elem_7 = INT2FP(col.port8[0][k + 6]); \
     FPDATA col_elem_8 = INT2FP(col.port9[0][k + 7])
 
+#if defined(FIXED_POINT)
 #define COMPUTE_KERNEL_MAIN_COMP \
     if (k + 0 < length) accumulator[0] = ADD(accumulator[0], MUL(row_elem_1, col_elem_1)); else break; \
     if (k + 1 < length) accumulator[1] = ADD(accumulator[1], MUL(row_elem_2, col_elem_2)); else break; \
@@ -223,6 +256,17 @@
     if (k + 5 < length) accumulator[5] = ADD(accumulator[5], MUL(row_elem_6, col_elem_6)); else break; \
     if (k + 6 < length) accumulator[6] = ADD(accumulator[6], MUL(row_elem_7, col_elem_7)); else break; \
     if (k + 7 < length) accumulator[7] = ADD(accumulator[7], MUL(row_elem_8, col_elem_8)); else break
+#else
+#define COMPUTE_KERNEL_MAIN_COMP \
+    if (k + 0 < length) accumulator[0] = accumulator[0] + (row_elem_1 * col_elem_1); else break; \
+    if (k + 1 < length) accumulator[1] = accumulator[1] + (row_elem_2 * col_elem_2); else break; \
+    if (k + 2 < length) accumulator[2] = accumulator[2] + (row_elem_3 * col_elem_3); else break; \
+    if (k + 3 < length) accumulator[3] = accumulator[3] + (row_elem_4 * col_elem_4); else break; \
+    if (k + 4 < length) accumulator[4] = accumulator[4] + (row_elem_5 * col_elem_5); else break; \
+    if (k + 5 < length) accumulator[5] = accumulator[5] + (row_elem_6 * col_elem_6); else break; \
+    if (k + 6 < length) accumulator[6] = accumulator[6] + (row_elem_7 * col_elem_7); else break; \
+    if (k + 7 < length) accumulator[7] = accumulator[7] + (row_elem_8 * col_elem_8); else break
+#endif
 
 #define COMPUTE_KERNEL_MAIN_INCR k += 8
 

@@ -26,20 +26,15 @@ void system_t::config_proc()
         // Provide the input data
         load_memory(); wait();
 
-// This removes the tags
-#define dift_uint32_t(x, y) (y)
+        config.d1 = matrix_in1->dims[0];
+        config.d2 = matrix_in1->dims[1];
+        config.d3 = matrix_in2->dims[0];
 
-        config.d1 = dift_uint32_t(SRC_TAG, matrix_in1->dims[0]);
-        config.d2 = dift_uint32_t(SRC_TAG, matrix_in1->dims[1]);
-        config.d3 = dift_uint32_t(SRC_TAG, matrix_in2->dims[0]);
-
-        config.ld_offset1 = dift_uint32_t(SRC_TAG, 0);
+        config.ld_offset1 = 0;
 
         config.ld_offset2 = index1;
 
-        config.st_offset  = dift_uint32_t(SRC_TAG, index2);
-
-#undef dift_uint32_t
+        config.st_offset  = index2;
 
         // ESP_REPORT_INFO("offsets: %d %d", config.ld_offset2.val, config.st_offset.val);
 
@@ -109,7 +104,7 @@ void system_t::load_memory()
     //  |     matrix (output)   |   |  (matrix_in1->dim[0] * matrix_in2->dim[1])
     //  =========================   v
 
-    sc_dt::sc_bv<64> data;
+    sc_dt::sc_bv<WORD_SIZE> data;
 
     index1 = 0;
     index2 = 0;
@@ -139,11 +134,16 @@ void system_t::load_memory()
        {
             uint32_t k = d1 * matrix_in1->dims[1] + d2;
 
-            data = fp2bv<FPDATA, 64>(FPDATA(matrix_in1->data[k]));
 
-            this->mem[index1++] = data.range(63, 32);
+            data = fp2bv<FPDATA, WORD_SIZE>(FPDATA(matrix_in1->data[k]));
 
-            this->mem[index1++] = data.range(31, 0);
+// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
+//             this->mem[index1++] = data.range(63, 32);
+//             this->mem[index1++] = data.range(31, 0);
+// #else
+            this->mem[index1++] = data;
+	    ESP_REPORT_INFO("tb store idx %d %lf", index1 - 1, matrix_in1->data[k]);
+// #endif
  	}
     }
 
@@ -170,11 +170,16 @@ void system_t::load_memory()
        {
             uint32_t k = d1 * matrix_in2->dims[1] + d2;
 
-            data = fp2bv<FPDATA, 64>(FPDATA(matrix_in2->data[k]));
+            data = fp2bv<FPDATA, WORD_SIZE>(FPDATA(matrix_in2->data[k]));
 
-            this->mem[index2++] = data.range(63, 32);
+// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
+            // this->mem[index2++] = data.range(63, 32);
+            // this->mem[index2++] = data.range(31, 0);
+// #else
+            this->mem[index2++] = data;
+// #endif
 
-            this->mem[index2++] = data.range(31, 0);
+	    ESP_REPORT_INFO("tb store idx %d %lf", index2 - 1, matrix_in2->data[k]);
  	}
     }
 
@@ -183,10 +188,8 @@ void system_t::load_memory()
 
 void system_t::dump_memory()
 {
-#ifndef ENABLE_WRONG_FIRST_TAG
-
     FPDATA elem;
-    sc_dt::sc_bv<64> data;
+    sc_dt::sc_bv<WORD_SIZE> data;
 
     size_t sizes[2] = {matrix_in1->dims[0],
                        matrix_in2->dims[0]};
@@ -202,35 +205,25 @@ void system_t::dump_memory()
        {
             uint32_t k = d1 * matrix_in2->dims[0] + d2;
 
-            data.range(63, 32) = this->mem[index2++];
-
-            data.range(31, 0) = this->mem[index2++];
-
+// #if (DMA_WIDTH == 32 && WORD_SIZE == 64)
+            // data.range(63, 32) = this->mem[index2++];
+            // data.range(31, 0) = this->mem[index2++];
+// #else
+            data = this->mem[index2++];
+// #endif
             bv2fp<FPDATA, WORD_SIZE>(elem, data);
 
             matrix_out->data[k] = elem.to_double();
+
+	    ESP_REPORT_INFO("tb load idx %d %lf", index2 - 1, elem.to_double());
         }
     }
 
     ESP_REPORT_INFO("dump memory completed");
-
-#else // DISABLE_WRONG_FIRST_TAG
-
-    uint32_t i = index2;
-    while (this->mem[i] != sc_dt::sc_bv<32>(0)) i++;
-
-    ESP_REPORT_INFO("leakage of #%d out of #%d (%.2lf%%)",
-      i - index2, matrix_in1->dims[0] * matrix_in2->dims[0],
-      ((((double) (i - index2)) / (double) (matrix_in1->dims[0]
-      * matrix_in2->dims[0]) * 100.0));
-
-#endif // ENABLE_WRONG_FIRST_TAG
 }
 
 int system_t::validate()
 {
-#ifndef ENABLE_WRONG_FIRST_TAG
-
     double rel_error = 0.0;
     double avg_error = 0.0;
     double max_error = 0.0;
@@ -274,8 +267,6 @@ int system_t::validate()
 
     ESP_REPORT_INFO("total memory #%d bytes",
       (unsigned int) (index2 * 4UL) / 1000UL);
-
-#endif // ENABLE_WRONG_FIRST_TAG
 
     return 0;
 }
