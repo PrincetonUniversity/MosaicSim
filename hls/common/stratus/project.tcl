@@ -14,12 +14,12 @@ set asic_techs [list "cmos32soi"]
 
 # set TECH to virtex7 if unset
 if {![info exists ::env(TECH)]} {
-    set TECH "virtex7"
+    set TECH "cmos32soi"
 } else { 
     set TECH $::env(TECH)
     if {[lsearch $fpga_techs $TECH] < 0} {
 	if {[lsearch $asic_techs $TECH] < 0} {
-	    set TECH "virtex7"
+	    set TECH "cmos32soi"
 	}
     }
 }
@@ -40,7 +40,6 @@ if {[lsearch $fpga_techs $TECH] >= 0} {
     set_attr verilog_files "$VIVADO/ids_lite/ISE/verilog/src/unisims/RAMB16_S*.v"
 
     set TECH_IS_XILINX 1
-
 }
 if {[lsearch $asic_techs $TECH] >= 0} {
 
