@@ -539,17 +539,18 @@ bool DynamicNode::issueCompNode() {
     else
       core->available_FUs.at(n->typeInstr)--;
   }
-
+  bool can_issue=true;
   //free up all barriers or register this one
   if(type == BARRIER) {    
-    return core->sim->barrier->register_barrier(this);;  
+    can_issue=core->sim->barrier->register_barrier(this);
   }
   
-  
-  stat.update(comp_issue_success);
-  core->local_stat.update(comp_issue_success);
+  if(can_issue) {
+    stat.update(comp_issue_success);
+    core->local_stat.update(comp_issue_success);
+  }
   //issued = true;
-  return true;
+  return can_issue;
 }
 
 bool DynamicNode::issueMemNode() {
