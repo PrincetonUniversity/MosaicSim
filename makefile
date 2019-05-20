@@ -14,7 +14,8 @@ clean:
 	find . -name "*.lib"          -type f -delete
 	#find . -name "*.so" ! -name "libdramsim.so" -type f -delete
 	find . -name "*.so"	      -type f -delete
-	find . -name "*.ll*"	      -type f -delete
+	find . -name "*.ll"	      -type f -delete
+	find . -name "*.llvm"	      -type f -delete
 	find . -name "*.dll"          -type f -delete
 	find . -name "*.dylib"        -type f -delete
 	find . -name "*.ninja*"       -type f -delete
