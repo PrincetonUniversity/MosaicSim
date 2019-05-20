@@ -86,7 +86,7 @@ append DMA_CHUNKS "256 "
 set DMA_WIDTH "64"
 
 set NUM_PORTS ""
-#append NUM_PORTS "1 "
+append NUM_PORTS "1 "
 append NUM_PORTS "2 " 
 append NUM_PORTS "4 "
 #append NUM_PORTS "8 "
