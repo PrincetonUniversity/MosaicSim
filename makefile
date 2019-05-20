@@ -4,6 +4,7 @@ all:
 	mkdir -p lib
 	cd sim/power_model/cacti-p && make
 	cd sim/memsys/DRAMSim2 && make && make libdramsim.so && cp libdramsim.so ../../../lib
+	cd tools && make
 	chmod +x pass/preproc.sh
 	chmod +x tools/pythiarun
 	chmod +x tools/PDEC++
@@ -13,6 +14,7 @@ clean:
 	find . -name "*.lib"          -type f -delete
 	#find . -name "*.so" ! -name "libdramsim.so" -type f -delete
 	find . -name "*.so"	      -type f -delete
+	find . -name "*.ll*"	      -type f -delete
 	find . -name "*.dll"          -type f -delete
 	find . -name "*.dylib"        -type f -delete
 	find . -name "*.ninja*"       -type f -delete

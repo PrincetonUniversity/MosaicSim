@@ -116,7 +116,7 @@ void GraphGen::detectComm(Function &func) {
               n->itype = STVAL;
               stval_count++;
             }
-            else if (f->getName().str().find("_kmpc_barrier") != std::string::npos) {
+            else if (f->getName().str().find("DECADES_BARRIER") != std::string::npos) {
               //errs() << "[BARRIER]"<< *i << "\n";
               n->itype = BARRIER;
               //assert(false);
