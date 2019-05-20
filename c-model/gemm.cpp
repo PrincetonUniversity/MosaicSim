@@ -2,11 +2,15 @@
 #include <stdlib.h>
 #include <algorithm>
 
+// area in # of cells, IBM 32nm
+#define GEMM_AREA 58393
+
 // average power consumption estimate in mW
-#define GEMM_AREA 300000
 #define GEMM_AVG_POWER 20
-#define DMA_CHUNK 1024
+
+#define DMA_CHUNK 64
 #define DRAM_LATENCY 300
+#define IS_LATENCY 4
 
 void calculate_chunks(unsigned &matrix_chk, unsigned &matrix_rem, unsigned colsA)
 {
@@ -33,8 +37,8 @@ void load_model(long long unsigned &cycles, long long unsigned &bytes, unsigned 
     // send dma read request: length
     cycles++;
 
-    // add DRAM latency
-    cycles += DRAM_LATENCY;
+    // add DMA latency
+    cycles += IS_LATENCY;
 
     // read dma channel		
     cycles += length;
@@ -45,8 +49,8 @@ void load_model(long long unsigned &cycles, long long unsigned &bytes, unsigned 
     // send dma read request: length
     cycles++;
 
-    // add DRAM latency
-    cycles += DRAM_LATENCY;
+    // add DMA latency
+    cycles += IS_LATENCY;
 
     // read dma channel
     cycles += length;
@@ -66,7 +70,8 @@ void compute_model(long long unsigned &cycles, unsigned length)
 
     // main computation length times
     // read PLM + compute + increment
-    cycles += (length * (2 + 4 + 1));
+    // TODO get real latency
+    cycles += length * 2;
 }
 
 void store_model(long long unsigned &cycles, long long unsigned &bytes, unsigned length)
@@ -83,8 +88,8 @@ void store_model(long long unsigned &cycles, long long unsigned &bytes, unsigned
     // send dma write request: length
     cycles++;
 
-    // add DRAM latency
-    cycles += DRAM_LATENCY;
+    // add D latency
+    cycles += IS_LATENCY;
 
     // write dma channel		
     cycles += length;
@@ -164,8 +169,6 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 	    }
 	}
     }
-
-
 
     // Execution time
     // the slowest of the three processes determines the execution time
