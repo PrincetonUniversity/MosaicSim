@@ -37,16 +37,14 @@ DESCQ* Simulator::get_descq(Tile* tile) {
 
 bool Barrier::register_barrier(DynamicNode* d) {
   //make sure you don't have 2 barriers from same core at once
-  
-  d->print("registered", -10);
-  cout << "num threads: " <<num_threads << endl;
+ 
   if(barrier_map.find(d->core->id)!=barrier_map.end()) {
     return false;
   }
 
   int map_size=barrier_map.size();
   if(map_size==num_threads-1) {
-    d->print("freed all",-10);
+ 
     DynamicNode* bd;
      //free all barriers, remove from map
     for(auto it=barrier_map.begin(); it!=barrier_map.end();) {
