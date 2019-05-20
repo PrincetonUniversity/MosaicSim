@@ -78,17 +78,17 @@ append TESTBENCHES "test1 test2 test3 test4 test5 "
 #
 
 set DMA_CHUNKS ""
-append DMA_CHUNKS "32 "
+#append DMA_CHUNKS "32 "
 append DMA_CHUNKS "64 "
-append DMA_CHUNKS "128 "
-append DMA_CHUNKS "256 "
+#append DMA_CHUNKS "128 "
+#append DMA_CHUNKS "256 "
 
 set DMA_WIDTH "64"
 
 set NUM_PORTS ""
 append NUM_PORTS "1 "
-append NUM_PORTS "2 " 
-append NUM_PORTS "4 "
+#append NUM_PORTS "2 " 
+#append NUM_PORTS "4 "
 #append NUM_PORTS "8 "
 
 set BASIC_OPTIONS "$COMMON_HLS_FLAGS"
