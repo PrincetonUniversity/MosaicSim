@@ -141,11 +141,12 @@ void Core::initialize(int id) {
   for(int i=0; i<ID_POOL; i++) {
     tracker_id.push(i);
   }
-
+  //count the number of instructions here
   for(uint64_t i=0; i<cf.size(); i++) {
     uint64_t bbid=cf[i];
     BasicBlock *bb = g.bbs.at(bbid);
     sim->total_instructions+=bb->inst_count;
+    //exit gracefully instead of getting killed by OS
     if(sim->total_instructions>=sim->instruction_limit) {
       cout << "\n----SIMULATION TERMINATING----" << endl;
       cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE AND RUN WITH A SMALLER DATASET." << endl;
