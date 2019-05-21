@@ -6,6 +6,7 @@
 #include <sstream>
 #include <stdarg.h>
 #include "omp.h"
+#include <string>
 
 //Hack to make this work.
 #define MAX_THREADS 1024
@@ -13,7 +14,7 @@
 std::ofstream f1[MAX_THREADS];
 std::ofstream f2[MAX_THREADS];
 
-const char * get_dir_name(char* kernel_type, const char * type) {
+const char * get_dir_name(char* kernel_type, std::string type) {
   if (omp_get_thread_num() >= MAX_THREADS) {
     std::cout << "ERROR: Unable to log for all threads! Increase MAX_THREADS in tracer.cc" << "\n";
     assert(0);
@@ -36,6 +37,7 @@ __attribute__((noinline)) void printBranch(char* name, char *kernel_type, int co
 		target = n2;
 	f1[omp_get_thread_num()] << "B,"<<name << "," << target << "\n";
 	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
+  //f1[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline)) void printuBranch(char* name, char *kernel_type, char *n1)
@@ -48,6 +50,7 @@ __attribute__((noinline)) void printuBranch(char* name, char *kernel_type, char 
     assert(false);
   f1[omp_get_thread_num()] << "U,"<< name << "," << n1 << "\n";
   //std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
+  //f1[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline)) void printMem(char *name, char *kernel_type, bool type, long long addr, int size)
@@ -63,6 +66,7 @@ __attribute__((noinline)) void printMem(char *name, char *kernel_type, bool type
   else if(type == 1)
     f2[omp_get_thread_num()] << "S,"<< name << "," << addr << ","<< size <<"\n";
   //std::cout << "Store ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
+  //f2[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline)) void printSw(char *name, char *kernel_type, int value, char *def, int n, ...)
@@ -95,4 +99,5 @@ __attribute__((noinline)) void printSw(char *name, char *kernel_type, int value,
     target = def;
   f1[omp_get_thread_num()] << "S," <<name << "," << target <<"\n";
   //std::cout << "Switch [" << name << "]: " << value << " / " << target << "\n";
+  //f1[omp_get_thread_num()].close();
 }

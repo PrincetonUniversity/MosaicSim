@@ -11,7 +11,7 @@ PYTHIA_HOME=os.path.dirname(os.path.realpath(os.path.realpath(__file__)+"/.."))
 
 def main(argv):
     print("Pythia Home: "+PYTHIA_HOME)    
-    compile_cmd="DEC++ -spp " + PYTHIA_HOME + "/pass/preproc.sh"
+    compile_cmd="DEC++ -spp " + PYTHIA_HOME + "/pass/preproc.sh --target simulator"
     dec_args=""
     for arg in argv[1:]:
         dec_args=dec_args+" "+arg
