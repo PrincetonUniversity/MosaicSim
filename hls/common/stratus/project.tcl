@@ -26,6 +26,9 @@ if {![info exists ::env(TECH)]} {
 
 set TECH_PATH "$DEC_ACC_ROOT/tech/$TECH"
 
+if {![info exists ::env(LOG_VCD)]} {
+    enable_waveform_logging -vcd
+}
 
 if {[lsearch $fpga_techs $TECH] >= 0} {
 
