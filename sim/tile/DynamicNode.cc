@@ -146,7 +146,9 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     //if it's a TERMINATOR with branch prediction mode, it'll just get activated
     d->tryActivate(); 
   }
-  print("Created (BB:" + to_string(bb->id) + ") " , 5);
+  if(cfg.verbLevel >=5) {
+    print("Created (BB:" + to_string(bb->id) + ") " , 5);
+  }
 }
 
 void DynamicNode::register_issue_try() {
@@ -795,7 +797,7 @@ void DynamicNode::finishNode() {
     core->available_FUs.at(n->typeInstr)++; 
 
   // Speculation
-  if (core->local_cfg.mem_speculate && n->typeInstr == ST) {
+  if (core->local_cfg.mem_speculate && n->typeInstr == ST &&  core->window.issueWidth>1 && core->window.window_size>1) {
     auto misspeculated = core->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation

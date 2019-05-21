@@ -7,12 +7,18 @@ LoadStoreQ::LoadStoreQ(bool speculate) {
 }
 
 void LoadStoreQ::resolveAddress(DynamicNode *d) {
+  if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
+    return;
+  }
   if(d->type == LD || d->type == LD_PROD)
     unresolved_ld_set.erase(d);
   else
     unresolved_st_set.erase(d);
 }
 void LoadStoreQ::insert(DynamicNode *d) {
+  if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
+    return;
+  }
   if(d->type == LD || d->type == LD_PROD) {
     lq.push_back(d);
     if(lm.find(d->addr) == lm.end())
@@ -127,6 +133,9 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
 //address, return false for unresolved
 
 int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
+  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+    return 1;
+  }
   bool check = check_unresolved_store(in);
   if(check && !speculation_enabled)
     return -1;
@@ -163,6 +172,9 @@ int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
 }
 
 bool LoadStoreQ::check_store_issue(DynamicNode *in) {
+  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+    return true;
+  }
   bool skipStore = false;
   bool skipLoad = false;
   if(check_unresolved_store(in))
@@ -199,6 +211,9 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
 }
 
 int LoadStoreQ::check_forwarding (DynamicNode* in) {
+  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+    return -1;
+  }
   bool speculative = false;    
   if(sm.find(in->addr) == sm.end())
     return -1;

@@ -59,7 +59,7 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       else {
         mem->addTransaction(false, addr);
       }
-      stat.update("dram_access");     
+
      }
      
      outstanding_read_map.at(addr).push(t);
@@ -74,8 +74,9 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
     else {
       mem->addTransaction(true, addr);
     }
-    stat.update("dram_access");
+
   }
+  stat.update("dram_access");     
 }
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
   if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))

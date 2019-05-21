@@ -111,8 +111,9 @@ void Cache::execute(MemTransaction* t) {
         //don't do anything with prefetch instructions
         if(!t->isPrefetch) {
           sim->accessComplete(t);
-          stat.update("l1_hit"); //luwa todo l1 hit
+          
         }
+        stat.update("l1_hit"); 
       }
       else {
         
@@ -134,7 +135,7 @@ void Cache::execute(MemTransaction* t) {
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("l2_hit"); //luwa todo l2 hit
+        stat.update("l2_hit"); 
       }
 
     }
@@ -152,20 +153,14 @@ void Cache::execute(MemTransaction* t) {
 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print("Cache Miss", 1);
-    if(!t->isPrefetch) {
-      stat.update(cache_miss);
-    }
+    //if(!t->isPrefetch) {
+    stat.update(cache_miss);
+      //}
   }
 }
 void Cache::addTransaction(MemTransaction *t) {
 
-  //inf BW
-  //luwa change this!!! Testing!!!
   
-  //if(t->src_id!=-1 && (t->d->type==LD))  
-    //if(t->src_id!=-1 && t->d->type==LD && t->d->n->id==8) 
-    //pq.push(make_pair(t, cycles+1)); 
-  //else  
   pq.push(make_pair(t, cycles+latency));
   
   stat.update("cache_access");
