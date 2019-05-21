@@ -6,8 +6,11 @@
 #include <sstream> 
 #include <vector>
 #include <string>
+#include "DECADES/DECADES.h"
+
 #define SIZE 1000
 #define inliner __attribute__((always_inline))
+
 using namespace std;
 struct queue {
     int items[SIZE];
@@ -20,7 +23,6 @@ struct node
     int vertex;
     struct node* next;
 };
-
 
 struct Graph
 {
@@ -46,7 +48,6 @@ struct node* createNode(int v)
     return newNode;
 }
  
-
 struct Graph* createGraph(int vertices)
 {
     struct Graph* graph = (Graph*) malloc(sizeof(struct Graph));
@@ -84,7 +85,6 @@ struct queue* createQueue() {
     return q;
 }
 
-
 inliner void enqueue(struct queue* q, int value){
     if(q->rear == SIZE-1)
       q = NULL;
@@ -111,9 +111,8 @@ inliner int dequeue(struct queue* q){
     return item;
 }
 
-
-
-void _kernel_bfs(struct Graph* graph, struct queue* q, int startVertex) {
+//-------------------------------------------------
+void _kernel_(struct Graph* graph, struct queue* q, int startVertex, int thread_id, int num_threads) {
   graph->visited[startVertex] = 1;
   enqueue(q, startVertex);
 
@@ -131,6 +130,8 @@ void _kernel_bfs(struct Graph* graph, struct queue* q, int startVertex) {
     }
   }
 }
+//-------------------------------------------------
+
 vector<string> split(const string &s, char delim) {
      stringstream ss(s);
      string item;
@@ -144,10 +145,12 @@ vector<string> split(const string &s, char delim) {
 int main()
 {
   struct Graph* graph = createGraph(348);
-  ifstream cfile("testgraph.txt");
+  string filename="../testgraph.txt";
+  ifstream cfile(filename);
   string line;
 
   if (cfile.is_open()) {
+    cout << "opening graph file: " << filename << "\n";
     int numLine = 5038;
     for (int i=0; i<numLine; i++) {
      getline(cfile,line);
@@ -155,16 +158,9 @@ int main()
      addEdge(graph, stoi(s.at(0)), stoi(s.at(1)));
     }
   }
-  // }
-  // addEdge(graph, 0, 1);
-  // addEdge(graph, 0, 2);
-  // addEdge(graph, 1, 2);
-  // addEdge(graph, 1, 4);
-  // addEdge(graph, 1, 3);
-  // addEdge(graph, 2, 4);
-  // addEdge(graph, 3, 4);
   struct queue* q = createQueue();
-  _kernel_bfs(graph, q, 3);
+
+  _kernel_(graph, q, 3, 0, 1);
 
   return 0;
 }
