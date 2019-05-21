@@ -14,21 +14,24 @@
 std::ofstream f1[MAX_THREADS];
 std::ofstream f2[MAX_THREADS];
 
-const char * get_dir_name(char* kernel_type, std::string type) {
+__attribute__((noinline))
+const char * get_dir_name(std::string run_dir, std::string kernel_type, std::string type) {
   if (omp_get_thread_num() >= MAX_THREADS) {
     std::cout << "ERROR: Unable to log for all threads! Increase MAX_THREADS in tracer.cc" << "\n";
     assert(0);
   }
   std::ostringstream ret;
-  ret << "output_" << kernel_type << "_" << omp_get_thread_num() << "/" << type;
+  ret << run_dir << "/output_" << kernel_type << "_" << omp_get_thread_num() << "/" << type;
   return ret.str().c_str();
 }
 
-__attribute__((noinline)) void printBranch(char* name, char *kernel_type, int cond, char* n1, char *n2)
+__attribute__((noinline))
+extern "C"
+void printBranch(char* name, char *kernel_type, char *run_dir, int cond, char* n1, char *n2)
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
   }
 	char *target;
 	if(cond == 0)
@@ -40,11 +43,13 @@ __attribute__((noinline)) void printBranch(char* name, char *kernel_type, int co
   //f1[omp_get_thread_num()].close();
 }
 
-__attribute__((noinline)) void printuBranch(char* name, char *kernel_type, char *n1)
+__attribute__((noinline))
+extern "C"
+void printuBranch(char* name, char *kernel_type, char *run_dir, char *n1)
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
   }
   if(!f1[omp_get_thread_num()].is_open())
     assert(false);
@@ -53,11 +58,13 @@ __attribute__((noinline)) void printuBranch(char* name, char *kernel_type, char 
   //f1[omp_get_thread_num()].close();
 }
 
-__attribute__((noinline)) void printMem(char *name, char *kernel_type, bool type, long long addr, int size)
+__attribute__((noinline))
+extern "C"
+void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long addr, int size)
 {
   if(!f2[omp_get_thread_num()].is_open()) {
     //f2.open("output/mem.txt", std::ofstream::out | std::ofstream::trunc);
-    f2[omp_get_thread_num()].open(get_dir_name(kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::trunc);
+    f2[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::trunc);
   }
 	
   if(type == 0)
@@ -69,11 +76,13 @@ __attribute__((noinline)) void printMem(char *name, char *kernel_type, bool type
   //f2[omp_get_thread_num()].close();
 }
 
-__attribute__((noinline)) void printSw(char *name, char *kernel_type, int value, char *def, int n, ...)
+__attribute__((noinline))
+extern "C"
+void printSw(char *name, char *kernel_type, char *run_dir, int value, char *def, int n, ...)
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
   }
   va_list vl;
   std::vector<int> vals;
