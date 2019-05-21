@@ -20,8 +20,11 @@ public:
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
     
-    registerStat("cache_hit", 1);
-    registerStat("cache_miss", 1);
+    registerStat("l1_hit", 1);
+    registerStat("l1_miss", 1);
+    registerStat("l2_hit", 0);
+    registerStat("l2_miss", 0);
+    
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
     registerStat("cache_evict", 1);
@@ -73,7 +76,17 @@ public:
   }
   void print() {
     cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    cout << "BW : " << (double) get("dram_access") * 64 * 2 / get ("cycles") << " GB/s \n";
+    cout << "Average BW : " << (double) get("dram_access") * 64 * 2 / get ("cycles") << " GB/s \n";
+    if(get("l1_miss")!=0)
+      {
+        cout << "L1 Miss Rate: " << 100*get("l1_miss")/(get("l1_miss")+get("l1_hit")) << "%"<< endl;
+      }
+
+    if(get("l2_miss")!=0)
+      {
+        cout << "L2 Miss Rate: " << 100*get("l2_miss")/(get("l2_miss")+get("l2_hit")) << "%"<< endl;
+      }
+    
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       cout << it->first << " : " << it->second.first << "\n";
     }

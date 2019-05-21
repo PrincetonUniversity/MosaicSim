@@ -53,6 +53,7 @@ public:
   uint64_t last_instr_count;
   uint64_t cycles=0;
   uint64_t total_instructions=0;
+  uint64_t instruction_limit=250000000;
   map<int,Tile*> tiles;
   int tileCount=0;
   vector<uint64_t> clockspeedVec;

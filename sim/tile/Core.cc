@@ -146,6 +146,11 @@ void Core::initialize(int id) {
     uint64_t bbid=cf[i];
     BasicBlock *bb = g.bbs.at(bbid);
     sim->total_instructions+=bb->inst_count;
+    if(sim->total_instructions>=sim->instruction_limit) {
+      cout << "\n----SIMULATION TERMINATING----" << endl;
+      cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE AND RUN WITH A SMALLER DATASET." << endl;
+      assert(false);
+    }
   }
   //cout << "Total Instructions is: " << sim->total_instructions << endl;
   //assert(false);
