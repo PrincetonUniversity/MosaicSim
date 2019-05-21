@@ -66,8 +66,9 @@ double	nvdla_acc::get_total_mac_cycles()
 double	nvdla_acc::get_total_time()
 {
 	double total_time = (this)->get_total_max_cycles();
-
-	total_time /= 1000 / network[0]->get_frequency();
+	//cout << "total_time = " << total_time << endl;
+	total_time = total_time / 1000 / network[0]->get_frequency();
+	//cout << "total_time = " << total_time << endl;
 
 	return total_time;
 };
@@ -83,8 +84,8 @@ double	nvdla_acc::get_fps()
 
 double	nvdla_acc::get_hw_mac_efficiency()
 {
-	double	max_cycles;
-	double	mac_cycles;
+	double	max_cycles = (this)->get_total_max_cycles();
+	double	mac_cycles = (this)->get_total_mac_cycles();
 
 	return mac_cycles/max_cycles;
 };
@@ -106,6 +107,9 @@ double	nvdla_acc::get_network_mac_efficiency()
 {
 	double calculations = (this)->get_total_calculations();
 	double total_cycles = (this)->get_total_max_cycles();
+	//cout << "calculations = " << calculations << endl;
+	//cout << "total_cycles = " << total_cycles << endl;
+	//cout << "network[0]->get_num_of_mul() = " << network[0]->get_num_of_mul() << endl;
 
 	return calculations / (network[0]->get_num_of_mul()) / total_cycles;
 };
@@ -118,6 +122,30 @@ double	nvdla_acc::get_network_mac_efficiency()
 nvdla_layer::nvdla_layer()
 {
 
+}
+
+nvdla_layer::nvdla_layer(const nvdla_layer &n)
+{
+	mNum_of_input_channels_C = n.mNum_of_input_channels_C;
+	mInput_height_H = n.mInput_height_H;
+	mInput_width_W = n.mInput_width_W;
+	mNum_of_output_K = n.mNum_of_output_K;
+	mFilter_height_R = n.mFilter_height_R;
+	mFilter_width_S = n.mFilter_width_S;
+	mEnable_zero_pad_Z = n.mEnable_zero_pad_Z;
+	mVertical_conv_H = n.mVertical_conv_H;
+	mHorizonal_conv_V = n.mHorizonal_conv_V;
+	mEnable_pool_after_conv = n.mEnable_pool_after_conv;
+	mPooling_height_D = n.mPooling_height_D;
+	mPooling_width_E = n.mPooling_width_E;
+	mVertical_pooling_F = n.mVertical_pooling_F;
+	mHorizontal_pooling_G = n.mHorizontal_pooling_G;
+	mWinograd = n.mWinograd;
+	mLayer_type = n.mLayer_type;
+	mFc_batch_size = n.mFc_batch_size;
+	mDRAM_bw_limit = n.mDRAM_bw_limit;
+	mFrequency = n.mFrequency;
+	mNumber_of_mul = n.mNumber_of_mul;
 }
 
 nvdla_layer::~nvdla_layer()
@@ -146,19 +174,21 @@ void	nvdla_layer::commit()
 void nvdla_layer::calc_height_after_conv()
 {
 	mHeight_after_conv = mEnable_zero_pad_Z ?
-			ceil( mInput_height_H/mVertical_conv_H) : (ceil((mInput_height_H-mFilter_height_R)/mVertical_conv_H)) + 1;
+			ceil( mInput_height_H/mVertical_conv_H) : ceil((mInput_height_H-mFilter_height_R)/mVertical_conv_H + 1);
 };
 
 void nvdla_layer::calc_width_after_conv()
 {
 	mWidth_after_conv = mEnable_zero_pad_Z ?
-			ceil((mInput_width_W/mHorizonal_conv_V)): (ceil(mInput_width_W-mFilter_width_S)/mHorizonal_conv_V) + 1;
+			ceil((mInput_width_W/mHorizonal_conv_V)): ceil((mInput_width_W-mFilter_width_S)/mHorizonal_conv_V + 1);
 };
 
 void	nvdla_layer::calc_height_after_pool()
 {
 	mHeight_after_pool = mEnable_pool_after_conv ?
-			ceil((mHeight_after_conv-mPooling_height_D)/mVertical_pooling_F) : mHeight_after_pool;
+			(ceil((mHeight_after_conv-mPooling_height_D)/mVertical_pooling_F) + 1) : mWidth_after_conv;
+
+	//cout << "mHeight_after_pool = " << mHeight_after_pool << endl;
 };
 
 void	nvdla_layer::calc_width_after_pool()
@@ -170,59 +200,72 @@ void	nvdla_layer::calc_width_after_pool()
 void	nvdla_layer::calc_num_of_calculations()
 {
 	mCalculations = mNum_of_input_channels_C * mHeight_after_conv * mWidth_after_conv * mNum_of_output_K * mFilter_height_R * mFilter_width_S;
+	//cout << "mNum_of_input_channels_C = " << mNum_of_input_channels_C << endl;
+	//cout << "mHeight_after_conv = " << mHeight_after_conv << endl;
+	//cout << "mWidth_after_conv = " << mWidth_after_conv << endl;
+	//cout << "mNum_of_output_K = " << mNum_of_output_K << endl;
+	//cout << "mFilter_height_R = " << mFilter_height_R << endl;
+	//cout << "mFilter_width_S = " << mFilter_width_S << endl;
 };
 
 void	nvdla_layer::calc_input_data_size()
 {
 	mInput_data_size = 0;
 
-	int convolution_size = ROUND((mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
+	int convolution_size = ROUND((int)(mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
 	int input_size = ceil((mInput_height_H / mVertical_conv_H)) * ceil(mInput_width_W/mHorizonal_conv_V);
-	int type = INPUT_DATA_TYPE/1024; //KB
+	double type = INPUT_DATA_TYPE/1024.0; //KB
 
 	mInput_data_size = convolution_size * input_size * type;
+	//cout << "mInput_data_size = " << mInput_data_size << endl;
+
 };
 
 void	nvdla_layer::calc_min_input_data_size()
 {
 	mMin_input_data_size = 0;
 
-	int convolution_size = ROUND((mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
+	int convolution_size = ROUND((int)(mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
 	int input_size = MIN(mFilter_height_R + 1, ceil((mInput_height_H / mVertical_conv_H))) * ceil(mInput_width_W/mHorizonal_conv_V);
-	int type = INPUT_DATA_TYPE/1024; //KB
+	double type = INPUT_DATA_TYPE/1024.0; //KB
 
-	mInput_data_size = convolution_size * input_size * type;
+	mMin_input_data_size = convolution_size * input_size * type;
+	//cout << "type = " << type << endl;
 };
 
 void	nvdla_layer::calc_output_data_size()
 {
 	mOutput_data_size = 0;
-	double height = mHeight_after_conv * mHeight_after_pool;
-	double output = ROUND(mNum_of_output_K, 16);
-	int type = INPUT_DATA_TYPE/1024; //KB
+	int height = mHeight_after_pool * mHeight_after_pool;
+	int output = ROUND((int)mNum_of_output_K, 16);
+	double type = INPUT_DATA_TYPE/1024.0; //KB
+	//cout << "mNum_of_output_K = " << mNum_of_output_K << endl;
 
 	mOutput_data_size = height * output * type;
+	//cout << "mOutput_data_size = " << mOutput_data_size << endl;
 };
 
 void	nvdla_layer::calc_weight_data_size()
 {
 	mWeight_data_size = 0;
 
-	int convolution_size = ROUND((mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
+	int convolution_size = ROUND((int)(mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
 	int filter = ceil((mFilter_height_R / mVertical_conv_H)) * ceil((mFilter_width_S/mHorizonal_conv_V));
-	double output = mNum_of_output_K * WEIGHT_DATA_TYPE;
-	double type = (1-COMPRESION_RATE) / 1024;//KB
+	int output = mNum_of_output_K * WEIGHT_DATA_TYPE;
+	double type = (1-COMPRESION_RATE)/1024.0;//KB
+	double winograd = mWinograd==1 ? (16.0/9) : 1;
 
-	mWeight_data_size = convolution_size * filter * output * type;
+	mWeight_data_size = convolution_size * filter * output * type * winograd;
+	//cout << "winograd = " << winograd << endl;
 }
 
 void	nvdla_layer::calc_min_weight_data_size()
 {
 	mMin_weight_data_size = 0;
 
-	int convolution_size = ROUND((mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
+	int convolution_size = ROUND((int)(mNum_of_input_channels_C * mVertical_conv_H * mHorizonal_conv_V), 16);
 	int filter = ceil((double) (mFilter_height_R / mVertical_conv_H)) * ceil((mFilter_width_S/mHorizonal_conv_V));
-	double output = 32 * WEIGHT_DATA_TYPE;
+	int output = 32 * WEIGHT_DATA_TYPE;
 	double type = (1-COMPRESION_RATE) / 1024;//KB
 
 	double result = convolution_size * filter * output * type;
@@ -254,20 +297,25 @@ void	nvdla_layer::calc_dram_traffic()
 	}
 
 	mDRAM_traffic = mWeight_data_size/batch_size + mOutput_data_size + mInput_data_size;
+	//cout << "mWeight_data_size = " << mWeight_data_size << endl;
+	//cout << "mOutput_data_size = " << mOutput_data_size << endl;
+	//cout << "mInput_data_size = " << mInput_data_size << endl;
 
 };
 
 void	nvdla_layer::calc_dram_cycles()
 {
 	mDRAM_cycles = ceil(mDRAM_traffic/mDRAM_bw_limit * mFrequency);
+	//cout << "mDRAM_traffic = " << mDRAM_traffic << endl;
+
 };
 
 void	nvdla_layer::calc_mac_cycles()
 {
 	mMAC_cycles = 0;
 
-	int input_size = ROUND(mNum_of_input_channels_C*mVertical_conv_H*mHorizonal_conv_V, 16);
-	int output_size = 0;
+	double input_size = ROUND((int)(mNum_of_input_channels_C*mVertical_conv_H*mHorizonal_conv_V), 16);
+	double output_size = 0;
 
 	if(mEnable_zero_pad_Z)
 	{
@@ -280,14 +328,15 @@ void	nvdla_layer::calc_mac_cycles()
 
 	if(mLayer_type == fc)
 	{
-		output_size = ROUND(mNum_of_output_K * mFc_batch_size, 16) * mFilter_height_R * mFilter_width_S / mVertical_conv_H / mHorizonal_conv_V / mNumber_of_mul / mFc_batch_size;
+		output_size = ROUND((int)(mNum_of_output_K * mFc_batch_size), 16) * mFilter_height_R * mFilter_width_S / mVertical_conv_H / mHorizonal_conv_V / mNumber_of_mul / mFc_batch_size;
 	}
 	else
 	{
-		output_size = ROUND(mNum_of_output_K, 16) * mFilter_height_R * mFilter_width_S / mVertical_conv_H / mHorizonal_conv_V / mNumber_of_mul;
+		output_size = ROUND((int)mNum_of_output_K, 16) * mFilter_height_R * mFilter_width_S / mVertical_conv_H / mHorizonal_conv_V / mNumber_of_mul;
 	}
 
 	mMAC_cycles = input_size * output_size;
+	//cout << "mFc_batch_size = " << mFc_batch_size << endl;
 
 	if(mFilter_height_R == 3)
 	{
@@ -301,4 +350,5 @@ void	nvdla_layer::calc_mac_cycles()
 void	nvdla_layer::calc_max_cycle()
 {
 	mMAX_cycle = MAX(mDRAM_cycles, mMAC_cycles);
+	//cout << "mDRAM_cycles = " << mDRAM_cycles << endl;
 };

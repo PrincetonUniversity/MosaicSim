@@ -11,6 +11,8 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
+#include <iostream>
+using namespace std;
 
 #define INPUT_DATA_TYPE 1
 #define WEIGHT_DATA_TYPE 1
@@ -28,6 +30,7 @@ class nvdla_layer
 	public:
 		nvdla_layer();
 		~nvdla_layer();
+		nvdla_layer(const nvdla_layer &n);
 
 		//Methods for calculating the inner parameters of NN layer
 		void 	calc_height_after_conv();
@@ -95,7 +98,7 @@ class nvdla_layer
 		double 			mVertical_pooling_F = 0;
 		double 			mHorizontal_pooling_G = 0;
 		int				mWinograd = 0;
-		layer_type 		mLayer_type = 0;
+		layer_type 		mLayer_type = conv;
 		double			mFc_batch_size = 0;
 		double 			mDRAM_bw_limit = 0;
 		double			mFrequency = 0;
@@ -129,6 +132,11 @@ class nvdla_acc
 	//Adds a new layer the network - as the last layer
 	void	add_layer(nvdla_layer* new_layer);
 
+	//Accelerator setup
+	void clear(){network.clear();}; // Removes all layers
+	void remove_layer(int i){network.erase(network.begin()+i-1);}; // removes layer number i
+	void set_num_of_layers(int num){mNum_of_layers = num;};
+
 	//Returns information on the full accelerator's performance - executed only after setting all the layers
 	double	get_total_max_cycles();
 	double	get_total_mac_cycles();
@@ -137,6 +145,7 @@ class nvdla_acc
 	double	get_hw_mac_efficiency();
 	double	get_network_mac_efficiency();
 	double	get_total_calculations();
+	int		get_num_of_layers(){return mNum_of_layers;};
 
 	//Calculates all layers parameters - must be executed before returning information
 	void	commit();
