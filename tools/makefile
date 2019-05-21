@@ -3,6 +3,8 @@ OMP_INCLUDE=-I/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/includ
 
 tracer: tracer.cc
 	$(CXX)  -S -O3 -emit-llvm -fopenmp=libomp $(OMP_INCLUDE)  -o tracer.llvm tracer.cc
+	$(CXX)  -fPIC -shared $(OMP_INCLUDE)  -o tracer.so tracer.cc
 clean:
 	rm tracer.llvm
+	rm tracer.so
 

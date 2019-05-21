@@ -7,6 +7,7 @@
 #include "llvm/Analysis/ScalarEvolutionExpressions.h"
 
 std::string KERNEL_STR = "_kernel_";
+bool FROM_NUMBA = false;
 bool found_kernel = false;
 
 using namespace apollo;
@@ -41,7 +42,14 @@ StringRef GraphGen::getPassName() const {
 }
 
 bool GraphGen::isKernelFunction(Function &func) {
-  return (func.getName().str().find(KERNEL_STR) != std::string::npos); 
+  if (!FROM_NUMBA) {
+    return (func.getName().str().find(KERNEL_STR) != std::string::npos);
+  }
+  else {
+    return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
+      (func.getName().str().find("_ZN8_") != std::string::npos) ;
+  }
+    
 }
 
 void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
@@ -54,7 +62,12 @@ bool GraphGen::runOnFunction(Function &func) {
   if (decades_kernel_str) {
     KERNEL_STR = decades_kernel_str;
   }
-  
+  auto decades_from_numba = getenv("DECADES_FROM_NUMBA");
+  if (decades_from_numba) {
+    if (atoi(decades_from_numba) == 1)
+      FROM_NUMBA = true;
+  }
+ 
   LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 

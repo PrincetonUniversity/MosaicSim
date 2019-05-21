@@ -10,8 +10,10 @@
 #include <string>
 
 using namespace llvm;
+bool FROM_NUMBA = false;
 std::string KERNEL_STR = "_kernel_";
 std::string KERNEL_TYPE = "_no_type_";
+std::string RUN_DIR = "decades_base";
 
 namespace {
   struct RecordDynamicInfo : public ModulePass {
@@ -26,25 +28,34 @@ namespace {
     RecordDynamicInfo() : ModulePass(ID) {}
     bool runOnModule(Module &M) override {
       mod = &(M);
-      //Could be solved easily by making tracer.cc functions "extern "C""
+
       //std::string k1 = "_Z12printuBranchPcS_";
-      std::string k1 = "_Z12printuBranchPcS_S_";
+      std::string k1 = "printuBranch";
       //std::string k2 = "_Z11printBranchPciS_S_";
-      std::string k2 = "_Z11printBranchPcS_iS_S_";
+      std::string k2 = "printBranch";
       //std::string k3 = "_Z7printSwPciS_iz";
-      std::string k3 = "_Z7printSwPcS_iS_iz";
+      std::string k3 = "printSw";
       //std::string k4 = "_Z8printMemPcbxi";
-      std::string k4 = "_Z8printMemPcS_bxi";
+      std::string k4 = "printMem";
 
       auto decades_kernel_type = getenv("DECADES_KERNEL_TYPE");
       if (decades_kernel_type) {
         KERNEL_TYPE = decades_kernel_type;
       }
 
+      auto decades_run_dir = getenv("DECADES_RUN_DIR");
+      if (decades_run_dir) {
+        RUN_DIR = decades_run_dir;
+      }
+
+
       LLVMContext& ctx = M.getContext();
-      printuBR = (Function *) M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
-      printBR = (Function *) M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
+      printuBR = (Function *) M.getOrInsertFunction(k1, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
+      
+      printBR = (Function *) M.getOrInsertFunction(k2, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx)).getCallee();
+      
       std::vector<Type*> targs;
+      targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt8PtrTy(ctx));
       targs.push_back(Type::getInt32Ty(ctx));
@@ -52,12 +63,18 @@ namespace {
       targs.push_back(Type::getInt32Ty(ctx));
       FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
       printSw  = (Function *) M.getOrInsertFunction(k3, sF).getCallee();
-      printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+      printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
 	KERNEL_STR = decades_kernel_str;
       }
+      auto decades_from_numba = getenv("DECADES_FROM_NUMBA");
+      if (decades_from_numba) {
+	if (atoi(decades_from_numba) == 1)
+	  FROM_NUMBA = true;
+      }
+
 
 
       for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
@@ -89,9 +106,17 @@ namespace {
     {
       return id_table.at(ins);
     }
-    bool isFoI(Function &F) {
-      return (F.getName().str().find(KERNEL_STR) != std::string::npos);
+    
+    bool isFoI(Function &func) {
+      if (!FROM_NUMBA) {
+	return (func.getName().str().find(KERNEL_STR) != std::string::npos);
+      }
+      else {
+	return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
+	  (func.getName().str().find("_ZN8_") != std::string::npos) ;
+      }
     }
+    
     void printInvoke(InvokeInst *pi) {
       IRBuilder<> Builder(pi);
       LLVMContext& ctx = mod->getContext();
@@ -103,7 +128,8 @@ namespace {
       Value *name = Builder.CreateGlobalStringPtr(bbname);
       Value *name1= Builder.CreateGlobalStringPtr(p);
       Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-      Value* args[] = {name, ktype, name1};
+      Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+      Value* args[] = {name, ktype, rdir, name1};
       CallInst* cI = Builder.CreateCall(printuBR, args);
     }
     void printBranch(BranchInst *pi, int conditional) {
@@ -131,7 +157,8 @@ namespace {
         Value *name1= Builder.CreateGlobalStringPtr(p1);
         Value *name2= Builder.CreateGlobalStringPtr(p2);
 	Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-        Value* args[] = {name, ktype, castI, name1, name2};
+	Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+        Value* args[] = {name, ktype, rdir, castI, name1, name2};
         CallInst* cI = Builder.CreateCall(printBR, args);
       }
       else {
@@ -143,7 +170,8 @@ namespace {
         Value *name = Builder.CreateGlobalStringPtr(bbname);
         Value *name1= Builder.CreateGlobalStringPtr(p);
 	Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-        Value* args[] = {name, ktype, name1};
+	Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+        Value* args[] = {name, ktype, rdir, name1};
         CallInst* cI = Builder.CreateCall(printuBR, args);
       }
     }
@@ -166,8 +194,10 @@ namespace {
       std::string defstr = std::to_string(findBID(bdefault));
       Value *def = Builder.CreateGlobalStringPtr(defstr);
       Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+      Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
       args.push_back(name);
       args.push_back(ktype);
+      args.push_back(rdir);
       args.push_back(castI);
       args.push_back(def);
       args.push_back(length);
@@ -211,7 +241,8 @@ namespace {
       uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
       ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
       Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-      Value* args[] = {name, ktype, ctype, castI, csize};
+      Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+      Value* args[] = {name, ktype, rdir, ctype, castI, csize};
   
       CallInst* cI = Builder.CreateCall(printMem, args);
   
@@ -259,7 +290,8 @@ namespace {
                 uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
                 ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
 		Value* ktype = Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-                Value* args[] = {name, ktype, ctype, castI, csize};
+		Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                Value* args[] = {name, ktype, rdir, ctype, castI, csize};
  
                 CallInst* cI = Builder.CreateCall(printMem, args);
                 //for(int i=0; i<1000; i++) {
@@ -290,7 +322,8 @@ namespace {
                 uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
                 ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
 		Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
-                Value* args[] = {name, ktype, ctype, castI, csize};
+		Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                Value* args[] = {name, ktype, rdir, ctype, castI, csize};
  
                 CallInst* cI = Builder.CreateCall(printMem, args);
                 //for(int i=0; i<1000; i++) {

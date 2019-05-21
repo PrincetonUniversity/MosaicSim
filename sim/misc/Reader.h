@@ -22,9 +22,21 @@ public:
      return tokens;
   }
 
+  int fileSizeKB(std::string name) {
+    int filesize = 0;
+    ifstream cfile(name);
+    if (cfile.is_open()) {
+      cfile.seekg(0, ios::end);
+      filesize = cfile.tellg(); 
+      cfile.close();
+    }
+    return filesize/1024;
+  }
+
   void readGraph(std::string name, Graph &g) {
     ifstream cfile(name);
     if (cfile.is_open()) {
+      cout << "[SIM] Start reading the Data Dependency Graph (" << name << ")...\n";
       string line;
       string temp;
       getline(cfile,temp);
@@ -121,16 +133,21 @@ public:
       assert(false);
     }
     cfile.close();
-    cout << "[SIM] Finished Reading Data Dependency Graph (" << name << ") \n";
+    cout << "[SIM] ...Finished reading the Data Dependency Graph!\n\n";
     
   }
+
   // Read Dynamic Memory accesses from profiling file.
   // <memory> will be a map of { <instr_id>, <queue of addresses> }
   void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
+    int filesizeKB = fileSizeKB(name);
     ifstream memfile(name);
     if (memfile.is_open()) {
+      cout << "[SIM] Start reading the Memory trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
+      if (filesizeKB > 100000)  // > 100 MB
+        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
       while ( getline(memfile,line) ) {
         vector<string> s = split(line, ',');
         assert(s.size() == 4);
@@ -144,7 +161,7 @@ public:
       cout << "[ERROR] Cannot open Memory profiling file!\n";
       assert(false);
     }
-    cout << "[SIM] Finished Reading Memory trace (" << name << ")\n";
+    cout << "[SIM] ...Finished reading the Memory trace!\n\n";
     memfile.close();
   }
 
@@ -154,10 +171,14 @@ public:
   void readProfCF(std::string name, std::vector<int> &cf) {
     string line;
     string last_line;
+    int filesizeKB = fileSizeKB(name);
     ifstream cfile(name);
     bool init = false;
     int last_bbid = -1;
     if (cfile.is_open()) {
+      cout <<"[SIM] Start reading the Control-Flow trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
+      if (filesizeKB > 100000)  // > 100 MB
+        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
       while (getline (cfile,line)) { //could be cuz kernel gets called multiple times in a loop for example
         vector<string> s = split(line, ',');
         assert(s.size() == 3);
@@ -179,7 +200,7 @@ public:
       cout << "[ERROR] Cannot open CF profiling file!\n";
       assert(false);
     }
-    cout <<"[SIM] Finished Reading ControlFlow trace - Total contexts: " << cf.size() << "\n";
+    cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";
     cfile.close();
   }
 };
