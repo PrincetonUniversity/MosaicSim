@@ -149,7 +149,7 @@ void Core::initialize(int id) {
     //exit gracefully instead of getting killed by OS
     if(sim->total_instructions>=sim->instruction_limit) {
       cout << "\n----SIMULATION TERMINATING----" << endl;
-      cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE AND RUN WITH A SMALLER DATASET." << endl;
+      cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE YOUR APPLICATION AND RUN WITH A SMALLER DATASET." << endl;
       assert(false);
     }
   }
