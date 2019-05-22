@@ -2,7 +2,8 @@
 // Simulator API for invoking the gemm accelerator
 //
 
-#include "sim_accelerators.h"
+#include "../accelerators.h"
+#include "gemm-model.hpp"
 
 int main(void)
 {

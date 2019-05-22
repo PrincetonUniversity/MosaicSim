@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
-#icnlude "../simulator-api/sim_accelerators.h"
+
+#include "../accelerators.hpp"
+#include "../gemm-model.hpp"
 
 #define DMA_CHUNK 64
 
