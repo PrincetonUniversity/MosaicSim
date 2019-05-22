@@ -43,7 +43,6 @@ public:
   bool register_barrier(DynamicNode* d); //return true if barrier successfully registered, free all barriers once thread count is reached
 };
 
-
 class Simulator {
 public:
 
@@ -53,7 +52,7 @@ public:
   uint64_t last_instr_count;
   uint64_t cycles=0;
   uint64_t total_instructions=0;
-  uint64_t instruction_limit=250000000; //instruction limit, simulator terminates with a message if this is crossed
+  uint64_t instruction_limit=250000000; 
   map<int,Tile*> tiles;
   int tileCount=0;
   vector<uint64_t> clockspeedVec;

@@ -147,7 +147,7 @@ void Core::initialize(int id) {
     BasicBlock *bb = g.bbs.at(bbid);
     sim->total_instructions+=bb->inst_count;
     //exit gracefully instead of getting killed by OS
-    if(sim->total_instructions>=sim->instruction_limit) {
+    if(sim->instruction_limit>0 && sim->total_instructions>=sim->instruction_limit) {
       cout << "\n----SIMULATION TERMINATING----" << endl;
       cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE YOUR APPLICATION AND RUN WITH A SMALLER DATASET." << endl;
       assert(false);
@@ -249,6 +249,8 @@ bool Core::process() {
   
   if(cfg.verbLevel >= 5)
     cout << "[Cycle: " << cycles << "]\n";
+
+  // Print current stats every 1mill cycles
   if(cycles % 1000000 == 0 && cycles !=0) {
     curr = Clock::now();
     uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
@@ -274,7 +276,7 @@ bool Core::process() {
     
     Context *c = *it;
     c->complete();
-       
+      
     if(it!=live_context.begin()) {   
       assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
     }

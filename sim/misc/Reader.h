@@ -49,7 +49,7 @@ public:
       // add the list of Basic Blocks to the Graph
       for (int i=0; i<numBBs; i++)
         g.addBasicBlock(i);
-      
+
       // Now start adding ALL the nodes
       while (true) {        
         getline(cfile,line);
@@ -61,7 +61,7 @@ public:
           //cout << "BAD LINE: " << line << endl;
           continue;
         }
-         //can't parse switch statement cuz it's multiple lines
+        //can't parse switch statement cuz it's multiple lines
         //switch statements span multiple lines and are of the form e.g.,
         /* 
            7,13,2,  switch i31 %trunc, label %sw.default [
@@ -80,7 +80,7 @@ public:
         vector<string> s = split(line, ',');
         
         int id = stoi(s.at(0));
-        TInstr type = static_cast<TInstr>(stoi(s.at(1)));
+        TInstr type = static_cast<TInstr>(stoi(s.at(1)));   
         int bbid = stoi(s.at(2));
         string name = "";
         for(unsigned int i=3; i<s.size(); i++)
@@ -147,7 +147,7 @@ public:
     if (memfile.is_open()) {
       cout << "[SIM] Start reading the Memory trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
       if (filesizeKB > 100000)  // > 100 MB
-        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
+        cout << "[SIM] ...big file (>100MB), please, expect some minutes to read it.\n";
       while ( getline(memfile,line) ) {
         vector<string> s = split(line, ',');
         assert(s.size() == 4);
@@ -178,7 +178,7 @@ public:
     if (cfile.is_open()) {
       cout <<"[SIM] Start reading the Control-Flow trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
       if (filesizeKB > 100000)  // > 100 MB
-        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
+        cout << "[SIM] ...big file (>100MB), please, expect some minutes to read it.\n";
       while (getline (cfile,line)) { //could be cuz kernel gets called multiple times in a loop for example
         vector<string> s = split(line, ',');
         assert(s.size() == 3);
