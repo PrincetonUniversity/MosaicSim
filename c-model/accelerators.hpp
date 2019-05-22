@@ -29,7 +29,6 @@ typedef struct acc_performance {
     float area; // in um^2
     float power; // in mW
     float bandwidth; // bytes/cycles
-    float utilization;
 } acc_perf_t; 
 
 #endif // _ACCELERATORS_HPP_
