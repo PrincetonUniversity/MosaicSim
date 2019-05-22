@@ -18,14 +18,17 @@ using namespace std;
 #define INPUT_DATA_TYPE 1
 #define WEIGHT_DATA_TYPE 1
 #define	COMPRESION_RATE	0
-#define CONVOLUTION_BUFFER 128;
+#define CONVOLUTION_BUFFER 128.0;
+#define NUM_OF_MAC 256.0
+#define NVDLA_AREA 1.0 //mm^2, 16[nm]
+#define	NVDLA_POWER 135/48.0
+#define DRAM_BW_LIMIT 5.0 //GBps
+#define FREQUENCY 1000 //MHz
+#define FC_BATCH_SIZE 16
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define ROUND(number,mul) (((number%mul)!=0)?((number + mul)-(number%mul)):(number))
-
-#define NVDLA_AREA 1000
-#define	NVDLA_POWER 1000
 
 enum layer_type{fc, conv};
 
@@ -81,10 +84,10 @@ class nvdla_layer
 		void	set_horizontal_pooling_dim(int horizontal_pool_dim){mHorizontal_pooling_G = horizontal_pool_dim;};
 		void	set_winograd(int winograd){mWinograd = winograd;};
 		void	set_layer_type(layer_type type){mLayer_type = type;}; // Only conv or fc
-		void	set_fc_batch_size(int batch_size){mFc_batch_size = batch_size;};
-		void	set_dram_bw_limit(int dram_bw_limit){mDRAM_bw_limit = dram_bw_limit;};
-		void	set_frequency(int frequency){mFrequency = frequency;};
-		void	set_num_of_mul(int num_of_mul){mNumber_of_mul = num_of_mul;};
+		//void	set_fc_batch_size(int batch_size){mFc_batch_size = batch_size;};
+		//void	set_dram_bw_limit(int dram_bw_limit){mDRAM_bw_limit = dram_bw_limit;};
+		//void	set_frequency(int frequency){mFrequency = frequency;};
+		//void	set_num_of_mul(int num_of_mul){mNumber_of_mul = num_of_mul;};
 
 	private:
 		//Pre-defined member variables
@@ -104,10 +107,10 @@ class nvdla_layer
 		double 			mHorizontal_pooling_G = 0;
 		int				mWinograd = 0;
 		layer_type 		mLayer_type = conv;
-		double			mFc_batch_size = 0;
-		double 			mDRAM_bw_limit = 0;
-		double			mFrequency = 0;
-		double			mNumber_of_mul = 0;
+		double			mFc_batch_size = FC_BATCH_SIZE;
+		double 			mDRAM_bw_limit = DRAM_BW_LIMIT;
+		double			mFrequency = FREQUENCY;
+		double			mNumber_of_mul = NUM_OF_MAC;
 
 		//Calculated by methods
 		double	mHeight_after_conv = 0;
@@ -173,18 +176,18 @@ typedef struct config_nvdla
 	int filter_width;
 	bool zero_pad;
 	int vertical_conv_dim;
-	int horizintal_conv_dim;
+	int horizontal_conv_dim;
 	bool pooling;
 	int pool_height;
 	int pool_width;
 	int vertical_pool_dim;
 	int horizontal_pool_dim;
-	int winograd;
+//	int winograd;
 	layer_type type;
-	int batch_size;
-	int dram_bw_limit; //GB/s
-	int frequency; //MHz
-	int num_of_mul;
+//	int batch_size;
+//	int dram_bw_limit; //GB/s
+//	int frequency; //MHz
+//	int num_of_mul;
 } config_nvdla_t;
 
 acc_perf_t sim_nvdla(config_nvdla_t config);

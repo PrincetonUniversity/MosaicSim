@@ -25,18 +25,18 @@ int main(void)
 	config.filter_width = 11;
 	config.zero_pad = 0;
 	config.vertical_conv_dim = 4;
-	config.horizintal_conv_dim = 4;
+	config.horizontal_conv_dim = 4;
 	config.pooling = true;
 	config.pool_height = 3;
 	config.pool_width = 3;
 	config.vertical_pool_dim = 2;
 	config.horizontal_pool_dim = 2;
-	config.winograd = 0;
+	//config.winograd = 0;
 	config.type = conv;
-	config.batch_size = 16;
-	config.dram_bw_limit = 10; //GB/s
-	config.frequency = 1000; //MHz
-	config.num_of_mul = 2048;
+	//config.batch_size = 16;
+//	config.dram_bw_limit = 10; //GB/s
+//	config.frequency = 1000; //MHz
+//	config.num_of_mul = 2048;
 
 	acc_perf_t nvdla_perf = sim_nvdla(config);
 
@@ -44,8 +44,8 @@ int main(void)
 	cout << "NVDLA performance data:" << endl;
 	cout << "Cycles: " << nvdla_perf.cycles << endl;
 	cout << "Bytes: " << nvdla_perf.bytes << endl;
-	cout << "Area: " << nvdla_perf.area << endl;
-	cout << "Power: " << nvdla_perf.power << endl;
+	cout << "Area: " << nvdla_perf.area << "[mm^2, 16nm]" << endl;
+	cout << "Power: " << nvdla_perf.power << "[mW, 16nm]"<< endl;
 	cout << "Bandwidth: " << nvdla_perf.bandwidth << "[Bytes/Cycle]" << endl;
 	cout << endl;
 
@@ -111,17 +111,17 @@ void AlexNet_example()
 	layer_type type = conv;
 	first_layer->set_layer_type(type); // Only conv or fc
 
-	int batch_size = 16;
-	first_layer->set_fc_batch_size(batch_size);
+	//int batch_size = 16;
+	//first_layer->set_fc_batch_size(batch_size);
 
-	int dram_bw_limit = 10; //GB/s
-	first_layer->set_dram_bw_limit(dram_bw_limit);
+	//int dram_bw_limit = 10; //GB/s
+	//first_layer->set_dram_bw_limit(dram_bw_limit);
 
-	int frequency = 1000; //MHz
-	first_layer->set_frequency(frequency);
+	//int frequency = 1000; //MHz
+	//first_layer->set_frequency(frequency);
 
-	int num_of_mul = 2048;
-	first_layer->set_num_of_mul(num_of_mul);
+	//int num_of_mul = 2048;
+	//first_layer->set_num_of_mul(num_of_mul);
 
 
 	//Insert the layer into the

@@ -384,20 +384,27 @@ acc_perf_t sim_nvdla(config_nvdla_t config)
 	first_layer->set_num_of_outputs(config.num_of_outputs);
 	first_layer->set_filter_height(config.filter_height);
 	first_layer->set_filter_width(config.filter_width);
-	first_layer->set_zero_padding(config.zero_pad);
-	first_layer->set_vertical_conv_dim(config.vertical_conv_dim);
-	first_layer->set_horizontal_conv_dim(config.horizintal_conv_dim);
-	first_layer->set_pooling_after_conv(config.pooling);
+	if(config.type == fc)
+	{
+		first_layer->set_vertical_conv_dim(1);
+		first_layer->set_horizontal_conv_dim(1);
+		first_layer->set_zero_padding(false);
+		first_layer->set_pooling_after_conv(false);
+	}
+	else //conv
+	{
+		first_layer->set_zero_padding(config.zero_pad);
+		first_layer->set_vertical_conv_dim(config.vertical_conv_dim);
+		first_layer->set_horizontal_conv_dim(config.horizontal_conv_dim);
+		first_layer->set_pooling_after_conv(config.pooling);
+	}
+
 	first_layer->set_pooling_height(config.pool_height);
 	first_layer->set_pooling_width(config.pool_width);
 	first_layer->set_vertical_pooling_dim(config.vertical_pool_dim);
 	first_layer->set_horizontal_pooling_dim(config.horizontal_pool_dim);
-	first_layer->set_winograd(config.winograd);
+	//first_layer->set_winograd(config.winograd);
 	first_layer->set_layer_type(config.type); // Only conv or fc
-	first_layer->set_fc_batch_size(config.batch_size);
-	first_layer->set_dram_bw_limit(config.dram_bw_limit);
-	first_layer->set_frequency(config.frequency);
-	first_layer->set_num_of_mul(config.num_of_mul);
 
 	//Insert the layer into the
 	accelerator.add_layer(first_layer);
