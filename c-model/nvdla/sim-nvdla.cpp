@@ -9,7 +9,51 @@
 #include <iostream>
 using namespace std;
 
+void AlexNet_example();
+
 int main(void)
+{
+	//Create an instance of the accelerator configuration
+	config_nvdla_t config;
+
+	//Set all the parameters of a layer
+	config.num_of_inputs = 3;
+	config.input_height = 224;
+	config.input_width = 224;
+	config.num_of_outputs = 96;
+	config.filter_height = 11;
+	config.filter_width = 11;
+	config.zero_pad = 0;
+	config.vertical_conv_dim = 4;
+	config.horizintal_conv_dim = 4;
+	config.pooling = true;
+	config.pool_height = 3;
+	config.pool_width = 3;
+	config.vertical_pool_dim = 2;
+	config.horizontal_pool_dim = 2;
+	config.winograd = 0;
+	config.type = conv;
+	config.batch_size = 16;
+	config.dram_bw_limit = 10; //GB/s
+	config.frequency = 1000; //MHz
+	config.num_of_mul = 2048;
+
+	acc_perf_t nvdla_perf = sim_nvdla(config);
+
+	//Print results
+	cout << "NVDLA performance data:" << endl;
+	cout << "Cycles: " << nvdla_perf.cycles << endl;
+	cout << "Bytes: " << nvdla_perf.bytes << endl;
+	cout << "Area: " << nvdla_perf.area << endl;
+	cout << "Power: " << nvdla_perf.power << endl;
+	cout << "Bandwidth: " << nvdla_perf.bandwidth << "[Bytes/Cycle]" << endl;
+	cout << endl;
+
+	//AlexNet_example();
+
+}
+
+void AlexNet_example()
 {
 	//Create an instance of the accelerator
 	//You need to set the number of layers you want (in the example it is 1)
@@ -204,7 +248,6 @@ int main(void)
 	cout << "HW MAC efficiency: " << accelerator.get_hw_mac_efficiency() << endl;
 	cout << "Network MAC efficiency: " << accelerator.get_network_mac_efficiency() << endl;
 	cout << "Total calculations: " << accelerator.get_total_calculations() << endl;
-
 }
 
 

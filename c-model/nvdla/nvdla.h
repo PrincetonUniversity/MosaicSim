@@ -12,6 +12,7 @@
 #include <algorithm>
 #include <vector>
 #include <iostream>
+#include "../accelerators.hpp"
 using namespace std;
 
 #define INPUT_DATA_TYPE 1
@@ -22,6 +23,9 @@ using namespace std;
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 #define ROUND(number,mul) (((number%mul)!=0)?((number + mul)-(number%mul)):(number))
+
+#define NVDLA_AREA 1000
+#define	NVDLA_POWER 1000
 
 enum layer_type{fc, conv};
 
@@ -58,6 +62,7 @@ class nvdla_layer
 		double	get_calculations(){return mCalculations;};
 		double	get_num_of_mul(){return mNumber_of_mul;};
 		layer_type get_type(){return mLayer_type;}
+		double	get_dram_traffic(){return mDRAM_traffic;};
 
 		//set methods
 		void	set_num_of_inputs(int num_of_inputs){mNum_of_input_channels_C = num_of_inputs;};
@@ -146,6 +151,7 @@ class nvdla_acc
 	double	get_network_mac_efficiency();
 	double	get_total_calculations();
 	int		get_num_of_layers(){return mNum_of_layers;};
+	double 	get_total_dram_traffic();
 
 	//Calculates all layers parameters - must be executed before returning information
 	void	commit();
@@ -157,5 +163,30 @@ class nvdla_acc
 
 };
 
+typedef struct config_nvdla
+{
+	int num_of_inputs;
+	int input_height;
+	int input_width;
+	int num_of_outputs;
+	int filter_height;
+	int filter_width;
+	bool zero_pad;
+	int vertical_conv_dim;
+	int horizintal_conv_dim;
+	bool pooling;
+	int pool_height;
+	int pool_width;
+	int vertical_pool_dim;
+	int horizontal_pool_dim;
+	int winograd;
+	layer_type type;
+	int batch_size;
+	int dram_bw_limit; //GB/s
+	int frequency; //MHz
+	int num_of_mul;
+} config_nvdla_t;
+
+acc_perf_t sim_nvdla(config_nvdla_t config);
 
 #endif /* NVDLA_H_ */

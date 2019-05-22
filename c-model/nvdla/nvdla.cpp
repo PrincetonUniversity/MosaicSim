@@ -63,6 +63,19 @@ double	nvdla_acc::get_total_mac_cycles()
 	return total_cycles;
 };
 
+double	nvdla_acc::get_total_dram_traffic()
+{
+	double total_traffic = 0;
+
+	std::vector<nvdla_layer*>::iterator iter;
+	for (iter = network.begin(); iter < network.end(); iter++)
+	{
+		total_traffic += (*iter)->get_dram_traffic();
+	}
+
+	return total_traffic;
+};
+
 double	nvdla_acc::get_total_time()
 {
 	double total_time = (this)->get_total_max_cycles();
@@ -351,4 +364,54 @@ void	nvdla_layer::calc_max_cycle()
 {
 	mMAX_cycle = MAX(mDRAM_cycles, mMAC_cycles);
 	//cout << "mDRAM_cycles = " << mDRAM_cycles << endl;
+};
+
+
+//Helper functions
+acc_perf_t sim_nvdla(config_nvdla_t config)
+{
+	//Create an instance of the accelerator
+	//You need to set the number of layers you want (in the example it is 1)
+	nvdla_acc accelerator(1);
+
+	//Create a neural network layer
+	nvdla_layer* first_layer = new nvdla_layer();
+
+	//Set all the parameters of a layer
+	first_layer->set_num_of_inputs(config.num_of_inputs);
+	first_layer->set_input_height(config.input_height);
+	first_layer->set_input_width(config.input_width);
+	first_layer->set_num_of_outputs(config.num_of_outputs);
+	first_layer->set_filter_height(config.filter_height);
+	first_layer->set_filter_width(config.filter_width);
+	first_layer->set_zero_padding(config.zero_pad);
+	first_layer->set_vertical_conv_dim(config.vertical_conv_dim);
+	first_layer->set_horizontal_conv_dim(config.horizintal_conv_dim);
+	first_layer->set_pooling_after_conv(config.pooling);
+	first_layer->set_pooling_height(config.pool_height);
+	first_layer->set_pooling_width(config.pool_width);
+	first_layer->set_vertical_pooling_dim(config.vertical_pool_dim);
+	first_layer->set_horizontal_pooling_dim(config.horizontal_pool_dim);
+	first_layer->set_winograd(config.winograd);
+	first_layer->set_layer_type(config.type); // Only conv or fc
+	first_layer->set_fc_batch_size(config.batch_size);
+	first_layer->set_dram_bw_limit(config.dram_bw_limit);
+	first_layer->set_frequency(config.frequency);
+	first_layer->set_num_of_mul(config.num_of_mul);
+
+	//Insert the layer into the
+	accelerator.add_layer(first_layer);
+
+	//Calculate all performance attributes of the current accelerator
+	accelerator.commit();
+
+	acc_perf_t	nvdla_perf;
+
+	nvdla_perf.cycles = accelerator.get_total_max_cycles();
+	nvdla_perf.bytes = accelerator.get_total_dram_traffic() * 1000;
+	nvdla_perf.area = NVDLA_AREA;
+	nvdla_perf.power = NVDLA_POWER;
+	nvdla_perf.bandwidth = nvdla_perf.bytes*1000/nvdla_perf.cycles;
+
+	return nvdla_perf;
 };
