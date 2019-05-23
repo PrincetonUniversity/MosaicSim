@@ -1,9 +1,9 @@
 #ifndef _GEMM_MODEL_HPP_
 #define _GEMM_MODEL_HPP_
 
-#include "../accelerator.hpp"
+#include "../accelerators.hpp"
 
-// area in # of cells, IBM 32nm
+// area in um^2, IBM 32nm
 #define GEMM_AREA 54288
 // average power consumption estimate in mW
 #define GEMM_AVG_POWER 34

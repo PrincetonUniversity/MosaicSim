@@ -2,13 +2,13 @@
 // Simulator API for invoking the gemm accelerator
 //
 
-#include "../accelerators.h"
-#include "gemm-model.hpp"
+#include "../accelerators.hpp"
+#include "gemm_model.hpp"
 
 int main(void)
 {
     // prepare accelerator configuration.
-    // TODO this should come from Python through the compiler
+    // in the real flow this comes from Python through the compiler
     config_gemm_t config_gemm;
     config_gemm.rowsA = 100;
     config_gemm.colsA = 100;

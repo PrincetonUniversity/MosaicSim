@@ -3,7 +3,7 @@
 #include <algorithm>
 
 #include "../accelerators.hpp"
-#include "../gemm-model.hpp"
+#include "../gemm_model.hpp"
 
 #define DMA_CHUNK 64
 
@@ -29,6 +29,8 @@ void load_model(long long unsigned &cycles, long long unsigned &bytes,
 {
     // iteration delay
     cycles++;
+
+    // 2. Load chunks of the first matrix
 
     // send dma read request: length
     cycles++;
@@ -268,6 +270,8 @@ acc_perf_t sim_gemm(config_gemm_t config)
 
     perf.cycles = perf.cycles * n_invocations;
     perf.bytes = perf.bytes * n_invocations;
+
+    // Commented out because we don't support multi-accelerator
 
     // int n_invocations = (int) config.batch_size / N_ACC_GEMM;
 
