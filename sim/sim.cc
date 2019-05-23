@@ -75,22 +75,26 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
   
   // Read the Program's Static Data Dependency Graph + dynamic traces for control flow and memory
   Reader r;
+
   r.readGraph(gName, core->g);
   r.readProfMemory(memName, core->memory);
   r.readProfCF(cfName, core->cf);
+
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();
   core->sim=this;
+
   //cout << "register core id " << id << endl;
   core->initialize(id);
-  
+
   //registerTile(core, id);
   registerTile(core);
   //create a descq for every 2nd core, starting with core 0
   if(id % 2 == 0) {
     descq_vec.push_back(new DESCQ(cfg));
   }
+
 }
 
 int transactioncount=0;

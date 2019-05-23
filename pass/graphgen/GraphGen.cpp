@@ -30,7 +30,7 @@ public:
   void addDataEdges(Function &func);
   void addPhiEdges(Function &func);
   void addControlEdges(Function &func);
-  void detectComm(Function &func);
+  void detectFunctions(Function &func);
   void exportGraph();
   void visualize();
 };
@@ -79,7 +79,7 @@ bool GraphGen::runOnFunction(Function &func) {
     addDataEdges(func);
     addControlEdges(func);
     addPhiEdges(func);
-    detectComm(func);
+    detectFunctions(func);
     analyzeLoop();
     visualize();
     exportGraph();
@@ -87,7 +87,7 @@ bool GraphGen::runOnFunction(Function &func) {
   return false;
 }
 
-void GraphGen::detectComm(Function &func) {
+void GraphGen::detectFunctions(Function &func) {
   int id = 0;
   uint64_t staddr_count=0;
   uint64_t stval_count=0;
@@ -134,7 +134,13 @@ void GraphGen::detectComm(Function &func) {
               n->itype = BARRIER;
               //assert(false);
             }
-         
+
+            else if ((f->getName().str().find("decadesTF_matmul") != std::string::npos) || (f->getName().str().find("decadesTF_add") != std::string::npos) || (f->getName().str().find("decadesTF_relu") != std::string::npos)) {
+              //errs() << "[ACCELERATOR]"<< *i << "\n";
+              n->itype = ACCELERATOR;
+              //assert(false);
+            }
+            
             else if(f->getName().str().find("dec_bs_vector_inc") != std::string::npos) {
                Value* pv=(cinst->getArgOperand(0));
                if(ConstantInt *ipv = dyn_cast<llvm::ConstantInt>(pv)) {

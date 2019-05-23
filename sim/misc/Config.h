@@ -5,7 +5,7 @@
 #include <map>
 using namespace std;
 
-#define NUM_INST_TYPES 27
+#define NUM_INST_TYPES 28
 #define word_size_bytes  4  // TODO: allow different sizes. Now, word_size is a constant
 
 class Config {

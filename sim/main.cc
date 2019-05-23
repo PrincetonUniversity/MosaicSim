@@ -70,8 +70,10 @@ int main(int argc, char const *argv[]) {
     for (int i=0; i<num_cores; i++) {
       string wlpath(argv[arg_index++]);   // next paramenter is the WORKLOAD path
       string cfgname(argv[arg_index++]);  // next paramenter is the core configfile (we assume that it already includes the path)
+
       cfgpath="";
       simulator->registerCore(wlpath, cfgpath, cfgname, i);
+
     }
     // do a while loop here checking for addition command line parameters: verbosity, decoupling, output and debug
     while(argc > arg_index) {
@@ -90,6 +92,7 @@ int main(int argc, char const *argv[]) {
         simulator->debug_mode=true;
       }
     }
+
     //register the acccelerator tiles
     Tile* tile = new Accelerator(simulator,2000);
     simulator->registerTile(tile);
@@ -108,10 +111,10 @@ int main(int argc, char const *argv[]) {
     simulator->registerTile(tile, tid); //pick tile id, but unique from other already assigned ones, starting from num_cores
     *********/        
   }
-
-  //set the DRAMSim clockspeed based on Tile0's clockspeed, assume tile 0 is a core
-  simulator->initDRAM(simulator->tiles[0]->clockspeed);    
   
+  //set the DRAMSim clockspeed based on Tile0's clockspeed, assume tile 0 is a core
+  simulator->initDRAM(simulator->tiles[0]->clockspeed); 
+
   simulator->run();
   return 0;
 } 

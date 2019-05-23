@@ -164,7 +164,35 @@ public:
     cout << "[SIM] ...Finished reading the Memory trace!\n\n";
     memfile.close();
   }
-
+  //read accelerator file
+  //eg 1,decadesTF_matmul,3,3,3,3
+  //node id, acc_kernel_name, sizes ...
+   void readAccTrace(std::string name, std::unordered_map<int, std::queue<string> > &acc_map) {
+    string line;
+    string last_line;
+    int filesizeKB = fileSizeKB(name);
+    ifstream accfile(name);
+    if (accfile.is_open()) {
+      cout << "[SIM] Start reading the Accelerator Invokation trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
+      if (filesizeKB > 100000)  // > 100 MB
+        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
+      while ( getline(accfile,line) ) {
+        vector<string> s = split(line, ',');
+        
+        int id = stoi(s.at(0));
+        if (acc_map.find(id) == acc_map.end()) 
+          acc_map.insert(make_pair(id, queue<string>()));
+        acc_map.at(id).push(line);  //insert the acc name and all args needed to run it for that instance
+      }
+    }
+    else {
+      cout << "[ERROR] Cannot open Accelerator profiling file!\n";
+      assert(false);
+    }
+    cout << "[SIM] ...Finished reading the Accelerator trace!\n\n";
+    accfile.close();
+  }
+  
   // Read Dynamic Control Flow data from the profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
   // vector <cf> will be the sequential list of executed BBs

@@ -11,8 +11,9 @@
 //Hack to make this work.
 #define MAX_THREADS 1024
 
-std::ofstream f1[MAX_THREADS];
-std::ofstream f2[MAX_THREADS];
+std::ofstream f1[MAX_THREADS]; //for mem.txt
+std::ofstream f2[MAX_THREADS]; // for ctrl.txt
+std::ofstream f3[MAX_THREADS]; // for acc.txt
 
 __attribute__((noinline))
 const char * get_dir_name(std::string run_dir, std::string kernel_type, std::string type) {
@@ -74,6 +75,20 @@ void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long
     f2[omp_get_thread_num()] << "S,"<< name << "," << addr << ","<< size <<"\n";
   //std::cout << "Store ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
   //f2[omp_get_thread_num()].close();
+}
+
+__attribute__((noinline))
+extern "C"
+void printAcc(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA, int rowsB, int colsB)
+{
+  
+  if(!f3[omp_get_thread_num()].is_open()) {
+    
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+  }
+  //std::cout << "printing acc now " << rowsA << ","<< colsA << rowsB << ","<< colsB <<"\n";
+ 
+  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << "," << rowsB << ","<< colsB <<"\n";
 }
 
 __attribute__((noinline))

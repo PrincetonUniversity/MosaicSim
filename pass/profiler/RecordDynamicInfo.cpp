@@ -22,6 +22,7 @@ namespace {
     Function *printBR;
     Function *printSw;
     Function *printMem;
+    Function *printAcc;
     Module *mod;
     std::map<BasicBlock*, int> bb_id_table;
     std::map<Instruction*, int> id_table;
@@ -37,6 +38,7 @@ namespace {
       std::string k3 = "printSw";
       //std::string k4 = "_Z8printMemPcbxi";
       std::string k4 = "printMem";
+      std::string print_acc_name = "printAcc";
 
       auto decades_kernel_type = getenv("DECADES_KERNEL_TYPE");
       if (decades_kernel_type) {
@@ -64,6 +66,9 @@ namespace {
       FunctionType *sF = FunctionType::get(Type::getVoidTy(ctx), targs, true);
       printSw  = (Function *) M.getOrInsertFunction(k3, sF).getCallee();
       printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+
+      printAcc = (Function *) M.getOrInsertFunction(print_acc_name, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+      //(fn actual name to be linked in tracer.cc, kernel_type(supp, comp), run_dir, node_id, acc_subkernel_name, int rowsa, int colsa, int rowsb, int colsb)
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
@@ -266,6 +271,7 @@ namespace {
         else if(auto *lI = dyn_cast<LoadInst>(inst)) {
           printMemory(inst);
         }
+        //print out the memory traces
         else if(CallInst *cinst = dyn_cast<CallInst>(inst)) {
           for (Use &use : inst->operands()) {
             Value *v = use.get();
@@ -326,6 +332,44 @@ namespace {
                 Value* args[] = {name, ktype, rdir, ctype, castI, csize};
  
                 CallInst* cI = Builder.CreateCall(printMem, args);
+                //for(int i=0; i<1000; i++) {
+                //  CallInst* cI = Builder.CreateCall(printMem, args);
+                //}
+                //assert(false);
+                //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
+                
+              }
+              //extract accelerators below
+              else if(f->getName().str().find("decadesTF_matmul") != std::string::npos) {
+                
+                //errs() << "[STADDR]"<< *inst << "\n";
+                //LLVMContext& ctx = mod->getContext();
+                //auto arg_it=f->arg_begin();
+                //Value* addr=cinst->getArgOperand(0);
+                Value *ktype, *rdir, *rowsa_val, *rowsb_val, *colsa_val,*colsb_val, *castI, *name_val, *acc_name_val;
+                IRBuilder<> Builder(inst);
+                DataLayout* dl = new DataLayout(mod);
+                LLVMContext& ctx = mod->getContext();
+                rowsa_val=(cinst->getArgOperand(3));
+                colsa_val=(cinst->getArgOperand(4));
+                rowsb_val=(cinst->getArgOperand(5));
+                colsb_val=(cinst->getArgOperand(6));
+                ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                //3,4,5,6
+
+                castI = Builder.CreatePtrToInt(colsa_val, llvm::Type::getInt32Ty(ctx), "castInst");
+                errs() << "matmult: " << *castI << "\n";
+                
+                
+                std::string namestr = std::to_string(findID(inst));
+                std::string acc_name("decadesTF_matmul");
+                //instr id
+                name_val = Builder.CreateGlobalStringPtr(namestr);
+                acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
+                Value* args[] = {name_val,ktype,rdir,acc_name_val,rowsa_val,colsa_val,rowsb_val, colsb_val};
+                CallInst* cI = Builder.CreateCall(printAcc, args);
+                
                 //for(int i=0; i<1000; i++) {
                 //  CallInst* cI = Builder.CreateCall(printMem, args);
                 //}

@@ -7,7 +7,7 @@
 #define ID_POOL 1000000
 using namespace std;
 
-vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER"};
+vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR"};
 
 Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
 
@@ -124,7 +124,7 @@ void Core::initialize(int id) {
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), local_cfg.num_units[i]));
   }
-  
+
   // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
   if (local_cfg.cf_mode == 0)
     context_to_create = 1;
