@@ -76,10 +76,7 @@ append TESTBENCHES "test1 test2 test3 test4 test5 "
 #
 
 set DMA_CHUNKS ""
-#append DMA_CHUNKS "32 "
-append DMA_CHUNKS "64 "
-#append DMA_CHUNKS "128 "
-#append DMA_CHUNKS "256 "
+append DMA_CHUNKS "512 "
 
 set DMA_WIDTH "64"
 
