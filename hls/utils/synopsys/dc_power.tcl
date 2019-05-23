@@ -39,13 +39,13 @@ foreach opp $operating_points {
     puts "\n ** REPORT POWER $dir $POWER_DIR **\n" 
     report_power -analysis_effort high -verbose -nosplit > ${POWER_DIR}/power_std_$dir.rpt
 
-    if { [file exists "../back_sc.saif" ] == 1} {
-	reset_switching_activity
-	read_saif -auto_map_names -input ../back_sc.saif -instance_name ${TOP_NAME}
-	puts "\n ** Reading SAIF backannotation (RTL) **\n"
-	report_power -analysis_effort high -verbose -nosplit > ${POWER_DIR}/power_sc_$dir.rpt
+    # if { [file exists "../back_sc.saif" ] == 1} {
+	# reset_switching_activity
+	# read_saif -auto_map_names -input ../back_sc.saif -instance_name nmf_multt0
+	# puts "\n ** Reading SAIF backannotation (RTL) **\n"
+	# report_power -analysis_effort high -verbose -nosplit > ${POWER_DIR}/power_sc_$dir.rpt
 	report_saif -hier
-    }
+    # }
 
     # Report timing -> check clock cycle meets timing
     puts "\n ** REPORT TIMING $dir $POWER_DIR **\n" 

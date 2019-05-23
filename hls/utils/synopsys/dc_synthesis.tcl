@@ -41,6 +41,16 @@ elaborate "${TOP_NAME}"
 link
 
 #################################################################################
+# Read saif
+#################################################################################
+
+if { [file exists "../back_sc.saif" ] == 1} {
+    reset_switching_activity
+    read_saif -auto_map_names -input ../back_sc.saif -instance_name sc_main/testbench/wrapper/nmf_multt/nmf_multt0
+    puts "\n ** Reading SAIF backannotation (RTL) **\n"
+}
+
+#################################################################################
 # Apply Logical Design Constraints
 #################################################################################
 #local constraints override the default ones
@@ -93,7 +103,8 @@ check_design > ${REPORTS_DIR}/check.rpt
 #################################################################################
 #set_fix_hold [all_clocks]
 #compile_ultra -retime -no_autoungroup
-compile_ultra -no_autoungroup
+#compile_ultra -no_autoungroup
+compile
 
 #################################################################################
 # High-effort area optimization
