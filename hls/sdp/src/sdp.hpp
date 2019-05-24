@@ -11,7 +11,7 @@
 
 #include "esp_templates.hpp"
 
-#include A_MEMORY_HEADER
+//#include A_MEMORY_HEADER
 
 class sdp: public esp_accelerator_3P<DMA_WIDTH>
 {
@@ -28,10 +28,14 @@ class sdp: public esp_accelerator_3P<DMA_WIDTH>
         handshake_t output_done;
 
         // Declaration of the accelerator PLMs
-	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A0;
-	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A1;
-        A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B0;
-        A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B1;
+    FPDATA_WORD PLM_A0[DMA_CHUNK];
+    FPDATA_WORD PLM_A1[DMA_CHUNK];
+    FPDATA_WORD PLM_B0[DMA_CHUNK];
+    FPDATA_WORD PLM_B1[DMA_CHUNK];
+	// A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A0;
+	// A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A1;
+        // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B0;
+        // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B1;
 
         // -- Module constructor
         SC_HAS_PROCESS(sdp);
@@ -47,10 +51,14 @@ class sdp: public esp_accelerator_3P<DMA_WIDTH>
             output_done.bind_with<DMA_WIDTH>(*this);
 
             // Binding explicit memories
-            PLM_A0.clk(this->clk);
-            PLM_A1.clk(this->clk);
-            PLM_B0.clk(this->clk);
-            PLM_B1.clk(this->clk);
+	    HLS_FLATTEN_ARRAY(PLM_A0);
+	    HLS_FLATTEN_ARRAY(PLM_A1);
+	    HLS_FLATTEN_ARRAY(PLM_B0);
+	    HLS_FLATTEN_ARRAY(PLM_B1);
+            // PLM_A0.clk(this->clk);
+            // PLM_A1.clk(this->clk);
+            // PLM_B0.clk(this->clk);
+            // PLM_B1.clk(this->clk);
         }
 
         // -- Processes

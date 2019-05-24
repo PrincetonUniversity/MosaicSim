@@ -25,7 +25,7 @@ void sdp::load_input()
         HLS_DEFINE_PROTOCOL("reset-load");
 
         this->reset_load_input();
-        LOAD_INPUT_RESET_PORTS;
+        //LOAD_INPUT_RESET_PORTS;
 
         pingpong = false;
 
@@ -88,15 +88,19 @@ void sdp::load_input()
 
 		if (working_mode >= 4) {
 		    if (pingpong) {
-			PLM_A0.port1[0][j] = data.to_uint();
+			// PLM_A0.port1[0][j] = data.to_uint();
+			PLM_A0[j] = data.to_uint();
 		    } else {
-			PLM_A1.port1[0][j] = data.to_uint();
+			// PLM_A1.port1[0][j] = data.to_uint();
+			PLM_A1[j] = data.to_uint();
 		    }
 		} else {
 		    if (pingpong) {
-			PLM_A0.port1[0][j << 1] = data.to_uint();
+			PLM_A0[j << 1] = data.to_uint();
+			// PLM_A0.port1[0][j << 1] = data.to_uint();
 		    } else {
-			PLM_A1.port1[0][j << 1] = data.to_uint();
+			// PLM_A1.port1[0][j << 1] = data.to_uint();
+			PLM_A1[j << 1] = data.to_uint();
 		    }
 		}
 
@@ -125,9 +129,11 @@ void sdp::load_input()
 		    HLS_CONSTRAIN_LATENCY(0, 1, "load-tensorA");
 
 		    if (pingpong) {
-			PLM_A0.port1[0][(j << 1) + 1] = data.to_uint();
+			// PLM_A0.port1[0][(j << 1) + 1] = data.to_uint();
+			PLM_A0[(j << 1) + 1] = data.to_uint();
 		    } else {
-			PLM_A1.port1[0][(j << 1) + 1] = data.to_uint();
+			// PLM_A1.port1[0][(j << 1) + 1] = data.to_uint();
+			PLM_A1[(j << 1) + 1] = data.to_uint();
 		    }
 
 		    wait(); // Only considered in behavioral simulation
@@ -174,7 +180,7 @@ void sdp::store_output()
         HLS_DEFINE_PROTOCOL("reset-load");
 
         this->reset_load_input();
-        STORE_OUTPUT_RESET_PORTS;
+        //STORE_OUTPUT_RESET_PORTS;
 
         pingpong = false;
 
@@ -242,10 +248,12 @@ void sdp::store_output()
 		    HLS_CONSTRAIN_LATENCY(0, 1, "store-tensor");
 
 		    if (pingpong) {
-			dataA = PLM_A0.port2[0][j];
+			// dataA = PLM_A0.port2[0][j];
+			dataA = PLM_A0[j];
 			
 		    } else {
-			dataA = PLM_A1.port2[0][j];
+			// dataA = PLM_A1.port2[0][j];
+			dataA = PLM_A1[j];
 		    }
 		}		    
 
@@ -276,11 +284,15 @@ void sdp::store_output()
 		    HLS_CONSTRAIN_LATENCY(0, 1, "store-tensor");
 
 		    if (pingpong) {
-			dataA = PLM_A0.port2[0][j << 1];
-			dataB = PLM_A0.port3[0][(j << 1) + 1];
+			// dataA = PLM_A0.port2[0][j << 1];
+			// dataB = PLM_A0.port3[0][(j << 1) + 1];
+			dataA = PLM_A0[j << 1];
+			dataB = PLM_A0[(j << 1) + 1];
 		    } else {
-			dataA = PLM_A1.port2[0][j << 1];
-			dataB = PLM_A1.port3[0][(j << 1) + 1];
+			// dataA = PLM_A1.port2[0][j << 1];
+			// dataB = PLM_A1.port3[0][(j << 1) + 1];
+			dataA = PLM_A1[j << 1];
+			dataB = PLM_A1[(j << 1) + 1];
 		    }
 		}
 
