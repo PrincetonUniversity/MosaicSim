@@ -55,8 +55,6 @@ set COMMON_CFG_FLAGS \
 define_system_module ../tb/multt.c
 define_system_module tb ../tb/system.cpp ../tb/sc_main.cpp
 
-# enable_waveform_logging -vcd
-
 #
 # System level modules to be synthesized
 #

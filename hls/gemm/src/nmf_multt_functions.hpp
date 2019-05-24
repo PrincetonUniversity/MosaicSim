@@ -5,9 +5,12 @@
 
 // Computational kernels
 
+// void nmf_multt::multt_main(uint32_t length,
+//   A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &row,
+//   A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &col)
 void nmf_multt::multt_main(uint32_t length,
-  A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &row,
-  A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &col)
+			   FPDATA_WORD *row,
+			   FPDATA_WORD *col)
 {
     for (uint32_t k = 0; k < DMA_CHUNK;)
     {

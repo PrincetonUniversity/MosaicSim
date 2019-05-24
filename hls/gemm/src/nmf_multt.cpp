@@ -31,7 +31,7 @@ void nmf_multt::load_input()
         HLS_DEFINE_PROTOCOL("reset-load");
 
         this->reset_load_input();
-        LOAD_INPUT_RESET_PORTS;
+        // LOAD_INPUT_RESET_PORTS;
 
         pingpong = false;
 
@@ -68,8 +68,6 @@ void nmf_multt::load_input()
 
     {
         calculate_chunks(matrix_chk, matrix_rem, matrix_d2);
-
-        // ESP_REPORT_INFO("-----> chk: %d, rem %d", matrix_chk, matrix_rem);
 
         for (uint32_t d1 = 0; d1 < matrix_d1; ++d1)
         {
@@ -212,7 +210,7 @@ void nmf_multt::compute_kernel()
 
         this->reset_compute_kernel();
         output_done.ack.reset_ack();
-        COMPUTE_KERNEL_RESET_PORTS;
+        // COMPUTE_KERNEL_RESET_PORTS;
 
         pingpong = false;
 
@@ -292,7 +290,9 @@ void nmf_multt::compute_kernel()
                     }
                 }
 
-                PLM2_B0.port1[0][store_count] =
+                // PLM2_B0.port1[0][store_count] =
+                //   FP2INT(accumulator[0]);
+                PLM2_B0[store_count] =
                   FP2INT(accumulator[0]);
 
                 // Call the store_output process and
@@ -332,7 +332,7 @@ void nmf_multt::store_output()
 
         this->reset_store_output();
         output_done.req.reset_req();
-        STORE_OUTPUT_RESET_PORTS;
+        // STORE_OUTPUT_RESET_PORTS;
 
         index = 0;
         length = 0;

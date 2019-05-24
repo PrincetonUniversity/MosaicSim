@@ -11,8 +11,8 @@
 
 #include "esp_templates.hpp"
 
-#include A_MEMORY_HEADER
-#include B_MEMORY_HEADER
+//#include A_MEMORY_HEADER
+//#include B_MEMORY_HEADER
 
 class nmf_multt: public esp_accelerator_3P<DMA_WIDTH>
 {
@@ -29,11 +29,17 @@ class nmf_multt: public esp_accelerator_3P<DMA_WIDTH>
         handshake_t output_done;
 
         // Declaration of the accelerator PLMs
-	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A0;
-        A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A1;
-        A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A2;
-        A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A3;
-        B_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_B0;
+	// A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A0;
+        // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A1;
+        // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A2;
+        // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_A3;
+        // B_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM2_B0;
+	FPDATA_WORD PLM2_A0[DMA_CHUNK];
+        FPDATA_WORD PLM2_A1[DMA_CHUNK];
+        FPDATA_WORD PLM2_A2[DMA_CHUNK];
+        FPDATA_WORD PLM2_A3[DMA_CHUNK];
+        FPDATA_WORD PLM2_B0[DMA_CHUNK];
+
         FPDATA accumulator[NUM_PORTS]; // flatten
 
         // -- Module constructor
@@ -54,11 +60,16 @@ class nmf_multt: public esp_accelerator_3P<DMA_WIDTH>
             HLS_FLATTEN_ARRAY(accumulator);
 
             // Binding explicit memories
-            PLM2_A0.clk(this->clk);
-            PLM2_A1.clk(this->clk);
-            PLM2_A2.clk(this->clk);
-            PLM2_A3.clk(this->clk);
-            PLM2_B0.clk(this->clk);
+            // PLM2_A0.clk(this->clk);
+            // PLM2_A1.clk(this->clk);
+            // PLM2_A2.clk(this->clk);
+            // PLM2_A3.clk(this->clk);
+            // PLM2_B0.clk(this->clk);
+            HLS_FLATTEN_ARRAY(PLM2_A0);
+            HLS_FLATTEN_ARRAY(PLM2_A1);
+            HLS_FLATTEN_ARRAY(PLM2_A2);
+            HLS_FLATTEN_ARRAY(PLM2_A3);
+            HLS_FLATTEN_ARRAY(PLM2_B0);
         }
 
         // -- Processes
@@ -90,9 +101,12 @@ class nmf_multt: public esp_accelerator_3P<DMA_WIDTH>
         // -- Kernels
 
         // Matrix multiplication kernel
+        // void multt_main(uint32_t length,
+        //   A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &row,
+        //   A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &col);
         void multt_main(uint32_t length,
-          A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &row,
-          A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> &col);
+			FPDATA_WORD *row,
+			FPDATA_WORD *col);
 };
 
 #endif // __NMF_MULTT_HPP__
