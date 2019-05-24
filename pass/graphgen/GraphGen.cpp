@@ -47,9 +47,8 @@ bool GraphGen::isKernelFunction(Function &func) {
   }
   else {
     return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
-      (func.getName().str().find("_ZN8_") != std::string::npos) ;
-  }
-    
+      (func.getName().str().find("cpython") == std::string::npos) ;
+  }    
 }
 
 void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
@@ -71,6 +70,7 @@ bool GraphGen::runOnFunction(Function &func) {
   LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
+  
   if (isKernelFunction(func)) {
     assert(!found_kernel);
     found_kernel = true;

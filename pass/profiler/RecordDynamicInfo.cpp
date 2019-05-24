@@ -113,7 +113,7 @@ namespace {
       }
       else {
 	return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
-	  (func.getName().str().find("_ZN8_") != std::string::npos) ;
+	  (func.getName().str().find("cpython") == std::string::npos) ;
       }
     }
     
@@ -240,6 +240,8 @@ namespace {
       PointerType* vPtrType = cast<PointerType>(v->getType());
       uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());
       ConstantInt *csize = llvm::ConstantInt::get(ctx, llvm::APInt(32, storeSize, true));
+      errs() << "KTYPE " << KERNEL_TYPE << " \n";
+      errs() << "RDIR  " << RUN_DIR << " \n";
       Value *ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
       Value *rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
       Value* args[] = {name, ktype, rdir, ctype, castI, csize};
