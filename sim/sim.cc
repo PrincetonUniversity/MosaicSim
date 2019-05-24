@@ -351,7 +351,7 @@ void Simulator::run() {
       outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
         
-    // JLA: push all the "Load Stats" into the standard error or into a file depending on the verbosity level (IMPROVE THIS!)
+    // push all the "Load Stats" into the standard error output (cerr) or a file depending on the verbosity level (IMPROVE THIS!)
     if(cfg.verbLevel >= 2) {
       cerr << "Total Load Latency (cycles): " << totalLatency << endl;
       cerr << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;

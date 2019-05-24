@@ -62,5 +62,4 @@ public:
   void eraseDependent(Node *src, Node *dest, TEdge type);
   friend ostream &operator<<(ostream &os, Graph &g);
 };
-
 #endif

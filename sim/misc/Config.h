@@ -22,8 +22,8 @@ public:
   bool mem_forward;
   bool branch_prediction=false; // one at a time + prediction
   int misprediction_penalty=1; //number of cycles to insert before creation of next context..model misprediction
+
   // Resources
-  
   int lsq_size;
   int cache_load_ports;
   int cache_store_ports;

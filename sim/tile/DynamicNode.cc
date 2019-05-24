@@ -350,8 +350,6 @@ void Context::complete() {
       }
       stat.update(core->instrToStr(d->type));
       core->local_stat.update(core->instrToStr(d->type));
-      
-      //delete d; //JLA
     }
   }
 }

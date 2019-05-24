@@ -8,29 +8,27 @@
 using namespace std;
 
 Config::Config() {    
-  //cache_latency = 1;
-  //cache_assoc = 8;
-  //cache_linesize = 64;
   instr_latency[I_ADDSUB] = 1;
   instr_latency[I_MULT] = 3;
-  instr_latency[I_DIV] = 26;
-  instr_latency[I_REM] = 1;
+  instr_latency[I_DIV] = 8;  
+  instr_latency[I_REM] = 8;
   instr_latency[FP_ADDSUB] = 1;
   instr_latency[FP_MULT] = 3;
-  instr_latency[FP_DIV] = 26;
-  instr_latency[FP_REM] = 1;
+  instr_latency[FP_DIV] = 8; 
+  instr_latency[FP_REM] = 8;
   instr_latency[LOGICAL] = 1;
   instr_latency[CAST] = 1;
   instr_latency[GEP] = 1;
   instr_latency[LD] = -1;
   instr_latency[ST] = 1;
   instr_latency[TERMINATOR] = 1;
-  instr_latency[PHI] = 0;     // JLA: should it be 0 ?
+  instr_latency[PHI] = 0;     
   instr_latency[SEND] = 1;
   instr_latency[RECV] = 1;
   instr_latency[STADDR] = 1;
   instr_latency[STVAL] = 1;
   instr_latency[LD_PROD] = -1; //treat like an actual load
+  instr_latency[INVALID] = 0; 
   instr_latency[BS_DONE] = 1;
   instr_latency[CORE_INTERRUPT] = 1;
   instr_latency[CALL_BS] = 1;
@@ -44,14 +42,14 @@ Config::Config() {
   num_units[BS_WAKE] = -1;
   num_units[BS_VECTOR_INC] = -1;
   num_units[I_ADDSUB] = 8;
-  num_units[I_MULT] =  1;
-  num_units[I_DIV] = 1;
+  num_units[I_MULT] =  2;
+  num_units[I_DIV] = 2;
   num_units[I_REM] = 2;
-  num_units[FP_ADDSUB] = 1;
-  num_units[FP_MULT] = 1;
-  num_units[FP_DIV] = 1;
-  num_units[FP_REM] = 1;
-  num_units[LOGICAL] = 2;
+  num_units[FP_ADDSUB] = 8;
+  num_units[FP_MULT] = 2;
+  num_units[FP_DIV] = 2;
+  num_units[FP_REM] = 2;
+  num_units[LOGICAL] = 4;
   num_units[CAST] = -1;
   num_units[GEP] = -1;
   num_units[LD] = -1;
@@ -179,7 +177,7 @@ void Config::read(std::string name) {
   
   int id = 0;
   
-  cout << "\n----Reading CONFIGURATION file---------\n";
+  cout << "\n[SIM] ----Reading CONFIGURATION file---------\n";
   cout << "File: " << name << endl;
   if (cfile.is_open()) {
     while (getline (cfile,line)) {
@@ -208,6 +206,6 @@ void Config::read(std::string name) {
     assert(false);
   }
   cfile.close();
-  cout << "[INFO] Finished Reading Config File (" << name << ") \n";
+//  cout << "[SIM] Finished reading configuration file\n";
   cout << "------------------------------------\n\n";
 }
