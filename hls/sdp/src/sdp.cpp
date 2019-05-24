@@ -174,7 +174,7 @@ void sdp::store_output()
         HLS_DEFINE_PROTOCOL("reset-load");
 
         this->reset_load_input();
-        LOAD_INPUT_RESET_PORTS;
+        STORE_OUTPUT_RESET_PORTS;
 
         pingpong = false;
 
@@ -195,7 +195,7 @@ void sdp::store_output()
 
         working_mode = this->conf_info.read().working_mode;
         sizeA = this->conf_info.read().sizeA;
-        scalar = (FPDATA) this->conf_info.read().scalar;
+        scalar = int2fp<FPDATA, WORD_SIZE>(this->conf_info.read().scalar);
         st_offset = this->conf_info.read().st_offset;
    }
 
@@ -228,44 +228,53 @@ void sdp::store_output()
 	}
 
 	for (uint32_t j = 0; j < length; j++) {
-	    HLS_UNROLL_LOOP(OFF); // disabled
 
+	    //HLS_UNROLL_LOOP(OFF); // disabled
+	    //HLS_PIPELINE_LOOP(SOFT_STALL, 1);
+	    //HLS_CONSTRAIN_LATENCY(0, HLS_ACHIEVABLE, "store-constrain-latency");
+		    
 	    sc_dt::sc_bv<DMA_WIDTH> data = 0;
-	    uint64_t dataA, dataB;
+	    sc_dt::sc_bv<DMA_WIDTH> dataA, dataB;
 	    FPDATA dataA0, dataA1, dataB0, dataB1;
 
-	    {
-		HLS_CONSTRAIN_LATENCY(0, 1, "store-tensor");
+	    if (working_mode >= 4) {
+		{
+		    HLS_CONSTRAIN_LATENCY(0, 1, "store-tensor");
 
-		if (working_mode >= 4) {
 		    if (pingpong) {
 			dataA = PLM_A0.port2[0][j];
+			
 		    } else {
 			dataA = PLM_A1.port2[0][j];
 		    }
-		    dataA0 = int2fp<FPDATA, WORD_SIZE>(dataA.range(31, 0));
-		    dataA1 = int2fp<FPDATA, WORD_SIZE>(dataA.range(63, 32));
-		    
-		    if (working_mode == 4) {
-			dataA0 += scalar;
-			dataA1 += scalar;
-		    } else if (working_mode == 5) {
-			dataA0 -= scalar;
-			dataA1 -= scalar;
-		    } else if (working_mode == 6) {
-			dataA0 *= scalar;
-			dataA1 *= scalar;
-		    } else if (working_mode == 7) {
-			dataA0 /= scalar;
-			dataA1 /= scalar;
-		    } else {
-			if (dataA0 < 0) dataA0 = 0;
-			if (dataA1 < 0) dataA1 = 0;
-		    }
-		    data.range(31, 0) = fp2int<FPDATA, WORD_SIZE>(dataA0);
-		    data.range(63, 32) = fp2int<FPDATA, WORD_SIZE>(dataA1);
+		}		    
 
-		} else {
+		dataA0 = INT2FP(dataA.range(31, 0).to_uint());
+		dataA1 = INT2FP(dataA.range(63, 32).to_uint());
+		    
+		if (working_mode == 4) {
+		    dataA0 += scalar;
+		    dataA1 += scalar;
+		} else if (working_mode == 5) {
+		    dataA0 -= scalar;
+		    dataA1 -= scalar;
+		} else if (working_mode == 6) {
+		    dataA0 *= scalar;
+		    dataA1 *= scalar;
+		} else if (working_mode == 7) {
+		    dataA0 /= scalar;
+		    dataA1 /= scalar;
+		} else { // 8
+		    if (dataA0 < 0) dataA0 = 0;
+		    if (dataA1 < 0) dataA1 = 0;
+		}
+		data.range(31, 0) = FP2INT(dataA0);
+		data.range(63, 32) = FP2INT(dataA1);
+
+	    } else {
+		{
+		    HLS_CONSTRAIN_LATENCY(0, 1, "store-tensor");
+
 		    if (pingpong) {
 			dataA = PLM_A0.port2[0][j << 1];
 			dataB = PLM_A0.port3[0][(j << 1) + 1];
@@ -273,35 +282,35 @@ void sdp::store_output()
 			dataA = PLM_A1.port2[0][j << 1];
 			dataB = PLM_A1.port3[0][(j << 1) + 1];
 		    }
-
-		    dataA0 = int2fp<FPDATA, WORD_SIZE>(dataA.range(31, 0));
-		    dataA1 = int2fp<FPDATA, WORD_SIZE>(dataA.range(63, 32));
-		    dataB0 = int2fp<FPDATA, WORD_SIZE>(dataB.range(31, 0));
-		    dataB1 = int2fp<FPDATA, WORD_SIZE>(dataB.range(63, 32));
-
-		    if (working_mode == 4) {
-			dataA0 = dataA0 + dataB0;
-			dataA1 = dataA1 + dataB1;
-		    } else if (working_mode == 5) {
-			dataA0 = dataA0 - dataB0;
-			dataA1 = dataA1 - dataB1;
-		    } else if (working_mode == 6) {
-			dataA0 = dataA0 * dataB0;
-			dataA1 = dataA1 * dataB1;
-		    } else (working_mode == 7) {
-			dataA0 = dataA0 / dataB0;
-			dataA1 = dataA1 / dataB1;
-		    }
-
-		    data.range(31, 0) = fp2int<FPDATA, WORD_SIZE>(dataA0);
-		    data.range(63, 32) = fp2int<FPDATA, WORD_SIZE>(dataA1);
 		}
+
+		dataA0 = INT2FP(dataA.range(31, 0).to_uint());
+		dataA1 = INT2FP(dataA.range(63, 32).to_uint());
+		dataB0 = INT2FP(dataB.range(31, 0).to_uint());
+		dataB1 = INT2FP(dataB.range(63, 32).to_uint());
+
+		if (working_mode == 0) {
+		    dataA0 = dataA0 + dataB0;
+		    dataA1 = dataA1 + dataB1;
+		} else if (working_mode == 1) {
+		    dataA0 = dataA0 - dataB0;
+		    dataA1 = dataA1 - dataB1;
+		} else if (working_mode == 2) {
+		    dataA0 = dataA0 * dataB0;
+		    dataA1 = dataA1 * dataB1;
+		} else { // 3
+		    dataA0 = dataA0 / dataB0;
+		    dataA1 = dataA1 / dataB1;
+		}
+
+		data.range(31, 0) = FP2INT(dataA0);
+		data.range(63, 32) = FP2INT(dataA1);
 	    }
 
 	    this->dma_write_chnl.put(data);
 	}
 
-	indexA += length;
+	index += length;
 	pingpong = !pingpong;
 
     }

@@ -52,7 +52,6 @@ set COMMON_CFG_FLAGS \
 # Testbench or system level modules
 #
 
-define_system_module ../tb/sdp.c
 define_system_module tb ../tb/system.cpp ../tb/sc_main.cpp
 
 #
@@ -80,9 +79,9 @@ append DMA_CHUNKS "512 "
 
 set DMA_WIDTH "64"
 
-#set NUM_PORTS ""
+set NUM_PORTS ""
 #append NUM_PORTS "1 "
-#append NUM_PORTS "2 " 
+append NUM_PORTS "2 " 
 #append NUM_PORTS "4 "
 #append NUM_PORTS "8 "
 
@@ -98,13 +97,14 @@ set_attr split_add 32
 
 foreach chk $DMA_CHUNKS {
 
-    # foreach pts $NUM_PORTS {
+    foreach pts $NUM_PORTS {
 
 	foreach dma $DMA_WIDTH {
 
 	    set conf "CHK$chk\_PP$pts\_DMA$dma"
 
-	    define_io_config * IOCFG_$conf -DDMA_WIDTH=$dma -DDMA_CHUNK=$chk $COMMON_CFG_FLAGS
+	    define_io_config * IOCFG_$conf -DDMA_WIDTH=$dma -DDMA_CHUNK=$chk -DNUM_PORTS=$pts \
+		$COMMON_CFG_FLAGS
 
 	    define_hls_config sdp BASIC_$conf -io_config IOCFG_$conf $COMMON_HLS_FLAGS
 
@@ -139,6 +139,6 @@ foreach chk $DMA_CHUNKS {
 
 	}; # foreach dma
 
-    # }; # foreach pts
+    }; # foreach pts
 
 }; # foreach chk

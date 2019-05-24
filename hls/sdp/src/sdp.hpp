@@ -28,7 +28,8 @@ class sdp: public esp_accelerator_3P<DMA_WIDTH>
         handshake_t output_done;
 
         // Declaration of the accelerator PLMs
-	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A;
+	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A0;
+	A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A1;
         A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B0;
         A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B1;
 
@@ -48,12 +49,17 @@ class sdp: public esp_accelerator_3P<DMA_WIDTH>
             // Binding explicit memories
             PLM_A0.clk(this->clk);
             PLM_A1.clk(this->clk);
+            PLM_B0.clk(this->clk);
+            PLM_B1.clk(this->clk);
         }
 
         // -- Processes
 
         // Load input from memory
         void load_input();
+
+        // Store output in memory
+        void compute_kernel();
 
         // Store output in memory
         void store_output();
