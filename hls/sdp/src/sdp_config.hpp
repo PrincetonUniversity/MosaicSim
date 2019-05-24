@@ -24,9 +24,6 @@ public:
     // Size of the matrix A
     uint32_t sizeA;
 
-    // Size of the matrix B
-    uint32_t sizeB;
-
     // Scalar value
     uint32_t scalar;
 
@@ -42,7 +39,6 @@ public:
     conf_info_t()
 	: working_mode(0)
 	, sizeA(0)
-	, sizeB(0)
 	, scalar(0)
 	, ld_offsetA(0)
 	, ld_offsetB(0)
@@ -55,7 +51,6 @@ public:
         {
             return (rhs.working_mode == working_mode)
                 && (rhs.sizeA == sizeA)
-                && (rhs.sizeB == sizeB)
                 && (rhs.scalar == scalar)
                 && (rhs.ld_offsetA == ld_offsetA)
                 && (rhs.ld_offsetB == ld_offsetB)
@@ -66,7 +61,6 @@ public:
         {
             working_mode = other.working_mode;
             sizeA = other.sizeA;
-            sizeB = other.sizeB;
             scalar = other.scalar;
             ld_offsetA = other.ld_offsetA;
             ld_offsetB = other.ld_offsetB;
