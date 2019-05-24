@@ -5,16 +5,16 @@
 
 // SoC model parameters
 #define DRAM_LATENCY 300
+#define DRAM_QUEUE_LATENCY 20
 #define IS_LATENCY 4
 
 // SoC accelerator tiles
 #define N_ACC_MAX_PER_TYPE 4
 #define N_IS 4
-#define N_ACC_TYPES 4
+#define N_ACC_TYPES 3
 #define N_ACC_NVDLA 4
 #define N_ACC_GEMM 4
 #define N_ACC_SDP 4
-#define N_ACC_CONV 4
 
 // IS tile model parameters
 #define IS_MEM_SIZE 262144
