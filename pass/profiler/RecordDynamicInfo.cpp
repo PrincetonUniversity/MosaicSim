@@ -118,7 +118,7 @@ namespace {
       }
       else {
 	return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
-	  (func.getName().str().find("_ZN8_") != std::string::npos) ;
+	  (func.getName().str().find("cpython") == std::string::npos) ;
       }
     }
     
