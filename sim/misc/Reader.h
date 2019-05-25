@@ -183,7 +183,7 @@ public:
         int id = stoi(s.at(0));
         if (acc_map.find(id) == acc_map.end()) 
           acc_map.insert(make_pair(id, queue<string>()));
-        cout << id << " TEST PRINTING IN ACC TRACE \n";
+        //cout << id << " TEST PRINTING IN ACC TRACE \n";
         acc_map.at(id).push(line);  //insert the acc name and all args needed to run it for that instance
       }
     }

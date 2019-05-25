@@ -101,8 +101,16 @@ void Core::accessComplete(MemTransaction *t) {
 
 //handle completed transactions
 bool Core::ReceiveTransaction(Transaction* t) {
-  cout << "Received Response at Cycle: " << cycles << endl;
+  
   t->complete=true;
+  DynamicNode* d=t->d;
+  d->c->insertQ(d); //complete the dynamic node involved
+  cout << d->acc_args << endl;
+  cout << "Cycle: " << cycles << "; Acc Return: " << d->acc_args << endl;
+  cout << "Cycles: " << t->perf.cycles << endl;
+  cout << "Bytes: " << t->perf.bytes << endl;
+  cout << "Bandwidth: " << t->perf.bandwidth << endl;
+  delete t;
   return true;
 }
 

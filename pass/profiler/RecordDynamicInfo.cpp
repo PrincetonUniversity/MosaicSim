@@ -361,7 +361,7 @@ namespace {
  
 
                 castI = Builder.CreatePtrToInt(colsa_val, llvm::Type::getInt32Ty(ctx), "castInst");
-                errs() << "matmult: " << *castI << "\n";
+                
                 
                 
                 std::string namestr = std::to_string(findID(inst));

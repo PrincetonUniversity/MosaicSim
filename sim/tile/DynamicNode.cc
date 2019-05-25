@@ -84,10 +84,17 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       }
     }
     //pull in accelerator string for command and args
-    else if(n->typeInstr==ACCELERATOR) {
+    //exception for just matmul 
+    else if(n->typeInstr==ACCELERATOR && (n->name.find("decadesTF_matmul") != std::string::npos)) {
+      
       d = new DynamicNode(n, this, core);
+      if (core->acc_map.find(n->id)==core->acc_map.end()) {
+        d->print("assertion to fail",-10);
+        assert(false);
+      }
       d->acc_args=core->acc_map.at(n->id).front();
       core->acc_map.at(n->id).pop();
+      nodes.insert(make_pair(n, d));          
     }
     else {
       d = new DynamicNode(n, this, core); 
@@ -269,11 +276,13 @@ void Context::process() {
     else if (d->isDESC) {     
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
-    }
-    else if(d->type==ACCELERATOR) {
+    } 
+    else if(d->type==ACCELERATOR && (d->n->name.find("decadesTF_matmul") != std::string::npos)) {
+      
       res = res && d->issueAccNode();
     }
     else {
+      
       res = res && d->issueCompNode(); //depends on lazy eval
     }
     if(!res) {
@@ -283,6 +292,7 @@ void Context::process() {
       ++it;
     }
     else {
+
       core->window.issue();
       d->issued=true;
       if(cfg.verbLevel >= 5) {
@@ -291,7 +301,7 @@ void Context::process() {
       }
 
       //DESC instructions are completed by desq and BARRIER instrs by the sim barrier object, ACC instrs are completed upon return of transaction
-      if(d->type != LD && !d->isDESC && d->type!=BARRIER&& d->type!=ACCELERATOR) { 
+      if(d->type != LD && !d->isDESC && d->type!=BARRIER&& !(d->type==ACCELERATOR && (d->n->name.find("decadesTF_matmul") != std::string::npos))) { 
         insertQ(d);        
       }
       if(issue_stats_mode) {
@@ -541,7 +551,8 @@ void DynamicNode::tryActivate() {
   c->issue_set.insert(this);
 }
 
-bool DynamicNode::issueCompNode() { 
+bool DynamicNode::issueCompNode() {
+  
   // check for resource (FU) availability
   if (core->available_FUs.at(n->typeInstr) != -1) {
     if (core->available_FUs.at(n->typeInstr) == 0)
@@ -553,8 +564,7 @@ bool DynamicNode::issueCompNode() {
   //free up all barriers or register this one
   if(type == BARRIER) {    
     can_issue=core->sim->barrier->register_barrier(this);
-  }
-  
+  }  
   if(can_issue) {
     stat.update(comp_issue_success);
     core->local_stat.update(comp_issue_success);
@@ -564,10 +574,14 @@ bool DynamicNode::issueCompNode() {
 }
 
 bool DynamicNode::issueAccNode() {
+  cout << "Cycle: " << core->cycles << "; Acc Invoke: " << acc_args << endl;
+  //get tile id of an accelerator
   int acc_tid=core->sim->getAccelerator();
   assert(acc_tid!=-1);
+  Transaction* t=new Transaction(0,core->id,acc_tid);
+  t->d=this;
+  core->sim->InsertTransaction(t, core->cycles);
   return true;
-
 }
 
 bool DynamicNode::issueMemNode() {

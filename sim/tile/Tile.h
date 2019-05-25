@@ -51,6 +51,8 @@ public:
   int dst_id;
   bool complete=false;
   TransType type=DEFAULT;
+  acc_perf_t perf;
+  DynamicNode* d; //originating dynamic node, useful for core and cache model
   //void (*callBackFunc)(Transaction* t); 
 };
 
@@ -64,7 +66,7 @@ public:
 class GemmTransaction : public Transaction {
 public:
   string payload;
-  config_gemm args;
+  DynamicNode* d; //dynamic node tied to transaction
   GemmTransaction(int id, int src_id, int dst_id, string payLoad) : Transaction(id,src_id,dst_id) {
     payload=payLoad;
   }  
@@ -78,7 +80,7 @@ public:
   bool isLoad;
   bool isPrefetch = false;
   bool issuedPrefetch = false;
-  DynamicNode* d; //originating dynamic node, useful for core and cache model
+  
   deque<Cache*>* cache_q = new deque<Cache*>(); //trail of originating caches
   ~MemTransaction(){
     delete cache_q;

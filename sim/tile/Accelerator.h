@@ -6,6 +6,7 @@
 #include "Tile.h"
 #include <string>
 
+
 using namespace std;
 
 typedef enum{CONVOLUTION,MATRIX_MULT} OPCODE;
@@ -27,13 +28,13 @@ public:
 class Accelerator: public Tile {  
 public:
   Accelerator(Simulator* sim, uint64_t clockspeed) : Tile(sim, clockspeed) {}
-  LATransaction* currentTransaction;
- 
+  Transaction* currentTransaction; 
   uint64_t final_cycle=0;
   bool tile_complete=false;
-  bool transaction_pending=false;
   
-  int timing_model(LATransaction* t);  
+  bool transaction_pending=false;
+  vector<string> split(const string &s, char delim);
+  //int timing_model(GemmTransaction* t);  
   bool process();
   bool ReceiveTransaction(Transaction* t);
 };
