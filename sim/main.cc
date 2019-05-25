@@ -95,6 +95,7 @@ int main(int argc, char const *argv[]) {
 
     //register the acccelerator tiles
     Tile* tile = new Accelerator(simulator,2000);
+    tile->name="acelerator";
     simulator->registerTile(tile);
     
     /********

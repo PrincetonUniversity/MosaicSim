@@ -7,6 +7,7 @@
 #include "tile/LoadStoreQ.h"
 #include "memsys/SimpleDRAM.h"
 
+
 using namespace std;
 
 class Context;
@@ -89,6 +90,7 @@ public:
   bool InsertTransaction(Transaction* t, uint64_t cycle);
   DESCQ* get_descq(DynamicNode* d);
   DESCQ* get_descq(Tile* tile);
+  int getAccelerator();
 };
 
 class DESCQ {

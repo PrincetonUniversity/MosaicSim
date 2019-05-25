@@ -181,6 +181,16 @@ void Simulator::initDRAM(int clockspeed) {
   memInterface->initialize(clockspeed);
 }
 
+//return tile id of an accelerator tile
+//future version will allow you to specify which kind of accelerator you're looking for
+int Simulator::getAccelerator(){
+  for(auto it=tiles.begin(); it!=tiles.end(); ++it) {
+    if(it->second->name=="accelerator")
+      return it->second->id;
+  }
+  return -1;
+}
+
 void Simulator::run() {
   
   std::vector<int> processVec(tiles.size(), 0);

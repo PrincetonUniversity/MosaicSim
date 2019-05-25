@@ -1,6 +1,7 @@
 #include "DynamicNode.h"
 #include "Core.h"
 #include "../memsys/Cache.h"
+
 using namespace std;
 
 string load_issue_try="load_issue_try";
@@ -269,7 +270,7 @@ void Context::process() {
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
     }
-    else if(d->type=ACCELERATOR) {
+    else if(d->type==ACCELERATOR) {
       res = res && d->issueAccNode();
     }
     else {
@@ -563,7 +564,9 @@ bool DynamicNode::issueCompNode() {
 }
 
 bool DynamicNode::issueAccNode() {
-
+  int acc_tid=core->sim->getAccelerator();
+  assert(acc_tid!=-1);
+  return true;
 
 }
 

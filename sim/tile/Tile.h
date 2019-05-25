@@ -2,11 +2,13 @@
 #define TILE_H
 #include "../common.h"
 #include "../sim.h"
-
+#include "accelerator_models/c-model/gemm/gemm_model.hpp"
+//#include "accelerator_models/c-model/accelerators.hpp"
+//#include "accelerator_models/c-model/gemm/gemm_model.cpp"
 
 class Transaction;
 class Simulator;
-
+//struct config_gemm;
 //Abstract base class for core, accelerator, storage tiles
 //Note: don't change this base class or reinstantiate its member variables in derived tiles
 
@@ -16,7 +18,7 @@ class Tile {
   Simulator* sim; 
   uint64_t clockspeed; //clockspeed in MHertz
   uint64_t cycles; 
-
+  string name="";
   Tile(Simulator* sim, int clockspeed): sim(sim),clockspeed(clockspeed) {
     cycles=0;
   }
@@ -59,13 +61,13 @@ public:
   int data_height;
 };
 
-class AccTransaction : public Transaction {
+class GemmTransaction : public Transaction {
 public:
   string payload;
-  AccTransaction(int id, int src_id, int dst_id, string payLoad) : Transaction(id,src_id,dst_id) {
+  config_gemm args;
+  GemmTransaction(int id, int src_id, int dst_id, string payLoad) : Transaction(id,src_id,dst_id) {
     payload=payLoad;
-  }
-    
+  }  
 };
 
 class MemTransaction : public Transaction {

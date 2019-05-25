@@ -56,6 +56,7 @@ public:
   bool issueMemNode();
   bool issueCompNode();
   bool issueDESCNode();
+  bool issueAccNode();
   void finishNode();
   void register_issue_try();
   void register_issue_success(); 

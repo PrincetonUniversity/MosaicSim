@@ -43,7 +43,6 @@ public:
 
 class Core: public Tile {
 public:
-  string name; 
   Graph g;
   //uint64_t cycles = 0;
   //queue<DynamicNode*> inputQ;
