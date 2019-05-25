@@ -61,9 +61,11 @@ public:
 
 class AccTransaction : public Transaction {
 public:
-  AccTransaction(int id, int src_id, int dst_id, string payload) : Transaction(id,src_id,dst_id) {}
   string payload;
-  int data_height;
+  AccTransaction(int id, int src_id, int dst_id, string payLoad) : Transaction(id,src_id,dst_id) {
+    payload=payLoad;
+  }
+    
 };
 
 class MemTransaction : public Transaction {
