@@ -65,7 +65,8 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
   string gName = wlpath + "/graphOutput.txt";
   string cfName = wlpath + "/ctrl.txt";     
   string memName = wlpath + "/mem.txt";   
-  
+  string accName = wlpath + "/acc.txt";
+    
   Core* core = new Core(this, clockspeed);
   core->local_cfg.read(cfgpath+cfgname);
   core->name=name;
@@ -79,7 +80,7 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
   r.readGraph(gName, core->g);
   r.readProfMemory(memName, core->memory);
   r.readProfCF(cfName, core->cf);
-
+  r.readAccTrace(accName, core->acc_map);
   
   //GraphOpt opt(core->g);
   //opt.inductionOptimization();

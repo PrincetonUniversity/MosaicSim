@@ -79,7 +79,7 @@ void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long
 
 __attribute__((noinline))
 extern "C"
-void printAcc(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA, int rowsB, int colsB)
+void printAcc(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA , int depA, int rowsB, int colsB, int depB)
 {
   
   if(!f3[omp_get_thread_num()].is_open()) {
@@ -88,7 +88,7 @@ void printAcc(char *acc_kernel_name, char *kernel_type, char *run_dir, char* nod
   }
   //std::cout << "printing acc now " << rowsA << ","<< colsA << rowsB << ","<< colsB <<"\n";
  
-  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << "," << rowsB << ","<< colsB <<"\n";
+  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << "," << depA << ","<< rowsB << ","<< colsB <<"," << depB << "\n";
 }
 
 __attribute__((noinline))

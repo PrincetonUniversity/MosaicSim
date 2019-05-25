@@ -59,6 +59,13 @@ public:
   int data_height;
 };
 
+class AccTransaction : public Transaction {
+public:
+  AccTransaction(int id, int src_id, int dst_id, string payload) : Transaction(id,src_id,dst_id) {}
+  string payload;
+  int data_height;
+};
+
 class MemTransaction : public Transaction {
 public: 
   MemTransaction(int id, int src_id, int dst_id, uint64_t addr, bool isLoad) : Transaction(id,src_id,dst_id), addr(addr), isLoad(isLoad) {}; 

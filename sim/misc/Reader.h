@@ -177,11 +177,13 @@ public:
       if (filesizeKB > 100000)  // > 100 MB
         cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
       while ( getline(accfile,line) ) {
+        
         vector<string> s = split(line, ',');
         
         int id = stoi(s.at(0));
         if (acc_map.find(id) == acc_map.end()) 
           acc_map.insert(make_pair(id, queue<string>()));
+        cout << id << " TEST PRINTING IN ACC TRACE \n";
         acc_map.at(id).push(line);  //insert the acc name and all args needed to run it for that instance
       }
     }
@@ -211,9 +213,9 @@ public:
         vector<string> s = split(line, ',');
         assert(s.size() == 3);
         if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+          cout << "[WARNING] non-continuous control flow path \n";
           cout << last_bbid << " / " << s.at(1) << "\n";
           cout << last_line << " / " << line << "\n";
-          assert(false); 
         }
         if (!init) {
           cf.push_back(stoi(s.at(1)));

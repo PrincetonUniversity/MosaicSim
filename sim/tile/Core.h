@@ -75,6 +75,7 @@ public:
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
+  unordered_map<int, queue<string> > acc_map; // List of memory accesses per instruction in a program order
   
   unordered_map<uint64_t, DynamicNode*> access_tracker;
   queue<int> tracker_id;

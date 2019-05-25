@@ -30,6 +30,7 @@ public:
   bool can_exit_rob = false;
   Stage stage=DISPATCH; 
   MemStatus mem_status = NONE;
+  string acc_args;
   bool isMem;
   bool isDESC;
   uint64_t desc_id;

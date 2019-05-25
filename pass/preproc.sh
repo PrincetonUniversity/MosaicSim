@@ -31,6 +31,7 @@ do
     mkdir -p ${DIR_NAME}/output_${TILE_NAME}_${i}
     touch ${DIR_NAME}/output_${TILE_NAME}_${i}/ctrl.txt
     touch ${DIR_NAME}/output_${TILE_NAME}_${i}/mem.txt
+    touch ${DIR_NAME}/output_${TILE_NAME}_${i}/acc.txt
 done
     
 echo "Executing: mkdir -p ${DIR_NAME}/output_${TILE_NAME}" &&

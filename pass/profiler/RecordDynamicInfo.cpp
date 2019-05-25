@@ -67,7 +67,7 @@ namespace {
       printSw  = (Function *) M.getOrInsertFunction(k3, sF).getCallee();
       printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
-      printAcc = (Function *) M.getOrInsertFunction(print_acc_name, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+      printAcc = (Function *) M.getOrInsertFunction(print_acc_name, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       //(fn actual name to be linked in tracer.cc, kernel_type(supp, comp), run_dir, node_id, acc_subkernel_name, int rowsa, int colsa, int rowsb, int colsb)
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
@@ -346,17 +346,19 @@ namespace {
                 //LLVMContext& ctx = mod->getContext();
                 //auto arg_it=f->arg_begin();
                 //Value* addr=cinst->getArgOperand(0);
-                Value *ktype, *rdir, *rowsa_val, *rowsb_val, *colsa_val,*colsb_val, *castI, *name_val, *acc_name_val;
+                Value *ktype, *rdir, *rowsa_val, *colsa_val, *depa_val, *rowsb_val, *colsb_val, *depb_val, *castI, *name_val, *acc_name_val;
                 IRBuilder<> Builder(inst);
                 DataLayout* dl = new DataLayout(mod);
                 LLVMContext& ctx = mod->getContext();
-                rowsa_val=(cinst->getArgOperand(3));
-                colsa_val=(cinst->getArgOperand(4));
-                rowsb_val=(cinst->getArgOperand(5));
-                colsb_val=(cinst->getArgOperand(6));
+                rowsa_val=(cinst->getArgOperand(0));
+                colsa_val=(cinst->getArgOperand(1));
+                depa_val=(cinst->getArgOperand(2));
+                rowsb_val=(cinst->getArgOperand(3));
+                colsb_val=(cinst->getArgOperand(4));
+                depb_val=(cinst->getArgOperand(5));
                 ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
 		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
-                //3,4,5,6
+ 
 
                 castI = Builder.CreatePtrToInt(colsa_val, llvm::Type::getInt32Ty(ctx), "castInst");
                 errs() << "matmult: " << *castI << "\n";
@@ -367,7 +369,7 @@ namespace {
                 //instr id
                 name_val = Builder.CreateGlobalStringPtr(namestr);
                 acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
-                Value* args[] = {name_val,ktype,rdir,acc_name_val,rowsa_val,colsa_val,rowsb_val, colsb_val};
+                Value* args[] = {name_val,ktype,rdir,acc_name_val,rowsa_val,colsa_val,depa_val, rowsb_val, colsb_val, depb_val};
                 CallInst* cI = Builder.CreateCall(printAcc, args);
                 
                 //for(int i=0; i<1000; i++) {

@@ -77,10 +77,16 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
-
+      
       if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR) {
         core->lsq.insert(d);
       }
+    }
+    //pull in accelerator string for command and args
+    else if(n->typeInstr==ACCELERATOR) {
+      d = new DynamicNode(n, this, core);
+      d->acc_args=core->acc_map.at(n->id).front();
+      core->acc_map.at(n->id).pop();
     }
     else {
       d = new DynamicNode(n, this, core); 
@@ -262,7 +268,10 @@ void Context::process() {
     else if (d->isDESC) {     
       res = res && d->issueDESCNode();
       //depends on lazy eval, as descq will insert if *its* resources are available
-    }       
+    }
+    else if(d->type=ACCELERATOR) {
+      res = res && d->issueAccNode();
+    }
     else {
       res = res && d->issueCompNode(); //depends on lazy eval
     }
@@ -280,8 +289,8 @@ void Context::process() {
         d->print("Issued", 5);
       }
 
-  
-      if(d->type != LD && !d->isDESC && d->type!=BARRIER) { //DESC instructions are completed by desq and BARRIER instrs by the sim barrier object
+      //DESC instructions are completed by desq and BARRIER instrs by the sim barrier object, ACC instrs are completed upon return of transaction
+      if(d->type != LD && !d->isDESC && d->type!=BARRIER&& d->type!=ACCELERATOR) { 
         insertQ(d);        
       }
       if(issue_stats_mode) {
@@ -551,6 +560,11 @@ bool DynamicNode::issueCompNode() {
   }
   //issued = true;
   return can_issue;
+}
+
+bool DynamicNode::issueAccNode() {
+
+
 }
 
 bool DynamicNode::issueMemNode() {
