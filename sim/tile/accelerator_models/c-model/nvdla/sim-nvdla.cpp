@@ -33,7 +33,7 @@ int main(void)
 	config.horizontal_pool_dim = 2;
 	//config.winograd = 0;
 	config.type = conv;
-	//config.batch_size = 16;
+	config.batch_size = 1;
 //	config.dram_bw_limit = 10; //GB/s
 //	config.frequency = 1000; //MHz
 //	config.num_of_mul = 2048;

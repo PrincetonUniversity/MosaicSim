@@ -17,18 +17,15 @@ int main(int argc, char *argv[])
 
 	config_sdp.working_mode = 0;
 	config_sdp.size = 256;
-	config_sdp.batch_size = 1;
 
-    } else if (argc == 4) {
+    } else if (argc == 3) {
 	printf("Received arguments from command line.\n");
 
 	config_sdp.working_mode = strtol(argv[1], NULL, 10);
 	config_sdp.size = strtol(argv[2], NULL, 10);
-	config_sdp.batch_size = strtol(argv[3], NULL, 10);
 
 	printf("config_sdp.working_mode: %d\n", config_sdp.working_mode);
 	printf("config_sdp.size: %d\n", config_sdp.size);
-	printf("config_sdp.batch_size: %d\n", config_sdp.batch_size);
 
     } else {
 	printf("Wrong argument from command line.\n");

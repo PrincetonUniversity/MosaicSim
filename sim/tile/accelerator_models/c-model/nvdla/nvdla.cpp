@@ -420,5 +420,9 @@ acc_perf_t sim_nvdla(config_nvdla_t config)
 	nvdla_perf.power = NVDLA_POWER;
 	nvdla_perf.bandwidth = nvdla_perf.bytes*1000/nvdla_perf.cycles;
 
+	// factor in batch_size
+	nvdla_perf.cycles *= config.batch_size;
+	nvdla_perf.bytes *= config.batch_size;
+
 	return nvdla_perf;
 };
