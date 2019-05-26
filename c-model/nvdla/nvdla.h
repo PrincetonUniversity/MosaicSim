@@ -184,7 +184,7 @@ typedef struct config_nvdla
 	int horizontal_pool_dim;
 //	int winograd;
 	layer_type type;
-//	int batch_size;
+	int batch_size;
 //	int dram_bw_limit; //GB/s
 //	int frequency; //MHz
 //	int num_of_mul;
