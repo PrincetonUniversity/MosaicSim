@@ -17,7 +17,8 @@ def main():
     parser.add_argument("-n", "--num_cores", type=int, help="Number of cores to run with",default=1)
     parser.add_argument("-d", "--decoupled", help="Flag to run in decoupled Supply/Compute mode", action='store_true')
     parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
-    parser.add_argument("-o", "--output", type=str, help="Output file for Pythia run statistics (default is stdout)")
+    parser.add_argument("-db", "--debug", help="Flag to run in debug mode; collect load and decoupling stats", action='store_true')
+    parser.add_argument("-o", "--output", type=str, help="Output directory for Pythia run statistics (default is stdout and run directory)")
     args=parser.parse_args()
     numcores=args.num_cores
     #print(args.source_directory)
@@ -58,10 +59,14 @@ def main():
                 os.system("mv "+supply_path+"/mem.txt@ "+supply_path+"/mem.txt")
     if args.verbose:
         cmd=cmd+" -v"
+    if args.debug:
+        cmd=cmd+" -debug"
+    if args.decoupled:
+        cmd=cmd+" -d"
     if args.output is not None:
-        cmd=cmd+" > "+args.output
-
-    
+        simOutput=os.path.realpath(args.output)
+        os.system("mkdir -p "+simOutput)
+        cmd=cmd+" -o "+simOutput+" > "+simOutput+"/genStats.txt"
 
     print(cmd)
     os.system(cmd)

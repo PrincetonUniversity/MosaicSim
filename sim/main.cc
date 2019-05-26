@@ -83,13 +83,13 @@ int main(int argc, char const *argv[]) {
         cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
       }
       else if(curr_arg == "-d") {
-        simulator->decoupling_mode=true;
+        simulator->decoupling_mode=true;        
       }
       else if(curr_arg == "-o") {
-        // future adding
+        cout <<" Stats output directory is: " << argv[arg_index++] << endl;        
       }
       else if(curr_arg == "-debug") {
-        simulator->debug_mode=true;
+        simulator->debug_mode=true;        
       }
     }
 
