@@ -18,7 +18,6 @@
 typedef struct config_sdp {
     int working_mode;
     int size;
-    int batch_size;
 } config_sdp_t;
 
 // model API prototype

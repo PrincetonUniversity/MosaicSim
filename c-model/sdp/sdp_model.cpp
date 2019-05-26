@@ -191,7 +191,7 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
 // simulator API to invoke Sdp accelerator
 acc_perf_t sim_sdp(config_sdp_t config)
 {
-    int n_invocations = (int) config.batch_size;
+    int n_invocations = 1; // TODO divide in batches
 
     acc_perf_t perf = dec_sdp_invoke(config);
 
