@@ -42,9 +42,20 @@ def main():
         compute_path=home_path+"/output_compute_"+str(i)
         supply_path=home_path+"/output_supply_"+str(i+numcores)
         cmd=cmd+" "+compute_path +" "+core_config_path
+
+        #hack to fix weird file renaming
+        if os.path.isfile(compute_path+"/ctrl.tx@"):
+            os.system("mv "+compute_path+"/ctrl.tx@ "+compute_path+"/ctrl.txt")
+        if os.path.isfile(compute_path+"/mem.txt@"):
+            os.system("mv "+compute_path+"/mem.txt@ "+compute_path+"/mem.txt")
+
         if args.decoupled:
             cmd=cmd+" "+supply_path +" "+core_config_path
-
+            #hack to fix weird file renaming
+            if os.path.isfile(supply_path+"/ctrl.tx@"):
+                os.system("mv "+supply_path+"/ctrl.tx@ "+supply_path+"/ctrl.txt")
+            if os.path.isfile(supply_path+"/mem.txt@"):    
+                os.system("mv "+supply_path+"/mem.txt@ "+supply_path+"/mem.txt")
     if args.verbose:
         cmd=cmd+" -v"
     if args.output is not None:

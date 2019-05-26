@@ -106,8 +106,8 @@ bool Core::ReceiveTransaction(Transaction* t) {
   DynamicNode* d=t->d;
   d->c->insertQ(d); //complete the dynamic node involved
   cout << d->acc_args << endl;
-  cout << "Cycle: " << cycles << "; Acc Return: " << d->acc_args << endl;
-  cout << "Cycles: " << t->perf.cycles << endl;
+  cout << "CPU Clocktick: " << cycles << "; Acc Return: " << d->acc_args << endl;
+  cout << "Cycles taken: " << t->perf.cycles << endl;
   cout << "Bytes: " << t->perf.bytes << endl;
   cout << "Bandwidth: " << t->perf.bandwidth << endl;
   delete t;
