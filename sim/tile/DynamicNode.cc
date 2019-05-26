@@ -485,7 +485,7 @@ void DynamicNode::print(string str, int level) {
 }
 void DynamicNode::handleMemoryReturn() {
       //update load latency stats
-  if(type==LD || type==LD_PROD) {
+  if(core->sim->debug_mode &&(type==LD || type==LD_PROD)) {
     assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
     long long current_cycle = core->cycles;
     auto& entry_tuple=core->sim->load_stats_map[this];
@@ -723,20 +723,22 @@ bool DynamicNode::issueDESCNode() {
   
   if(can_issue) {
     //collect stats on runahead distance
-    if(type==LD_PROD || type==SEND) {
-      if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
-        descq->send_runahead_map[desc_id] =  descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+    if(core->sim->debug_mode) {
+      if(type==LD_PROD || type==SEND) {
+        if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+          descq->send_runahead_map[desc_id] =  descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+        }
+        else {
+          descq->send_runahead_map[desc_id] = core->cycles;
+        }
       }
-      else {
-        descq->send_runahead_map[desc_id] = core->cycles;
-      }
-    }
-    if(type==RECV) {
-      if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
-        descq->send_runahead_map[desc_id] = core->cycles - descq->send_runahead_map[desc_id];
-      }
-      else {
-        descq->send_runahead_map[desc_id] = core->cycles;
+      if(type==RECV) {
+        if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+          descq->send_runahead_map[desc_id] = core->cycles - descq->send_runahead_map[desc_id];
+        }
+        else {
+          descq->send_runahead_map[desc_id] = core->cycles;
+        }
       }
     }
     if(type == STVAL) {
@@ -786,13 +788,7 @@ bool DynamicNode::issueDESCNode() {
 void DynamicNode::finishNode() {
 
   DESCQ* descq=core->sim->get_descq(this);
-  if(type==SEND || type==LD_PROD) {
-    
-    descq->debug_send_set.insert(desc_id);
-  }
-  if(type==STVAL) {
-    descq->debug_stval_set.insert(desc_id);
-  }
+  
   if(completed) {
     print("already completed ", 5);
     assert(false);
@@ -801,22 +797,30 @@ void DynamicNode::finishNode() {
     cout << "Cycle: " << core->cycles << " \n"; 
     print("Completed", 5);
   }
-  //these assertions test to make sure decoupling dependencies are maintained
-  if(n->typeInstr==RECV && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()) {
-    cout << "Assertion about to fail for DESCID " << desc_id << endl;
-    print("recv trying to jump", 5);
+  if(core->sim->debug_mode) {
+    //these assertions test to make sure decoupling dependencies are maintained
+    if(type==SEND || type==LD_PROD) {
+      
+      descq->debug_send_set.insert(desc_id);
+    }
+    if(type==STVAL) {
+      descq->debug_stval_set.insert(desc_id);
+    }
+    if(n->typeInstr==RECV && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()) {
+      cout << "Assertion about to fail for DESCID " << desc_id << endl;
+      print("recv trying to jump", 5);
+    }
+    
+    assert(!((n->typeInstr==RECV) && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()));         
+    assert(!((n->typeInstr==STADDR) && descq->debug_stval_set.find(desc_id)==descq->debug_send_set.end()));
+    
+    if(type==STVAL) {
+      descq->stval_runahead_map[desc_id]=core->cycles;    
+    }
+    if(type==STADDR) {
+      descq->stval_runahead_map[desc_id] = core->cycles - descq->stval_runahead_map[desc_id];
+    }
   }
-
-  assert(!((n->typeInstr==RECV) && descq->debug_send_set.find(desc_id)==descq->debug_send_set.end()));         
-  assert(!((n->typeInstr==STADDR) && descq->debug_stval_set.find(desc_id)==descq->debug_send_set.end()));
-
-  if(type==STVAL) {
-    descq->stval_runahead_map[desc_id]=core->cycles;    
-  }
-  if(type==STADDR) {
-    descq->stval_runahead_map[desc_id] = core->cycles - descq->stval_runahead_map[desc_id];
-  }
-  
   c->completed_nodes.insert(this);
 
   completed = true;

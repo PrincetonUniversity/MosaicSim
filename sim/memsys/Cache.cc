@@ -102,7 +102,7 @@ void Cache::execute(MemTransaction* t) {
       if(isL1) {
         //enter into load stats map
         
-        if(!t->isPrefetch && (d->type==LD || d->type==LD_PROD)) {
+        if(d->core->sim->debug_mode && (!t->isPrefetch && (d->type==LD || d->type==LD_PROD))) {
           assert(d->core->sim->load_stats_map.find(d)!=d->core->sim->load_stats_map.end());
           auto& entry_tuple = d->core->sim->load_stats_map[d];
           get<2>(entry_tuple)=true;
