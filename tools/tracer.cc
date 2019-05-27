@@ -79,16 +79,41 @@ void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long
 
 __attribute__((noinline))
 extern "C"
-void printAcc(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA , int depA, int rowsB, int colsB, int depB)
+void print_matmul(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA , int rowsB, int colsB, int batch_size)
 {
-  
   if(!f3[omp_get_thread_num()].is_open()) {
     
     f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
   }
   //std::cout << "printing acc now " << rowsA << ","<< colsA << rowsB << ","<< colsB <<"\n";
  
-  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << "," << depA << ","<< rowsB << ","<< colsB <<"," << depB << "\n";
+  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << ","<< rowsB << ","<< colsB << "," << batch_size << "\n";
+}
+
+__attribute__((noinline))
+extern "C"
+void print_sdp(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int working_mode, int size)
+{
+  if(!f3[omp_get_thread_num()].is_open()) {
+    
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+  }
+
+ 
+  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << working_mode << ","<< size << "\n";
+}
+
+__attribute__((noinline))
+extern "C"
+void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int in_channels, int in_height, int in_width, int out_channels, int filter_height, int filter_width, bool zero_pad, int vert_conv_stride, int horiz_conv_stride, bool pooling, int pool_height, int pool_width, int vertical_pool_stride, int horizontal_pool_stride)
+{
+  if(!f3[omp_get_thread_num()].is_open()) {
+    
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+  }
+
+ 
+  f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << in_channels << "," << in_height << "," << in_width << "," << out_channels << "," << filter_height << "," << filter_width << "," << zero_pad << "," << vert_conv_stride << "," << horiz_conv_stride << "," << pooling << "," << pool_height << "," << pool_width << "," << vertical_pool_stride << "," << horizontal_pool_stride << "\n";
 }
 
 __attribute__((noinline))

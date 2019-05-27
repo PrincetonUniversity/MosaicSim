@@ -22,7 +22,9 @@ namespace {
     Function *printBR;
     Function *printSw;
     Function *printMem;
-    Function *printAcc;
+    Function *print_matmul;
+    Function *print_sdp;
+    Function *print_conv2d_layer;
     Module *mod;
     std::map<BasicBlock*, int> bb_id_table;
     std::map<Instruction*, int> id_table;
@@ -38,7 +40,6 @@ namespace {
       std::string k3 = "printSw";
       //std::string k4 = "_Z8printMemPcbxi";
       std::string k4 = "printMem";
-      std::string print_acc_name = "printAcc";
 
       auto decades_kernel_type = getenv("DECADES_KERNEL_TYPE");
       if (decades_kernel_type) {
@@ -67,8 +68,12 @@ namespace {
       printSw  = (Function *) M.getOrInsertFunction(k3, sF).getCallee();
       printMem = (Function *) M.getOrInsertFunction(k4, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt1Ty(ctx), Type::getInt64Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
-      printAcc = (Function *) M.getOrInsertFunction(print_acc_name, Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
-      //(fn actual name to be linked in tracer.cc, kernel_type(supp, comp), run_dir, node_id, acc_subkernel_name, int rowsa, int colsa, int rowsb, int colsb)
+      print_matmul = (Function *) M.getOrInsertFunction("print_matmul", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+
+      print_sdp = (Function *) M.getOrInsertFunction("print_sdp", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+
+      print_conv2d_layer = (Function *) M.getOrInsertFunction("print_conv2d_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
@@ -340,22 +345,24 @@ namespace {
                 
               }
               //extract accelerators below
+              /*from TF api 
+                void decadesTF_matmul(
+                volatile int rowsA, volatile int colsA, volatile int rowsB, volatile int colsB, void int batch, volatile int a2,
+                float *A, float *B, float *out,
+                int tid, int num_threads)
+              */
               else if(f->getName().str().find("decadesTF_matmul") != std::string::npos) {
                 
-                //errs() << "[STADDR]"<< *inst << "\n";
-                //LLVMContext& ctx = mod->getContext();
-                //auto arg_it=f->arg_begin();
-                //Value* addr=cinst->getArgOperand(0);
-                Value *ktype, *rdir, *rowsa_val, *colsa_val, *depa_val, *rowsb_val, *colsb_val, *depb_val, *castI, *name_val, *acc_name_val;
+         
+                Value *ktype, *rdir, *rowsa_val, *colsa_val, *rowsb_val, *colsb_val, *batch_val, *castI, *name_val, *acc_name_val;
                 IRBuilder<> Builder(inst);
                 DataLayout* dl = new DataLayout(mod);
                 LLVMContext& ctx = mod->getContext();
                 rowsa_val=(cinst->getArgOperand(0));
-                colsa_val=(cinst->getArgOperand(1));
-                depa_val=(cinst->getArgOperand(2));
-                rowsb_val=(cinst->getArgOperand(3));
-                colsb_val=(cinst->getArgOperand(4));
-                depb_val=(cinst->getArgOperand(5));
+                colsa_val=(cinst->getArgOperand(1));                
+                rowsb_val=(cinst->getArgOperand(2));
+                colsb_val=(cinst->getArgOperand(3));
+                batch_val=(cinst->getArgOperand(4));
                 ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
 		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
  
@@ -369,8 +376,8 @@ namespace {
                 //instr id
                 name_val = Builder.CreateGlobalStringPtr(namestr);
                 acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
-                Value* args[] = {name_val,ktype,rdir,acc_name_val,rowsa_val,colsa_val,depa_val, rowsb_val, colsb_val, depb_val};
-                CallInst* cI = Builder.CreateCall(printAcc, args);
+                Value* args[] = {name_val,ktype,rdir,acc_name_val,rowsa_val,colsa_val,rowsb_val, colsb_val, batch_val};
+                CallInst* cI = Builder.CreateCall(print_matmul, args);
                 
                 //for(int i=0; i<1000; i++) {
                 //  CallInst* cI = Builder.CreateCall(printMem, args);
@@ -378,6 +385,83 @@ namespace {
                 //assert(false);
                 //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
                 
+              }
+
+              /*
+                void decadesTF_sdp(
+                volatile int working_mode, volatile int size, volatile int a1, 
+                volatile int a2, volatile int a3, volatile int a4,
+                float *A, float *B, float *out,
+                int tid, int num_threads)
+              */
+              else if(f->getName().str().find("decadesTF_sdp") != std::string::npos) {
+                
+                Value *ktype, *rdir, *working_mode, *size, *name_val, *acc_name_val;
+                IRBuilder<> Builder(inst);
+                DataLayout* dl = new DataLayout(mod);
+                LLVMContext& ctx = mod->getContext();
+                working_mode=(cinst->getArgOperand(0));
+                size=(cinst->getArgOperand(1));
+                ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                                
+                std::string namestr = std::to_string(findID(inst));
+                std::string acc_name("decadesTF_sdp");
+                //instr id
+                name_val = Builder.CreateGlobalStringPtr(namestr);
+                acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
+                Value* args[] = {name_val,ktype,rdir,acc_name_val,working_mode, size};
+                CallInst* cI = Builder.CreateCall(print_sdp, args);
+              }
+
+              /*
+               void decadesTF_conv2d_layer(
+    volatile int batch, 1 volatile int in_height,
+    2 volatile int  in_width, 3 volatile int in_channels,
+    4 volatile int filter_height, 5 volatile int filter_width,
+    6 volatile int out_channels, 7 volatile bool zero_pad,
+    8 volatile int vert_conv_stride, 9 volatile int horiz_conv_stride,
+    10 volatile bool pooling, 11 volatile int pool_height, 12 volatile int pool_width,
+    13 volatile int vertical_pool_stride, 14 volatile int horizontal_pool_stride,
+    float *in, float *filters,  float *out,
+    // software-only parameters
+    float *bias, bool bias_add, bool activation, int activation_type,
+    float *prelu_filters, int pooling_type, bool lrn, int lrn_radius,
+    int lrn_bias, int lrn_alpha, int lrn_beta, int tid, int num_threads)
+// mapping: C++ -> model 
+in_channels -> num_of_inputs
+in_height -> input_height
+in_width -> input_width
+out_channels -> num_of_outputs
+filter_height -> filter_height
+filter_width -> filter_width
+zero_pad -> zero_pad
+vert_conv_stride -> vertical_conv_dim
+horiz_conv_stride -> horizontal_conv_dim
+pooling -> pooling
+pool_height -> pool_height
+pool_width -> pool_width
+vertical_pool_stride -> vertical_pool_dim
+horizontal_pool_stride -> horizontal_pool_dim
+              */
+              else if(f->getName().str().find("decadesTF_conv2d_layer") != std::string::npos) {
+                
+                Value *ktype, *rdir, *name_val, *acc_name_val, *in_channels, *in_height, *in_width, *out_channels, *filter_height, *filter_width, *zero_pad, *vert_conv_stride, *horiz_conv_stride, *pooling, *pool_height, *pool_width, *vertical_pool_stride, *horizontal_pool_stride;
+                IRBuilder<> Builder(inst);
+                DataLayout* dl = new DataLayout(mod);
+                LLVMContext& ctx = mod->getContext();
+                in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
+                
+                ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                                
+                std::string namestr = std::to_string(findID(inst));
+                std::string acc_name("decadesTF_conv2d_layer");
+                //instr id
+                name_val = Builder.CreateGlobalStringPtr(namestr);
+                acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
+                Value* args[] = {name_val,ktype,rdir,acc_name_val,in_channels, in_height, in_width, out_channels, filter_height, filter_width, zero_pad, vert_conv_stride, horiz_conv_stride, pooling, pool_height, pool_width, vertical_pool_stride, horizontal_pool_stride};
+                CallInst* cI = Builder.CreateCall(print_conv2d_layer, args);                           
               }
             }
           }
