@@ -4,6 +4,7 @@
 #include <unistd.h>
 #include "sim.h"
 #include "tile/Accelerator.h"
+#include <limits>
 
 using namespace std;
   
@@ -13,7 +14,7 @@ Config cfg;
 class Core;
 
 int main(int argc, char const *argv[]) {
-
+    
   string pythia_home;
   string wlpath;
   string cfgpath;

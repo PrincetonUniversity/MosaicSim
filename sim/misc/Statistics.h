@@ -9,7 +9,7 @@ using namespace std;
 class Statistics {
 public:
      
-  map<string, pair<int, int>> stats;
+  map<string, pair<uint64_t, int>> stats;
   int num_types = 4;
    
   void registerStat(string str, int type) {
@@ -75,16 +75,19 @@ public:
     }
   }
   void print() {
+
+   
     cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    cout << "Average BW : " << (double) get("dram_access") * 64 * 2 / get ("cycles") << " GB/s \n";
+    cout << "Average BW : " << (double) get("dram_access") / (get ("cycles") / (64 * 2)) << " GB/s \n";
+    
     if(get("l1_miss")!=0)
       {
-        cout << "L1 Miss Rate: " << 100*get("l1_miss")/(get("l1_miss")+get("l1_hit")) << "%"<< endl;
+        cout << "L1 Miss Rate: " <<  ((100 * (long long) get("l1_miss"))/ (get("l1_miss")+get("l1_hit"))) << "%"<< endl;
       }
 
     if(get("l2_miss")!=0)
       {
-        cout << "L2 Miss Rate: " << 100*get("l2_miss")/(get("l2_miss")+get("l2_hit")) << "%"<< endl;
+        cout << "L2 Miss Rate: " << ( (100 * (long long) get("l2_miss"))/(get("l2_miss")+get("l2_hit"))) << "%"<< endl;
       }
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {
