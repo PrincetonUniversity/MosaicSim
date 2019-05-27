@@ -135,7 +135,7 @@ void GraphGen::detectFunctions(Function &func) {
               //assert(false);
             }
 
-            else if ((f->getName().str().find("decadesTF_matmul") != std::string::npos) || (f->getName().str().find("decadesTF_add") != std::string::npos) || (f->getName().str().find("decadesTF_relu") != std::string::npos)) {
+            else if ((f->getName().str().find("decadesTF_matmul") != std::string::npos) || (f->getName().str().find("decadesTF_sdp") != std::string::npos) || (f->getName().str().find("decadesTF_conv2d_layer") != std::string::npos) || (f->getName().str().find("decadesTF_dense_layer") != std::string::npos)) {
               //errs() << "[ACCELERATOR]"<< *i << "\n";
               n->itype = ACCELERATOR;
               //assert(false);

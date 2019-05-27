@@ -25,6 +25,7 @@ namespace {
     Function *print_matmul;
     Function *print_sdp;
     Function *print_conv2d_layer;
+    Function *print_dense_layer;
     Module *mod;
     std::map<BasicBlock*, int> bb_id_table;
     std::map<Instruction*, int> id_table;
@@ -71,9 +72,10 @@ namespace {
       print_matmul = (Function *) M.getOrInsertFunction("print_matmul", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
       print_sdp = (Function *) M.getOrInsertFunction("print_sdp", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
-
+      
       print_conv2d_layer = (Function *) M.getOrInsertFunction("print_conv2d_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
+      print_dense_layer = (Function *) M.getOrInsertFunction("print_dense_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
@@ -415,15 +417,15 @@ namespace {
               }
 
               /*
-               void decadesTF_conv2d_layer(
-    volatile int batch, 1 volatile int in_height,
-    2 volatile int  in_width, 3 volatile int in_channels,
+void decadesTF_conv2d_layer(
+    0 volatile int batch, 1 volatile int in_height,
+    2 volatile int in_width, 3 volatile int in_channels,
     4 volatile int filter_height, 5 volatile int filter_width,
     6 volatile int out_channels, 7 volatile bool zero_pad,
     8 volatile int vert_conv_stride, 9 volatile int horiz_conv_stride,
     10 volatile bool pooling, 11 volatile int pool_height, 12 volatile int pool_width,
     13 volatile int vertical_pool_stride, 14 volatile int horizontal_pool_stride,
-    float *in, float *filters,  float *out,
+    15 float *in, 16 float *filters,  17 float *out,
     // software-only parameters
     float *bias, bool bias_add, bool activation, int activation_type,
     float *prelu_filters, int pooling_type, bool lrn, int lrn_radius,
@@ -463,6 +465,56 @@ horizontal_pool_stride -> horizontal_pool_dim
                 Value* args[] = {name_val,ktype,rdir,acc_name_val,in_channels, in_height, in_width, out_channels, filter_height, filter_width, zero_pad, vert_conv_stride, horiz_conv_stride, pooling, pool_height, pool_width, vertical_pool_stride, horizontal_pool_stride};
                 CallInst* cI = Builder.CreateCall(print_conv2d_layer, args);                           
               }
+              /*
+              // mapping: C++ -> model
+              in_channels -> num_of_inputs
+                1 -> input_height
+                1 -> input_width
+                out_channels -> num_of_outputs
+                1 -> filter_height
+                1 -> filter_width
+                0 -> zero_pad
+                1 -> vertical_conv_dim
+                1 -> horizontal_conv_dim
+                0 -> pooling
+                1 -> pool_height
+                1 -> pool_width
+                1 -> vertical_pool_dim
+                1 -> horizontal_pool_dim
+                0 -> type // here 0 is for dense, aka fc (fully connected),
+                          // there's an enum in nvlda.h: enum layer_type{fc, conv};
+                batch -> batch_size
+                */
+              /*
+              void decadesTF_dense_layer(
+              volatile int batch, volatile int in_channels, volatile int out_channels,
+              float *in, float *filters, float *out,
+              // software-only parameters
+              bool bias_add, float *bias,  bool activation, int activation_type,
+              float *prelu_filters, int tid, int num_threads)
+              */
+              else if(f->getName().str().find("decadesTF_dense_layer") != std::string::npos) {
+                
+                Value *ktype, *rdir, *batch, *in_channels, *out_channels, *name_val, *acc_name_val;
+                IRBuilder<> Builder(inst);
+                DataLayout* dl = new DataLayout(mod);
+                LLVMContext& ctx = mod->getContext();
+
+                batch=(cinst->getArgOperand(0));
+                in_channels=(cinst->getArgOperand(1));
+                out_channels=(cinst->getArgOperand(2));
+                ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
+		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
+                                
+                std::string namestr = std::to_string(findID(inst));
+                std::string acc_name("decadesTF_dense_layer");
+                //instr id
+                name_val = Builder.CreateGlobalStringPtr(namestr);
+                acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
+                Value* args[] = {name_val,ktype,rdir,acc_name_val, batch, in_channels, out_channels};
+                CallInst* cI = Builder.CreateCall(print_dense_layer, args);
+              }
+              
             }
           }
         }
