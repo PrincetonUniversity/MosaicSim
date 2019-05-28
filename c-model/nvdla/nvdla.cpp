@@ -416,13 +416,23 @@ acc_perf_t sim_nvdla(config_nvdla_t config)
 
 	nvdla_perf.cycles = accelerator.get_total_max_cycles();
 	nvdla_perf.bytes = accelerator.get_total_dram_traffic() * 1000;
-	nvdla_perf.area = NVDLA_AREA;
-	nvdla_perf.power = NVDLA_POWER;
-	nvdla_perf.bandwidth = nvdla_perf.bytes*1000/nvdla_perf.cycles;
+	nvdla_perf.area_14nm = NVDLA_AREA_14NM;
+	nvdla_perf.area_5nm = NVDLA_AREA_5NM;
+	nvdla_perf.power_14nm = NVDLA_POWER_14NM;
+	nvdla_perf.power_5nm = NVDLA_POWER_5NM;
+	//nvdla_perf.bandwidth = nvdla_perf.bytes/nvdla_perf.cycles;
 
 	// factor in batch_size
-	nvdla_perf.cycles *= config.batch_size;
-	nvdla_perf.bytes *= config.batch_size;
+
+	float n_invoke = ((float) config.batch_size) / ((float) N_NVDLA);
+	float n_invoke_ceil = ceil(((float) config.batch_size) / ((float) N_NVDLA));
+	float utilization = n_invoke / n_invoke_ceil;
+
+	nvdla_perf.cycles = nvdla_perf.cycles * n_invoke_ceil;
+	nvdla_perf.bytes = nvdla_perf.bytes * config.batch_size;
+	nvdla_perf.power_14nm = nvdla_perf.power_14nm * N_NVDLA * utilization;
+	nvdla_perf.power_5nm = nvdla_perf.power_5nm * N_NVDLA * utilization;
+	nvdla_perf.bandwidth = ((float) nvdla_perf.bytes) / ((float) nvdla_perf.cycles);
 
 	return nvdla_perf;
 };
