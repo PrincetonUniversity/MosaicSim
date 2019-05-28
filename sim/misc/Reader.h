@@ -129,7 +129,7 @@ public:
         assert(false);
     }
     else {
-      cout << "[ERROR] Cannot open Graph file!\n";
+      cout << "[ERROR] Cannot open the Data Dependency Graph file!\n";
       assert(false);
     }
     cfile.close();
@@ -158,16 +158,17 @@ public:
       }
     }
     else {
-      cout << "[ERROR] Cannot open Memory profiling file!\n";
+      cout << "[ERROR] Cannot open the Memory trace file!\n";
       assert(false);
     }
     cout << "[SIM] ...Finished reading the Memory trace!\n\n";
     memfile.close();
   }
+
   //read accelerator file
   //eg 1,decadesTF_matmul,3,3,3,3
   //node id, acc_kernel_name, sizes ...
-   void readAccTrace(std::string name, std::unordered_map<int, std::queue<string> > &acc_map) {
+  void readAccTrace(std::string name, std::unordered_map<int, std::queue<string> > &acc_map) {
     string line;
     string last_line;
     int filesizeKB = fileSizeKB(name);
@@ -175,7 +176,7 @@ public:
     if (accfile.is_open()) {
       cout << "[SIM] Start reading the Accelerator Invokation trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
       if (filesizeKB > 100000)  // > 100 MB
-        cout << "[SIM] ...big file (+100MB), expect some minutes to read it.\n";
+        cout << "[SIM] ...big file (>100MB), please, expect some minutes to read it.\n";
       while ( getline(accfile,line) ) {
         
         vector<string> s = split(line, ',');
@@ -188,7 +189,7 @@ public:
       }
     }
     else {
-      cout << "[ERROR] Cannot open Accelerator profiling file!\n";
+      cout << "[ERROR] Cannot open the Accelerator trace file!\n";
       assert(false);
     }
     cout << "[SIM] ...Finished reading the Accelerator trace!\n\n";
@@ -227,7 +228,7 @@ public:
       }
     }
     else {
-      cout << "[ERROR] Cannot open CF profiling file!\n";
+      cout << "[ERROR] Cannot open the CF Control-Flow trace file!\n";
       assert(false);
     }
     cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";

@@ -205,7 +205,7 @@ bool Core::predict_branch(DynamicNode* d) {
 }
 
 bool Core::createContext() {
-  unsigned int cid = context_list.size();
+  unsigned int cid = total_created_contexts;
   if (cf.size() == cid) // reached end of <cf> so no more contexts to create
     return false;
   // set "current", "prev", "next" BB ids.
@@ -240,7 +240,7 @@ bool Core::createContext() {
   context_list.push_back(c);
   live_context.push_back(c);
   c->initialize(bb, next_bbid, prev_bbid);
-  
+  total_created_contexts++;
   return true;
 }
 
@@ -269,6 +269,10 @@ bool Core::process() {
     stat.set("cycles", cycles);
     local_stat.set("cycles", cycles);
     local_stat.print();
+
+    // release system memory by deleting all processed contexts
+    if(!sim->debug_mode)
+      deleteErasableContexts();
   }
   else if(cycles == 0) {
     last = Clock::now();
@@ -313,4 +317,39 @@ bool Core::process() {
   cycles++;
   
   return simulate;
+}
+
+void Core::deleteErasableContexts() {   
+  int erasedContexts=0;
+  int erasedDN=0;
+//  int count;
+//  cout << "-------trying to erase contexts:------------------------------\n";
+//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
+//  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
+//  cout << "--  live_context_list size=" << live_context.size() << endl;
+
+  int safetyWindow=1000000;
+  for(auto it=context_list.begin(); it != context_list.end(); ++it) {
+    Context *c = *it;
+    // safety measure: only erase contexts marked as erasable 1mill cycles apart
+    if(c && c->isErasable && c->cycleMarkedAsErasable < cycles-safetyWindow ) {  
+      // first, delete dynamic nodes associated to this context
+      for(auto n_it=c->nodes.begin(); n_it != c->nodes.end(); ++n_it) {
+        erasedDN++;
+        delete n_it->second;   // delete the dynamic node
+      }
+      // now delete the context itself
+      delete c;  
+      erasedContexts++;
+      *it = NULL;
+    }
+  }
+//  cout << "-------erased contexts: " << erasedContexts << "   erased DNs: " << erasedDN << "----------------------\n";
+//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
+//  cout << "--  new context_list size=" << count /*context_list.size()*/ << endl;
+}
+
+void calculateEnergy(){
+
+
 }

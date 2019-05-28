@@ -61,13 +61,13 @@ public:
     registerStat("lsq_insert_success", 4);
     registerStat("lsq_insert_fail", 4);
   }
-  int get(string str) {
+  uint64_t get(string str) {
     return stats.at(str).first;
   }
-  void set(string str, int set) {
+  void set(string str, uint64_t set) {
     stats.at(str).first = set;
   }
-  void update(string str, int inc=1) {
+  void update(string str, uint64_t inc=1) {
     stats.at(str).first += inc;
   }
   void reset() {
@@ -76,19 +76,17 @@ public:
     }
   }
   void print() {
-
-   
     cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
     cout << "Average BW : " << (double) get("dram_access") / (get ("cycles") / (64 * 2)) << " GB/s \n";
     
     if(get("l1_miss")!=0)
       {
-        cout << "L1 Miss Rate: " <<  ((100 * (long long) get("l1_miss"))/ (get("l1_miss")+get("l1_hit"))) << "%"<< endl;
+        cout << "L1 Miss Rate: " <<  ((100.0 * get("l1_miss"))/ (get("l1_miss")+get("l1_hit"))) << "%"<< endl;
       }
 
     if(get("l2_miss")!=0)
       {
-        cout << "L2 Miss Rate: " << ( (100 * (long long) get("l2_miss"))/(get("l2_miss")+get("l2_hit"))) << "%"<< endl;
+        cout << "L2 Miss Rate: " << ( (100.0 * get("l2_miss"))/(get("l2_miss")+get("l2_hit"))) << "%"<< endl;
       }
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {
