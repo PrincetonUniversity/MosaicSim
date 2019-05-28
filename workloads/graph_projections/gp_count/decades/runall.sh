@@ -8,7 +8,7 @@ CC=PDEC++
 NAME=main.cpp
 input_data=../../inputs/moreno_crime/x_to_y_graph.txt
 
-cd /decades-sdh/simulator/workloads/graph_projections/gp_count/decades
+#cd /decades-sdh/simulator/workloads/graph_projections/gp_count/decades for docker
 
 mkdir -p sim_output
 echo Compiling 1 Thread	
