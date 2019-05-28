@@ -269,20 +269,20 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 	}
 
 	if (is_readA_once) {
-	    perf_IS.cycles = IS_model(sizeA, false);
+	    perf_IS.cycles = IS_model(sizeA / 2, false);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
 	    perf_IS.bytes = sizeA * 4;
 	} else {
-	    perf_IS.cycles = IS_model(sizeA * config.colsB, false);
-	    perf_IS.bytes = sizeA * config.colsB * 8;
+	    perf_IS.cycles = IS_model(sizeA * config.colsB / 2, false);
+	    perf_IS.bytes = sizeA * config.colsB * 4;
 	}
 
 	if (is_readB_once) {
-	    perf_IS.cycles += IS_model(sizeB, true);
+	    perf_IS.cycles += IS_model(sizeB / 2, true);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
 	    perf_IS.bytes += sizeB * 4;
 	} else {
-	    perf_IS.cycles += IS_model(sizeB * config.rowsA, true);
+	    perf_IS.cycles += IS_model(sizeB * config.rowsA / 2, true);
 	    perf_IS.bytes += sizeB * config.rowsA * 4;
 	}
 
