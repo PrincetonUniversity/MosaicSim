@@ -17,7 +17,7 @@ Config::Config() {
   instr_latency[FP_DIV] = 8; 
   instr_latency[FP_REM] = 8;
   instr_latency[LOGICAL] = 1;
-  instr_latency[CAST] = 1;
+  instr_latency[CAST] = 0;
   instr_latency[GEP] = 1;
   instr_latency[LD] = -1;
   instr_latency[ST] = 1;

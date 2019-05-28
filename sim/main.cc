@@ -59,7 +59,7 @@ int main(int argc, char const *argv[]) {
   simulator->init_time=chrono::high_resolution_clock::now();
 
   if(test)
-    simulator->registerCore("../workloads/test/output", cfgpath, "core_inorder.txt", 0);
+    simulator->registerCore(pythia_home+"workloads/test/output", cfgpath, "core_inorder.txt", 0);
   else {
     // check the workload path and the local config is provided 
     if(argc < 4) {

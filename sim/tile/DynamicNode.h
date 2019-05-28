@@ -83,9 +83,11 @@ public:
 
 class Context {
 public:
-  bool live;
   unsigned int id;
-  
+  bool live;
+  bool isErasable=false;
+  uint64_t cycleMarkedAsErasable=0;
+
   Core* core;
   BasicBlock *bb;
 
@@ -101,7 +103,7 @@ public:
 
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
 
-  Context(int id, Core* core) : live(false), id(id), core(core) {}
+  Context(int id, Core* core) : id(id), live(false), core(core) {}
   Context* getNextContext();
   Context* getPrevContext();
   void insertQ(DynamicNode *d);

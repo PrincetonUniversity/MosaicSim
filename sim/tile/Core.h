@@ -59,6 +59,7 @@ public:
   vector<Context*> context_list;
   vector<Context*> live_context;
   int context_to_create = 0;
+  uint64_t total_created_contexts = 0;
 
   /* Resources / limits */
   map<TInstr, int> available_FUs;
@@ -74,7 +75,7 @@ public:
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
-  unordered_map<int, queue<string> > acc_map; // List of memory accesses per instruction in a program order
+  unordered_map<int, queue<string> > acc_map;  // List of memory accesses per instruction in a program order
   
   unordered_map<uint64_t, DynamicNode*> access_tracker;
   queue<int> tracker_id;
@@ -94,7 +95,9 @@ public:
   void access(DynamicNode *d);
   bool communicate(DynamicNode *d);
   void accessComplete(MemTransaction *t);
+  void deleteErasableContexts();  
   void printActivity();
+  void calculateEnergy();
   bool predict_branch(DynamicNode* d);
   string instrToStr(TInstr instr);
 };

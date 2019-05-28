@@ -245,7 +245,6 @@ void Simulator::run() {
           memInterface->process();                  
         }                
       }
-
     }
     simulate = accumulate(processVec.begin(), processVec.end(), 0);
     
@@ -306,7 +305,7 @@ void Simulator::run() {
   DESCQ* descq=descq_vec.at(0);
   if(descq->send_runahead_map.size()>0) {
     ofstream outfile;
-    outfile.open("decouplingStats");
+    outfile.open(outputDir+"/decouplingStats");
     
     long send_runahead_sum=0;
     outfile << "NODE_ID CONTEXT_ID DECOUPLING_ID RUNAHEAD_DIST" << endl;
@@ -362,21 +361,12 @@ void Simulator::run() {
       outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
         
-    // push all the "Load Stats" into the standard error output (cerr) or a file depending on the verbosity level (IMPROVE THIS!)
-    if(cfg.verbLevel >= 2) {
-      cerr << "Total Load Latency (cycles): " << totalLatency << endl;
-      cerr << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-      cerr << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
-      cerr << outstring;
-    }
-    else {
-      ofstream loadfile;
-      loadfile.open("loadStats");
-      loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
-      loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-      loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
-      loadfile << outstring;
-    }
+    ofstream loadfile;
+    loadfile.open(outputDir+"/loadStats");
+    loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
+    loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
+    loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+    loadfile << outstring;
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 

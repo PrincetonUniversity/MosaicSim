@@ -64,6 +64,9 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   this->next_bbid = next_bbid;
   this->prev_bbid = prev_bbid;  
   live = true;
+  isErasable = false;
+  cycleMarkedAsErasable=0;
+
   // Initialize Context Structures
   for ( unsigned int i=0; i<bb->inst.size(); i++ ) {
     Node *n = bb->inst.at(i);
@@ -112,8 +115,12 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
 
   if(core->curr_owner.find(bb->id) == core->curr_owner.end())
     core->curr_owner.insert(make_pair(bb->id,this));
-  else
+  else {
+    Context *old_owner = core->curr_owner.at(bb->id);
+    old_owner->isErasable = true;
+    old_owner->cycleMarkedAsErasable = core->cycles;
     core->curr_owner.at(bb->id) = this;
+  }  
 
   // Initialize External Edges
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
