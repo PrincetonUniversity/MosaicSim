@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
+#include <math.h>
 
 #include "accelerators.hpp"
 #include "gemm_model.hpp"
@@ -256,6 +257,7 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 
 	if (config.colsA + sizeB < IS_MEM_SIZE ||
 	    sizeA + config.colsA < IS_MEM_SIZE) {
+
 	    is_readA_once = true;
 	    is_readB_once = true;
 
@@ -269,7 +271,7 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 	if (is_readA_once) {
 	    perf_IS.cycles = IS_model(sizeA, false);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
-	    perf_IS.bytes = sizeA * 8;
+	    perf_IS.bytes = sizeA * 4;
 	} else {
 	    perf_IS.cycles = IS_model(sizeA * config.colsB, false);
 	    perf_IS.bytes = sizeA * config.colsB * 8;
@@ -278,10 +280,10 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 	if (is_readB_once) {
 	    perf_IS.cycles += IS_model(sizeB, true);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
-	    perf_IS.bytes += sizeB * 8;
+	    perf_IS.bytes += sizeB * 4;
 	} else {
 	    perf_IS.cycles += IS_model(sizeB * config.rowsA, true);
-	    perf_IS.bytes += sizeB * config.rowsA * 8;
+	    perf_IS.bytes += sizeB * config.rowsA * 4;
 	}
 
 	perf.bytes = perf_IS.bytes + bytes_store;
@@ -295,7 +297,7 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
     }
 
     // evaluate bandwidth requirement
-    perf.bandwidth = ((float) perf.bytes) / ((float) perf.cycles);
+    // perf.bandwidth = ((float) perf.bytes) / ((float) perf.cycles);
 
     return perf;
 }
@@ -303,28 +305,21 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 // simulator API to invoke GeMM accelerator
 acc_perf_t sim_gemm(config_gemm_t config)
 {
-    int n_invocations = (int) config.batch_size;
+    // Call the accelerator only once, then project performance to
+    // n_invocations of N_ACC_GEMM accelerator in parallel. The last
+    // invocation might invoke less than N_ACC_GEMM accelerators.
 
     acc_perf_t perf = dec_gemm_invoke(config);
 
-    perf.cycles = perf.cycles * n_invocations;
-    perf.bytes = perf.bytes * n_invocations;
+    float n_invoke = ((float) config.batch_size) / ((float) N_ACC_GEMM);
+    float n_invoke_ceil = ceil(((float) config.batch_size) / ((float) N_ACC_GEMM));
+    float utilization = n_invoke / n_invoke_ceil;
 
-    // Commented out because we don't support multi-accelerator
-
-    // int n_invocations = (int) config.batch_size / N_ACC_GEMM;
-
-    // // Call the accelerator only once, then project performance to
-    // // n_invocations of N_ACC_GEMM accelerator in parallel. The last
-    // // invocation might invoke less than N_ACC_GEMM accelerators.
-    // acc_perf_t perf = dec_gemm_invoke(config);
-
-    // perf.cycles = perf.cycles * n_invocations;
-    // perf.power = perf.power *
-    // 	((float) config.batch / (float) n_invocations);
-    // perf.bandwidth = perf.bandwidth *
-    // 	((float) config.batch / (float) n_invocations);
-    // perf.utilization = (float) config.batch / (float) n_invocations;
+    perf.cycles = perf.cycles * n_invoke_ceil;
+    perf.bytes = perf.bytes * config.batch_size;
+    perf.power_14nm = perf.power_14nm * N_ACC_GEMM * utilization;
+    perf.power_5nm = perf.power_5nm * N_ACC_GEMM * utilization;
+    perf.bandwidth = ((float) perf.bytes) / ((float) perf.cycles);
 
     return perf;
 }

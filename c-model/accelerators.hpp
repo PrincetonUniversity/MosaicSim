@@ -17,7 +17,7 @@
 #define N_ACC_SDP 4
 
 // IS tile model parameters
-#define IS_MEM_SIZE 262144
+#define IS_MEM_SIZE 524288
 #define IS_MIN_CHUNK 32
 #define IS_BURST_LENGTH 4196
 #define IS_MAX_DMA_REQS 15
