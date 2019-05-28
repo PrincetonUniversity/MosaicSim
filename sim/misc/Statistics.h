@@ -17,6 +17,7 @@ public:
   }
   Statistics() {
     registerStat("cycles", 0);
+    registerStat("energy", 0);
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
     
