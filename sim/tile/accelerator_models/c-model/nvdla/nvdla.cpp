@@ -31,7 +31,8 @@ void	nvdla_acc::commit()
 
 void	nvdla_acc::add_layer(nvdla_layer* new_layer)
 {
-	if(network.size() < mNum_of_layers)
+        int net_size=network.size();
+	if(net_size < mNum_of_layers)
 	{
 		network.push_back(new_layer);
 	}
@@ -416,8 +417,8 @@ acc_perf_t sim_nvdla(config_nvdla_t config)
 
 	nvdla_perf.cycles = accelerator.get_total_max_cycles();
 	nvdla_perf.bytes = accelerator.get_total_dram_traffic() * 1000;
-	nvdla_perf.area = NVDLA_AREA;
-	nvdla_perf.power = NVDLA_POWER;
+	nvdla_perf.area_14nm = NVDLA_AREA;
+	nvdla_perf.power_14nm = NVDLA_POWER;
 	nvdla_perf.bandwidth = nvdla_perf.bytes*1000/nvdla_perf.cycles;
 
 	// factor in batch_size

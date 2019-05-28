@@ -73,7 +73,7 @@ namespace {
 
       print_sdp = (Function *) M.getOrInsertFunction("print_sdp", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       
-      print_conv2d_layer = (Function *) M.getOrInsertFunction("print_conv2d_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+      print_conv2d_layer = (Function *) M.getOrInsertFunction("print_conv2d_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
       print_dense_layer = (Function *) M.getOrInsertFunction("print_dense_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
       
@@ -445,14 +445,15 @@ pool_height -> pool_height
 pool_width -> pool_width
 vertical_pool_stride -> vertical_pool_dim
 horizontal_pool_stride -> horizontal_pool_dim
+batch -> batch_size
               */
               else if(f->getName().str().find("decadesTF_conv2d_layer") != std::string::npos) {
                 
-                Value *ktype, *rdir, *name_val, *acc_name_val, *in_channels, *in_height, *in_width, *out_channels, *filter_height, *filter_width, *zero_pad, *vert_conv_stride, *horiz_conv_stride, *pooling, *pool_height, *pool_width, *vertical_pool_stride, *horizontal_pool_stride;
+                Value *ktype, *rdir, *name_val, *acc_name_val, *batch, *in_channels, *in_height, *in_width, *out_channels, *filter_height, *filter_width, *zero_pad, *vert_conv_stride, *horiz_conv_stride, *pooling, *pool_height, *pool_width, *vertical_pool_stride, *horizontal_pool_stride;
                 IRBuilder<> Builder(inst);
                 DataLayout* dl = new DataLayout(mod);
                 LLVMContext& ctx = mod->getContext();
-                in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
+                batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
                 
                 ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
 		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
@@ -462,7 +463,7 @@ horizontal_pool_stride -> horizontal_pool_dim
                 //instr id
                 name_val = Builder.CreateGlobalStringPtr(namestr);
                 acc_name_val = Builder.CreateGlobalStringPtr(acc_name);
-                Value* args[] = {name_val,ktype,rdir,acc_name_val,in_channels, in_height, in_width, out_channels, filter_height, filter_width, zero_pad, vert_conv_stride, horiz_conv_stride, pooling, pool_height, pool_width, vertical_pool_stride, horizontal_pool_stride};
+                Value* args[] = {name_val,ktype,rdir,acc_name_val, batch,in_channels, in_height, in_width, out_channels, filter_height, filter_width, zero_pad, vert_conv_stride, horiz_conv_stride, pooling, pool_height, pool_width, vertical_pool_stride, horizontal_pool_stride};
                 CallInst* cI = Builder.CreateCall(print_conv2d_layer, args);                           
               }
               /*

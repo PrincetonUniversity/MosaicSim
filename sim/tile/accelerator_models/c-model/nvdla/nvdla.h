@@ -165,7 +165,47 @@ class nvdla_acc
 	std::vector<nvdla_layer*> network;
 
 };
+/* dense
+// mapping: C++ -> model
+in_channels -> num_of_inputs
+1 -> input_height
+1 -> input_width
+out_channels -> num_of_outputs
+1 -> filter_height
+1 -> filter_width
+0 -> zero_pad
+1 -> vertical_conv_dim
+1 -> horizontal_conv_dim
+0 -> pooling
+1 -> pool_height
+1 -> pool_width
+1 -> vertical_pool_dim
+1 -> horizontal_pool_dim
+0 -> type // here 0 is for dense, aka fc (fully connected),
+// there's an enum in nvlda.h: enum layer_type{fc, conv};
+batch -> batch_size
+*/
+/* conv2d
+// mapping: C++ -> model
+in_channels -> num_of_inputs
+in_height -> input_height
+in_width -> input_width
+out_channels -> num_of_outputs
+filter_height -> filter_height
+filter_width -> filter_width
+zero_pad -> zero_pad
+vert_conv_stride -> vertical_conv_dim
+horiz_conv_stride -> horizontal_conv_dim
+pooling -> pooling
+pool_height -> pool_height
+pool_width -> pool_width
+vertical_pool_stride -> vertical_pool_dim
+horizontal_pool_stride -> horizontal_pool_dim
+1 -> type // here 1 is for convolution,
+// there's an enum in nvlda.h: enum layer_type{fc, conv};
+batch -> batch_size
 
+*/
 typedef struct config_nvdla
 {
 	int num_of_inputs;

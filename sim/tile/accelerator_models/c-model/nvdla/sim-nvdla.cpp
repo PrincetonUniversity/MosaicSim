@@ -44,8 +44,8 @@ int main(void)
 	cout << "NVDLA performance data:" << endl;
 	cout << "Cycles: " << nvdla_perf.cycles << endl;
 	cout << "Bytes: " << nvdla_perf.bytes << endl;
-	cout << "Area: " << nvdla_perf.area << "[mm^2, 16nm]" << endl;
-	cout << "Power: " << nvdla_perf.power << "[mW, 16nm]"<< endl;
+	cout << "Area: " << nvdla_perf.area_14nm << "[mm^2, 14nm]" << endl;
+	cout << "Power: " << nvdla_perf.power_14nm << "[mW, 14nm]"<< endl;
 	cout << "Bandwidth: " << nvdla_perf.bandwidth << "[Bytes/Cycle]" << endl;
 	cout << endl;
 
