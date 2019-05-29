@@ -36,6 +36,7 @@ Config::Config() {
   instr_latency[BS_VECTOR_INC] = 1;
   instr_latency[BARRIER]=1;
   instr_latency[ACCELERATOR]=-1;
+  // # of FUs setting
   num_units[BS_DONE] = -1;
   num_units[CORE_INTERRUPT] = -1;
   num_units[CALL_BS] = -1;
@@ -64,6 +65,35 @@ Config::Config() {
   num_units[INVALID] = -1;
   num_units[BARRIER] = -1;
   num_units[ACCELERATOR] = -1;
+  // energy_per_instr (in Joules - from Ariane paper: https://arxiv.org/abs/1904.05442)
+  energy[I_ADDSUB] = 21.58*10e-12;
+  energy[I_MULT] =  22.60*10e-12;
+  energy[I_DIV] = 19.94*10e-12;  
+  energy[I_REM] = energy[I_DIV];
+  energy[FP_ADDSUB] = 21.58*10e-12;
+  energy[FP_MULT] = 22.60*10e-12;
+  energy[FP_DIV] = 19.94*10e-12; 
+  energy[FP_REM] = energy[FP_DIV];
+  energy[LOGICAL] = energy[I_ADDSUB];
+  energy[CAST] = 0;
+  energy[GEP] = energy[I_ADDSUB];
+  energy[LD] = 25.21*10e-12;  // add caches energy afterwards
+  energy[ST] = energy[LD];  // add caches energy afterwards
+  energy[TERMINATOR] = energy[I_ADDSUB];
+  energy[PHI] = 0;     
+  energy[SEND] = energy[I_ADDSUB];
+  energy[RECV] = energy[I_ADDSUB];
+  energy[STADDR] = energy[ST];      // let's assume this is the actual ST
+  energy[STVAL] = energy[I_ADDSUB]; // note this is not storing anything
+  energy[LD_PROD] = energy[LD];     // treat like an actual load
+  energy[INVALID] = 0; 
+  energy[BS_DONE] = 0;
+  energy[CORE_INTERRUPT] = 0;
+  energy[CALL_BS] = 0;
+  energy[BS_WAKE] = 0;
+  energy[BS_VECTOR_INC] = 0;
+  energy[BARRIER] = 0;
+  energy[ACCELERATOR] = 0;
 }
 
 vector<string> Config::split(const string &s, char delim) {

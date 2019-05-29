@@ -35,6 +35,8 @@ public:
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
+  // Energy per instruction
+  double energy[NUM_INST_TYPES];  
   // cache
   bool ideal_cache;
   int cache_latency = 1;  // cycles

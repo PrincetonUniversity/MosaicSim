@@ -248,8 +248,8 @@ void Simulator::run() {
     }
     simulate = accumulate(processVec.begin(), processVec.end(), 0);
     
-    //---printing stats---    
-    if(tiles[0]->cycles % 1000000 == 0 && tiles[0]->cycles !=0) {
+    // Print GLOBAL stats every "stat.printInterval" cycles
+    if(tiles[0]->cycles % stat.printInterval == 0 && tiles[0]->cycles !=0) {
       
       curr_time = Clock::now();
       uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr_time - last_time).count();
@@ -260,7 +260,7 @@ void Simulator::run() {
       uint64_t remaining_instructions = total_instructions - last_instr_count; 
       
       double remaining_time = (double)remaining_instructions/(60000*instr_rate);
-      cout << "Remaining Time: " << (int)remaining_time << " mins \nRemaining Instructions: " << remaining_instructions << endl << endl;
+      cout << "Remaining Time: " << (int)remaining_time << " mins \nRemaining Instructions: " << remaining_instructions << endl;
       
       last_instr_count = stat.get("total_instructions");
       last_time = curr_time;
@@ -272,20 +272,28 @@ void Simulator::run() {
     cycles++;
   }
   cout << "[SIM] ------- End of Simulation!!! ------------------------" << endl << endl;
-  
-  //print stats for each pythia tile
+
+  // print stats for each pythia tile
+  stat.global_energy = 0.0;
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
     Tile* tile=it->second;
     if(Core* core=dynamic_cast<Core*>(tile)) {
+      // update cycle stats
       stat.set("cycles", core->cycles);
       core->local_stat.set("cycles", core->cycles);
-      cout << "----------------" << core->name << " Stats--------------\n";
+      // print stats
+      cout << "------------- Final " << core->name << " Stats --------------\n";
       core->local_stat.print();
+      // calculate energy & print
+      core->calculateEnergy();
+      stat.global_energy += core->total_energy;
+      cout << "total_energy : " << core->total_energy << " Joules\n";
     }
   }
   
-  cout << "----------------GLOBAL STATS--------------\n";
+  cout << "\n----------------GLOBAL STATS--------------\n";
   stat.print();
+  cout << "global_energy : " << stat.global_energy << " Joules (CHECK caches+DRAM are added!)\n";
   memInterface->mem->printStats(true);
   curr_time=Clock::now();
   uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();

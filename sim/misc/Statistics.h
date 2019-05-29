@@ -11,6 +11,8 @@ public:
      
   map<string, pair<uint64_t, int>> stats;
   int num_types = 4;
+  int printInterval = 5000000;
+  double global_energy = 0.0;
    
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
@@ -63,8 +65,8 @@ public:
   uint64_t get(string str) {
     return stats.at(str).first;
   }
-  void set(string str, uint64_t set) {
-    stats.at(str).first = set;
+  void set(string str, uint64_t val) {
+    stats.at(str).first = val;
   }
   void update(string str, uint64_t inc=1) {
     stats.at(str).first += inc;

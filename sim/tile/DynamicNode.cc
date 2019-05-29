@@ -375,8 +375,8 @@ void Context::complete() {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
-      stat.update(core->instrToStr(d->type));
-      core->local_stat.update(core->instrToStr(d->type));
+      stat.update(core->getInstrName(d->type));
+      core->local_stat.update(core->getInstrName(d->type));
     }
   }
 }

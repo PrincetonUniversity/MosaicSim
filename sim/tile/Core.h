@@ -44,11 +44,8 @@ public:
 class Core: public Tile {
 public:
   Graph g;
-  //uint64_t cycles = 0;
-  //queue<DynamicNode*> inputQ;
   IssueWindow window;
   Config local_cfg; 
-  //Simulator* sim;
   Cache* cache;
   Statistics local_stat;
   
@@ -61,16 +58,10 @@ public:
   int context_to_create = 0;
   uint64_t total_created_contexts = 0;
 
-  /* Resources / limits */
+  /* Resources */
   map<TInstr, int> available_FUs;
   map<BasicBlock*, int> outstanding_contexts;
-    
-  /* Activity counters */
-  map<TInstr, int> activity_FUs;
-  struct {
-    int bytes_read;
-    int bytes_write;
-  } activity_mem;
+  double total_energy = 0.0;
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
@@ -96,9 +87,8 @@ public:
   bool communicate(DynamicNode *d);
   void accessComplete(MemTransaction *t);
   void deleteErasableContexts();  
-  void printActivity();
   void calculateEnergy();
   bool predict_branch(DynamicNode* d);
-  string instrToStr(TInstr instr);
+  string getInstrName(TInstr instr);
 };
 #endif
