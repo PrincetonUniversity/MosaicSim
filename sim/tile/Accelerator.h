@@ -5,7 +5,7 @@
 #include "../sim.h"
 #include "Tile.h"
 #include <string>
-
+#include "accelerator_models/c-model/accelerators.hpp"
 
 using namespace std;
 
@@ -31,7 +31,7 @@ public:
   Transaction* currentTransaction; 
   uint64_t final_cycle=0;
   bool tile_complete=false;
-  
+  config_sys_t sys_config;
   bool transaction_pending=false;
   vector<string> split(const string &s, char delim);
   //int timing_model(GemmTransaction* t);  

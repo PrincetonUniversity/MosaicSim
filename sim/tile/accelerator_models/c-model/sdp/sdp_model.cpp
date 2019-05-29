@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
-#include "accelerators.hpp"
+#include "../accelerators.hpp"
 #include "sdp_model.hpp"
 
 void load_model(long long unsigned &cycles,
@@ -36,7 +36,7 @@ void load_model(long long unsigned &cycles,
     }
 }
 
-void compute_model(long long unsigned &cycles, unsigned length)
+void sdp_compute_model(long long unsigned &cycles, unsigned length)
 {
     long long unsigned local_cycles = 0;
 
@@ -104,7 +104,7 @@ acc_perf_t dec_sdp_invoke(config_sys_t config_sys, config_sdp_t config, unsigned
     printf("cycles_load_chunk_rem %llu\n", cycles_load_chunk_rem);
 
     // precompute performance of computing a chunk
-    compute_model(cycles_compute_chunk, SDP_STORE_CHUNK);
+    sdp_compute_model(cycles_compute_chunk, SDP_STORE_CHUNK);
 
     printf("cycles_compute_chunk %llu\n", cycles_compute_chunk);
 

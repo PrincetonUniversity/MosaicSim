@@ -63,7 +63,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.colsB=stoi(arg_vec[2+offset_size]);
       args.batch_size=stoi(arg_vec[3+offset_size]);
       args.has_IS_tile=1;
-      currentTransaction->perf=sim_gemm(args);
+      currentTransaction->perf=sim_gemm(sys_config, args);
       cout << "rows A " << args.rowsA << " col A " << args.colsA << "cols b " << args.colsB << " batch size " << args.batch_size << endl;
     }
     else if(arg_vec[1].find("decadesTF_sdp") != std::string::npos) {
@@ -72,7 +72,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       config_sdp_t args;
       args.working_mode=stoi(arg_vec[0+offset_size]);
       args.size=stoi(arg_vec[1+offset_size]);
-      currentTransaction->perf=sim_sdp(args);
+      currentTransaction->perf=sim_sdp(sys_config, args);
     }
     else if(arg_vec[1].find("decadesTF_conv2d_layer") != std::string::npos) {
       int arg_size=arg_vec.size();
@@ -94,7 +94,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.horizontal_pool_dim=stoi(arg_vec[14+offset_size]);;
       args.type=conv;
       args.batch_size=stoi(arg_vec[0+offset_size]);
-      currentTransaction->perf=sim_nvdla(args);
+      currentTransaction->perf=sim_nvdla(sys_config, args);
     }
     else if(arg_vec[1].find("decadesTF_dense_layer") != std::string::npos) {
       //f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << /*0*/ batch << ","<< /*1*/ in_channels << ","<< /*2*/ out_channels << "\n";*/
@@ -117,7 +117,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.horizontal_pool_dim=1;
       args.type=fc;
       args.batch_size=stoi(arg_vec[0+offset_size]);
-      currentTransaction->perf=sim_nvdla(args);
+      currentTransaction->perf=sim_nvdla(sys_config, args);
     }
     else {
       cout << "no matching acc model for invocation \n";

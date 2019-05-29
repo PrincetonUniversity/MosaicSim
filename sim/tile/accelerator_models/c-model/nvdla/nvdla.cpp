@@ -31,7 +31,7 @@ void	nvdla_acc::commit()
 
 void	nvdla_acc::add_layer(nvdla_layer* new_layer)
 {
-	if(network.size() < mNum_of_layers)
+  if((int) network.size() < mNum_of_layers)
 	{
 		network.push_back(new_layer);
 	}

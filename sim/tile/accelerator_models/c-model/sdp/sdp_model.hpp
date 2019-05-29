@@ -1,7 +1,7 @@
 #ifndef _SDP_MODEL_HPP_
 #define _SDP_MODEL_HPP_
 
-#include "accelerators.hpp"
+#include "../accelerators.hpp"
 
 #define SDP_DMA_CHUNK 128
 #define SDP_STORE_CHUNK 32
