@@ -62,6 +62,7 @@ public:
   map<TInstr, int> available_FUs;
   map<BasicBlock*, int> outstanding_contexts;
   double total_energy = 0.0;
+  double avg_power = 0.0;
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
@@ -87,7 +88,7 @@ public:
   bool communicate(DynamicNode *d);
   void accessComplete(MemTransaction *t);
   void deleteErasableContexts();  
-  void calculateEnergy();
+  void calculateEnergyPower();
   bool predict_branch(DynamicNode* d);
   string getInstrName(TInstr instr);
 };

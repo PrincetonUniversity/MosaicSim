@@ -274,7 +274,6 @@ void Simulator::run() {
   cout << "[SIM] ------- End of Simulation!!! ------------------------" << endl << endl;
 
   // print stats for each pythia tile
-  stat.global_energy = 0.0;
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
     Tile* tile=it->second;
     if(Core* core=dynamic_cast<Core*>(tile)) {
@@ -285,15 +284,17 @@ void Simulator::run() {
       cout << "------------- Final " << core->name << " Stats --------------\n";
       core->local_stat.print();
       // calculate energy & print
-      core->calculateEnergy();
-      stat.global_energy += core->total_energy;
+      core->calculateEnergyPower();
       cout << "total_energy : " << core->total_energy << " Joules\n";
+      cout << "avg_power : " << core->avg_power << " Watts\n";
     }
   }
   
   cout << "\n----------------GLOBAL STATS--------------\n";
   stat.print();
+  calculateGlobalEnergyPower();
   cout << "global_energy : " << stat.global_energy << " Joules (CHECK caches+DRAM are added!)\n";
+  cout << "global_avg_power : " << stat.avg_global_power << " Watts\n";
   memInterface->mem->printStats(true);
   curr_time=Clock::now();
   uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
@@ -378,6 +379,35 @@ void Simulator::run() {
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 
+}
+
+void Simulator::calculateGlobalEnergyPower() {
+  stat.global_energy = 0.0;
+  for (auto it=tiles.begin(); it!=tiles.end(); it++) {
+    Tile* tile=it->second;
+    if(Core* core=dynamic_cast<Core*>(tile)) {
+      // aggregate per-core energies
+      if(core->total_energy==0.0)
+        core->calculateEnergyPower();
+      stat.global_energy += core->total_energy;
+
+      // Add each L1 private cache energy
+      // Future Fix: we assume a shared L2, if in a future the L2 can be private it must be added here as well !
+      // Luwa ?
+    }
+  }
+
+  // Add the L2 cache energy (we assume it is shared)
+
+  // Add the DRAM energy
+
+
+  // For Luwa: 
+  // Add accelerators energy ???
+
+  
+  // Finally, calculate Avg Power (in Watts)
+  stat.avg_global_power = stat.global_energy / cycles;
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {

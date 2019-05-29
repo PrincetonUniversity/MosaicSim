@@ -336,10 +336,11 @@ void Core::deleteErasableContexts() {
 //  cout << "--  new context_list size=" << count /*context_list.size()*/ << endl;
 }
 
-void Core::calculateEnergy() {
+void Core::calculateEnergyPower() {
   total_energy = 0.0;
   if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1)
     for(int i=0; i<NUM_INST_TYPES; i++) {
       total_energy += local_cfg.energy[i] * local_stat.get(getInstrName((TInstr)i));
     }
+    avg_power = total_energy / cycles;
 }

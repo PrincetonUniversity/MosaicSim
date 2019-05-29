@@ -91,6 +91,7 @@ public:
   DESCQ* get_descq(DynamicNode* d);
   DESCQ* get_descq(Tile* tile);
   int getAccelerator();
+  void calculateGlobalEnergyPower();
 };
 
 class DESCQ {
