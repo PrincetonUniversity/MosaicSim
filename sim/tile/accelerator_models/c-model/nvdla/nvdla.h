@@ -15,13 +15,18 @@
 #include "../accelerators.hpp"
 using namespace std;
 
+#define N_NVDLA 2
 #define INPUT_DATA_TYPE 1
 #define WEIGHT_DATA_TYPE 1
 #define	COMPRESION_RATE	0
 #define CONVOLUTION_BUFFER 128.0;
 #define NUM_OF_MAC 256.0
-#define NVDLA_AREA 1.0 //mm^2, 16[nm]
-#define	NVDLA_POWER 135/48.0
+// #define NVDLA_AREA 1000000.0 // um^2, 16nm
+#define NVDLA_AREA_14NM 765625 
+#define NVDLA_AREA_5NM 97656
+// #define NVDLA_POWER 48.0 // mW 16nm
+#define NVDLA_POWER_14NM 36.75
+#define NVDLA_POWER_5NM 4.69
 #define DRAM_BW_LIMIT 5.0 //GBps
 #define FREQUENCY 1000 //MHz
 #define FC_BATCH_SIZE 16

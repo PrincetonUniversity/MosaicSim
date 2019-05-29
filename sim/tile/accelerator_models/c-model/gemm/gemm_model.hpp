@@ -5,13 +5,14 @@
 
 #define GEMM_DMA_CHUNK 64
 
-// #define GEMM_AREA 54288 // area in um^2, IBM 32nm
-#define GEMM_AREA_14NM 10391
-#define GEMM_AREA_5NM 1325 
+// tech feature size: IBM 32nm
+#define GEMM_TECH 32
 
-//#define GEMM_AVG_POWER 34.0 // average power consumption estimate in mW
-#define GEMM_AVG_POWER_14NM 6.5
-#define GEMM_AVG_POWER_5NM 0.83
+// area in um^2, IBM 32nm
+#define GEMM_AREA 54288.0
+
+// average power consumption estimate in mW: IBM 32nm
+#define GEMM_AVG_POWER 34.0
 
 // configuration parameters of GeMM accelerator
 typedef struct config_gemm {
@@ -23,6 +24,6 @@ typedef struct config_gemm {
 } config_gemm_t; 
 
 // model API prototype
-acc_perf_t sim_gemm(config_gemm_t config);
+acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm);
 
 #endif // _GEMM_MODEL_HPP_

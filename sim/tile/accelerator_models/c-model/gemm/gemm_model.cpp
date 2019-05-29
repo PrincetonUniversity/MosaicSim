@@ -27,7 +27,7 @@ void calculate_chunks(unsigned &matrix_chk, unsigned &matrix_rem, unsigned colsA
 }
 
 void load_model(long long unsigned &cycles, long long unsigned &bytes,
-		unsigned length, int has_IS_tile)
+		unsigned length, int has_IS_tile, unsigned dram_latency)
 {
     // iteration delay
     cycles++;
@@ -41,7 +41,7 @@ void load_model(long long unsigned &cycles, long long unsigned &bytes,
     if(has_IS_tile)
 	cycles += IS_LATENCY;
     else
-	cycles += DRAM_LATENCY;
+	cycles += dram_latency;
 
     // read dma channel		
     cycles += length;
@@ -56,7 +56,7 @@ void load_model(long long unsigned &cycles, long long unsigned &bytes,
     if(has_IS_tile)
 	cycles += IS_LATENCY;
     else
-	cycles += DRAM_LATENCY;
+	cycles += dram_latency;
 
     // read dma channel
     cycles += length;
@@ -79,7 +79,8 @@ void compute_model(long long unsigned &cycles, unsigned length)
     cycles += length * 2;
 }
 
-void store_model(long long unsigned &cycles, long long unsigned &bytes, unsigned length)
+void store_model(long long unsigned &cycles, long long unsigned &bytes,
+		 unsigned length, unsigned dram_latency)
 {
     // accumulate in compute
     cycles += 3;
@@ -94,7 +95,7 @@ void store_model(long long unsigned &cycles, long long unsigned &bytes, unsigned
     cycles++;
 
     // add D latency
-    cycles += DRAM_LATENCY;
+    cycles += dram_latency;
 
     // write dma channel		
     cycles += length;
@@ -104,7 +105,7 @@ void store_model(long long unsigned &cycles, long long unsigned &bytes, unsigned
     cycles++;
 }
 
-long long unsigned IS_model(unsigned length, int is_strided)
+long long unsigned IS_model(unsigned length, int is_strided, unsigned dram_latency)
 {
     unsigned bursts, last_burst;
     long long unsigned cycles;
@@ -112,27 +113,27 @@ long long unsigned IS_model(unsigned length, int is_strided)
     bursts = length / IS_BURST_LENGTH;
     last_burst = length % IS_BURST_LENGTH;
 
-    cycles = DRAM_LATENCY;
+    cycles = dram_latency;
 
     // cycles for the DMA read bursts
     if (!is_strided) {
 	// (+2 is for the ping-pong overhead)
 	if (last_burst)
-	    cycles += bursts * (DRAM_LATENCY / IS_MAX_DMA_REQS + IS_BURST_LENGTH + 1) +
-		(DRAM_LATENCY / IS_MAX_DMA_REQS + last_burst + 1);
+	    cycles += bursts * (dram_latency / IS_MAX_DMA_REQS + IS_BURST_LENGTH + 1) +
+		(dram_latency / IS_MAX_DMA_REQS + last_burst + 1);
 	else
-	    cycles += bursts * (DRAM_LATENCY / IS_MAX_DMA_REQS + IS_BURST_LENGTH + 1);
+	    cycles += bursts * (dram_latency / IS_MAX_DMA_REQS + IS_BURST_LENGTH + 1);
 
     } else {
 	// DMA transactions of a single WORD
 	// assuming up to IS_MAX_DMA_REQS outstanding DMA requests
-	cycles += (DRAM_LATENCY / IS_MAX_DMA_REQS) * length;
+	cycles += (dram_latency / IS_MAX_DMA_REQS) * length;
     }
 
     return cycles;
 }
 
-acc_perf_t dec_gemm_invoke(config_gemm_t config)
+acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 {
     acc_perf_t perf, perf_IS;
     long long unsigned cycles_load = 0, cycles_compute = 0;
@@ -153,9 +154,9 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 
     // precompute performance of loading a chunk
     load_model(cycles_load_chunk, bytes_load_chunk,
-	       GEMM_DMA_CHUNK / 2, config.has_IS_tile);
+	       GEMM_DMA_CHUNK / 2, config.has_IS_tile, config_sys.dram_latency);
     load_model(cycles_load_chunk_rem, bytes_load_chunk_rem,
-	       matrix_rem / 2, config.has_IS_tile);
+	       matrix_rem / 2, config.has_IS_tile, config_sys.dram_latency);
     // printf("cycles_load_chunk %llu, bytes_load_chunk %llu\n",
     // 	   cycles_load_chunk, bytes_load_chunk);
     // printf("cycles_load_chunk_rem %llu, bytes_load_chunk_rem %llu\n",
@@ -168,8 +169,10 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
     // printf("cycles_compute_chunk_rem %llu\n", cycles_compute_chunk_rem);
 
     // precompute performance of storing a chunk
-    store_model(cycles_store_chunk, bytes_store_chunk, GEMM_DMA_CHUNK / 2);
-    store_model(cycles_store_chunk_rem, bytes_store_chunk_rem, matrix_rem_store / 2);
+    store_model(cycles_store_chunk, bytes_store_chunk,
+		GEMM_DMA_CHUNK / 2, config_sys.dram_latency);
+    store_model(cycles_store_chunk_rem, bytes_store_chunk_rem,
+		matrix_rem_store / 2, config_sys.dram_latency);
     // printf("cycles_store_chunk %llu, bytes_store_chunk %llu\n",
     // 	   cycles_store_chunk, bytes_store_chunk);
     // printf("cycles_store_chunk_rem %llu, bytes_store_chunk_rem %llu\n",
@@ -235,10 +238,7 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
     // sum load and store bytes accessed
     perf.bytes = bytes_load + bytes_store;
 
-    perf.area_14nm = GEMM_AREA_14NM;
-    perf.power_14nm = GEMM_AVG_POWER_14NM;
-    perf.area_5nm = GEMM_AREA_5NM;
-    perf.power_5nm = GEMM_AVG_POWER_5NM;
+    perf.power = GEMM_AVG_POWER;
 
     // printf("cycles: %llu\n", perf.cycles);
     // printf("bytes: %llu\n", perf.bytes);
@@ -269,28 +269,29 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 	}
 
 	if (is_readA_once) {
-	    perf_IS.cycles = IS_model(sizeA, false);
+	    perf_IS.cycles = IS_model(sizeA / 2, false,
+				      config_sys.dram_latency);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
 	    perf_IS.bytes = sizeA * 4;
 	} else {
-	    perf_IS.cycles = IS_model(sizeA * config.colsB, false);
-	    perf_IS.bytes = sizeA * config.colsB * 8;
+	    perf_IS.cycles = IS_model(sizeA * config.colsB / 2, false,
+				      config_sys.dram_latency);
+	    perf_IS.bytes = sizeA * config.colsB * 4;
 	}
 
 	if (is_readB_once) {
-	    perf_IS.cycles += IS_model(sizeB, true);
+	    perf_IS.cycles += IS_model(sizeB / 2, true,
+				       config_sys.dram_latency);
 	    // printf("perf_IS.cycles: %llu\n",  perf_IS.cycles);
 	    perf_IS.bytes += sizeB * 4;
 	} else {
-	    perf_IS.cycles += IS_model(sizeB * config.rowsA, true);
+	    perf_IS.cycles += IS_model(sizeB * config.rowsA / 2, true,
+				       config_sys.dram_latency);
 	    perf_IS.bytes += sizeB * config.rowsA * 4;
 	}
 
 	perf.bytes = perf_IS.bytes + bytes_store;
-	perf.area_14nm += IS_AREA_14NM;
-	perf.area_5nm += IS_AREA_5NM;
-	perf.power_14nm += IS_AVG_POWER_14NM;
-	perf.power_5nm += IS_AVG_POWER_5NM;
+	perf.power += IS_AVG_POWER;
 
 	if (perf_IS.cycles > perf.cycles)
 	    perf.cycles = perf_IS.cycles;
@@ -303,23 +304,33 @@ acc_perf_t dec_gemm_invoke(config_gemm_t config)
 }
 
 // simulator API to invoke GeMM accelerator
-acc_perf_t sim_gemm(config_gemm_t config)
+acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
 {
-    // Call the accelerator only once, then project performance to
-    // n_invocations of N_ACC_GEMM accelerator in parallel. The last
-    // invocation might invoke less than N_ACC_GEMM accelerators.
+    // max # accelerator parallelism based on system specs
+    unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8; // 8 bytes = 1 word
+    unsigned int n_acc_max;
+    if (n_acc_bandwidth_bound < config_sys.n_acc_tiles &&
+	n_acc_bandwidth_bound < config_sys.n_IS_tiles)
+	n_acc_max = n_acc_bandwidth_bound;
+    else if (config_sys.n_acc_tiles < config_sys.n_IS_tiles)
+	n_acc_max = config_sys.n_acc_tiles;
+    else
+	n_acc_max = config_sys.n_IS_tiles;
 
-    acc_perf_t perf = dec_gemm_invoke(config);
+    // invoke accelerator
+    acc_perf_t perf = dec_gemm_invoke(config_sys, config_gemm);
 
-    float n_invoke = ((float) config.batch_size) / ((float) N_ACC_GEMM);
-    float n_invoke_ceil = ceil(((float) config.batch_size) / ((float) N_ACC_GEMM));
+    // project performance based on accelerator parallelism
+    float n_invoke = ((float) config_gemm.batch_size) / ((float) n_acc_max);
+    float n_invoke_ceil = ceil(((float) config_gemm.batch_size) / ((float) n_acc_max));
     float utilization = n_invoke / n_invoke_ceil;
 
     perf.cycles = perf.cycles * n_invoke_ceil;
-    perf.bytes = perf.bytes * config.batch_size;
-    perf.power_14nm = perf.power_14nm * N_ACC_GEMM * utilization;
-    perf.power_5nm = perf.power_5nm * N_ACC_GEMM * utilization;
-    perf.bandwidth = ((float) perf.bytes) / ((float) perf.cycles);
+    perf.bytes = perf.bytes * config_gemm.batch_size;
+    perf.power = perf.power * config_sys.n_acc_tiles * utilization;
+
+    // project to required technology
+    perf.power = tech_projection(perf.power, GEMM_TECH, config_sys.tech);
 
     return perf;
 }
