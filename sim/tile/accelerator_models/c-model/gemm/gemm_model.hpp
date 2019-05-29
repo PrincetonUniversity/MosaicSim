@@ -1,7 +1,7 @@
 #ifndef _GEMM_MODEL_HPP_
 #define _GEMM_MODEL_HPP_
 
-#include "../accelerators.hpp"
+#include "accelerators.hpp"
 
 #define GEMM_DMA_CHUNK 64
 

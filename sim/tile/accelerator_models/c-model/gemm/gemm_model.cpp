@@ -3,7 +3,7 @@
 #include <algorithm>
 #include <math.h>
 
-#include "../accelerators.hpp"
+#include "accelerators.hpp"
 #include "gemm_model.hpp"
 
 void calculate_chunks(unsigned &matrix_chk, unsigned &matrix_rem, unsigned colsA)
@@ -334,5 +334,3 @@ acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
 
     return perf;
 }
-
-

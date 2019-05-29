@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <algorithm>
 
-#include "../accelerators.hpp"
+#include "accelerators.hpp"
 #include "sdp_model.hpp"
 
 void load_model(long long unsigned &cycles,
@@ -36,7 +36,7 @@ void load_model(long long unsigned &cycles,
     }
 }
 
-void sdp_compute_model(long long unsigned &cycles, unsigned length)
+void compute_model(long long unsigned &cycles, unsigned length)
 {
     long long unsigned local_cycles = 0;
 
@@ -71,7 +71,7 @@ void store_model(long long unsigned &cycles, unsigned length)
     cycles += length * 2;
 }
 
-acc_perf_t dec_sdp_invoke(config_sdp_t config)
+acc_perf_t dec_sdp_invoke(config_sys_t config_sys, config_sdp_t config, unsigned size)
 {
     acc_perf_t perf;
     unsigned chunk_size, chunks, chunks_rem, subchunks, subchunks_rem, _subchunks;
@@ -87,8 +87,8 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
     if (config.working_mode >= 4)
 	chunk_size = (SDP_DMA_CHUNK << 1);
 
-    chunks = config.size / chunk_size;
-    chunks_rem = config.size - (chunks * chunk_size);
+    chunks = size / chunk_size;
+    chunks_rem = size - (chunks * chunk_size);
     if (chunks_rem)
 	++chunks;
 
@@ -104,7 +104,7 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
     printf("cycles_load_chunk_rem %llu\n", cycles_load_chunk_rem);
 
     // precompute performance of computing a chunk
-    sdp_compute_model(cycles_compute_chunk, SDP_STORE_CHUNK);
+    compute_model(cycles_compute_chunk, SDP_STORE_CHUNK);
 
     printf("cycles_compute_chunk %llu\n", cycles_compute_chunk);
 
@@ -113,7 +113,7 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
 
     printf("cycles_store_chunk %llu,\n", cycles_store_chunk);
 
-    cycles_load = DRAM_LATENCY;
+    cycles_load = config_sys.dram_latency;
 
     for (unsigned i = 0; i < chunks; ++i) {
 
@@ -152,11 +152,11 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
     // TRASFERRED DATA SIZE
 
     if (config.working_mode < 4)
-	bytes_load = 2 * config.size * 4;
+	bytes_load = 2 * size * 4;
     else
-	bytes_load = config.size * 4;
+	bytes_load = size * 4;
 
-    bytes_store = config.size * 4;
+    bytes_store = size * 4;
 
     // PERFORMANCE ESTIMATES
 
@@ -174,29 +174,33 @@ acc_perf_t dec_sdp_invoke(config_sdp_t config)
     // sum load and store bytes accessed
     perf.bytes = bytes_load + bytes_store;
 
-    perf.area_14nm = SDP_AREA_14NM;
-    perf.power_14nm = SDP_AVG_POWER_14NM;
-    perf.area_5nm = SDP_AREA_5NM;
-    perf.power_5nm = SDP_AVG_POWER_5NM;
+    perf.power = SDP_AVG_POWER;
 
     printf("cycles: %llu\n", perf.cycles);
     printf("bytes: %llu\n", perf.bytes);
-
-    // evaluate bandwidth requirement
-    perf.bandwidth = ((float) perf.bytes) / ((float) perf.cycles);
 
     return perf;
 }
 
 // simulator API to invoke Sdp accelerator
-acc_perf_t sim_sdp(config_sdp_t config)
+acc_perf_t sim_sdp(config_sys_t config_sys, config_sdp_t config)
 {
-    int n_invocations = 1; // TODO divide in batches
+    // max # accelerator parallelism based on system specs
+    unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8; // 8 bytes = 1 word
+    unsigned int n_acc_max;
+    if (n_acc_bandwidth_bound < config_sys.n_acc_tiles)
+	n_acc_max = n_acc_bandwidth_bound;
+    else
+	n_acc_max = config_sys.n_acc_tiles;
 
-    acc_perf_t perf = dec_sdp_invoke(config);
+    acc_perf_t perf = dec_sdp_invoke(config_sys, config, config.size / n_acc_max);
 
-    perf.cycles = perf.cycles * n_invocations;
-    perf.bytes = perf.bytes * n_invocations;
+    perf.cycles = perf.cycles;
+    perf.bytes = perf.bytes * n_acc_max;
+    perf.power = perf.power * n_acc_max;
+
+    // project to required technology
+    perf.power = tech_projection(perf.power, SDP_TECH, config_sys.tech);
 
     return perf;
 }
