@@ -11,6 +11,9 @@ public:
      
   map<string, pair<uint64_t, int>> stats;
   int num_types = 4;
+  int printInterval = 5000000;
+  double global_energy = 0.0;
+  double avg_global_power = 0.0;
    
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
@@ -21,15 +24,15 @@ public:
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
     
-    registerStat("l1_hit", 1);
-    registerStat("l1_miss", 1);
-    registerStat("l2_hit", 0);
-    registerStat("l2_miss", 0);
+    registerStat("l1_hits", 1);
+    registerStat("l1_misses", 1);
+    registerStat("l2_hits", 0);
+    registerStat("l2_misses", 0);
     
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
-    registerStat("cache_evict", 1);
-    registerStat("dram_access", 1);
+    registerStat("cache_evicts", 1);
+    registerStat("dram_accesses", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
     
@@ -64,8 +67,8 @@ public:
   uint64_t get(string str) {
     return stats.at(str).first;
   }
-  void set(string str, uint64_t set) {
-    stats.at(str).first = set;
+  void set(string str, uint64_t val) {
+    stats.at(str).first = val;
   }
   void update(string str, uint64_t inc=1) {
     stats.at(str).first += inc;
@@ -77,16 +80,16 @@ public:
   }
   void print() {
     cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    cout << "Average BW : " << (double) get("dram_access") / (get ("cycles") / (64 * 2)) << " GB/s \n";
+    cout << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / (64 * 2)) << " GB/s \n";
     
-    if(get("l1_miss")!=0)
+    if(get("l1_misses")!=0)
       {
-        cout << "L1 Miss Rate: " <<  ((100.0 * get("l1_miss"))/ (get("l1_miss")+get("l1_hit"))) << "%"<< endl;
+        cout << "L1 Miss Rate: " <<  ((100.0 * get("l1_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
       }
 
-    if(get("l2_miss")!=0)
+    if(get("l2_misses")!=0)
       {
-        cout << "L2 Miss Rate: " << ( (100.0 * get("l2_miss"))/(get("l2_miss")+get("l2_hit"))) << "%"<< endl;
+        cout << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
       }
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {

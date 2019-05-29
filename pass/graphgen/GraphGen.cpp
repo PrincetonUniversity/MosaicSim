@@ -80,7 +80,7 @@ bool GraphGen::runOnFunction(Function &func) {
     addControlEdges(func);
     addPhiEdges(func);
     detectFunctions(func);
-    analyzeLoop();
+    //analyzeLoop();
     visualize();
     exportGraph();
   }

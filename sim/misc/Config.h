@@ -35,10 +35,18 @@ public:
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
+  // Energy variables, all in Joules
+  double energy_per_instr[NUM_INST_TYPES];
+  double energy_per_L1_hit  = 0.0;
+  double energy_per_L1_miss = 0.0;
+  double energy_per_L2_hit  = 0.0;
+  double energy_per_L2_miss = 0.0;
+  double energy_per_DRAM_access = 0.0;
+
   // cache
   bool ideal_cache;
   int cache_latency = 1;  // cycles
-  int cache_size;     // KB
+  int cache_size;         // in KB
   int cache_assoc = 8; 
   int cache_linesize = 64; // bytes
   int window_size = 128; //instruction window size

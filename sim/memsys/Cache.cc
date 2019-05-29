@@ -2,6 +2,7 @@
 #include "Cache.h"
 #include "DRAM.h"
 #include "../tile/Core.h"
+
 bool Cache::process() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
@@ -35,13 +36,9 @@ bool Cache::process() {
       else
         ++it;
     }
-  
     else {
-
       if(parent_cache->willAcceptTransaction(t)) {
-        
         t->cache_q->push_front(this);
-        
         parent_cache->addTransaction(t);
         it=to_send.erase(it);
       }
@@ -63,8 +60,6 @@ bool Cache::process() {
     else {
       MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false);
       if(parent_cache->willAcceptTransaction(t)) {
-        
-        
         t->cache_q->push_front(this); 
         parent_cache->addTransaction(t);
         it = to_evict.erase(it);
@@ -78,6 +73,7 @@ bool Cache::process() {
   free_store_ports = store_ports;
   return (pq.size() > 0);  
 }
+
 void Cache::execute(MemTransaction* t) {
   uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
   bool res = true;  
@@ -113,53 +109,48 @@ void Cache::execute(MemTransaction* t) {
           sim->accessComplete(t);
           
         }
-        stat.update("l1_hit"); 
+        stat.update("l1_hits"); 
+        core->local_stat.update("l1_hits");
       }
-      else {
-        
+      //for l2 cache
+      else { 
         int64_t evictedAddr = -1;
-
         Cache* child_cache=t->cache_q->front();
-
- 
         t->cache_q->pop_front(); 
-
-         
         child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, &evictedAddr); 
         
         if(evictedAddr!=-1) {
           
           assert(evictedAddr >= 0);
-          stat.update("cache_evict");
-
+          stat.update("cache_evicts");
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("l2_hit"); 
+        stat.update("l2_hits"); 
       }
-
     }
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
-      
       delete t; 
     }
-     
   }
   else {
-    string cache_miss="l1_miss";
-    if(!isL1) {
-      cache_miss="l2_miss";
+    if(isL1) {
+      core->local_stat.update("l1_misses");
+      stat.update("l1_misses");
+    }
+    else {
+      stat.update("l2_misses");    
     }
 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print("Cache Miss", 1);
     //if(!t->isPrefetch) {
-    stat.update(cache_miss);
-      //}
+    
+    //}
   }
 }
-void Cache::addTransaction(MemTransaction *t) {
 
+void Cache::addTransaction(MemTransaction *t) {
   
   pq.push(make_pair(t, cycles+latency));
   
@@ -170,7 +161,6 @@ void Cache::addTransaction(MemTransaction *t) {
     free_store_ports--;
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch
-  
   if(isL1 && t->src_id!=-1 && num_prefetched_lines>0) {
     //int cache_line = t->d->addr/size_of_cacheline;
     bool pattern_detected=false;
@@ -195,11 +185,8 @@ void Cache::addTransaction(MemTransaction *t) {
         }
       }      
     }
-    
     pattern_detected=single_stride || double_stride;
-
-
-      
+  
     //don't prefetch or insert prefectch instrs into prefetch set
     if(!t->issuedPrefetch && !t->isPrefetch) {
       if(pattern_detected) { 
@@ -232,11 +219,6 @@ void Cache::addTransaction(MemTransaction *t) {
       }      
     }   
   }
-  
-  
-
-  
-
 }
 
 bool Cache::willAcceptTransaction(MemTransaction *t) {  
@@ -261,7 +243,6 @@ void Cache::TransactionComplete(MemTransaction *t) {
     }
   }
   else {
-
     int64_t evictedAddr = -1;
     Cache* c = t->cache_q->front();
     
@@ -269,7 +250,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
-      stat.update("cache_evict");
+      stat.update("cache_evicts");
       c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     c->TransactionComplete(t);      

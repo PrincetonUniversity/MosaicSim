@@ -7,8 +7,6 @@
 #define ID_POOL 1000000
 using namespace std;
 
-vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR"};
-
 Core::Core(Simulator* sim, int clockspeed) : Tile(sim, clockspeed) {}
 
 bool Core::canAccess(bool isLoad) {
@@ -119,7 +117,7 @@ void Core::initialize(int id) {
     
   // Set up cache
   cache = new Cache(local_cfg);
-  
+  cache->core=this;
   cache->sim = sim;
   cache->parent_cache=sim->cache;
   cache->isL1=true;
@@ -143,9 +141,9 @@ void Core::initialize(int id) {
 
   // Initialize Activity counters
   for(int i=0; i<NUM_INST_TYPES; i++) {
-    local_stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);
-    stat.registerStat(instrToStr(static_cast<TInstr>(i)),1);}   
-  
+    local_stat.registerStat(getInstrName((TInstr)i),1);
+    stat.registerStat(getInstrName((TInstr)i),1);
+  }   
   for(int i=0; i<ID_POOL; i++) {
     tracker_id.push(i);
   }
@@ -165,22 +163,13 @@ void Core::initialize(int id) {
   //assert(false);
 }
 
-string Core::instrToStr(TInstr instr) {  
+string Core::getInstrName(TInstr instr) {  
+  vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR"};
   return InstrName[instr];
 }
 
-void Core::printActivity() {
-  cout << "-----------Simulator " << name << " Activity-----------\n";
-  cout << "Cycles: " << cycles << endl;
-  cout << "Mem_bytes_read: " << activity_mem.bytes_read << "\n";
-  cout << "Mem_bytes_written: " << activity_mem.bytes_write << "\n";
-  for(int i=0; i<NUM_INST_TYPES; i++)
-    cout << "Intr[" << InstrName[i] << "]=" << activity_FUs.at(static_cast<TInstr>(i)) << "\n";  
-}
-
-// return boolean indicating whether or not the branch was mispredicted
-// we can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
-
+// Return boolean indicating whether or not the branch was mispredicted
+// We can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
 // Simple Always-Taken predictor. We'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
 bool Core::predict_branch(DynamicNode* d) {
   int context_id=d->c->id;
@@ -193,8 +182,7 @@ bool Core::predict_branch(DynamicNode* d) {
   if(next_context_id < cf_size) {
     next_bbid=cf.at(next_context_id);
   }
-    
-    if(current_bbid==next_bbid) { //guess we'll remain in same basic block
+  if(current_bbid==next_bbid) { // guess we'll remain in same basic block
     //cout << "CORRECT prediction \n";
     return true;   
   }
@@ -255,30 +243,6 @@ bool Core::process() {
     sim->get_descq(this)->process();    
   }
   
-  if(cfg.verbLevel >= 5)
-    cout << "[Cycle: " << cycles << "]\n";
-
-  // Print current stats every 1mill cycles
-  if(cycles % 1000000 == 0 && cycles !=0) {
-    curr = Clock::now();
-    uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
-    
-    cout << name << " Simulation Speed: " << ((double)(local_stat.get("contexts") - last_processed_contexts)) / tdiff << " contexts per ms \n";
-    last_processed_contexts = local_stat.get("contexts");
-    last = curr;
-    stat.set("cycles", cycles);
-    local_stat.set("cycles", cycles);
-    local_stat.print();
-
-    // release system memory by deleting all processed contexts
-    if(!sim->debug_mode)
-      deleteErasableContexts();
-  }
-  else if(cycles == 0) {
-    last = Clock::now();
-    last_processed_contexts = 0;
-  }
-
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();
@@ -315,28 +279,51 @@ bool Core::process() {
   }
   context_to_create -= context_created;   // note that some contexts could be left pending for later cycles
   cycles++;
-  
+
+  // Print current stats every "stat.printInterval" cycles
+  if(cfg.verbLevel >= 5)
+    cout << "[Cycle: " << cycles << "]\n";
+  if(cycles % stat.printInterval == 0 && cycles != 0) {
+    curr = Clock::now();
+    uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
+    
+    cout << endl << "--- " << name << " Simulation Speed: " << ((double)(local_stat.get("contexts") - last_processed_contexts)) / tdiff << " contexts per ms \n";
+    last_processed_contexts = local_stat.get("contexts");
+    last = curr;
+    stat.set("cycles", cycles);
+    local_stat.set("cycles", cycles);
+    local_stat.print();
+
+    // release system memory by deleting all processed contexts
+    if(!sim->debug_mode)
+      deleteErasableContexts();
+  }
+  else if(cycles == 0) {
+    last = Clock::now();
+    last_processed_contexts = 0;
+  }
   return simulate;
 }
 
 void Core::deleteErasableContexts() {   
   int erasedContexts=0;
-  int erasedDN=0;
+  int erasedDynamicNodes=0;
 //  int count;
 //  cout << "-------trying to erase contexts:------------------------------\n";
 //  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
 //  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
 //  cout << "--  live_context_list size=" << live_context.size() << endl;
 
-  int safetyWindow=1000000;
+  int safetyWindow=1000000; 
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
     Context *c = *it;
     // safety measure: only erase contexts marked as erasable 1mill cycles apart
     if(c && c->isErasable && c->cycleMarkedAsErasable < cycles-safetyWindow ) {  
       // first, delete dynamic nodes associated to this context
       for(auto n_it=c->nodes.begin(); n_it != c->nodes.end(); ++n_it) {
-        erasedDN++;
-        delete n_it->second;   // delete the dynamic node
+        DynamicNode *d = n_it->second;
+        delete d;   // delete the dynamic node
+        erasedDynamicNodes++;
       }
       // now delete the context itself
       delete c;  
@@ -344,12 +331,28 @@ void Core::deleteErasableContexts() {
       *it = NULL;
     }
   }
-//  cout << "-------erased contexts: " << erasedContexts << "   erased DNs: " << erasedDN << "----------------------\n";
+//  cout << "-------erased contexts: " << erasedContexts << "   erased DNs: " << erasedDynamicNodes << "----------------------\n";
 //  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
 //  cout << "--  new context_list size=" << count /*context_list.size()*/ << endl;
 }
 
-void calculateEnergy(){
+void Core::calculateEnergyPower() {
+  total_energy = 0.0;
+  // FIX THIS: for now we only calculate the energy for IN-ORDER cores
+  if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
+    
+    // add energy per instruction class
+    for(int i=0; i<NUM_INST_TYPES; i++) {
+      total_energy += local_cfg.energy_per_instr[i] * local_stat.get(getInstrName((TInstr)i));
+    }
+    // add private caches' energy
+    // For now it's just the L1; we assume the L2 is shared.
+    //   ...if in a future the L2 can be set as private it must be added here as well !
+    double l1_energy = local_stat.get("l1_hits") * local_cfg.energy_per_L1_hit +
+                       local_stat.get("l1_misses") * local_cfg.energy_per_L1_miss;
+    total_energy += l1_energy;      
 
-
+    // calcualte avg power
+    avg_power = total_energy / ((double)cycles/clockspeed*10e6);  // clockspeed is defined in MHz
+  }
 }

@@ -36,6 +36,7 @@ Config::Config() {
   instr_latency[BS_VECTOR_INC] = 1;
   instr_latency[BARRIER]=1;
   instr_latency[ACCELERATOR]=-1;
+  // # of FUs setting
   num_units[BS_DONE] = -1;
   num_units[CORE_INTERRUPT] = -1;
   num_units[CALL_BS] = -1;
@@ -64,6 +65,35 @@ Config::Config() {
   num_units[INVALID] = -1;
   num_units[BARRIER] = -1;
   num_units[ACCELERATOR] = -1;
+  // energy_per_instr (in Joules - from Ariane paper: https://arxiv.org/abs/1904.05442)
+  energy_per_instr[I_ADDSUB] = 21.58*10e-12;
+  energy_per_instr[I_MULT] =  22.60*10e-12;
+  energy_per_instr[I_DIV] = 19.94*10e-12;  
+  energy_per_instr[I_REM] = energy_per_instr[I_DIV];
+  energy_per_instr[FP_ADDSUB] = 21.58*10e-12;
+  energy_per_instr[FP_MULT] = 22.60*10e-12;
+  energy_per_instr[FP_DIV] = 19.94*10e-12; 
+  energy_per_instr[FP_REM] = energy_per_instr[FP_DIV];
+  energy_per_instr[LOGICAL] = energy_per_instr[I_ADDSUB];
+  energy_per_instr[CAST] = 0;
+  energy_per_instr[GEP] = energy_per_instr[I_ADDSUB];
+  energy_per_instr[LD] = 25.21*10e-12;          // This includes average L1 energy access 
+  energy_per_instr[ST] = energy_per_instr[LD]; 
+  energy_per_instr[TERMINATOR] = energy_per_instr[I_ADDSUB];
+  energy_per_instr[PHI] = 0;     
+  energy_per_instr[SEND] = energy_per_instr[I_ADDSUB];
+  energy_per_instr[RECV] = energy_per_instr[I_ADDSUB];
+  energy_per_instr[STADDR] = energy_per_instr[ST];      // let's assume this is the actual ST
+  energy_per_instr[STVAL] = energy_per_instr[I_ADDSUB]; // note this is not storing anything
+  energy_per_instr[LD_PROD] = energy_per_instr[LD];     // treat like an actual load
+  energy_per_instr[INVALID] = 0; 
+  energy_per_instr[BS_DONE] = 0;
+  energy_per_instr[CORE_INTERRUPT] = 0;
+  energy_per_instr[CALL_BS] = 0;
+  energy_per_instr[BS_WAKE] = 0;
+  energy_per_instr[BS_VECTOR_INC] = 0;
+  energy_per_instr[BARRIER] = 0;
+  energy_per_instr[ACCELERATOR] = 0;
 }
 
 vector<string> Config::split(const string &s, char delim) {

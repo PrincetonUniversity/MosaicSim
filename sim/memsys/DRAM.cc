@@ -26,7 +26,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     if(evictedAddr!=-1) {
 
       assert(evictedAddr >= 0);
-      stat.update("cache_evict");
+      stat.update("cache_evicts");
       c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     
@@ -76,7 +76,7 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
     }
 
   }
-  stat.update("dram_access");     
+  stat.update("dram_accesses");     
 }
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
   if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))
