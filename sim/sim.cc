@@ -386,28 +386,29 @@ void Simulator::calculateGlobalEnergyPower() {
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
     Tile* tile=it->second;
     if(Core* core=dynamic_cast<Core*>(tile)) {
-      // aggregate per-core energies
+      // aggregate all of the per-core energy
       if(core->total_energy==0.0)
         core->calculateEnergyPower();
       stat.global_energy += core->total_energy;
-
-      // Add each L1 private cache energy
-      // Future Fix: we assume a shared L2, if in a future the L2 can be private it must be added here as well !
-      // Luwa ?
     }
   }
 
-  // Add the L2 cache energy (we assume it is shared)
+  // Add the L2 cache energy (we assume it is shared - NOTE this can change in a future)
+  double l2_energy = stat.get("l2_hits") * cfg.energy_per_L2_hit +
+                     stat.get("l2_misses") * cfg.energy_per_L2_miss;
+  stat.global_energy += l2_energy;      
+
 
   // Add the DRAM energy
-
+  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access;
+  stat.global_energy += DRAM_energy;      
 
   // For Luwa: 
-  // Add accelerators energy ???
+  // Add accelerators energy 
 
   
   // Finally, calculate Avg Power (in Watts)
-  stat.avg_global_power = stat.global_energy / cycles;
+  stat.avg_global_power = stat.global_energy / ((double)cycles/clockspeed*10e6);
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {

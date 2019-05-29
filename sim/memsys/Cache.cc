@@ -109,9 +109,11 @@ void Cache::execute(MemTransaction* t) {
           sim->accessComplete(t);
           
         }
-        stat.update("l1_hit"); 
+        stat.update("l1_hits"); 
+        core->local_stat.update("l1_hits");
       }
-      else {
+      //for l2 cache
+      else { 
         int64_t evictedAddr = -1;
         Cache* child_cache=t->cache_q->front();
         t->cache_q->pop_front(); 
@@ -120,12 +122,11 @@ void Cache::execute(MemTransaction* t) {
         if(evictedAddr!=-1) {
           
           assert(evictedAddr >= 0);
-          stat.update("cache_evict");
-
+          stat.update("cache_evicts");
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("l2_hit"); 
+        stat.update("l2_hits"); 
       }
     }
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
@@ -133,16 +134,19 @@ void Cache::execute(MemTransaction* t) {
     }
   }
   else {
-    string cache_miss="l1_miss";
-    if(!isL1) {
-      cache_miss="l2_miss";
+    if(isL1) {
+      core->local_stat.update("l1_misses");
+      stat.update("l1_misses");
+    }
+    else {
+      stat.update("l2_misses");    
     }
 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print("Cache Miss", 1);
     //if(!t->isPrefetch) {
-    stat.update(cache_miss);
-      //}
+    
+    //}
   }
 }
 
@@ -246,7 +250,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
-      stat.update("cache_evict");
+      stat.update("cache_evicts");
       c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     c->TransactionComplete(t);      

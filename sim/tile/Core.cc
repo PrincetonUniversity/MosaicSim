@@ -117,7 +117,7 @@ void Core::initialize(int id) {
     
   // Set up cache
   cache = new Cache(local_cfg);
-  
+  cache->core=this;
   cache->sim = sim;
   cache->parent_cache=sim->cache;
   cache->isL1=true;
@@ -338,9 +338,21 @@ void Core::deleteErasableContexts() {
 
 void Core::calculateEnergyPower() {
   total_energy = 0.0;
-  if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1)
+  // FIX THIS: for now we only calculate the energy for IN-ORDER cores
+  if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
+    
+    // add energy per instruction class
     for(int i=0; i<NUM_INST_TYPES; i++) {
-      total_energy += local_cfg.energy[i] * local_stat.get(getInstrName((TInstr)i));
+      total_energy += local_cfg.energy_per_instr[i] * local_stat.get(getInstrName((TInstr)i));
     }
-    avg_power = total_energy / cycles;
+    // add private caches' energy
+    // For now it's just the L1; we assume the L2 is shared.
+    //   ...if in a future the L2 can be set as private it must be added here as well !
+    double l1_energy = local_stat.get("l1_hits") * local_cfg.energy_per_L1_hit +
+                       local_stat.get("l1_misses") * local_cfg.energy_per_L1_miss;
+    total_energy += l1_energy;      
+
+    // calcualte avg power
+    avg_power = total_energy / ((double)cycles/clockspeed*10e6);  // clockspeed is defined in MHz
+  }
 }

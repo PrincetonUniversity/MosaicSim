@@ -11,11 +11,12 @@ using namespace std;
 class DRAMSimInterface;
 class Simulator;
 class Cache;
-
+class Core;
 
 class Cache {
 public:
   Simulator *sim;
+  Core *core;
   DRAMSimInterface *memInterface;
   Cache* parent_cache;
   Cache* child_cache;
