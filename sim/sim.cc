@@ -396,11 +396,11 @@ void Simulator::calculateGlobalEnergyPower() {
   double e = stat.global_energy;
 
   // Add the L2 cache energy (we assume it is shared - NOTE this can change in a future)
-  double L2_energy = (stat.get("l2_hits") + stat.get("l2_misses") ) * cfg.energy_per_L2_access[cfg.technology_node];
+  double L2_energy = (stat.get("l2_hits") + stat.get("l2_misses") ) * cfg.energy_per_L2_access.at(cfg.technology_node);
   stat.global_energy += L2_energy;      
 
   // Add the DRAM energy
-  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access[cfg.technology_node];
+  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
   stat.global_energy += DRAM_energy;
 
   // For Luwa: 
