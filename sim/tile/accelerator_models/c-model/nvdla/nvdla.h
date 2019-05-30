@@ -20,13 +20,13 @@ using namespace std;
 #define WEIGHT_DATA_TYPE 1
 #define	COMPRESION_RATE	0
 #define CONVOLUTION_BUFFER 128.0;
-#define NUM_OF_MAC 256.0
+#define NUM_OF_MAC 64.0
 // tech feature size (nm)
 #define NVDLA_TECH 16
 // area: um^2, 16nm
-#define NVDLA_AREA 1000000.0
-// power: mW, 16nm
-#define NVDLA_POWER 48.0
+#define NVDLA_AREA 550000.0
+// power: mW, 16nm, 64 MACs
+#define NVDLA_POWER 21.0
 // #define DRAM_BW_LIMIT 0.1 //GBps
 #define FREQUENCY 1000 //MHz
 #define FC_BATCH_SIZE 16

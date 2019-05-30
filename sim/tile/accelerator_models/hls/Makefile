@@ -86,6 +86,9 @@ $(ACCELERATORS-hls): %-hls : %-wdir
 	@ACCELERATOR=$(@:-hls=) TECH=$(TECHLIB) HLS_ROOT=$(HLS_ROOT) make --quiet -C $(ACCELERATORS_PATH)/$(@:-hls=)/hls-work-$(TECHLIB) install
 	@mkdir -p $(HLS_ROOT)/tech/$(TECHLIB)/memgen/$(@:-hls=)
 	@cp -r  $(HLS_ROOT)/$(@:-hls=)/plm/output/*  $(HLS_ROOT)/tech/$(TECHLIB)/memgen/$(@:-hls=)
+	@if ! test -e $(HLS_ROOT)/tech/$(TECHLIB)/acc/installed.log; then \
+		touch $(HLS_ROOT)/tech/$(TECHLIB)/acc/installed.log; \
+	fi;
 	@sed -i '/$(@:-hls=)/d' $(HLS_ROOT)/tech/$(TECHLIB)/acc/installed.log
 	@echo "$(@:-hls=)" >> $(HLS_ROOT)/tech/$(TECHLIB)/acc/installed.log
 

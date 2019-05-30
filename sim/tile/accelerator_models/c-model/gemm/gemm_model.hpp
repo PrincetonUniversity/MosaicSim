@@ -9,10 +9,10 @@
 #define GEMM_TECH 32
 
 // area in um^2, IBM 32nm
-#define GEMM_AREA 54288.0
+#define GEMM_AREA 63295.0
 
 // average power consumption estimate in mW: IBM 32nm
-#define GEMM_AVG_POWER 34.0
+#define GEMM_AVG_POWER 4.69
 
 // configuration parameters of GeMM accelerator
 typedef struct config_gemm {

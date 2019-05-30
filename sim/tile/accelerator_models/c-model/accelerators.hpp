@@ -9,12 +9,14 @@
 #define IS_LATENCY 4
 
 // IS tile model parameters
-#define IS_MEM_SIZE 524288
+#define IS_MEM_SIZE 262144
 #define IS_MIN_CHUNK 32
 #define IS_BURST_LENGTH 4196
 #define IS_MAX_DMA_REQS 15
-#define IS_AREA 200000
-#define IS_AVG_POWER 400
+#define IS_AREA 1917472
+#define IS_AVG_POWER 52
+
+#define ACC_INVOKE_LATENCY 10000
 
 // contains performance estimates returned by an accelerator invocation
 typedef struct acc_performance {

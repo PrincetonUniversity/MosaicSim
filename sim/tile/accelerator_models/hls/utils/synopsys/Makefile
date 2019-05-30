@@ -36,7 +36,7 @@ MEMGEN_OUT = $(HLS_ROOT)/tech/$(TECH)/memgen/$(TARGET_NAME)
 RTL_OUT = $(HLS_ROOT)/tech/$(TECH)/acc/$(ACCELERATOR)
 
 RTL_PATH = $(RTL_OUT)/$(DESIGN_NAME)
-RTL_SRCS = $(wildcard $(RTL_PATH)/*.v)
+RTL_SRCS = $(wildcard $(RTL_PATH)/*.v) $(wildcard $(RTL_PATH)/*.sv)
 
 all: $(RTL_PATH)/power_std.rpt
 

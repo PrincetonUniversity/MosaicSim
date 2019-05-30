@@ -309,13 +309,15 @@ acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
     // max # accelerator parallelism based on system specs
     unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8; // 8 bytes = 1 word
     unsigned int n_acc_max;
+    unsigned int n_IS_tiles_actual =  config_sys.n_IS_tiles / 4; 
+
     if (n_acc_bandwidth_bound < config_sys.n_acc_tiles &&
-	n_acc_bandwidth_bound < config_sys.n_IS_tiles)
+	n_acc_bandwidth_bound < n_IS_tiles_actual)
 	n_acc_max = n_acc_bandwidth_bound;
-    else if (config_sys.n_acc_tiles < config_sys.n_IS_tiles)
+    else if (config_sys.n_acc_tiles < n_IS_tiles_actual)
 	n_acc_max = config_sys.n_acc_tiles;
     else
-	n_acc_max = config_sys.n_IS_tiles;
+	n_acc_max = n_IS_tiles_actual;
 
     // invoke accelerator
     acc_perf_t perf = dec_gemm_invoke(config_sys, config_gemm);
@@ -331,6 +333,9 @@ acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
 
     // project to required technology
     perf.power = tech_projection(perf.power, GEMM_TECH, config_sys.tech);
+
+    // add invocation latency of accelerator
+    perf.cycles += ACC_INVOKE_LATENCY;
 
     return perf;
 }

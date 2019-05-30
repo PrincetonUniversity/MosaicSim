@@ -10,10 +10,10 @@
 #define SDP_TECH 32
 
 // area in um^2, IBM 32nm
-#define SDP_AREA 54288
+#define SDP_AREA 84485.0
 
 // average power consumption estimate in mW
-#define SDP_AVG_POWER 34.0
+#define SDP_AVG_POWER 5.96
 
 // configuration parameters of Sdp accelerator
 typedef struct config_sdp {

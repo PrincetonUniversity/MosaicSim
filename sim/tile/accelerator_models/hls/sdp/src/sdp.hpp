@@ -13,6 +13,9 @@
 
 //#include A_MEMORY_HEADER
 
+#define STORE_CHUNK 32
+#define N_STORE_CHUNKS (DMA_CHUNK / STORE_CHUNK)
+
 class sdp: public esp_accelerator_3P<DMA_WIDTH>
 {
     public:
@@ -28,10 +31,10 @@ class sdp: public esp_accelerator_3P<DMA_WIDTH>
         handshake_t output_done;
 
         // Declaration of the accelerator PLMs
-    FPDATA_WORD PLM_A0[DMA_CHUNK];
-    FPDATA_WORD PLM_A1[DMA_CHUNK];
-    FPDATA_WORD PLM_B0[DMA_CHUNK];
-    FPDATA_WORD PLM_B1[DMA_CHUNK];
+        FPDATA_WORD PLM_A0[DMA_CHUNK];
+        FPDATA_WORD PLM_A1[DMA_CHUNK];
+        FPDATA_WORD PLM_B0[STORE_CHUNK];
+        FPDATA_WORD PLM_B1[STORE_CHUNK];
 	// A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A0;
 	// A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_A1;
         // A_MEMORY_TYPE<FPDATA_WORD, DMA_CHUNK> PLM_B0;

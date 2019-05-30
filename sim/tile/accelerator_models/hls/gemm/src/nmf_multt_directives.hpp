@@ -5,27 +5,27 @@
 
 // A memory
 
-#define A_MEMORY_TYPE \
-  GENERATE_PLM_TYPE(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
+// #define A_MEMORY_TYPE \
+//   GENERATE_PLM_TYPE(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
 
-#define A_MEMORY_NAME \
-  GENERATE_PLM_NAME(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
+// #define A_MEMORY_NAME \
+//   GENERATE_PLM_NAME(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
 
-#define A_MEMORY_HEADER \
-  GENERATE_PLM_HDR(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
+// #define A_MEMORY_HEADER \
+//   GENERATE_PLM_HDR(A_MEMORY, DMA_WIDTH, DMA_CHUNK, NUM_PORTS)
 
-// B memory
+// // B memory
 
-// Using the same memories of A
+// // Using the same memories of A
 
-#define B_MEMORY_TYPE \
-  GENERATE_PLM_TYPE(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
+// #define B_MEMORY_TYPE \
+//   GENERATE_PLM_TYPE(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
-#define B_MEMORY_NAME \
-  GENERATE_PLM_NAME(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
+// #define B_MEMORY_NAME \
+//   GENERATE_PLM_NAME(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
-#define B_MEMORY_HEADER \
-  GENERATE_PLM_HDR(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
+// #define B_MEMORY_HEADER \
+//   GENERATE_PLM_HDR(B_MEMORY, DMA_WIDTH, DMA_CHUNK, 2)
 
 //
 // Floating/fixed point directives
@@ -43,15 +43,15 @@
 // DMA WIDTH
 //
 
-#define LOAD_INPUT_RESET_PORTS \
-    PLM2_A0.port1.reset(); \
-    PLM2_A1.port1.reset(); \
-    PLM2_A2.port1.reset(); \
-    PLM2_A3.port1.reset(); \
-    PLM2_A0.port2.reset(); \
-    PLM2_A1.port2.reset(); \
-    PLM2_A2.port2.reset(); \
-    PLM2_A3.port2.reset()
+// #define LOAD_INPUT_RESET_PORTS \
+//     PLM2_A0.port1.reset(); \
+//     PLM2_A1.port1.reset(); \
+//     PLM2_A2.port1.reset(); \
+//     PLM2_A3.port1.reset(); \
+//     PLM2_A0.port2.reset(); \
+//     PLM2_A1.port2.reset(); \
+//     PLM2_A2.port2.reset(); \
+//     PLM2_A3.port2.reset()
 
 #define LOAD_INPUT_WRITE_PLM2(A_MEMORY)				\
     A_MEMORY[i++] = data.range(31,0).to_uint();	\
@@ -60,9 +60,9 @@
     // A_MEMORY.port1[0][i++] = data.range(31,0).to_uint();	\
     // A_MEMORY.port2[0][i++] = data.range(63,32).to_uint()
 
-#define STORE_OUTPUT_RESET_PORTS \
-    PLM2_B0.port2.reset(); \
-    PLM2_B0.port3.reset()
+// #define STORE_OUTPUT_RESET_PORTS \
+//     PLM2_B0.port2.reset(); \
+//     PLM2_B0.port3.reset()
 
 #define STORE_OUTPUT_READ_PLM2(B_MEMORY)	\
     data.range(31,0) = B_MEMORY[i++];	\
@@ -75,12 +75,12 @@
 
 #if NUM_PORTS == 1
 
-#define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port3.reset(); \
-    PLM2_A1.port3.reset(); \
-    PLM2_A2.port3.reset(); \
-    PLM2_A3.port3.reset(); \
-    PLM2_B0.port1.reset()
+// #define COMPUTE_KERNEL_RESET_PORTS \
+//     PLM2_A0.port3.reset(); \
+//     PLM2_A1.port3.reset(); \
+//     PLM2_A2.port3.reset(); \
+//     PLM2_A3.port3.reset(); \
+//     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
     FPDATA row_elem_1 = INT2FP(row[k]); \
@@ -102,16 +102,16 @@
 
 #elif NUM_PORTS == 2
 
-#define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port4.reset(); \
-    PLM2_A0.port3.reset(); \
-    PLM2_A1.port4.reset(); \
-    PLM2_A1.port3.reset(); \
-    PLM2_A2.port4.reset(); \
-    PLM2_A2.port3.reset(); \
-    PLM2_A3.port4.reset(); \
-    PLM2_A3.port3.reset(); \
-    PLM2_B0.port1.reset()
+// #define COMPUTE_KERNEL_RESET_PORTS \
+//     PLM2_A0.port4.reset(); \
+//     PLM2_A0.port3.reset(); \
+//     PLM2_A1.port4.reset(); \
+//     PLM2_A1.port3.reset(); \
+//     PLM2_A2.port4.reset(); \
+//     PLM2_A2.port3.reset(); \
+//     PLM2_A3.port4.reset(); \
+//     PLM2_A3.port3.reset(); \
+//     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
     FPDATA row_elem_1 = INT2FP(row[k + 0]); \
@@ -139,24 +139,24 @@
 
 #elif NUM_PORTS == 4
 
-#define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port6.reset(); \
-    PLM2_A0.port3.reset(); \
-    PLM2_A0.port4.reset(); \
-    PLM2_A0.port5.reset(); \
-    PLM2_A1.port6.reset(); \
-    PLM2_A1.port3.reset(); \
-    PLM2_A1.port4.reset(); \
-    PLM2_A1.port5.reset(); \
-    PLM2_A2.port6.reset(); \
-    PLM2_A2.port3.reset(); \
-    PLM2_A2.port4.reset(); \
-    PLM2_A2.port5.reset(); \
-    PLM2_A3.port6.reset(); \
-    PLM2_A3.port3.reset(); \
-    PLM2_A3.port4.reset(); \
-    PLM2_A3.port5.reset(); \
-    PLM2_B0.port1.reset()
+// #define COMPUTE_KERNEL_RESET_PORTS \
+//     PLM2_A0.port6.reset(); \
+//     PLM2_A0.port3.reset(); \
+//     PLM2_A0.port4.reset(); \
+//     PLM2_A0.port5.reset(); \
+//     PLM2_A1.port6.reset(); \
+//     PLM2_A1.port3.reset(); \
+//     PLM2_A1.port4.reset(); \
+//     PLM2_A1.port5.reset(); \
+//     PLM2_A2.port6.reset(); \
+//     PLM2_A2.port3.reset(); \
+//     PLM2_A2.port4.reset(); \
+//     PLM2_A2.port5.reset(); \
+//     PLM2_A3.port6.reset(); \
+//     PLM2_A3.port3.reset(); \
+//     PLM2_A3.port4.reset(); \
+//     PLM2_A3.port5.reset(); \
+//     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
     FPDATA row_elem_1 = INT2FP(row[k + 0]); \
@@ -197,40 +197,40 @@
 
 #elif NUM_PORTS == 8
 
-#define COMPUTE_KERNEL_RESET_PORTS \
-    PLM2_A0.port10.reset(); \
-    PLM2_A0.port3.reset(); \
-    PLM2_A0.port4.reset(); \
-    PLM2_A0.port5.reset(); \
-    PLM2_A0.port6.reset(); \
-    PLM2_A0.port7.reset(); \
-    PLM2_A0.port8.reset(); \
-    PLM2_A0.port9.reset(); \
-    PLM2_A1.port10.reset(); \
-    PLM2_A1.port3.reset(); \
-    PLM2_A1.port4.reset(); \
-    PLM2_A1.port5.reset(); \
-    PLM2_A1.port6.reset(); \
-    PLM2_A1.port7.reset(); \
-    PLM2_A1.port8.reset(); \
-    PLM2_A1.port9.reset(); \
-    PLM2_A2.port10.reset(); \
-    PLM2_A2.port3.reset(); \
-    PLM2_A2.port4.reset(); \
-    PLM2_A2.port5.reset(); \
-    PLM2_A2.port6.reset(); \
-    PLM2_A2.port7.reset(); \
-    PLM2_A2.port8.reset(); \
-    PLM2_A2.port9.reset(); \
-    PLM2_A3.port10.reset(); \
-    PLM2_A3.port3.reset(); \
-    PLM2_A3.port4.reset(); \
-    PLM2_A3.port5.reset(); \
-    PLM2_A3.port6.reset(); \
-    PLM2_A3.port7.reset(); \
-    PLM2_A3.port8.reset(); \
-    PLM2_A3.port9.reset(); \
-    PLM2_B0.port1.reset()
+// #define COMPUTE_KERNEL_RESET_PORTS \
+//     PLM2_A0.port10.reset(); \
+//     PLM2_A0.port3.reset(); \
+//     PLM2_A0.port4.reset(); \
+//     PLM2_A0.port5.reset(); \
+//     PLM2_A0.port6.reset(); \
+//     PLM2_A0.port7.reset(); \
+//     PLM2_A0.port8.reset(); \
+//     PLM2_A0.port9.reset(); \
+//     PLM2_A1.port10.reset(); \
+//     PLM2_A1.port3.reset(); \
+//     PLM2_A1.port4.reset(); \
+//     PLM2_A1.port5.reset(); \
+//     PLM2_A1.port6.reset(); \
+//     PLM2_A1.port7.reset(); \
+//     PLM2_A1.port8.reset(); \
+//     PLM2_A1.port9.reset(); \
+//     PLM2_A2.port10.reset(); \
+//     PLM2_A2.port3.reset(); \
+//     PLM2_A2.port4.reset(); \
+//     PLM2_A2.port5.reset(); \
+//     PLM2_A2.port6.reset(); \
+//     PLM2_A2.port7.reset(); \
+//     PLM2_A2.port8.reset(); \
+//     PLM2_A2.port9.reset(); \
+//     PLM2_A3.port10.reset(); \
+//     PLM2_A3.port3.reset(); \
+//     PLM2_A3.port4.reset(); \
+//     PLM2_A3.port5.reset(); \
+//     PLM2_A3.port6.reset(); \
+//     PLM2_A3.port7.reset(); \
+//     PLM2_A3.port8.reset(); \
+//     PLM2_A3.port9.reset(); \
+//     PLM2_B0.port1.reset()
 
 #define COMPUTE_KERNEL_MAIN_READ \
     FPDATA row_elem_1 = INT2FP(row[k + 0]); \

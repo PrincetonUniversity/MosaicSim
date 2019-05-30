@@ -5,7 +5,11 @@
 set DB_PATH $TECH_PATH/db/$opp_nominal
 set ADDITIONAL_SEARCH_PATH $DB_PATH
 
-set RTL_SOURCE_FILES [ls $RTL_PATH/*.v $MEMGEN_OUT/*.v $TECH_PATH/mem/*.v]
+set RTL_SOURCE_FILES [concat [glob -nocomplain -directory $RTL_PATH *.v] \
+			  [glob -nocomplain -directory $MEMGEN_OUT *.v] \
+			  [glob -nocomplain -directory $MEMGEN_OUT *.sv] \
+			  [glob -nocomplain -directory $TECH_PATH/mem/ *.v]]
+
 
 ###############
 # Library setup
@@ -36,7 +40,7 @@ set power_preserve_rtl_hier_names true
 # Read in the RTL source files.
 #################################################################################
 define_design_lib WORK -path ./${RESULTS_DIR}/WORK
-analyze -format verilog ${RTL_SOURCE_FILES}
+analyze -format sverilog ${RTL_SOURCE_FILES}
 elaborate "${TOP_NAME}"
 link
 
