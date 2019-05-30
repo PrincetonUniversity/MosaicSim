@@ -128,7 +128,7 @@ public:
         boost::trim_left(stripped_line);
         vector<string> s = split(line, ',');
         int edgeT;
-        cout << "not offending line " << line << endl;
+        //        cout << "not offending line " << line << endl;
          
         if((int) s.size() < 3) { //should have index for 2
           
