@@ -80,7 +80,7 @@ For a number of pre-automated compilation and test runs, navigate back to worklo
 
 ## Statistics
 
-After completion, the simulator outputs run statistics directly to the console (e.g., # cycles, # cache misses, # dram accesses, IPC, etc). Pythia can be run with an optional -o flag to specify a file for these stats. Pythia also prints out additional statistics to specific files, outputted to the run directory, described below:
+After completion, the simulator outputs run statistics directly to the console (e.g., # cycles, # cache misses, # dram accesses, IPC, etc). Pythia can be run with an optional -o flag to specify a directory for these stats. Pythia also prints out additional statistics to specific files, outputted to the provided directory name or the run directory, if none is provided. 
 
 Statistics on runahead distances (# cycles between issues of a PRODUCE or LOAD_PRODUCE instructions and issues of corresponding CONSUME instructions) will be outputted to "decouplingStats" 
 
