@@ -32,7 +32,13 @@ public:
     }
     return filesize/1024;
   }
-
+  bool isNumber(string s)
+  {
+    for (unsigned int i = 0; i < s.length(); i++)
+      if (isdigit(s[i]) == false)
+        return false;
+    return true;
+  }
   void readGraph(std::string name, Graph &g) {
     ifstream cfile(name);
     if (cfile.is_open()) {
@@ -51,33 +57,42 @@ public:
         g.addBasicBlock(i);
 
       // Now start adding ALL the nodes
-      while (true) {        
+
+
+      while (true) {
+        
         getline(cfile,line);
-        //sime
-        string stripped_line = line;
-        boost::trim_left(stripped_line);
-        //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
-        if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
-          //cout << "BAD LINE: " << line << endl;
+        vector<string> s = split(line, ',');
+        //some instructions span multiple lines, we want to make sure it's the start of a new instruction
+        if(!isNumber(s[0])) {
           continue;
         }
-        //can't parse switch statement cuz it's multiple lines
-        //switch statements span multiple lines and are of the form e.g.,
-        /* 
-           7,13,2,  switch i31 %trunc, label %sw.default [
-           i31 1, label %sw.bb
-           i31 2, label %sw.bb6
-           i31 3, label %sw.bb16
-           ]          
-        */
-        if(line.find("switch")!=string::npos) { 
-          string line2=line;
-          while(line2.find("]")==string::npos) { 
-            getline(cfile,line2);
-          }
-        }
+        
+        //sime
+        // string stripped_line = line;
+        // boost::trim_left(stripped_line);
+        // //some instructions (e.g., exceptions) span multiple lines. "cleanup" is just a label as well, so we can skip to next line
+        // if(stripped_line.find("to label")==0 || stripped_line.find("catch")==0 || stripped_line.find("cleanup")==0) {
+        //   //cout << "BAD LINE: " << line << endl;
+        //   continue;
+        // }
+        // //can't parse switch statement cuz it's multiple lines
+        // //switch statements span multiple lines and are of the form e.g.,
+        // /* 
+        //    7,13,2,  switch i31 %trunc, label %sw.default [
+        //    i31 1, label %sw.bb
+        //    i31 2, label %sw.bb6
+        //    i31 3, label %sw.bb16
+        //    ]          
+        // */
+        // if(line.find("switch")!=string::npos) { 
+        //   string line2=line;
+        //   while(line2.find("]")==string::npos) { 
+        //     getline(cfile,line2);
+        //   }
+        // }
               
-        vector<string> s = split(line, ',');
+        
         
         int id = stoi(s.at(0));
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));   

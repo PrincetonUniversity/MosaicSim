@@ -430,6 +430,19 @@ void decadesTF_conv2d_layer(
     float *bias, bool bias_add, bool activation, int activation_type,
     float *prelu_filters, int pooling_type, bool lrn, int lrn_radius,
     int lrn_bias, int lrn_alpha, int lrn_beta, int tid, int num_threads)
+
+void decadesTF_conv2d_layer(
+    0 volatile int batch, 1 volatile int in_height,
+    2 volatile int in_width, 3 volatile int in_channels,
+    4 volatile int filter_height, 5 volatile int filter_width, 6 volatile int out_channels, 
+    7 volatile bool zero_pad, 8 volatile int vert_conv_stride, 9 volatile int horiz_conv_stride,
+    10 volatile bool bias_add, 
+    11 volatile bool activation, 12 volatile int activation_type,
+    13 volatile bool pooling, 14 volatile int pooling_type, 15 volatile int pool_height, 16 volatile int pool_width,
+    17 volatile bool lrn, 18 volatile int lrn_radius, 19 volatile int lrn_bias, 20 volatile int lrn_alpha, 21 volatile int lrn_beta, 
+    22 float *in, float *filters, float *bias, float *prelu_filters, float *out,
+    int tid, int num_threads)
+
 // mapping: C++ -> model 
 in_channels -> num_of_inputs
 in_height -> input_height
@@ -453,7 +466,13 @@ batch -> batch_size
                 IRBuilder<> Builder(inst);
                 DataLayout* dl = new DataLayout(mod);
                 LLVMContext& ctx = mod->getContext();
-                batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
+
+                batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(13));pool_height=(cinst->getArgOperand(15));pool_width=(cinst->getArgOperand(16));vertical_pool_stride=(cinst->getArgOperand(17));horizontal_pool_stride=(cinst->getArgOperand(18));
+                                
+                // previous version
+                //batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
+
+
                 
                 ktype= Builder.CreateGlobalStringPtr(KERNEL_TYPE);
 		rdir = Builder.CreateGlobalStringPtr(RUN_DIR);
