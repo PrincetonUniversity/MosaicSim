@@ -482,7 +482,6 @@ void GraphGen::exportGraph() {
           ect++;
         }
       }
-
     }
     
     
@@ -495,7 +494,7 @@ void GraphGen::exportGraph() {
     }
     if(ect != numEdge) {
       errs() << "Ect : " << ect << " / NumEdge: " << numEdge <<"\n";
-      assert(false); 
+      //assert(false); 
     }
   }
 }
