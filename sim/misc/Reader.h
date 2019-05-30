@@ -98,6 +98,7 @@ public:
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));   
         int bbid = stoi(s.at(2));
         string name = "";
+        assert((int) s.size() >3 );
         for(unsigned int i=3; i<s.size(); i++)
           name += s.at(i);     
         name = name.substr(2, name.size()-2);
@@ -118,16 +119,22 @@ public:
 
       // Now start adding ALL the edges
       int i=0;
-      while (i<numEdges) {
+      while (i<numEdges && getline(cfile,line)) {
         //cout << "edge iter: " <<i << endl;
 
-        getline(cfile,line);
+        //getline(cfile,line); luwa restore, just testing
         //cout << line << endl;
         string stripped_line = line;
         boost::trim_left(stripped_line);
         vector<string> s = split(line, ',');
         int edgeT;
-
+        cout << "not offending line " << line << endl;
+         
+        if((int) s.size() < 3) { //should have index for 2
+          
+          cout << "offending line " << line << endl;
+          assert(false);
+        }
         edgeT = stoi(s.at(2));
         
         if(edgeT >= 0) {

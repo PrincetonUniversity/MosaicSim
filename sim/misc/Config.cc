@@ -268,6 +268,11 @@ void Config::getCfg(int id, int val) {
     dram_latency = val;
     break;
   case 29:
+    //we only support 5 and 14 nm
+    if(!(val==5 || val==14)) {
+      cout << "currently only support 5 and 14 nm \n";
+      assert(false);
+    }
     technology_node = val;
     break;
   case 30:
