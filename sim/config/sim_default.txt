@@ -1,8 +1,16 @@
 #Config file for L2 and memory and Decoupled Supply/Compute Queues
 
+#Tile Configs
+num_accels,8 #num accelerators
+num_IS,8 #num intelligent storage tiles
+
+#Technology
+technology_node,14 #tech node in nm, enter 5 or 14
+chip_freq,2000 #freq in MHz
+
 #L2 Cache
 0,ideal_cache   #set 1 for always cache hit
-1048,cache_size_in_kb
+2048,cache_size_in_kb
 6,cache_latency
 8,cache_assoc
 64,cache_linesize
@@ -13,7 +21,7 @@
 #Simple DRAM Model
 
 1,SimpleDRAM #set 1 for simple dram model, 0 for DRAMSim
-36,dram_bw #peak simple DRAM Bandwidth (GB/s)
+24,dram_bw #peak simple DRAM Bandwidth (GB/s)
 200,dram_latency #minimum simple DRAM latency in cycles
 
 4,mem_load_ports

@@ -7,7 +7,8 @@
 
 using namespace std;
 
-Config::Config() {    
+Config::Config() {
+
   instr_latency[I_ADDSUB] = 1;
   instr_latency[I_MULT] = 3;
   instr_latency[I_DIV] = 8;  
@@ -271,6 +272,12 @@ void Config::getCfg(int id, int val) {
     break;
   case 30:
     chip_freq = val;
+    break;
+  case 31:
+    num_accels = val;
+    break;
+  case 32:
+    num_IS = val;
     break;
   default:
     break;

@@ -27,14 +27,21 @@ public:
 
 class Accelerator: public Tile {  
 public:
-  Accelerator(Simulator* sim, uint64_t clockspeed) : Tile(sim, clockspeed) {}
+ 
   Transaction* currentTransaction; 
   uint64_t final_cycle=0;
   bool tile_complete=false;
   config_sys_t sys_config;
   bool transaction_pending=false;
+  Accelerator(Simulator* sim, uint64_t clockspeed) : Tile(sim, clockspeed) {
+    sys_config.tech=cfg.technology_node;
+    sys_config.mem_bandwidth=(1e3 * cfg.dram_bw) / cfg.chip_freq;
+    sys_config.dram_latency=cfg.dram_latency;
+    sys_config.n_IS_tiles=cfg.num_IS;
+    sys_config.n_acc_tiles=cfg.num_accels/3; //effectively splitting the e main accelerators eveny
+  }
   vector<string> split(const string &s, char delim);
-  //int timing_model(GemmTransaction* t);  
+  
   bool process();
   bool ReceiveTransaction(Transaction* t);
 };
