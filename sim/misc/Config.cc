@@ -158,6 +158,7 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
+  technology_node = -1;
 
   energy_per_L2_access[22] = 7.254915576*1e-12; 
   energy_per_L2_access[14] = 5.276302237*1e-12;

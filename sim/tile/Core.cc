@@ -347,13 +347,14 @@ void Core::deleteErasableContexts() {
 
 void Core::calculateEnergyPower() {
   total_energy = 0.0;
-  int tech_node = local_cfg.technology_node;
+  int tech_node = cfg.technology_node;
+
   // FIX THIS: for now we only calculate the energy for IN-ORDER cores
   if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
     
     // add energy per instruction class
     for(int i=0; i<NUM_INST_TYPES; i++) {
-      total_energy += local_cfg.energy_per_instr[tech_node][i] * local_stat.get(getInstrName((TInstr)i));
+      total_energy += local_cfg.energy_per_instr.at(tech_node)[i] * local_stat.get(getInstrName((TInstr)i));
     }
     // NOTE1: the energy for accesing the L1 is already accounted for within LD/ST energy_per_instr[]
     // NOTE2: We assume the L2 is shared. So its energy will be accounted for at chip level (in sim.cc)
