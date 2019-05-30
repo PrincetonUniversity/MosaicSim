@@ -36,13 +36,11 @@ public:
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
   // Energy variables, all in Joules
-  double energy_per_instr[NUM_INST_TYPES];
-  double energy_per_L1_hit  = 0.0;
-  double energy_per_L1_miss = 0.0;
-  double energy_per_L2_hit  = 0.0;
-  double energy_per_L2_miss = 0.0;
-  double energy_per_DRAM_access = 0.0;
-
+  //double energy_per_instr[NUM_INST_TYPES];
+  map <int, double [NUM_INST_TYPES]> energy_per_instr;
+  map <int, double> energy_per_L2_access;
+  map <int, double> energy_per_DRAM_access;
+  int technology_node = 5;  // in nm  -- for now we support 22nm, 14nm, 5nm
   // cache
   bool ideal_cache;
   int cache_latency = 1;  // cycles

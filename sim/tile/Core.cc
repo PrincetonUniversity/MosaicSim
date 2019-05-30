@@ -338,21 +338,21 @@ void Core::deleteErasableContexts() {
 
 void Core::calculateEnergyPower() {
   total_energy = 0.0;
+  int tech_node = local_cfg.technology_node;
   // FIX THIS: for now we only calculate the energy for IN-ORDER cores
   if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
     
     // add energy per instruction class
     for(int i=0; i<NUM_INST_TYPES; i++) {
-      total_energy += local_cfg.energy_per_instr[i] * local_stat.get(getInstrName((TInstr)i));
+      total_energy += local_cfg.energy_per_instr[tech_node][i] * local_stat.get(getInstrName((TInstr)i));
     }
-    // add private caches' energy
-    // For now it's just the L1; we assume the L2 is shared.
-    //   ...if in a future the L2 can be set as private it must be added here as well !
-    double l1_energy = local_stat.get("l1_hits") * local_cfg.energy_per_L1_hit +
-                       local_stat.get("l1_misses") * local_cfg.energy_per_L1_miss;
-    total_energy += l1_energy;      
+    // NOTE1: the energy for accesing the L1 is already accounted for within LD/ST energy_per_instr[]
+    // NOTE2: We assume the L2 is shared. So its energy will be accounted for at chip level (in sim.cc)
 
-    // calcualte avg power
-    avg_power = total_energy / ((double)cycles/clockspeed*10e6);  // clockspeed is defined in MHz
+    // calculate avg power
+    avg_power = total_energy * clockspeed*1e+6 / cycles;  // clockspeed is defined in MHz
+
+    // some debug stuff
+    //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
 }

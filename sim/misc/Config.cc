@@ -36,6 +36,7 @@ Config::Config() {
   instr_latency[BS_VECTOR_INC] = 1;
   instr_latency[BARRIER]=1;
   instr_latency[ACCELERATOR]=-1;
+
   // # of FUs setting
   num_units[BS_DONE] = -1;
   num_units[CORE_INTERRUPT] = -1;
@@ -65,35 +66,105 @@ Config::Config() {
   num_units[INVALID] = -1;
   num_units[BARRIER] = -1;
   num_units[ACCELERATOR] = -1;
-  // energy_per_instr (in Joules - from Ariane paper: https://arxiv.org/abs/1904.05442)
-  energy_per_instr[I_ADDSUB] = 21.58*10e-12;
-  energy_per_instr[I_MULT] =  22.60*10e-12;
-  energy_per_instr[I_DIV] = 19.94*10e-12;  
-  energy_per_instr[I_REM] = energy_per_instr[I_DIV];
-  energy_per_instr[FP_ADDSUB] = 21.58*10e-12;
-  energy_per_instr[FP_MULT] = 22.60*10e-12;
-  energy_per_instr[FP_DIV] = 19.94*10e-12; 
-  energy_per_instr[FP_REM] = energy_per_instr[FP_DIV];
-  energy_per_instr[LOGICAL] = energy_per_instr[I_ADDSUB];
-  energy_per_instr[CAST] = 0;
-  energy_per_instr[GEP] = energy_per_instr[I_ADDSUB];
-  energy_per_instr[LD] = 25.21*10e-12;          // This includes average L1 energy access 
-  energy_per_instr[ST] = energy_per_instr[LD]; 
-  energy_per_instr[TERMINATOR] = energy_per_instr[I_ADDSUB];
-  energy_per_instr[PHI] = 0;     
-  energy_per_instr[SEND] = energy_per_instr[I_ADDSUB];
-  energy_per_instr[RECV] = energy_per_instr[I_ADDSUB];
-  energy_per_instr[STADDR] = energy_per_instr[ST];      // let's assume this is the actual ST
-  energy_per_instr[STVAL] = energy_per_instr[I_ADDSUB]; // note this is not storing anything
-  energy_per_instr[LD_PROD] = energy_per_instr[LD];     // treat like an actual load
-  energy_per_instr[INVALID] = 0; 
-  energy_per_instr[BS_DONE] = 0;
-  energy_per_instr[CORE_INTERRUPT] = 0;
-  energy_per_instr[CALL_BS] = 0;
-  energy_per_instr[BS_WAKE] = 0;
-  energy_per_instr[BS_VECTOR_INC] = 0;
-  energy_per_instr[BARRIER] = 0;
-  energy_per_instr[ACCELERATOR] = 0;
+
+  // energy_per_instr (in Joules - adapted from Ariane paper: https://arxiv.org/abs/1904.05442)
+  technology_node = 22;
+  energy_per_instr[technology_node][I_ADDSUB] = 12.13875*1e-12;
+  energy_per_instr[technology_node][I_MULT]   = 37.16357758*1e-12;
+  energy_per_instr[technology_node][I_DIV]    = 60.96258086*1e-12;  
+  energy_per_instr[technology_node][I_REM] = energy_per_instr[technology_node][I_DIV];
+  energy_per_instr[technology_node][FP_ADDSUB] = 49.88207567*1e-12;
+  energy_per_instr[technology_node][FP_MULT]   = 52.75327756*1e-12;
+  energy_per_instr[technology_node][FP_DIV]    = 58.39888425*1e-12; 
+  energy_per_instr[technology_node][FP_REM] = energy_per_instr[technology_node][FP_DIV];
+  energy_per_instr[technology_node][LOGICAL] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][CAST] = 0;
+  energy_per_instr[technology_node][GEP] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][LD] = 14.180625*1e-12;          // NOTE it includes average L1 energy access !!
+  energy_per_instr[technology_node][ST] = energy_per_instr[technology_node][LD]; 
+  energy_per_instr[technology_node][TERMINATOR] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][PHI] = 0;     
+  energy_per_instr[technology_node][SEND] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][RECV] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][STADDR] = energy_per_instr[technology_node][ST];      // let's assume this is the actual ST
+  energy_per_instr[technology_node][STVAL] = energy_per_instr[technology_node][I_ADDSUB]; // note this is not storing anything
+  energy_per_instr[technology_node][LD_PROD] = energy_per_instr[technology_node][LD];     // treat like an actual load
+  energy_per_instr[technology_node][INVALID] = 0; 
+  energy_per_instr[technology_node][BS_DONE] = 0;
+  energy_per_instr[technology_node][CORE_INTERRUPT] = 0;
+  energy_per_instr[technology_node][CALL_BS] = 0;
+  energy_per_instr[technology_node][BS_WAKE] = 0;
+  energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
+  energy_per_instr[technology_node][BARRIER] = 0;
+  energy_per_instr[technology_node][ACCELERATOR] = 0;
+  
+  technology_node = 14;
+  energy_per_instr[technology_node][I_ADDSUB] = 8.828181818*1e-12;
+  energy_per_instr[technology_node][I_MULT]   =  27.02805642*1e-12;
+  energy_per_instr[technology_node][I_DIV]    = 44.33642245*1e-12;  
+  energy_per_instr[technology_node][I_REM] = energy_per_instr[technology_node][I_DIV];
+  energy_per_instr[technology_node][FP_ADDSUB] = 36.27787321*1e-12;
+  energy_per_instr[technology_node][FP_MULT]   = 38.36602004*1e-12;
+  energy_per_instr[technology_node][FP_DIV]    = 42.47191581*1e-12; 
+  energy_per_instr[technology_node][FP_REM] = energy_per_instr[technology_node][FP_DIV];
+  energy_per_instr[technology_node][LOGICAL] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][CAST] = 0;
+  energy_per_instr[technology_node][GEP] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][LD] = 10.31318182*1e-12;          // NOTE it includes average L1 energy access !!
+  energy_per_instr[technology_node][ST] = energy_per_instr[technology_node][LD]; 
+  energy_per_instr[technology_node][TERMINATOR] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][PHI] = 0;     
+  energy_per_instr[technology_node][SEND] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][RECV] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][STADDR] = energy_per_instr[technology_node][ST];      // let's assume this is the actual ST
+  energy_per_instr[technology_node][STVAL] = energy_per_instr[technology_node][I_ADDSUB]; // note this is not storing anything
+  energy_per_instr[technology_node][LD_PROD] = energy_per_instr[technology_node][LD];     // treat like an actual load
+  energy_per_instr[technology_node][INVALID] = 0; 
+  energy_per_instr[technology_node][BS_DONE] = 0;
+  energy_per_instr[technology_node][CORE_INTERRUPT] = 0;
+  energy_per_instr[technology_node][CALL_BS] = 0;
+  energy_per_instr[technology_node][BS_WAKE] = 0;
+  energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
+  energy_per_instr[technology_node][BARRIER] = 0;
+  energy_per_instr[technology_node][ACCELERATOR] = 0;
+
+  technology_node = 5;
+  energy_per_instr[technology_node][I_ADDSUB] = 5.920399432*1e-12;
+  energy_per_instr[technology_node][I_MULT] =  18.12569034*1e-12;
+  energy_per_instr[technology_node][I_DIV] = 29.7331133*1e-12;  
+  energy_per_instr[technology_node][I_REM] = energy_per_instr[technology_node][I_DIV];
+  energy_per_instr[technology_node][FP_ADDSUB] = 24.32884872*1e-12;
+  energy_per_instr[technology_node][FP_MULT] = 25.72921219*1e-12;
+  energy_per_instr[technology_node][FP_DIV] = 28.48272854*1e-12; 
+  energy_per_instr[technology_node][FP_REM] = energy_per_instr[technology_node][FP_DIV];
+  energy_per_instr[technology_node][LOGICAL] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][CAST] = 0;
+  energy_per_instr[technology_node][GEP] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][LD] = 6.916277557*1e-12;          // NOTE it includes average L1 energy access !!
+  energy_per_instr[technology_node][ST] = energy_per_instr[technology_node][LD]; 
+  energy_per_instr[technology_node][TERMINATOR] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][PHI] = 0;     
+  energy_per_instr[technology_node][SEND] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][RECV] = energy_per_instr[technology_node][I_ADDSUB];
+  energy_per_instr[technology_node][STADDR] = energy_per_instr[technology_node][ST];      // let's assume this is the actual ST
+  energy_per_instr[technology_node][STVAL] = energy_per_instr[technology_node][I_ADDSUB]; // note this is not storing anything
+  energy_per_instr[technology_node][LD_PROD] = energy_per_instr[technology_node][LD];     // treat like an actual load
+  energy_per_instr[technology_node][INVALID] = 0; 
+  energy_per_instr[technology_node][BS_DONE] = 0;
+  energy_per_instr[technology_node][CORE_INTERRUPT] = 0;
+  energy_per_instr[technology_node][CALL_BS] = 0;
+  energy_per_instr[technology_node][BS_WAKE] = 0;
+  energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
+  energy_per_instr[technology_node][BARRIER] = 0;
+  energy_per_instr[technology_node][ACCELERATOR] = 0;
+
+  energy_per_L2_access[22] = 7.254915576*1e-12; 
+  energy_per_L2_access[14] = 5.276302237*1e-12;
+  energy_per_L2_access[5]  = 3.538420188*1e-12;
+  
+  energy_per_DRAM_access[22] = 11050.14706*1e-12;
+  energy_per_DRAM_access[14] = 8036.470588*1e-12;
+  energy_per_DRAM_access[5]  = 5389.458088*1e-12;
 }
 
 vector<string> Config::split(const string &s, char delim) {

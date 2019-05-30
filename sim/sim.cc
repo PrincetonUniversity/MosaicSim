@@ -293,7 +293,7 @@ void Simulator::run() {
   cout << "\n----------------GLOBAL STATS--------------\n";
   stat.print();
   calculateGlobalEnergyPower();
-  cout << "global_energy : " << stat.global_energy << " Joules (CHECK caches+DRAM are added!)\n";
+  cout << "global_energy : " << stat.global_energy << " Joules\n";
   cout << "global_avg_power : " << stat.avg_global_power << " Watts\n";
   memInterface->mem->printStats(true);
   curr_time=Clock::now();
@@ -301,13 +301,13 @@ void Simulator::run() {
   uint64_t tdiff_seconds = chrono::duration_cast<std::chrono::seconds>(curr_time - init_time).count();
   uint64_t tdiff_milliseconds = chrono::duration_cast<std::chrono::milliseconds>(curr_time - init_time).count();
   if(tdiff_mins>5) {
-    cout << "Total Runtime: " << tdiff_mins << " mins \n";
+    cout << "Total Simulation Time: " << tdiff_mins << " mins \n";
   }
   else if(tdiff_seconds>0) {
-    cout << "Total Runtime: " << tdiff_seconds << " secs \n";
+    cout << "Total Simulation Time: " << tdiff_seconds << " secs \n";
   }
   else
-    cout << "Total Runtime: " << tdiff_milliseconds << " ms \n";
+    cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
 
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
   
@@ -392,23 +392,29 @@ void Simulator::calculateGlobalEnergyPower() {
       stat.global_energy += core->total_energy;
     }
   }
+  double e = stat.global_energy;
 
   // Add the L2 cache energy (we assume it is shared - NOTE this can change in a future)
-  double l2_energy = stat.get("l2_hits") * cfg.energy_per_L2_hit +
-                     stat.get("l2_misses") * cfg.energy_per_L2_miss;
-  stat.global_energy += l2_energy;      
-
+  double L2_energy = (stat.get("l2_hits") + stat.get("l2_misses") ) * cfg.energy_per_L2_access[cfg.technology_node];
+  stat.global_energy += L2_energy;      
 
   // Add the DRAM energy
-  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access;
-  stat.global_energy += DRAM_energy;      
+  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access[cfg.technology_node];
+  stat.global_energy += DRAM_energy;
 
   // For Luwa: 
   // Add accelerators energy 
+  double Acc_energy = 0.0;
+  stat.global_energy += Acc_energy;      
 
-  
   // Finally, calculate Avg Power (in Watts)
-  stat.avg_global_power = stat.global_energy / ((double)cycles/clockspeed*10e6);
+  stat.avg_global_power = stat.global_energy * clockspeed*1e+6 / cycles;
+
+  // some debug stuff
+  cout << "-------All cores energy: " << e << endl;
+  cout << "-------L2_energy: " << L2_energy << endl;
+  cout << "-------DRAM_energy: " << DRAM_energy << endl;
+  cout << "-------Acc_energy: " << Acc_energy << endl;
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {
