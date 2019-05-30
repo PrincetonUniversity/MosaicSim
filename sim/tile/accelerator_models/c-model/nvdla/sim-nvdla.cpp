@@ -16,11 +16,18 @@ int main(void)
 	//Create an instance of the accelerator configuration
 	config_nvdla_t config;
 
+	config_sys_t config_sys;
+	config_sys.tech = 5;
+	config_sys.mem_bandwidth = 24;
+	config_sys.dram_latency = 300;
+	config_sys.n_acc_tiles = 2;
+	config_sys.n_IS_tiles = 4;
+
 	//Set all the parameters of a layer
-	config.num_of_inputs = 3;
-	config.input_height = 224;
-	config.input_width = 224;
-	config.num_of_outputs = 96;
+	config.num_of_inputs = 1024;
+	config.input_height = 440;
+	config.input_width = 440;
+	config.num_of_outputs = 512;
 	config.filter_height = 11;
 	config.filter_width = 11;
 	config.zero_pad = 0;
@@ -38,15 +45,13 @@ int main(void)
 //	config.frequency = 1000; //MHz
 //	config.num_of_mul = 2048;
 
-	acc_perf_t nvdla_perf = sim_nvdla(config);
+	acc_perf_t nvdla_perf = sim_nvdla(config_sys, config);
 
 	//Print results
 	cout << "NVDLA performance data:" << endl;
 	cout << "Cycles: " << nvdla_perf.cycles << endl;
 	cout << "Bytes: " << nvdla_perf.bytes << endl;
-	cout << "Area: " << nvdla_perf.area_14nm << "[mm^2, 14nm]" << endl;
-	cout << "Power: " << nvdla_perf.power_14nm << "[mW, 14nm]"<< endl;
-	cout << "Bandwidth: " << nvdla_perf.bandwidth << "[Bytes/Cycle]" << endl;
+	cout << "Power: " << nvdla_perf.power << "[mW]"<< endl;
 	cout << endl;
 
 	//AlexNet_example();
@@ -249,5 +254,3 @@ void AlexNet_example()
 	cout << "Network MAC efficiency: " << accelerator.get_network_mac_efficiency() << endl;
 	cout << "Total calculations: " << accelerator.get_total_calculations() << endl;
 }
-
-

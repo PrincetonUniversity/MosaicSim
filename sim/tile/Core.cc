@@ -107,7 +107,7 @@ bool Core::ReceiveTransaction(Transaction* t) {
   cout << "CPU Clocktick: " << cycles << "; Acc Return: " << d->acc_args << endl;
   cout << "Cycles taken: " << t->perf.cycles << endl;
   cout << "Bytes: " << t->perf.bytes << endl;
-  cout << "Bandwidth: " << t->perf.bandwidth << endl;
+  cout << "Bandwidth: " << t->perf.power << endl;
   delete t;
   return true;
 }

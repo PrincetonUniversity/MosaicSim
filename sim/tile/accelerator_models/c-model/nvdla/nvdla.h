@@ -15,14 +15,19 @@
 #include "../accelerators.hpp"
 using namespace std;
 
+// TODO remove
 #define INPUT_DATA_TYPE 1
 #define WEIGHT_DATA_TYPE 1
 #define	COMPRESION_RATE	0
 #define CONVOLUTION_BUFFER 128.0;
 #define NUM_OF_MAC 256.0
-#define NVDLA_AREA 1.0 //mm^2, 16[nm]
-#define	NVDLA_POWER 135/48.0
-#define DRAM_BW_LIMIT 5.0 //GBps
+// tech feature size (nm)
+#define NVDLA_TECH 16
+// area: um^2, 16nm
+#define NVDLA_AREA 1000000.0
+// power: mW, 16nm
+#define NVDLA_POWER 48.0
+// #define DRAM_BW_LIMIT 0.1 //GBps
 #define FREQUENCY 1000 //MHz
 #define FC_BATCH_SIZE 16
 
@@ -85,7 +90,7 @@ class nvdla_layer
 		void	set_winograd(int winograd){mWinograd = winograd;};
 		void	set_layer_type(layer_type type){mLayer_type = type;}; // Only conv or fc
 		//void	set_fc_batch_size(int batch_size){mFc_batch_size = batch_size;};
-		//void	set_dram_bw_limit(int dram_bw_limit){mDRAM_bw_limit = dram_bw_limit;};
+		void	set_dram_bw_limit(int dram_bw_limit){mDRAM_bw_limit = dram_bw_limit;};
 		//void	set_frequency(int frequency){mFrequency = frequency;};
 		//void	set_num_of_mul(int num_of_mul){mNumber_of_mul = num_of_mul;};
 
@@ -108,7 +113,7 @@ class nvdla_layer
 		int				mWinograd = 0;
 		layer_type 		mLayer_type = conv;
 		double			mFc_batch_size = FC_BATCH_SIZE;
-		double 			mDRAM_bw_limit = DRAM_BW_LIMIT;
+
 		double			mFrequency = FREQUENCY;
 		double			mNumber_of_mul = NUM_OF_MAC;
 
@@ -127,7 +132,7 @@ class nvdla_layer
 		double	mDRAM_cycles = 0;
 		double	mMAC_cycles = 0;
 		double	mMAX_cycle = 0;
-
+		double 	mDRAM_bw_limit = 0;
 };
 
 class nvdla_acc
@@ -165,47 +170,7 @@ class nvdla_acc
 	std::vector<nvdla_layer*> network;
 
 };
-/* dense
-// mapping: C++ -> model
-in_channels -> num_of_inputs
-1 -> input_height
-1 -> input_width
-out_channels -> num_of_outputs
-1 -> filter_height
-1 -> filter_width
-0 -> zero_pad
-1 -> vertical_conv_dim
-1 -> horizontal_conv_dim
-0 -> pooling
-1 -> pool_height
-1 -> pool_width
-1 -> vertical_pool_dim
-1 -> horizontal_pool_dim
-0 -> type // here 0 is for dense, aka fc (fully connected),
-// there's an enum in nvlda.h: enum layer_type{fc, conv};
-batch -> batch_size
-*/
-/* conv2d
-// mapping: C++ -> model
-in_channels -> num_of_inputs
-in_height -> input_height
-in_width -> input_width
-out_channels -> num_of_outputs
-filter_height -> filter_height
-filter_width -> filter_width
-zero_pad -> zero_pad
-vert_conv_stride -> vertical_conv_dim
-horiz_conv_stride -> horizontal_conv_dim
-pooling -> pooling
-pool_height -> pool_height
-pool_width -> pool_width
-vertical_pool_stride -> vertical_pool_dim
-horizontal_pool_stride -> horizontal_pool_dim
-1 -> type // here 1 is for convolution,
-// there's an enum in nvlda.h: enum layer_type{fc, conv};
-batch -> batch_size
 
-*/
 typedef struct config_nvdla
 {
 	int num_of_inputs;
@@ -230,6 +195,6 @@ typedef struct config_nvdla
 //	int num_of_mul;
 } config_nvdla_t;
 
-acc_perf_t sim_nvdla(config_nvdla_t config);
+acc_perf_t sim_nvdla(config_sys_t config_sys, config_nvdla_t config);
 
 #endif /* NVDLA_H_ */

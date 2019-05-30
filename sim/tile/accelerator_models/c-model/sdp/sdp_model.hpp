@@ -6,13 +6,14 @@
 #define SDP_DMA_CHUNK 128
 #define SDP_STORE_CHUNK 32
 
-// #define SDP_AREA 54288 // area in um^2, IBM 32nm
-#define SDP_AREA_14NM 10391
-#define SDP_AREA_5NM 1325 
+// tech feature size (nm)
+#define SDP_TECH 32
 
-//#define SDP_AVG_POWER 34.0 // average power consumption estimate in mW
-#define SDP_AVG_POWER_14NM 6.5
-#define SDP_AVG_POWER_5NM 0.83
+// area in um^2, IBM 32nm
+#define SDP_AREA 54288
+
+// average power consumption estimate in mW
+#define SDP_AVG_POWER 34.0
 
 // configuration parameters of Sdp accelerator
 typedef struct config_sdp {
@@ -21,6 +22,6 @@ typedef struct config_sdp {
 } config_sdp_t;
 
 // model API prototype
-acc_perf_t sim_sdp(config_sdp_t config);
+acc_perf_t sim_sdp(config_sys_t config_sys, config_sdp_t config);
 
 #endif // _SDP_MODEL_HPP_
