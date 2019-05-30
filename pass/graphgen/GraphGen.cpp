@@ -493,7 +493,7 @@ void GraphGen::exportGraph() {
       ect++;
     }
     if(ect != numEdge) {
-      errs() << "Ect : " << ect << " / NumEdge: " << numEdge <<"\n";
+      errs() << "[WARNING] Num edges don't match: Ect : " << ect << " / NumEdge: " << numEdge <<"\n";
       //assert(false); 
     }
   }
