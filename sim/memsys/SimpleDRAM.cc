@@ -11,6 +11,7 @@ void SimpleDRAM::initialize(int coreClockspeed) {
   long long num=(1000*Peak_BW*epoch_length);
   long long denom=(bytes_per_req*core_clockspeed);
   max_req_per_epoch=num/denom;
+  
 }
 
 bool SimpleDRAM::process() {

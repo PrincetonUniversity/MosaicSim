@@ -266,6 +266,12 @@ void Config::getCfg(int id, int val) {
   case 28:
     dram_latency = val;
     break;
+  case 29:
+    technology_node = val;
+    break;
+  case 30:
+    chip_freq = val;
+    break;
   default:
     break;
   }

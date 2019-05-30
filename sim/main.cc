@@ -95,7 +95,7 @@ int main(int argc, char const *argv[]) {
     }
 
     //register the acccelerator tiles
-    Tile* tile = new Accelerator(simulator,2000);
+    Tile* tile = new Accelerator(simulator,cfg.chip_freq);
     tile->name="accelerator";
     simulator->registerTile(tile);
     

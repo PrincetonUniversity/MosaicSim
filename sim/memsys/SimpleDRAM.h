@@ -33,6 +33,7 @@ class SimpleDRAM {
  public:
   Simulator* sim;
   int latency=300; //cycles
+ 
   int core_clockspeed=2000; //MHz
   int Peak_BW=12; //GB/s
   priority_queue<MemOperator, vector<MemOperator>, MemOpCompare> pq;
@@ -46,7 +47,7 @@ class SimpleDRAM {
   int store_ports;
   int free_load_ports;
   int free_store_ports;
-  
+ 
   DRAMSimInterface* memInterface;
     
   unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;

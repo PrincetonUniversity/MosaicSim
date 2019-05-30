@@ -16,6 +16,7 @@ using namespace std;
 
 Simulator::Simulator(string home) {
   pythia_home=home;
+  clockspeed=cfg.chip_freq;
   cache = new Cache(cfg);
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
@@ -404,7 +405,7 @@ void Simulator::calculateGlobalEnergyPower() {
 
   // For Luwa: 
   // Add accelerators energy 
-  double Acc_energy = 0.0;
+  double Acc_energy = stat.acc_energy;
   stat.global_energy += Acc_energy;      
 
   // Finally, calculate Avg Power (in Watts)

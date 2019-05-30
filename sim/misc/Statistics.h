@@ -14,7 +14,7 @@ public:
   int printInterval = 5000000;
   double global_energy = 0.0;
   double avg_global_power = 0.0;
-   
+  double acc_energy = 0.0;
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
   }
@@ -23,7 +23,7 @@ public:
     registerStat("energy", 0);
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
-    
+    registerStat("accelerator_energy",0);
     registerStat("l1_hits", 1);
     registerStat("l1_misses", 1);
     registerStat("l2_hits", 0);
@@ -98,5 +98,4 @@ public:
   }
 };
 extern Statistics stats;
-
 #endif
