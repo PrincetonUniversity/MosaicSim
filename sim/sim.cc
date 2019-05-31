@@ -193,14 +193,14 @@ int Simulator::getAccelerator(){
 }
 
 void Simulator::run() {
-  
+
   std::vector<int> processVec(tiles.size(), 0);
   int simulate = 1;
   clockspeed=findlcm(clockspeedVec,clockspeedVec.size());
-  cout << "\n[SIM] Clock Speed : " << clockspeed << endl;
-  
+
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   
+  last_time = Clock::now();  
   while(simulate > 0) {
 
     if(simulate==0) {
