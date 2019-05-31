@@ -334,8 +334,8 @@ acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
     // project to required technology
     perf.power = tech_projection(perf.power, GEMM_TECH, config_sys.tech);
 
-    // add invocation latency of accelerator
-    perf.cycles += ACC_INVOKE_LATENCY;
+    // // add invocation latency of accelerator
+    // perf.cycles += ACC_INVOKE_LATENCY;
 
     return perf;
 }

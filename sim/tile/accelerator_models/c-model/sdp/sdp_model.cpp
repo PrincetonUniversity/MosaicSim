@@ -202,8 +202,8 @@ acc_perf_t sim_sdp(config_sys_t config_sys, config_sdp_t config)
     // project to required technology
     perf.power = tech_projection(perf.power, SDP_TECH, config_sys.tech);
 
-    // add invocation latency of accelerator
-    perf.cycles += ACC_INVOKE_LATENCY;
+    // // add invocation latency of accelerator
+    // perf.cycles += ACC_INVOKE_LATENCY;
 
     return perf;
 }
