@@ -357,7 +357,7 @@ void Core::calculateEnergyPower() {
       total_energy += local_cfg.energy_per_instr.at(tech_node)[i] * local_stat.get(getInstrName((TInstr)i));
     }
     // NOTE1: the energy for accesing the L1 is already accounted for within LD/ST energy_per_instr[]
-    // NOTE2: We assume the L2 is shared. So its energy will be accounted for at chip level (in sim.cc)
+    // NOTE2: We assume the L2 is shared. So its energy will be accounted for at the chip level (in sim.cc)
 
     // calculate avg power
     avg_power = total_energy * clockspeed*1e+6 / cycles;  // clockspeed is defined in MHz

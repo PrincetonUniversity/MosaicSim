@@ -49,8 +49,8 @@ public:
 
   chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
-  chrono::high_resolution_clock::time_point last_time;
-  uint64_t last_instr_count;
+  chrono::high_resolution_clock::time_point last_time = chrono::high_resolution_clock::now();
+  uint64_t last_instr_count = 0;
   uint64_t cycles=0;
   uint64_t total_instructions=0;
   uint64_t instruction_limit=1100000000; //250000000;

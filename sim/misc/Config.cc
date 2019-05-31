@@ -68,7 +68,7 @@ Config::Config() {
   num_units[BARRIER] = -1;
   num_units[ACCELERATOR] = -1;
 
-  // energy_per_instr (in Joules - adapted from Ariane paper: https://arxiv.org/abs/1904.05442)
+  // energy_per_instr (in Joules - for a 2GHz frequnency and X.XX Volts)
   technology_node = 22;
   energy_per_instr[technology_node][I_ADDSUB] = 12.13875*1e-12;
   energy_per_instr[technology_node][I_MULT]   = 37.16357758*1e-12;
@@ -160,10 +160,12 @@ Config::Config() {
   energy_per_instr[technology_node][ACCELERATOR] = 0;
   technology_node = -1;
 
+  // Average L2 access energy (Joules)
   energy_per_L2_access[22] = 7.254915576*1e-12; 
   energy_per_L2_access[14] = 5.276302237*1e-12;
   energy_per_L2_access[5]  = 3.538420188*1e-12;
   
+  // Average DRAM access energy (Joules)
   energy_per_DRAM_access[22] = 11050.14706*1e-12;
   energy_per_DRAM_access[14] = 8036.470588*1e-12;
   energy_per_DRAM_access[5]  = 5389.458088*1e-12;

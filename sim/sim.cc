@@ -309,7 +309,6 @@ void Simulator::run() {
   }
   else
     cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
-
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
   
   DESCQ* descq=descq_vec.at(0);
@@ -384,10 +383,12 @@ void Simulator::run() {
 
 void Simulator::calculateGlobalEnergyPower() {
   stat.global_energy = 0.0;
+  int n_cores = 0;
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
     Tile* tile=it->second;
     if(Core* core=dynamic_cast<Core*>(tile)) {
       // aggregate all of the per-core energy
+      n_cores++;
       if(core->total_energy==0.0)
         core->calculateEnergyPower();
       stat.global_energy += core->total_energy;
@@ -412,10 +413,10 @@ void Simulator::calculateGlobalEnergyPower() {
   stat.avg_global_power = stat.global_energy * clockspeed*1e+6 / cycles;
 
   // some debug stuff
-  cout << "-------All cores energy: " << e << endl;
-  cout << "-------L2_energy: " << L2_energy << endl;
-  cout << "-------DRAM_energy: " << DRAM_energy << endl;
-  cout << "-------Acc_energy: " << Acc_energy << endl;
+  cout << "-------All (" << n_cores << ") cores energy (J) : " << e << endl;
+  cout << "-------L2_energy (J) : " << L2_energy << endl;
+  cout << "-------DRAM_energy (J) : " << DRAM_energy << endl;
+  cout << "-------Acc_energy (J) : " << Acc_energy << endl;
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {
