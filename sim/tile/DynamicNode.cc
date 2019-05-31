@@ -581,7 +581,7 @@ bool DynamicNode::issueCompNode() {
 }
 
 bool DynamicNode::issueAccNode() {
-  cout << "Cycle: " << core->cycles << "; Acc Invoke: " << acc_args << endl;
+  //cout << "Cycle: " << core->cycles << "; Acc Invoke: " << acc_args << endl;
   //get tile id of an accelerator
   int acc_tid=core->sim->getAccelerator();
   assert(acc_tid!=-1);

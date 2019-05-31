@@ -103,12 +103,12 @@ bool Core::ReceiveTransaction(Transaction* t) {
   t->complete=true;
   DynamicNode* d=t->d;
  
-  cout << d->acc_args << endl;
+  /* cout << d->acc_args << endl;
   cout << "CPU Clocktick: " << cycles << "; Acc Return: " << d->acc_args << endl;
   cout << "Cycles taken: " << t->perf.cycles << endl;
   cout << "Bytes: " << t->perf.bytes << endl;
   cout << "Power: " << t->perf.power << endl;
-  
+  */
 
   //register energy and dram access stats
   stat.update("dram_accesses",t->perf.bytes/4); //each access is a word
