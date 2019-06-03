@@ -33,14 +33,16 @@ public:
   int outstanding_load_requests;
   int outstanding_store_requests;
   int max_active_contexts_BB;
+  
   // FUs
   int instr_latency[NUM_INST_TYPES];
   int num_units[NUM_INST_TYPES];
+  
   // Energy variables, all in Joules
-  //double energy_per_instr[NUM_INST_TYPES];
   map <int, double [NUM_INST_TYPES]> energy_per_instr;
   map <int, double> energy_per_L2_access;
   map <int, double> energy_per_DRAM_access;
+  double base_freq_for_EPI = 2000;  // in Mhz
   
   // cache
   bool ideal_cache;
