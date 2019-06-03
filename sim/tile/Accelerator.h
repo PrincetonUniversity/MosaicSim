@@ -35,6 +35,7 @@ public:
   bool transaction_pending=false;
   Accelerator(Simulator* sim, uint64_t clockspeed) : Tile(sim, clockspeed) {
     sys_config.tech=cfg.technology_node;
+    // mem BW in bytes per cycle
     sys_config.mem_bandwidth=(1e3 * cfg.dram_bw) / cfg.chip_freq;
     sys_config.dram_latency=cfg.dram_latency;
     sys_config.n_IS_tiles=cfg.num_IS;

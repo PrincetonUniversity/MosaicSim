@@ -35,7 +35,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
     return false;
   }
   else {
-
+    //cout << "Tech: " << sys_config.tech << "nm, BW: " << sys_config.mem_bandwidth <<"Bytes/cycle, Latency: " << sys_config.dram_latency << "cycles, # Acc Tiles: " << sys_config.n_acc_tiles << ", # IS Tiles: " << sys_config.n_IS_tiles << endl;
     currentTransaction=t;
     //create a vector of the args for perf model
     vector<string> arg_vec=split(currentTransaction->d->acc_args, ',');
@@ -54,7 +54,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
     int offset_size=2; //num args in dyn trace before acc args
     
     if(arg_vec[1].find("decadesTF_matmul") != std::string::npos) {
-      cout << "acc received matmul \n";
+      //cout << "acc received matmul \n";
       int arg_size=arg_vec.size();
       assert(arg_size > (3+offset_size));
       config_gemm_t args;
@@ -64,7 +64,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.batch_size=stoi(arg_vec[3+offset_size]);
       args.has_IS_tile=1;
       currentTransaction->perf=sim_gemm(sys_config, args);
-      cout << "rows A " << args.rowsA << " col A " << args.colsA << "cols b " << args.colsB << " batch size " << args.batch_size << endl;
+      //cout << "rows A " << args.rowsA << " col A " << args.colsA << "cols b " << args.colsB << " batch size " << args.batch_size << endl;
     }
     else if(arg_vec[1].find("decadesTF_sdp") != std::string::npos) {
       int arg_size=arg_vec.size();
@@ -123,10 +123,11 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       cout << "no matching acc model for invocation \n";
       assert(false);
     }
-    cout << "predicted cycles " << currentTransaction->perf.cycles << endl;
+    
+    //cout << "predicted cycles " << currentTransaction->perf.cycles << endl;
     
     final_cycle=cycles+currentTransaction->perf.cycles;
-    cout << "bytes " << currentTransaction->perf.bytes << endl;
+    //cout << "bytes " << currentTransaction->perf.bytes << endl;
     //assert(false);
     return true;
   }
