@@ -352,7 +352,7 @@ void Core::calculateEnergyPower() {
   // FIX THIS: for now we only calculate the energy for IN-ORDER cores
   if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
     
-    // add energy per instruction class
+    // add Energy Per Instruction (EPI) class
     for(int i=0; i<NUM_INST_TYPES; i++) {
       total_energy += local_cfg.energy_per_instr.at(tech_node)[i] * local_stat.get(getInstrName((TInstr)i));
     }
