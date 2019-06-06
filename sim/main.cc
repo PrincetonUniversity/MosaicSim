@@ -87,7 +87,7 @@ int main(int argc, char const *argv[]) {
         simulator->decoupling_mode=true;        
       }
       else if(curr_arg == "-o") {
-        cout <<" Stats output directory is: " << argv[arg_index++] << endl;        
+         simulator->outputDir=argv[arg_index++];        
       }
       else if(curr_arg == "-debug") {
         simulator->debug_mode=true;        

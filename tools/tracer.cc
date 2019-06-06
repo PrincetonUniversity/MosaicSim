@@ -105,7 +105,7 @@ void print_sdp(char *acc_kernel_name, char *kernel_type, char *run_dir, char* no
 
 __attribute__((noinline))
 extern "C"
-void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int in_channels, int batch, int in_height, int in_width, int out_channels, int filter_height, int filter_width, bool zero_pad, int vert_conv_stride, int horiz_conv_stride, bool pooling, int pool_height, int pool_width, int vertical_pool_stride, int horizontal_pool_stride)
+void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id , int batch, int in_channels, int in_height, int in_width, int out_channels, int filter_height, int filter_width, bool zero_pad, int vert_conv_stride, int horiz_conv_stride, bool pooling, int pool_height, int pool_width, int vertical_pool_stride, int horizontal_pool_stride)
 {
   if(!f3[omp_get_thread_num()].is_open()) {
     

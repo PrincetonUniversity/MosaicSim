@@ -23,7 +23,7 @@ public:
     //registerStat("energy", 0);
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
-    registerStat("accelerator_energy",0);
+    //registerStat("accelerator_energy",0);
     registerStat("l1_hits", 1);
     registerStat("l1_misses", 1);
     registerStat("l2_hits", 0);

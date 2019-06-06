@@ -1,6 +1,6 @@
 #ifndef SIMPLEDRAM_H
 #define SIMPLEDRAM_H
-//#include "Cache.h"
+//
 #include "../sim.h"
 #include <unordered_map>
 //#include <priority_queue>
@@ -38,8 +38,8 @@ class SimpleDRAM {
   int Peak_BW=12; //GB/s
   priority_queue<MemOperator, vector<MemOperator>, MemOpCompare> pq;
   uint64_t trans_id=0;
-  int epoch_length=10; //cycles
-  int bytes_per_req=4;
+  int epoch_length=16; //cycles
+  int bytes_per_req=64;
   long max_req_per_epoch;
   long request_count=0;
   uint64_t cycles=0;

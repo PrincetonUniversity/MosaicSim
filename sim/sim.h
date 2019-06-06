@@ -73,7 +73,7 @@ public:
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
   
-  map<DynamicNode*, tuple<long long, long long, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
+  map<DynamicNode*, tuple<long long, long long, bool, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
   
   Simulator(string home);
   bool communicate(DynamicNode* d);

@@ -1,5 +1,6 @@
 #include "SimpleDRAM.h"
 #include "DRAM.h"
+#include "Cache.h"
 
 SimpleDRAM::SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config) {
   latency=dram_config.dram_latency; Peak_BW=dram_config.dram_bw; sim=simulator; memInterface=dramInterface; 
@@ -8,6 +9,7 @@ SimpleDRAM::SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Co
 void SimpleDRAM::initialize(int coreClockspeed) {
   //GB/s rate / (bytes/req*clockspeed)
   core_clockspeed=coreClockspeed;
+  bytes_per_req=sim->cache->size_of_cacheline;
   long long num=(1000*Peak_BW*epoch_length);
   long long denom=(bytes_per_req*core_clockspeed);
   max_req_per_epoch=num/denom;

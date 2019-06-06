@@ -350,6 +350,7 @@ void Simulator::run() {
 
   //calculate and print stats on load latencies
   if(load_stats_map.size()>0) {
+    
     long long totalLatency=0;
     string outstring="";
     for(auto entry:load_stats_map) {
@@ -361,20 +362,24 @@ void Simulator::run() {
       if (!get<2>(entry.second)) {
         isHit="Miss";
       }
+      string isLoad="Load";
+      if (!get<3>(entry.second)) {
+        isLoad="Store";
+      }
       int node_id=entry.first->n->id;
       long long diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
       //cout << "ret: " << return_cycle << ", issue: "<< issue_cycle << ", diff: " << diff << endl;
       //assert(diff>0);
-      outstring+=to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
+      outstring+=isLoad+" "+to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
         
     ofstream loadfile;
     loadfile.open(outputDir+"/loadStats");
     loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
     loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-    loadfile << "Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+    loadfile << "Load/Store Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
     loadfile << outstring;
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
@@ -401,6 +406,7 @@ void Simulator::calculateGlobalEnergyPower() {
   stat.global_energy += L2_energy;      
 
   // Add the DRAM energy
+  //Note: dram_accesses is on a cache line granularity
   double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
   stat.global_energy += DRAM_energy;
 

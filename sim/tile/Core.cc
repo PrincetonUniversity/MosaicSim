@@ -19,13 +19,17 @@ bool Core::communicate(DynamicNode *d) {
 
 void Core::access(DynamicNode* d) {
   //collect stats on load latency
-  if(sim->debug_mode && (d->type==LD || d->type==LD_PROD)) {
+  if(sim->debug_mode && (d->type==LD || d->type==LD_PROD || d->type==ST)) {
     if(sim->load_stats_map.find(d)!=sim->load_stats_map.end()) {
       //d->print("assertion to fail", -10);
       //assert(false);
     }
     long long current_cycle=cycles;
-    sim->load_stats_map[d]=make_tuple(current_cycle,0,false); //(issue cycle, return cycle)
+    long long return_cycle=0;
+    if(d->type==ST) {
+      return_cycle=current_cycle;
+    }
+    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false, d->type!=ST); //(issue cycle, return cycle)
   }
   
   int tid = tracker_id.front();
@@ -97,27 +101,30 @@ void Core::accessComplete(MemTransaction *t) {
   }
 }
 
+
 //handle completed transactions
 bool Core::ReceiveTransaction(Transaction* t) {
   
   t->complete=true;
   DynamicNode* d=t->d;
- 
-  /* cout << d->acc_args << endl;
+  /*
+  cout << d->acc_args << endl;
   cout << "CPU Clocktick: " << cycles << "; Acc Return: " << d->acc_args << endl;
   cout << "Cycles taken: " << t->perf.cycles << endl;
   cout << "Bytes: " << t->perf.bytes << endl;
   cout << "Power: " << t->perf.power << endl;
+  cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
   */
 
   //register energy and dram access stats
-  stat.update("dram_accesses",t->perf.bytes/4); //each access is a word
+  stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
   //power is mW, freq in MHz --> 1e-3*1e-6
   double energy=(t->perf.power * t->perf.cycles * 1e-9)/cfg.chip_freq;
   stat.acc_energy+=energy;
   
   d->c->insertQ(d); //complete the dynamic node involved
   delete t;
+  
   return true;
 }
 
