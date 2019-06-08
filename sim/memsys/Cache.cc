@@ -178,7 +178,7 @@ void Cache::addTransaction(MemTransaction *t) {
     free_store_ports--;
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch or eviction
-  if(isL1 && t->src_id>0 && num_prefetched_lines>0) {
+  if(isL1 && t->src_id>=0 && num_prefetched_lines>0) {
     //int cache_line = t->d->addr/size_of_cacheline;
     bool pattern_detected=false;
     bool single_stride=true;
