@@ -13,6 +13,18 @@ class Simulator;
 class Cache;
 class Core;
 
+struct TransPointerLT {
+    bool operator()(const MemTransaction* a, const MemTransaction* b) const {
+      return a<b;
+      if(a->id > 0 && b->id > 0) { //not eviction or prefetch
+        return *(a->d) < *(b->d); //compare their dynamic nodes
+      }
+      else {
+        return a < b; //just use their pointers, so they're unique in the set
+      }        
+    }
+};
+
 class Cache {
 public:
   Simulator *sim;
@@ -29,6 +41,8 @@ public:
   int pattern_threshold=4; //how many close addresses to check to determine spatially local accesses
   int min_stride=4; //bytes of strided access
 
+  unordered_map<uint64_t,set<MemTransaction*, TransPointerLT>> memop_map; //map of cacheline to set of dynamic nodes
+  //unordered_map<uint64_t,set<MemTransaction*>> memop_map; //map of cacheline to set of dynamic nodes
   vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;

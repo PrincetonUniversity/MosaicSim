@@ -97,7 +97,7 @@ void Cache::execute(MemTransaction* t) {
       DynamicNode* d = t->d;
       if(isL1) {
         //enter into load stats map
-        
+        //TODO: need to loop through all requests in batch and record stats
         if(d->core->sim->debug_mode && (!t->isPrefetch && (d->type==LD || d->type==LD_PROD || d->type==ST))) {
           assert(d->core->sim->load_stats_map.find(d)!=d->core->sim->load_stats_map.end());
           auto& entry_tuple = d->core->sim->load_stats_map[d];
@@ -105,12 +105,17 @@ void Cache::execute(MemTransaction* t) {
         }
 
         //don't do anything with prefetch instructions
-        if(!t->isPrefetch) {
-          sim->accessComplete(t);
-          
-        }
-        stat.update("l1_hits"); 
-        core->local_stat.update("l1_hits");
+        /*if(!t->isPrefetch) {
+          sim->accessComplete(t);         
+          }*/
+        
+        
+        uint64_t cacheline=t->addr/size_of_cacheline;
+        assert(memop_map.find(cacheline)!=memop_map.end());
+        int batch_size= memop_map[cacheline].size();
+        core->local_stat.update("l1_hits", batch_size);
+        stat.update("l1_hits", batch_size);
+        TransactionComplete(t);
       }
       //for l2 cache
       else { 
@@ -132,11 +137,14 @@ void Cache::execute(MemTransaction* t) {
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
       delete t; 
     }
-  }
+  } //misses
   else {
     if(isL1) {
-      core->local_stat.update("l1_misses");
-      stat.update("l1_misses");
+      uint64_t cacheline=t->addr/size_of_cacheline;
+      assert(memop_map.find(cacheline)!=memop_map.end());
+      int batch_size= memop_map[cacheline].size();
+      core->local_stat.update("l1_misses", batch_size); //increment misses for all requests batched together
+      stat.update("l1_misses", batch_size);
     }
     else {
       stat.update("l2_misses");    
@@ -151,9 +159,18 @@ void Cache::execute(MemTransaction* t) {
 }
 
 void Cache::addTransaction(MemTransaction *t) {
-  
-  pq.push(make_pair(t, cycles+latency));
-  
+  if(isL1 && t->src_id!=-1) { //not eviction
+    uint64_t cacheline = t->addr/size_of_cacheline;
+    if(memop_map.find(cacheline)==memop_map.end()) {
+      memop_map[cacheline]=set<MemTransaction*,TransPointerLT>();
+      pq.push(make_pair(t, cycles+latency));
+      //add transaction only if it's the 1st
+    }
+    memop_map[cacheline].insert(t); 
+  }
+  else {
+     pq.push(make_pair(t, cycles+latency));
+  }
   stat.update("cache_access");
   if(t->isLoad)
     free_load_ports--;
@@ -161,7 +178,7 @@ void Cache::addTransaction(MemTransaction *t) {
     free_store_ports--;
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch
-  if(isL1 && t->src_id!=-1 && num_prefetched_lines>0) {
+  if(isL1 && t->src_id>0 && num_prefetched_lines>0) {
     //int cache_line = t->d->addr/size_of_cacheline;
     bool pattern_detected=false;
     bool single_stride=true;
@@ -195,7 +212,8 @@ void Cache::addTransaction(MemTransaction *t) {
           MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true); //prefetch some distance ahead
           prefetch_t->d=t->d;
           prefetch_t->isPrefetch=true;
-          pq.push(make_pair(prefetch_t, cycles+latency));                  
+          //pq.push(make_pair(prefetch_t, cycles+latency));
+          this->addTransaction(prefetch_t);
         }
         
         if(t->d->type==LD_PROD) {
@@ -234,12 +252,28 @@ bool Cache::willAcceptTransaction(MemTransaction *t) {
 }
 
 void Cache::TransactionComplete(MemTransaction *t) { 
+   
   if(isL1) {
-    if(!t->isPrefetch) {
-      sim->accessComplete(t);
+    set<MemTransaction*, TransPointerLT>trans_set;
+    trans_set.insert(t);
+    
+    uint64_t cacheline=t->addr/size_of_cacheline;
+    
+    if(memop_map.find(cacheline)!=memop_map.end()) {
+      trans_set=memop_map[cacheline];
     }
-    else{
-      delete t;
+    for (auto it=trans_set.begin(); it!=trans_set.end();) {
+      MemTransaction* curr_t=*it;
+      if(!curr_t->isPrefetch) {
+        sim->accessComplete(curr_t);
+      }
+      else {
+        delete curr_t;
+      }
+      it=trans_set.erase(it);
+    }
+    if(trans_set.size()==0) {
+      memop_map.erase(cacheline);
     }
   }
   else {

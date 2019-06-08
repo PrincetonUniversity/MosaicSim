@@ -407,7 +407,7 @@ acc_perf_t sim_nvdla(config_sys_t config_sys, config_nvdla_t config)
 
 
 	// max # accelerator parallelism based on system specs
-	unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8; // 8 bytes = 1 word
+	unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8 + 1; // 8 bytes = 1 word
 	unsigned int n_acc_max;
 	if (n_acc_bandwidth_bound < config_sys.n_acc_tiles)
  	    n_acc_max = n_acc_bandwidth_bound;

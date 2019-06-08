@@ -9,7 +9,7 @@ NAME=main.cpp
 input_data=../../inputs/moreno_crime/x_to_y_graph.txt
 
 
-mkdir -p sim_output
+# mkdir -p sim_output
 echo Compiling 1 Thread	
 ${CC} -m db -t 1 ${NAME}
 echo Done compiling 1 Thread
@@ -35,7 +35,7 @@ ${CC} -m di -t 2 ${NAME}
 ./decades_decoupled_implicit/decades_decoupled_implicit ${input_data}
 
 echo Simulating Decoupled 2 Threads	
-pythiarun -d -n 2 . 
+pythiarun -d -n 2 . -sc sim_big
 
 
 #	rm -fr decades_base decades_decoupled_implicit sim_output dramsim* loadStats decouplingStats

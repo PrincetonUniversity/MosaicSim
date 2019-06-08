@@ -41,6 +41,7 @@ public:
   void issue();
 };
 
+
 class Core: public Tile {
 public:
   Graph g;

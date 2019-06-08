@@ -86,10 +86,17 @@ void IssueWindow::issue() {
 
 //handle completed memory transactions
 void Core::accessComplete(MemTransaction *t) {
+  DynamicNode *d;
+  d=t->d;
+  delete t;
+  d->handleMemoryReturn();
+
+  /*
   int tid = t->id;
 
   if(access_tracker.find(tid)!=access_tracker.end()) {
     DynamicNode *d = access_tracker.at(tid);
+    
     access_tracker.erase(tid);
     tracker_id.push(tid);
     delete t;
@@ -99,6 +106,7 @@ void Core::accessComplete(MemTransaction *t) {
     cout << "assertion false for transaction" << tid << endl;
     assert(false);
   }
+  */
 }
 
 

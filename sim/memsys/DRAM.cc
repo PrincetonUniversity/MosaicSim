@@ -5,7 +5,7 @@ using namespace std;
 #define UNUSED 0
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
-  
+
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
 
   if(UNUSED)
