@@ -14,6 +14,7 @@ bool FROM_NUMBA = false;
 std::string KERNEL_STR = "_kernel_";
 std::string KERNEL_TYPE = "_no_type_";
 std::string RUN_DIR = "decades_base";
+#define MAIN_STR "main"
 
 namespace {
   struct RecordDynamicInfo : public ModulePass {
@@ -26,10 +27,34 @@ namespace {
     Function *print_sdp;
     Function *print_conv2d_layer;
     Function *print_dense_layer;
+    Function *tracer_cleanup;
     Module *mod;
     std::map<BasicBlock*, int> bb_id_table;
     std::map<Instruction*, int> id_table;
     RecordDynamicInfo() : ModulePass(ID) {}
+
+    void instrument_main(Function &f) {
+  
+      for (inst_iterator iI = inst_begin(f), iE = inst_end(f); iI != iE; ++iI) {
+	if (ReturnInst::classof(&(*iI))) {
+	  Instruction *InsertPoint = (&(*iI));
+	  IRBuilder<> Builder(InsertPoint);
+	  Builder.CreateCall(tracer_cleanup);
+	}
+      }
+    }
+
+
+    bool isMain(Function &func) {
+      return (
+	      (func.getName().str() == MAIN_STR) ||
+	      (
+	       (func.getName().str().find("cpython") != std::string::npos) &&
+	       (func.getName().str().find("tile_launcher") != std::string::npos)
+	       )
+	      ); // Needs to be equality here!
+    }
+    
     bool runOnModule(Module &M) override {
       mod = &(M);
 
@@ -76,6 +101,9 @@ namespace {
       print_conv2d_layer = (Function *) M.getOrInsertFunction("print_conv2d_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt1Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
 
       print_dense_layer = (Function *) M.getOrInsertFunction("print_dense_layer", Type::getVoidTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt8PtrTy(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx), Type::getInt32Ty(ctx)).getCallee();
+
+      tracer_cleanup = (Function *) M.getOrInsertFunction("tracer_cleanup",
+						   FunctionType::get(Type::getVoidTy(M.getContext()), false)).getCallee();
       
       auto decades_kernel_str = getenv("DECADES_KERNEL_STR");
       if (decades_kernel_str) {
@@ -96,6 +124,18 @@ namespace {
           instInspect(*fI);
         }
       }
+
+      for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
+	errs() << "[" << fI->getName().str() << "]\n";
+	if (isMain(*fI)) {
+	  errs() << "[Found Main]\n";	  
+	  errs() << "[" << fI->getName().str() << "]\n";
+	  instrument_main(*fI);
+	}
+      }
+
+
+      
       return false;
     }
     void assignID(Function &F) {

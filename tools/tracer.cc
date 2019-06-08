@@ -16,6 +16,23 @@ std::ofstream f2[MAX_THREADS]; // for ctrl.txt
 std::ofstream f3[MAX_THREADS]; // for acc.txt
 
 __attribute__((noinline))
+extern "C"
+void tracer_cleanup() {
+  printf("hello world from cleanup!");
+  for (int i = 0; i < MAX_THREADS; i++) {
+    if (f1[i].is_open()) {
+      f1[i].close();
+    }
+    if (f2[i].is_open()) {
+      f2[i].close();
+    }    
+    if (f3[i].is_open()) {
+      f3[i].close();
+    }
+  }
+}
+
+__attribute__((noinline))
 const char * get_dir_name(std::string run_dir, std::string kernel_type, std::string type) {
   if (omp_get_thread_num() >= MAX_THREADS) {
     std::cout << "ERROR: Unable to log for all threads! Increase MAX_THREADS in tracer.cc" << "\n";
@@ -32,15 +49,15 @@ void printBranch(char* name, char *kernel_type, char *run_dir, int cond, char* n
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::app);
   }
-	char *target;
-	if(cond == 0)
-		target = n1;
-	else
-		target = n2;
-	f1[omp_get_thread_num()] << "B,"<<name << "," << target << "\n";
-	//std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
+  char *target;
+  if(cond == 0)
+    target = n1;
+  else
+    target = n2;
+  f1[omp_get_thread_num()] << "B,"<<name << "," << target << "\n";
+  //std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
   //f1[omp_get_thread_num()].close();
 }
 
@@ -50,12 +67,11 @@ void printuBranch(char* name, char *kernel_type, char *run_dir, char *n1)
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::app);
   }
-  if(!f1[omp_get_thread_num()].is_open())
+  if (!f1[omp_get_thread_num()].is_open())
     assert(false);
   f1[omp_get_thread_num()] << "U,"<< name << "," << n1 << "\n";
-  //std::cout << "Branch ["<< name << "]: " << cond << " / " << target <<  "\n";	
   //f1[omp_get_thread_num()].close();
 }
 
@@ -64,16 +80,14 @@ extern "C"
 void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long addr, int size)
 {
   if(!f2[omp_get_thread_num()].is_open()) {
-    //f2.open("output/mem.txt", std::ofstream::out | std::ofstream::trunc);
-    f2[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::trunc);
+    f2[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::app);
   }
 	
-  if(type == 0)
-    //std::cout << "Load ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
+  if (type == 0)
     f2[omp_get_thread_num()] << "L,"<< name << "," << addr << ","<< size <<"\n";
-  else if(type == 1)
+  else if (type == 1)
     f2[omp_get_thread_num()] << "S,"<< name << "," << addr << ","<< size <<"\n";
-  //std::cout << "Store ["<< name << "]: " << type << " / " << addr << " / " << size <<  "\n";	
+
   //f2[omp_get_thread_num()].close();
 }
 
@@ -83,11 +97,12 @@ void print_matmul(char *acc_kernel_name, char *kernel_type, char *run_dir, char*
 {
   if(!f3[omp_get_thread_num()].is_open()) {
     
-    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::app);
   }
   //std::cout << "printing acc now " << rowsA << ","<< colsA << rowsB << ","<< colsB <<"\n";
  
   f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << ","<< rowsB << ","<< colsB << "," << batch_size << "\n";
+  //f3[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline))
@@ -96,11 +111,12 @@ void print_sdp(char *acc_kernel_name, char *kernel_type, char *run_dir, char* no
 {
   if(!f3[omp_get_thread_num()].is_open()) {
     
-    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::app);
   }
 
  
   f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << working_mode << ","<< size << "\n";
+  //f3[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline))
@@ -109,10 +125,12 @@ void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir,
 {
   if(!f3[omp_get_thread_num()].is_open()) {
     
-    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::app);
   }
  
   f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," <</*0*/ batch <<"," << /*1*/ in_channels << "," << /*2*/ in_height << "," << /*3*/ in_width << "," << /*4*/ out_channels << "," << /*5*/ filter_height << "," << /*6*/ filter_width << "," << /*7*/ zero_pad << "," << /*8*/ vert_conv_stride << "," << /*9*/ horiz_conv_stride << "," << /*10*/ pooling << "," << /*11*/ pool_height << "," << /*12*/ pool_width << "," << /*13*/ vertical_pool_stride << "," << /*14*/ horizontal_pool_stride << "\n";
+
+  //f3[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline))
@@ -121,10 +139,12 @@ void print_dense_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, 
 {
   if(!f3[omp_get_thread_num()].is_open()) {
     
-    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::trunc);
+    f3[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), std::ofstream::out | std::ofstream::app);
   }
  
   f3[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << /*0*/ batch << ","<< /*1*/ in_channels << ","<< /*2*/ out_channels << "\n";
+
+  //f3[omp_get_thread_num()].close();
 }
 
 __attribute__((noinline))
@@ -133,7 +153,7 @@ void printSw(char *name, char *kernel_type, char *run_dir, int value, char *def,
 {
   if(!f1[omp_get_thread_num()].is_open()) {
     //f1.open("output/ctrl.txt", std::ofstream::out | std::ofstream::trunc);
-    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::trunc);
+    f1[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "ctrl.txt"), std::ofstream::out | std::ofstream::app);
   }
   va_list vl;
   std::vector<int> vals;
