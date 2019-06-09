@@ -29,15 +29,15 @@ class MSHR_entry {
 public:
   set<MemTransaction*, TransPointerLT> opset;
   bool hit=false;
-  //int real_mem_size=0;
+  int non_prefetch_size=0;
   void insert(MemTransaction* t) {
     opset.insert(t);
     //inc num of real mem ops
-    /*
+   
     if(!t->isPrefetch) {
-      real_mem_size++; 
+      non_prefetch_size++; 
     }
-    */
+    
   }
 };
 

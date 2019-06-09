@@ -26,6 +26,8 @@ public:
     //registerStat("accelerator_energy",0);
     registerStat("l1_hits", 1);
     registerStat("l1_misses", 1);
+    registerStat("l1_hits_non_prefetch", 1);
+    registerStat("l1_misses_non_prefetch", 1);
     registerStat("l2_hits", 0);
     registerStat("l2_misses", 0);
     

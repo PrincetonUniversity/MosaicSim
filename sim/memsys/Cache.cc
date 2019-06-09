@@ -252,16 +252,22 @@ void Cache::TransactionComplete(MemTransaction *t) {
     
     auto trans_set=mshr_entry.opset;
     int batch_size=trans_set.size();
+
+    int non_prefetch_size=mshr_entry.non_prefetch_size;
     
     //update hit/miss stats, account for each individual access
 
     if(mshr_entry.hit) {
       stat.update("l1_hits",batch_size);
       core->local_stat.update("l1_hits",batch_size);
+      stat.update("l1_hits_non_prefetch",non_prefetch_size);
+      core->local_stat.update("l1_hits_non_prefetch",non_prefetch_size);
     }
     else {
       stat.update("l1_misses",batch_size);
       core->local_stat.update("l1_misses",batch_size);
+      stat.update("l1_misses_non_prefetch",non_prefetch_size);
+      core->local_stat.update("l1_misses_non_prefetch",non_prefetch_size);
     }
     
     //process callback for each individual transaction in batch
