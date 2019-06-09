@@ -122,7 +122,10 @@ void Cache::execute(MemTransaction* t) {
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("l2_hits"); 
+        stat.update("l2_hits");
+        if(!t->isPrefetch) {
+          stat.update("l2_hits_non_prefetch");
+        }
       }
     }
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
@@ -134,7 +137,10 @@ void Cache::execute(MemTransaction* t) {
       //do nothing, MSHR entry is set to miss by default   
     }
     else {
-      stat.update("l2_misses");    
+      stat.update("l2_misses");
+      if(!t->isPrefetch) {
+        stat.update("l2_misses_non_prefetch");
+      }
     }
 
     to_send.push_back(t); //send higher up in hierarchy

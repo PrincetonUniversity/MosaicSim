@@ -30,6 +30,8 @@ public:
     registerStat("l1_misses_non_prefetch", 1);
     registerStat("l2_hits", 0);
     registerStat("l2_misses", 0);
+    registerStat("l2_hits_non_prefetch", 0);
+    registerStat("l2_misses_non_prefetch", 0);
     
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
