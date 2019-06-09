@@ -492,7 +492,7 @@ void DynamicNode::print(string str, int level) {
 }
 void DynamicNode::handleMemoryReturn() {
       //update load latency stats
-  if(core->sim->debug_mode &&(type==LD || type==LD_PROD || type==ST)) {
+  if(core->sim->debug_mode) {
     
     assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
     long long current_cycle = core->cycles;

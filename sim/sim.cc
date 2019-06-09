@@ -354,6 +354,7 @@ void Simulator::run() {
     long long totalLatency=0;
     string outstring="";
     for(auto entry:load_stats_map) {
+      DynamicNode* d=entry.first;
       auto entry_tuple=entry.second;
       long long issue_cycle=get<0>(entry_tuple);
       long long return_cycle=get<1>(entry_tuple);
@@ -362,9 +363,21 @@ void Simulator::run() {
       if (!get<2>(entry.second)) {
         isHit="Miss";
       }
-      string isLoad="Load";
-      if (!get<3>(entry.second)) {
-        isLoad="Store";
+      string MEMOP="";
+      if (d->type==LD) {
+        MEMOP="LD";
+      }
+      else if (d->type==LD_PROD) {
+        MEMOP="LD_PROD";
+      }
+      else if (d->type==ST) {
+        MEMOP="ST";
+      }
+      else if (d->type==STADDR) {
+        MEMOP="ST_ADDR";
+      }
+      else {
+        assert(false);
       }
       int node_id=entry.first->n->id;
       long long diff=(return_cycle-issue_cycle);
@@ -372,7 +385,7 @@ void Simulator::run() {
       
       //cout << "ret: " << return_cycle << ", issue: "<< issue_cycle << ", diff: " << diff << endl;
       //assert(diff>0);
-      outstring+=isLoad+" "+to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
+      outstring+=MEMOP+" "+to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
         
     ofstream loadfile;

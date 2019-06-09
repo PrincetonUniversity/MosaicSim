@@ -19,17 +19,17 @@ bool Core::communicate(DynamicNode *d) {
 
 void Core::access(DynamicNode* d) {
   //collect stats on load latency
-  if(sim->debug_mode && (d->type==LD || d->type==LD_PROD || d->type==ST)) {
+  if(sim->debug_mode) {
     if(sim->load_stats_map.find(d)!=sim->load_stats_map.end()) {
       //d->print("assertion to fail", -10);
       //assert(false);
     }
     long long current_cycle=cycles;
     long long return_cycle=0;
-    if(d->type==ST) {
+    /*if(d->type==ST) {
       return_cycle=current_cycle;
-    }
-    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false, d->type!=ST); //(issue cycle, return cycle)
+    } */
+    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false); //(issue cycle, return cycle)
   }
   
   int tid = tracker_id.front();

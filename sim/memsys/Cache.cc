@@ -94,27 +94,18 @@ void Cache::execute(MemTransaction* t) {
   if (res) {                
     //d->print("Cache Hit", 1);
     if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache
-      DynamicNode* d = t->d;
+      
       if(isL1) {
-        //enter into load stats map
-        //TODO: need to loop through all requests in batch and record stats
-        if(d->core->sim->debug_mode && (!t->isPrefetch && (d->type==LD || d->type==LD_PROD || d->type==ST))) {
-          assert(d->core->sim->load_stats_map.find(d)!=d->core->sim->load_stats_map.end());
-          auto& entry_tuple = d->core->sim->load_stats_map[d];
-          get<2>(entry_tuple)=true;
-        }
-
+       
         //don't do anything with prefetch instructions
         /*if(!t->isPrefetch) {
           sim->accessComplete(t);         
           }*/
-        
-        
+                
         uint64_t cacheline=t->addr/size_of_cacheline;
-        assert(memop_map.find(cacheline)!=memop_map.end());
-        int batch_size= memop_map[cacheline].size();
-        core->local_stat.update("l1_hits", batch_size);
-        stat.update("l1_hits", batch_size);
+        assert(mshr.find(cacheline)!=mshr.end());
+        mshr[cacheline].hit=true;
+        
         TransactionComplete(t);
       }
       //for l2 cache
@@ -140,11 +131,7 @@ void Cache::execute(MemTransaction* t) {
   } //misses
   else {
     if(isL1) {
-      uint64_t cacheline=t->addr/size_of_cacheline;
-      assert(memop_map.find(cacheline)!=memop_map.end());
-      int batch_size= memop_map[cacheline].size();
-      core->local_stat.update("l1_misses", batch_size); //increment misses for all requests batched together
-      stat.update("l1_misses", batch_size);
+      //do nothing, MSHR entry is set to miss by default   
     }
     else {
       stat.update("l2_misses");    
@@ -161,12 +148,12 @@ void Cache::execute(MemTransaction* t) {
 void Cache::addTransaction(MemTransaction *t) {
   if(isL1 && t->src_id!=-1) { //not eviction
     uint64_t cacheline = t->addr/size_of_cacheline;
-    if(memop_map.find(cacheline)==memop_map.end()) {
-      memop_map[cacheline]=set<MemTransaction*,TransPointerLT>();
+    if(mshr.find(cacheline)==mshr.end()) {
+      mshr[cacheline]=MSHR_entry();
       pq.push(make_pair(t, cycles+latency));
       //add transaction only if it's the 1st
     }
-    memop_map[cacheline].insert(t); 
+    mshr[cacheline].insert(t); 
   }
   else {
      pq.push(make_pair(t, cycles+latency));
@@ -252,29 +239,52 @@ bool Cache::willAcceptTransaction(MemTransaction *t) {
 }
 
 void Cache::TransactionComplete(MemTransaction *t) { 
-   
+  
   if(isL1) {
-    set<MemTransaction*, TransPointerLT>trans_set;
-    trans_set.insert(t);
     
     uint64_t cacheline=t->addr/size_of_cacheline;
-    
-    if(memop_map.find(cacheline)!=memop_map.end()) {
-      trans_set=memop_map[cacheline];
+
+    //should be part of an mshr entry
+    if(mshr.find(cacheline)==mshr.end()) {
+      assert(false);
     }
-    for (auto it=trans_set.begin(); it!=trans_set.end();) {
+    MSHR_entry mshr_entry=mshr[cacheline];
+    
+    auto trans_set=mshr_entry.opset;
+    int batch_size=trans_set.size();
+    
+    //update hit/miss stats, account for each individual access
+
+    if(mshr_entry.hit) {
+      stat.update("l1_hits",batch_size);
+      core->local_stat.update("l1_hits",batch_size);
+    }
+    else {
+      stat.update("l1_misses",batch_size);
+      core->local_stat.update("l1_misses",batch_size);
+    }
+    
+    //process callback for each individual transaction in batch
+    for (auto it=trans_set.begin(); it!=trans_set.end(); ++it) {
       MemTransaction* curr_t=*it;
       if(!curr_t->isPrefetch) {
+
+        //record statistics on non-prefetch loads/stores
+        if(core->sim->debug_mode) {
+          DynamicNode* d=curr_t->d;
+          assert(d!=NULL);
+          assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+          auto& entry_tuple = core->sim->load_stats_map[d];
+          get<2>(entry_tuple)=mshr_entry.hit;
+        }
+                
         sim->accessComplete(curr_t);
       }
-      else {
+      else { //prefetches get no callback, tied to no dynamic node
         delete curr_t;
-      }
-      it=trans_set.erase(it);
+      }   
     }
-    if(trans_set.size()==0) {
-      memop_map.erase(cacheline);
-    }
+    mshr.erase(cacheline); //clear mshr for that cacheline
   }
   else {
     int64_t evictedAddr = -1;
