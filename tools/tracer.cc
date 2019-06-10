@@ -18,7 +18,6 @@ std::ofstream f3[MAX_THREADS]; // for acc.txt
 __attribute__((noinline))
 extern "C"
 void tracer_cleanup() {
-  printf("hello world from cleanup!");
   for (int i = 0; i < MAX_THREADS; i++) {
     if (f1[i].is_open()) {
       f1[i].close();
