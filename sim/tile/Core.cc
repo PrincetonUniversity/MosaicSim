@@ -31,12 +31,12 @@ void Core::access(DynamicNode* d) {
     } */
     sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false); //(issue cycle, return cycle)
   }
-  
+  /*
   int tid = tracker_id.front();
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
-  
-  MemTransaction *t = new MemTransaction(tid, id, id, d->addr, d->type == LD || d->type == LD_PROD);
+  */
+  MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD);
   t->d=d;
   cache->addTransaction(t);
 }
