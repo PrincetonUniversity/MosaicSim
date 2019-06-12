@@ -123,7 +123,8 @@ bool Core::ReceiveTransaction(Transaction* t) {
   cout << "Power: " << t->perf.power << endl;
   cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
   */
-
+  cout << "Acc_Completed; Cycle: " << cycles << "; " << d->acc_args << endl;
+  
   //register energy and dram access stats
   stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
   //power is mW, freq in MHz --> 1e-3*1e-6
@@ -319,8 +320,9 @@ bool Core::process() {
     local_stat.print();
 
     // release system memory by deleting all processed contexts
-    if(!sim->debug_mode)
+    if(!sim->debug_mode) {
       deleteErasableContexts();
+    }
   }
   else if(cycles == 0) {
     last = Clock::now();

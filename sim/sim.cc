@@ -106,7 +106,7 @@ bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
   
   int dst_clockspeed=tiles[t->dst_id]->clockspeed;
   int src_clockspeed=tiles[t->src_id]->clockspeed;
-  int dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
+  uint64_t dst_cycle=(dst_clockspeed*cycle)/src_clockspeed; //should round up, but no +/-1 cycle is nbd
   //if(t->src_id==0)
   //cout << "source cycles, src cs, dst cs, dst cycles: " << cycle << ", " << src_clockspeed << ", " << dst_clockspeed << ", " << dst_cycle <<  endl;
   //assert(false);
@@ -225,12 +225,16 @@ void Simulator::run() {
         //process transactions
         priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
         while(true) {
-          if(pq.empty() || pq.top().second >= tile->cycles)
+          if(pq.empty() || pq.top().second >= tile->cycles) {
+           
             break;
+          }
           Transaction* t=pq.top().first;
-          uint64_t cycles=pq.top().second;
+          
+          uint64_t tcycles=pq.top().second;
+         
           if(!tile->ReceiveTransaction(t)) {
-            rejected_transactions.push_back({t,cycles});
+            rejected_transactions.push_back({t,tcycles});
           }      
           pq.pop();    
         }

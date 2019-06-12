@@ -17,13 +17,14 @@ vector<string> Accelerator::split(const string &s, char delim) {
 }
 
 bool Accelerator::process() {
-  if(transaction_pending && cycles==final_cycle) {
+  if(transaction_pending && cycles>=final_cycle) {
   
     transaction_pending=false;
     currentTransaction->dst_id=currentTransaction->src_id;
     currentTransaction->src_id=id;
     sim->InsertTransaction(currentTransaction, final_cycle);    
   }
+
   cycles++;
   //always return false, since it's dependent on core invocation
   return false; 
@@ -37,7 +38,8 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
   else {
     //cout << "Tech: " << sys_config.tech << "nm, BW: " << sys_config.mem_bandwidth <<"Bytes/cycle, Latency: " << sys_config.dram_latency << "cycles, # Acc Tiles: " << sys_config.n_acc_tiles << ", # IS Tiles: " << sys_config.n_IS_tiles << endl;
     currentTransaction=t;
-    cout << "arguments " << t->d->acc_args << endl;
+    cout << "acc_arguments: " << t->d->acc_args << endl;
+    
     //assert(false);
     //create a vector of the args for perf model
     vector<string> arg_vec=split(currentTransaction->d->acc_args, ',');
@@ -66,7 +68,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.batch_size=stoi(arg_vec[4+offset_size]);
       args.has_IS_tile=1;
       currentTransaction->perf=sim_gemm(sys_config, args);
-      //cout << "rows A " << args.rowsA << ", col A " << args.colsA << ", cols b " << args.colsB << ", batch size " << args.batch_size << endl;
+      cout << "rows A " << args.rowsA << ", col A " << args.colsA << ", cols b " << args.colsB << ", batch size " << args.batch_size << endl;
       //assert(false);
     }
     else if(arg_vec[1].find("decadesTF_sdp") != std::string::npos) {
@@ -76,7 +78,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.working_mode=stoi(arg_vec[0+offset_size]);
       args.size=stoi(arg_vec[1+offset_size]);
       currentTransaction->perf=sim_sdp(sys_config, args);
-      //cout << "working_mode " << args.working_mode << ", size " << args.size << endl;
+      cout << "working_mode " << args.working_mode << ", size " << args.size << endl;
       //assert(false);
     }
     else if(arg_vec[1].find("decadesTF_conv2d_layer") != std::string::npos) {
@@ -100,7 +102,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
      args.type=conv;
       args.batch_size=stoi(arg_vec[0+offset_size]);
       currentTransaction->perf=sim_nvdla(sys_config, args);
-      //cout << "in_channels: " << args.num_of_inputs << ", in_height " << args.input_height << ", out_channels: " << args.num_of_outputs << ", filter_height " << args.filter_height << ", filter_width " << args.filter_width << ", zero_pad " << args.zero_pad << ", vert_conv_stride " << args.vertical_conv_dim << ", horiz_conv_stride " << args.horizontal_conv_dim << ", pooling " << args.pooling << ", pool_height " << args.pool_height << ", pool_width " << args.pool_width << ", vertical_pool_stride " << args.vertical_pool_dim << ",horizontal_pool_stride: "<< args.horizontal_pool_dim << ", batch " << args.batch_size << endl;
+      cout << "in_channels: " << args.num_of_inputs << ", in_height " << args.input_height << ", out_channels: " << args.num_of_outputs << ", filter_height " << args.filter_height << ", filter_width " << args.filter_width << ", zero_pad " << args.zero_pad << ", vert_conv_stride " << args.vertical_conv_dim << ", horiz_conv_stride " << args.horizontal_conv_dim << ", pooling " << args.pooling << ", pool_height " << args.pool_height << ", pool_width " << args.pool_width << ", vertical_pool_stride " << args.vertical_pool_dim << ",horizontal_pool_stride: "<< args.horizontal_pool_dim << ", batch " << args.batch_size << endl;
       //assert(false);
     }
     else if(arg_vec[1].find("decadesTF_dense_layer") != std::string::npos) {
@@ -125,7 +127,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       args.type=fc;
       args.batch_size=stoi(arg_vec[0+offset_size]);
       currentTransaction->perf=sim_nvdla(sys_config, args);
-      //cout << "in_channels: " << args.num_of_inputs << ", out_channels: " << args.num_of_outputs << ", batch: " << args.batch_size << endl;
+      cout << "in_channels: " << args.num_of_inputs << ", out_channels: " << args.num_of_outputs << ", batch: " << args.batch_size << endl;
       //assert(false);
     }
     else {
@@ -133,9 +135,10 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
       assert(false);
     }
     
-    //cout << "predicted cycles " << currentTransaction->perf.cycles << endl;
+    cout << "predicted_cycles: " << currentTransaction->perf.cycles << endl;
     
     final_cycle=cycles+currentTransaction->perf.cycles;
+    cout << "final_cycle: " << currentTransaction->perf.cycles + cycles << endl;
     //cout << "bytes " << currentTransaction->perf.bytes << endl;
     //assert(false);
     return true;
