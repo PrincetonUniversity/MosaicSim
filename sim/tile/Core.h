@@ -92,5 +92,6 @@ public:
   void calculateEnergyPower();
   bool predict_branch(DynamicNode* d);
   string getInstrName(TInstr instr);
+  void fastForward(uint64_t inc);
 };
 #endif

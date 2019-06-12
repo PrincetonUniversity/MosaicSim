@@ -341,6 +341,7 @@ void Context::process() {
     issue_set = move(next_issue_set);
     next_issue_set.clear();
   }
+
 }
 
 void Context::complete() {

@@ -76,6 +76,7 @@ public:
   map<DynamicNode*, tuple<long long, long long, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
   
   Simulator(string home);
+  void fastForward(int tid, uint64_t inc);
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
   void run();
@@ -167,6 +168,7 @@ public:
   bool insert(DynamicNode* d, DynamicNode* forwarding_staddr);
 
   DynamicNode* sab_has_dependency(DynamicNode* d);
+  
   set<uint64_t> debug_send_set;
   set<uint64_t> debug_stval_set;
 };

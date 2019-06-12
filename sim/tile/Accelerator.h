@@ -45,5 +45,6 @@ public:
   
   bool process();
   bool ReceiveTransaction(Transaction* t);
+  void fastForward(uint64_t inc);
 };
 #endif

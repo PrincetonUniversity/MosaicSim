@@ -130,6 +130,34 @@ bool Simulator::InsertTransaction(Transaction* t, uint64_t cycle) {
   return true;
 }
 
+void Simulator::fastForward(int src_tid, uint64_t inc) {
+
+  assert(tiles.find(src_tid)!=tiles.end());  
+  int dst_clockspeed;//=tiles[tid]->clockspeed;
+  int src_clockspeed=tiles[src_tid]->clockspeed;
+  dst_clockspeed=clockspeed;
+  uint64_t dst_inc=(dst_clockspeed*inc)/src_clockspeed;
+  
+  cycles+=dst_inc;
+
+  //recursively fast forward all the tiles
+  for (auto entry:tiles) {
+    Tile* tile=entry.second;
+    dst_clockspeed=tile->clockspeed;
+ 
+    dst_inc=(dst_clockspeed*inc)/src_clockspeed;
+    tile->fastForward(dst_inc);
+    
+    //increment L2 and DRAM..assumed to be on the same clockspeed as core 0
+    if(tile->id==0) {
+      cache->cycles+=dst_inc;
+      memInterface->fastForward(dst_inc);
+    }
+  }
+  
+  
+}
+
 //tile ids must be non repeating
 void Simulator::registerTile(Tile* tile) {
   

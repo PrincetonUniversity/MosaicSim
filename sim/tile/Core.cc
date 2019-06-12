@@ -257,6 +257,15 @@ bool Core::createContext() {
   return true;
 }
 
+void Core::fastForward(uint64_t inc) {
+  cycles+=inc;
+  cache->cycles+=inc;
+  window.cycles+=inc;
+  if(id % 2 == 0) {
+    sim->get_descq(this)->cycles+=inc;    
+  }
+}
+
 bool Core::process() {
   //process the instruction window and RoB
   window.process();

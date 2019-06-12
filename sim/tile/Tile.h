@@ -26,6 +26,7 @@ class Tile {
   virtual bool process()=0;  
   //call back function to process a completed transaction
   virtual bool ReceiveTransaction(Transaction* t)=0;
+  virtual void fastForward(uint64_t inc)=0;  
 };
 
 typedef enum {DEFAULT, EXAMPLE1, TILE_COMPLETE, MEMORY, INTERRUPT} TransType;

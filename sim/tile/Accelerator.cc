@@ -16,6 +16,10 @@ vector<string> Accelerator::split(const string &s, char delim) {
   return tokens;
 }
 
+void Accelerator::fastForward(uint64_t inc) {
+  cycles+=inc;  
+}
+
 bool Accelerator::process() {
   if(transaction_pending && cycles>=final_cycle) {
   
@@ -31,6 +35,7 @@ bool Accelerator::process() {
 }
 
 bool Accelerator::ReceiveTransaction(Transaction* t) {
+  
   
   if(transaction_pending) {
     return false;
@@ -139,6 +144,7 @@ bool Accelerator::ReceiveTransaction(Transaction* t) {
     
     final_cycle=cycles+currentTransaction->perf.cycles;
     cout << "final_cycle: " << currentTransaction->perf.cycles + cycles << endl;
+    sim->fastForward(id,currentTransaction->perf.cycles);
     //cout << "bytes " << currentTransaction->perf.bytes << endl;
     //assert(false);
     return true;

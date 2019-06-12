@@ -54,6 +54,16 @@ public:
     mem->setCPUClockSpeed(clockspeed * 1000000);
     simpleDRAM->initialize(clockspeed);
   }
+  void fastForward(uint64_t inc) {
+    if(cfg.SimpleDRAM) {
+      simpleDRAM->cycles+=inc;
+    }
+    else {
+      for(uint64_t i=0; i<inc; i++) {
+        mem->update();
+      }
+    }
+  }
   void process() {
     free_load_ports = load_ports;
     free_store_ports = store_ports;
