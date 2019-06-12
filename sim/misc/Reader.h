@@ -21,9 +21,8 @@ public:
      }
      return tokens;
   }
-
-  int fileSizeKB(std::string name) {
-    int filesize = 0;
+  uint64_t fileSizeKB(std::string name) {
+    uint64_t filesize = 0;
     ifstream cfile(name);
     if (cfile.is_open()) {
       cfile.seekg(0, ios::end);
@@ -164,7 +163,7 @@ public:
   void readProfMemory(std::string name, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     string last_line;
-    int filesizeKB = fileSizeKB(name);
+    uint64_t filesizeKB = fileSizeKB(name);
     ifstream memfile(name);
     if (memfile.is_open()) {
       cout << "[SIM] Start reading the Memory trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
@@ -193,7 +192,7 @@ public:
   void readAccTrace(std::string name, std::unordered_map<int, std::queue<string> > &acc_map) {
     string line;
     string last_line;
-    int filesizeKB = fileSizeKB(name);
+    uint64_t filesizeKB = fileSizeKB(name);
     ifstream accfile(name);
     if (accfile.is_open()) {
       cout << "[SIM] Start reading the Accelerator Invokation trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
@@ -224,7 +223,7 @@ public:
   void readProfCF(std::string name, std::vector<int> &cf) {
     string line;
     string last_line;
-    int filesizeKB = fileSizeKB(name);
+    uint64_t filesizeKB = fileSizeKB(name);
     ifstream cfile(name);
     bool init = false;
     int last_bbid = -1;
