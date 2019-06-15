@@ -236,7 +236,16 @@ namespace {
       }
       //errs() << "[Switch] " << pi->getNumCases() << " : " << *pi << "\n";
       Value *castI;
-      castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
+      if (v->getType()->getIntegerBitWidth() < 32) {
+	castI = Builder.CreateZExt(v, Type::getInt32Ty(ctx), "castInst");
+      }
+      else if (v->getType()->getIntegerBitWidth() > 32) {
+	castI = Builder.CreateTrunc(v, Type::getInt32Ty(ctx), "castInst");
+      }
+      else {
+	castI = v;
+      }     
+      
       std::vector<Value*> args;
       int len = pi->getNumCases();
       ConstantInt *length = llvm::ConstantInt::get(ctx, llvm::APInt(32, len , false));
