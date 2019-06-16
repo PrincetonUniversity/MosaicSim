@@ -415,13 +415,28 @@ acc_perf_t sim_nvdla(config_sys_t config_sys, config_nvdla_t config)
 	    n_acc_max = config_sys.n_acc_tiles;
 
 	// project performance based on accelerator parallelism
-	float n_invoke = ((float) config.batch_size) / ((float) n_acc_max);
-	float n_invoke_ceil = ceil(((float) config.batch_size) / ((float) n_acc_max));
+
+	// intermediate calculations on parallelism
+	unsigned batch_size;
+	if (config.type == fc)
+	    batch_size = ceil((float) config.batch_size / FC_BATCH_SIZE);
+	else
+	    batch_size = config.batch_size;
+
+	float n_invoke = ((float) batch_size) / ((float) n_acc_max);
+	float n_invoke_ceil = ceil(((float) batch_size) / ((float) n_acc_max));
 	float utilization = n_invoke / n_invoke_ceil;
 
-	unsigned bw = config_sys.mem_bandwidth / n_invoke_ceil;
-
 	// bandwidth requirements
+        // calculate number of used accelerators and split the bandwidth among them
+	unsigned n_acc_used;
+	if (batch_size < n_acc_max)
+	    n_acc_used = batch_size;
+	else
+	    n_acc_used = n_acc_max;
+
+	unsigned bw = config_sys.mem_bandwidth / n_acc_used;
+
 	first_layer->set_dram_bw_limit(bw);
 
 	//Insert the layer into the
@@ -438,7 +453,7 @@ acc_perf_t sim_nvdla(config_sys_t config_sys, config_nvdla_t config)
 	nvdla_perf.power = NVDLA_POWER;
 
 	nvdla_perf.cycles = nvdla_perf.cycles * n_invoke_ceil;
-	nvdla_perf.bytes = nvdla_perf.bytes * config.batch_size;
+	nvdla_perf.bytes = nvdla_perf.bytes * batch_size;
 	nvdla_perf.power = nvdla_perf.power * n_acc_max * utilization;
 
 	nvdla_perf.power = tech_projection(nvdla_perf.power, NVDLA_TECH, config_sys.tech);
