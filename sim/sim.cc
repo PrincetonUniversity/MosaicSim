@@ -327,7 +327,7 @@ void Simulator::run() {
   stat.print();
   calculateGlobalEnergyPower();
   cout << "global_energy : " << stat.global_energy << " Joules\n";
-  cout << "global_avg_power : " << stat.avg_global_power << " Watts\n";
+  cout << "global_avg_power : " << stat.global_avg_power << " Watts\n";
   memInterface->mem->printStats(true);
   curr_time=Clock::now();
   uint64_t tdiff_mins = chrono::duration_cast<std::chrono::minutes>(curr_time - init_time).count();
@@ -461,7 +461,7 @@ void Simulator::calculateGlobalEnergyPower() {
   stat.global_energy += Acc_energy;      
 
   // Finally, calculate Avg Power (in Watts)
-  stat.avg_global_power = stat.global_energy * clockspeed*1e+6 / cycles;
+  stat.global_avg_power = stat.global_energy * clockspeed*1e+6 / cycles;   // clockspeed is defined in MHz
 
   // some debug stuff
   cout << "-------All (" << n_cores << ") cores energy (J) : " << e << endl;

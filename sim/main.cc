@@ -24,30 +24,25 @@ int main(int argc, char const *argv[]) {
   bool test = false;
 
   // set pythia home
-  
-  string f2(argv[0]);
-  pythia_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";
-  
-  //cout << pythia_home << " pythiahome \n";
-  //assert(false);
-
-  //Luwa: I don't know if this is what causes the temporary crash for not finding the DRAMSim ini file, but I'm going to try using argv[0] for binary path all the time to see if it fixes this problem.
-  
-  /*
   if(const char *p = std::getenv("PYTHIA_HOME"))
-     pythia_home = p;
+    pythia_home = p;
   else {   // infer the home from the simulator binary's path
-   
-    char f[1024]; string f2;
+
+   //Luwa: I don't know if this is what causes the temporary crash for not finding the DRAMSim ini file, but I'm going to try using argv[0] for binary path all the time to see if it fixes this problem.
+   /* char f[1024]; string f2;
      readlink("/proc/self/exe", f, 1024);
      f2 = f;
-     pythia_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";
-    
-     }*/
+     pythia_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";  
+   */
+    string f2(argv[0]);
+    pythia_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";
+  }
+  cout << pythia_home << " pythiahome \n";
+  //assert(false);
 
   // set some default parameters
   num_cores = 1;
-  cfgpath = pythia_home+"sim/config/";
+  cfgpath = pythia_home+"/sim/config/";
   cfgname = "sim_default.txt";
 
   if(argc == 1)           // if no arguments provided then use default config files (or we could print an usage help text)
@@ -71,7 +66,7 @@ int main(int argc, char const *argv[]) {
   simulator->init_time=chrono::high_resolution_clock::now();
 
   if(test)
-    simulator->registerCore(pythia_home+"workloads/test/output", cfgpath, "core_inorder.txt", 0);
+    simulator->registerCore(pythia_home+"/workloads/test/output", cfgpath, "core_inorder.txt", 0);
   else {
     // check the workload path and the local config is provided 
     if(argc < 4) {

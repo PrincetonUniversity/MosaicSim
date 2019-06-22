@@ -13,7 +13,7 @@ public:
   int num_types = 4;
   int printInterval = 5000000;
   double global_energy = 0.0;
-  double avg_global_power = 0.0;
+  double global_avg_power = 0.0;
   double acc_energy = 0.0;
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
