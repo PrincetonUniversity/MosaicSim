@@ -10,13 +10,19 @@ class Statistics {
 public:
      
   map<string, pair<uint64_t, int>> stats;
+  map<string, pair<uint64_t, int>> old_stats;
   int num_types = 4;
-  int printInterval = 5000000;
+  int printInterval = 5000000; 
   double global_energy = 0.0;
   double avg_global_power = 0.0;
   double acc_energy = 0.0;
   void registerStat(string str, int type) {
     stats.insert(make_pair(str, make_pair(0, type)));
+  }
+  void checkpoint() {
+    for(auto stat_entry:stats) {
+      old_stats.insert(stat_entry);
+    }
   }
   Statistics() {
     registerStat("cycles", 0);
@@ -67,9 +73,13 @@ public:
     
     registerStat("lsq_insert_success", 4);
     registerStat("lsq_insert_fail", 4);
+    checkpoint();
   }
   uint64_t get(string str) {
     return stats.at(str).first;
+  }
+  uint64_t get_epoch(string str) {
+    return stats.at(str).first-old_stats.at(str).first;
   }
   void set(string str, uint64_t val) {
     stats.at(str).first = val;
@@ -82,23 +92,46 @@ public:
       it->second.first = 0;
     }
   }
-  void print() {
-    cout << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    cout << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / (64 * 2)) << " GB/s \n";
+  void print(ostream& ofile) {
+    ofile << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
+    ofile << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / (64 * 2)) << " GB/s \n";
     
     if(get("l1_misses")!=0)
       {
-        cout << "L1 Miss Rate: " <<  ((100.0 * get("l1_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
+        ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
       }
 
     if(get("l2_misses")!=0)
       {
-        cout << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
+        ofile << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
       }
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {
-      cout << it->first << " : " << it->second.first << "\n";
+      ofile << it->first << " : " << it->second.first << "\n";
     }
+  }
+  void print_epoch(ostream& ofile) {
+    //ofile << "PRINTING EPOCH \n";
+    //return;
+    ofile << "IPC : " << (double) get_epoch("total_instructions") / get_epoch("cycles") << "\n";
+    ofile << "Average BW : " << (double) get_epoch("dram_accesses") / (get_epoch ("cycles") / (64 * 2)) << " GB/s \n";
+    
+    if(get_epoch("l1_misses")!=0)
+      {
+        ofile << "L1 Miss Rate: " <<  ((100.0 * get_epoch("l1_misses"))/ (get_epoch("l1_misses")+get_epoch("l1_hits"))) << "%"<< endl;
+      }
+
+    if(get_epoch("l2_misses")!=0)
+      {
+        ofile << "L2 Miss Rate: " << ( (100.0 * get_epoch("l2_misses"))/(get_epoch("l2_misses")+get_epoch("l2_hits"))) << "%"<< endl;
+      }
+    
+    for (auto it = stats.begin(); it != stats.end(); ++it) {
+      //cout << "failing stat" << it->first << endl;
+      if(old_stats.find(it->first)!=old_stats.end())
+        ofile << it->first << " : " << it->second.first - old_stats.at(it->first).first << "\n";
+    }
+    checkpoint();
   }
 };
 extern Statistics stats;

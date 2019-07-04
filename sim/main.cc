@@ -99,7 +99,8 @@ int main(int argc, char const *argv[]) {
         simulator->decoupling_mode=true;        
       }
       else if(curr_arg == "-o") {
-         simulator->outputDir=argv[arg_index++];        
+         simulator->outputDir=argv[arg_index++];
+         simulator->outputDir+="/";
       }
       else if(curr_arg == "-debug") {
         simulator->debug_mode=true;        

@@ -6,7 +6,9 @@
 #include "tile/Tile.h"
 #include "tile/LoadStoreQ.h"
 #include "memsys/SimpleDRAM.h"
-
+#include <fstream>
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -60,8 +62,9 @@ public:
   DESCQ* descq;
   bool decoupling_mode=false;
   bool debug_mode=false;
-  string outputDir;
-  
+  string outputDir="";
+  ofstream epoch_stats_out;
+  Statistics epoch_stats;
   vector<DESCQ*> descq_vec;
   Barrier* barrier = new Barrier();
   Cache* cache;

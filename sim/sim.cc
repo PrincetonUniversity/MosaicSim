@@ -22,7 +22,8 @@ Simulator::Simulator(string home) {
   cache->sim = this;
   cache->isLLC=true;
   cache->memInterface = memInterface;
-
+  
+  epoch_stats_out.open(outputDir+"epochStats");
   //descq = new DESCQ(cfg);
 }
 
@@ -297,10 +298,16 @@ void Simulator::run() {
       
       last_instr_count = stat.get("total_instructions");
       last_time = curr_time;
+      
+      //stat.print_epoch(cout);
     }
     else if(tiles[0]->cycles == 0) {
       last_time = Clock::now();
       last_instr_count = 0;
+    }
+
+    if(tiles[0]->cycles % 10000 == 0 && tiles[0]->cycles !=0) {
+      stat.print_epoch(epoch_stats_out);
     }
     cycles++;
   }
@@ -315,7 +322,7 @@ void Simulator::run() {
       core->local_stat.set("cycles", core->cycles);
       // print stats
       cout << "------------- Final " << core->name << " Stats --------------\n";
-      core->local_stat.print();
+      core->local_stat.print(cout);
       // calculate energy & print
       core->calculateEnergyPower();
       cout << "total_energy : " << core->total_energy << " Joules\n";
@@ -324,7 +331,7 @@ void Simulator::run() {
   }
   
   cout << "\n----------------GLOBAL STATS--------------\n";
-  stat.print();
+  stat.print(cout);
   calculateGlobalEnergyPower();
   cout << "global_energy : " << stat.global_energy << " Joules\n";
   cout << "global_avg_power : " << stat.avg_global_power << " Watts\n";
@@ -346,7 +353,7 @@ void Simulator::run() {
   DESCQ* descq=descq_vec.at(0);
   if(descq->send_runahead_map.size()>0) {
     ofstream outfile;
-    outfile.open(outputDir+"/decouplingStats");
+    outfile.open(outputDir+"decouplingStats");
     
     long send_runahead_sum=0;
     outfile << "NODE_ID CONTEXT_ID DECOUPLING_ID RUNAHEAD_DIST" << endl;
@@ -421,7 +428,7 @@ void Simulator::run() {
     }
         
     ofstream loadfile;
-    loadfile.open(outputDir+"/loadStats");
+    loadfile.open(outputDir+"loadStats");
     loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
     loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
     loadfile << "Load/Store Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;

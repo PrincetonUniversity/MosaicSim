@@ -89,6 +89,25 @@ public:
     addr_map[address] = c;
     insertFront(c);
   }
+
+  //designing evict functionality, unfinished!!!
+  void evict(uint64_t address, int64_t *evict=NULL) {
+    
+    CacheLine *c = addr_map[address];        
+    // Evict
+
+    if(c) {
+      //c = tail->prev;
+      deleteNode(c);
+      addr_map.erase(c->addr);
+      
+      if(evict && c->dirty) {
+        *evict = c->addr;      
+        //assert (*evict==address); //should have evicted the address passed
+      }    
+    }
+    
+  }
   
   void insertFront(CacheLine *c)
   {

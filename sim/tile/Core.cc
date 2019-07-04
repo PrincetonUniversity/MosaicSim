@@ -123,7 +123,7 @@ bool Core::ReceiveTransaction(Transaction* t) {
   cout << "Power: " << t->perf.power << endl;
   cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
   */
-  cout << "Acc_Completed; Cycle: " << cycles << "; " << d->acc_args << endl;
+  cout << "Acc_Completed; Cycle: " << cycles <<"; Power: " << t->perf.power << "; Args: " << d->acc_args << endl;
   
   //register energy and dram access stats
   stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
@@ -178,13 +178,14 @@ void Core::initialize(int id) {
     BasicBlock *bb = g.bbs.at(bbid);
     sim->total_instructions+=bb->inst_count;
     //exit gracefully instead of getting killed by OS
-    if(sim->instruction_limit>0 && sim->total_instructions>=sim->instruction_limit) {
-      cout << "\n----SIMULATION TERMINATING----" << endl;
-      cout << "NUMBER OF INSTRUCTIONS TOO LARGE. PLEASE RECOMPILE YOUR APPLICATION AND RUN WITH A SMALLER DATASET." << endl;
-      assert(false);
-    }
   }
-  //cout << "Total Instructions is: " << sim->total_instructions << endl;
+  
+  cout << "Total Num Instructions: " << sim->total_instructions << endl;
+  if(sim->instruction_limit>0 && sim->total_instructions>=sim->instruction_limit) {
+    cout << "\n----SIMULATION TERMINATING----" << endl;
+    cout << "Number of instructions is larger than the " << sim->instruction_limit << "-instruction limit. Please run the application with a smaller dataset." << endl;
+    assert(false);
+  }
   //assert(false);
 }
 
@@ -326,7 +327,7 @@ bool Core::process() {
     last = curr;
     stat.set("cycles", cycles);
     local_stat.set("cycles", cycles);
-    local_stat.print();
+    local_stat.print(cout);
 
     // release system memory by deleting all processed contexts
     if(!sim->debug_mode) {
