@@ -16,6 +16,25 @@ DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compile
 
 No compatibility is guaranteed for older compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
+Add the following lines to your ~/.bashrc
+    
+    export PATH=[DECADES_COMPILER_INSTALL_DIR]/build/bin/:[PYTHIA_INSTALL_DIR]/tools/:$PATH
+    
+Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to your ~/.bashrc:
+
+    export LD_LIBRARY_PATH=[PATH_TO_OMP_SHARED_LIB]:$LD_LIBRARY_PATH
+
+(For CentOS, [PATH_TO_OMP_SHARED_LIB] would typically be /opt/rh/llvm-toolset-7/root/usr/lib64/)
+
+Finally, to remove restrictions due to running with limited resources, add the following line to your bashrc:
+    
+    export PYTHIA_EXPERT=true
+
+Source your bashrc to enable the change:
+    
+    source ~/.bashrc
+
+
 ### Building the Simulator
 
 To compile the LLVM pass and other libraries, navigate to the root directory of the project. To compile the files, simply run
@@ -28,19 +47,6 @@ to generate compilation files in the `build` directory. Then, a simple run of
 
 in the root directory will compile the files. 
 
-Add the following line to your ~/.bashrc
-    
-    export PATH=[DECADES_COMPILER_INSTALL_DIR]/build/bin/:[PYTHIA_INSTALL_DIR]/tools/:$PATH
-    
-Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to your ~/.bashrc:
-
-    export LD_LIBRARY_PATH=[PATH_TO_OMP_SHARED_LIB]:$LD_LIBRARY_PATH
-
-(For CentOS, [PATH_TO_OMP_SHARED_LIB] would typically be /opt/rh/llvm-toolset-7/root/usr/lib64/)
-
-Source your bashrc to enable the change:
-    
-    source ~/.bashrc
 
 ## Compiling Workloads
 Workloads must be specially compiled through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). For this, we must use a Pythia wrapper (PDEC++) around the DECADES compiler. Then, the generated binary must be run natively.

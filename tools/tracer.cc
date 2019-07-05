@@ -11,7 +11,9 @@
 //Hack to make this work.
 #define MAX_THREADS 1024
 
-int64_t remaining_mem_accesses=100000000; //max num of mem accesses (100 Mill trace lines ~= 2GB in mem accesses)
+int64_t remaining_mem_accesses=100000000; //max num of mem accesses (100 Mill trace lines ~= 2GB in mem access trace file size)
+bool expert_mode=std::getenv("PYTHIA_EXPERT")!=NULL;
+//expert mode doesn't limit size of memory trace files
 
 std::ofstream f1[MAX_THREADS]; //for mem.txt
 std::ofstream f2[MAX_THREADS]; // for ctrl.txt
@@ -20,6 +22,7 @@ std::ofstream f3[MAX_THREADS]; // for acc.txt
 __attribute__((noinline))
 extern "C"
 void tracer_cleanup() {
+ 
   for (int i = 0; i < MAX_THREADS; i++) {
     if (f1[i].is_open()) {
       f1[i].close();
@@ -80,11 +83,15 @@ __attribute__((noinline))
 extern "C"
 void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long addr, int size)
 {
-  if(remaining_mem_accesses<=0) {
-    std::cout << "Memory trace exceeded max num of memory accesses. \n Aborting... \n";
-    assert(false);
+  
+  if(!expert_mode) {    
+    if(remaining_mem_accesses<=0) {
+      std::cout << "Memory trace exceeded max num of memory accesses. \n Aborting... \n";
+      assert(false);
+    }
+    remaining_mem_accesses--;
   }
-  remaining_mem_accesses--;
+  
   if(!f2[omp_get_thread_num()].is_open()) {
     f2[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::app);
   }
