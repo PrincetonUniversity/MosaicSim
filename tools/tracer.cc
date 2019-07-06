@@ -11,7 +11,7 @@
 //Hack to make this work.
 #define MAX_THREADS 1024
 
-int64_t remaining_mem_accesses=100000000; //max num of mem accesses (100 Mill trace lines ~= 2GB in mem access trace file size)
+int64_t remaining_mem_accesses=130000000; //max num of mem accesses (100 Mill trace lines ~= 2.5GB in mem access trace file size)
 bool expert_mode=std::getenv("PYTHIA_EXPERT")!=NULL;
 //expert mode doesn't limit size of memory trace files
 
