@@ -282,14 +282,13 @@ void Cache::TransactionComplete(MemTransaction *t) {
       if(!curr_t->isPrefetch) {
 
         //record statistics on non-prefetch loads/stores
-        if(core->sim->debug_mode) {
+        if(core->sim->debug_mode || core->sim->mem_stats_mode) {
           DynamicNode* d=curr_t->d;
           assert(d!=NULL);
           assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
-          auto& entry_tuple = core->sim->load_stats_map[d];
-          get<2>(entry_tuple)=mshr_entry.hit;
-          
-          
+          get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
+          //get<2>(entry_tuple)=mshr_entry.hit;
+                    
         }
                 
         sim->accessComplete(curr_t);
