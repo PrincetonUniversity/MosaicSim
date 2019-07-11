@@ -89,24 +89,22 @@ public:
     addr_map[address] = c;
     insertFront(c);
   }
-
+  //returns isDirty to determine if you should store back data up cache hierarchy
   //designing evict functionality, unfinished!!!
-  void evict(uint64_t address, int64_t *evict=NULL) {
+  bool evict(uint64_t address) {
     
-    CacheLine *c = addr_map[address];        
-    // Evict
-
-    if(c) {
+    
+    if(addr_map.find(address)!=addr_map.end()) {
+      CacheLine *c = addr_map[address];        
       //c = tail->prev;
       deleteNode(c);
       addr_map.erase(c->addr);
       
-      if(evict && c->dirty) {
-        *evict = c->addr;      
-        //assert (*evict==address); //should have evicted the address passed
-      }    
+      if(c->dirty) { //you want to know if eviction actually took place
+        return true;
+      }
     }
-    
+    return false;   
   }
   
   void insertFront(CacheLine *c)

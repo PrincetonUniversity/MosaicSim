@@ -288,6 +288,8 @@ void Cache::TransactionComplete(MemTransaction *t) {
           assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
           auto& entry_tuple = core->sim->load_stats_map[d];
           get<2>(entry_tuple)=mshr_entry.hit;
+          
+          
         }
                 
         sim->accessComplete(curr_t);

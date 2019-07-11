@@ -19,7 +19,7 @@ bool Core::communicate(DynamicNode *d) {
 
 void Core::access(DynamicNode* d) {
   //collect stats on load latency
-  if(sim->debug_mode) {
+  if(sim->debug_mode || sim->mem_stats_mode) {
     if(sim->load_stats_map.find(d)!=sim->load_stats_map.end()) {
       //d->print("assertion to fail", -10);
       //assert(false);

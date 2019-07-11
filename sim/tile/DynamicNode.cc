@@ -493,12 +493,26 @@ void DynamicNode::print(string str, int level) {
 }
 void DynamicNode::handleMemoryReturn() {
       //update load latency stats
-  if(core->sim->debug_mode) {
+  if(core->sim->debug_mode || core->sim->mem_stats_mode) {
     
     assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
     long long current_cycle = core->cycles;
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
+
+    //copy into loads stats vector
+    
+    loadStat load_stat;
+    load_stat.addr=addr;
+    load_stat.type=type;
+    load_stat.issueCycle=get<0>(entry_tuple);
+    load_stat.completeCycle=get<1>(entry_tuple);
+    load_stat.hit=get<2>(entry_tuple);
+    load_stat.nodeId=n->id;
+    core->sim->load_stats_vector.push_back(load_stat);
+
+    //clean up
+    core->sim->load_stats_map.erase(this);
   }
   print(Memory_Data_Ready, 5);
   print(to_string(outstanding_accesses), 5);
@@ -594,7 +608,6 @@ bool DynamicNode::issueAccNode() {
 }
 
 bool DynamicNode::issueMemNode() {
-  
   bool speculate = false;
   int forwardRes = -1; 
   // FIXME

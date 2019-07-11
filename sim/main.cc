@@ -100,6 +100,9 @@ int main(int argc, char const *argv[]) {
       else if(curr_arg == "-debug") {
         simulator->debug_mode=true;        
       }
+      else if(curr_arg == "-opt") { //we need a full efficiency option
+        simulator->mem_stats_mode=false;        
+      }
     }
 
     //register the acccelerator tiles

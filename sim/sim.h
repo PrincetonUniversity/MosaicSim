@@ -46,6 +46,15 @@ public:
   bool register_barrier(DynamicNode* d); //return true if barrier successfully registered, free all barriers once thread count is reached
 };
 
+struct loadStat {
+  uint64_t addr;
+  TInstr type;
+  long long issueCycle;
+  long long completeCycle;
+  bool hit;
+  int nodeId;
+};
+
 class Simulator {
 public:
 
@@ -62,6 +71,7 @@ public:
   DESCQ* descq;
   bool decoupling_mode=false;
   bool debug_mode=false;
+  bool mem_stats_mode=true;
   string outputDir="";
   ofstream epoch_stats_out;
   Statistics epoch_stats;
@@ -76,7 +86,8 @@ public:
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
   
-  map<DynamicNode*, tuple<long long, long long, bool>, DynamicNodePointerCompare> load_stats_map; //store address buffer (SAB)
+  unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
+  vector<loadStat> load_stats_vector;
   
   Simulator(string home);
   void fastForward(int tid, uint64_t inc);

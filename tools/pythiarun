@@ -18,6 +18,7 @@ def main():
     parser.add_argument("-d", "--decoupled", help="Flag to run in decoupled Supply/Compute mode", action='store_true')
     parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
     parser.add_argument("-db", "--debug", help="Flag to run in debug mode; collect load and decoupling stats", action='store_true')
+    parser.add_argument("-opt", "--optmode", help="Flag to run in optimized mode. No debugging, not stats collection.", action='store_true')
     parser.add_argument("-o", "--output", type=str, help="Output directory for Pythia run statistics (default is stdout for general stats and run directory for decoupling and load stats)")
     args=parser.parse_args()
     numcores=args.num_cores
@@ -67,6 +68,8 @@ def main():
         cmd=cmd+" -debug" + debug_output
     if args.decoupled:
         cmd=cmd+" -d"
+    if args.optmode:
+        cmd=cmd+" -opt"
     if args.output is not None:
         simOutput=os.path.realpath(args.output)
         os.system("mkdir -p "+simOutput)

@@ -388,50 +388,49 @@ void Simulator::run() {
   }
 
   //calculate and print stats on load latencies
-  if(load_stats_map.size()>0) {
+  if(load_stats_vector.size()>0) {
     
     long long totalLatency=0;
     string outstring="";
-    for(auto entry:load_stats_map) {
-      DynamicNode* d=entry.first;
-      auto entry_tuple=entry.second;
-      long long issue_cycle=get<0>(entry_tuple);
-      long long return_cycle=get<1>(entry_tuple);
+    for(auto load_stat:load_stats_vector) {
+
+      long long issue_cycle=load_stat.issueCycle;
+      long long return_cycle=load_stat.completeCycle;
       
-      string isHit="Hit";
-      if (!get<2>(entry.second)) {
-        isHit="Miss";
+      string isHit="Miss";
+      if (load_stat.hit) {
+        isHit="Hit";
       }
       string MEMOP="";
-      if (d->type==LD) {
+      if (load_stat.type==LD) {
         MEMOP="LD";
       }
-      else if (d->type==LD_PROD) {
+      else if (load_stat.type==LD_PROD) {
         MEMOP="LD_PROD";
       }
-      else if (d->type==ST) {
+      else if (load_stat.type==ST) {
         MEMOP="ST";
       }
-      else if (d->type==STADDR) {
+      else if (load_stat.type==STADDR) {
         MEMOP="ST_ADDR";
       }
       else {
         assert(false);
       }
-      int node_id=entry.first->n->id;
+      int node_id=load_stat.nodeId;
       long long diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
       //cout << "ret: " << return_cycle << ", issue: "<< issue_cycle << ", diff: " << diff << endl;
       //assert(diff>0);
-      outstring+=MEMOP+" "+to_string(entry.first->addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
+      outstring+=MEMOP+" "+to_string(load_stat.addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
     }
         
     ofstream loadfile;
-    loadfile.open(outputDir+"loadStats");
-    loadfile << "Total Load Latency (cycles): " << totalLatency << endl;
-    loadfile << "Avg Load Latency (cycles): " << totalLatency/load_stats_map.size() << endl;
-    loadfile << "Load/Store Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+    loadfile.open(outputDir+"memStats");
+    loadfile << "Total Mem Access Latency (cycles): " << totalLatency << endl;
+    loadfile << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector.size() << endl;
+    loadfile << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
     loadfile << outstring;
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
