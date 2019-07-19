@@ -80,7 +80,7 @@ public:
   Cache* cache;
   string pythia_home;
   //every tile has a transaction priority queue
-  map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
+  unordered_map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
   int transq_latency=3;
   int clockspeed=2000; //default clockspeed in MHz
   uint64_t load_count=0;

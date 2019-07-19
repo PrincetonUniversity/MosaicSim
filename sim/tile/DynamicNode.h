@@ -4,6 +4,7 @@
 #include <set>
 #include <queue>
 #include "../graph/Graph.h"
+#include <unordered_set>
 
 using namespace std;
 
@@ -22,6 +23,7 @@ typedef enum {DISPATCH, LEFT_ROB} Stage; //stage of "pipeline" of dynamic node
 class DynamicNode {
 public:
   Node *n;
+  uint64_t windowNumber;
   Context *c;
   Core *core;
   TInstr type;
@@ -98,8 +100,8 @@ public:
   set<DynamicNode*, DynamicNodePointerCompare> issue_set;
   set<DynamicNode*, DynamicNodePointerCompare> speculated_set;
   set<DynamicNode*, DynamicNodePointerCompare> next_issue_set;
-  set<DynamicNode*, DynamicNodePointerCompare> completed_nodes;
-  set<DynamicNode*, DynamicNodePointerCompare> nodes_to_complete;
+  unordered_set<DynamicNode*/*, DynamicNodePointerCompare*/> completed_nodes;
+  unordered_set<DynamicNode*/*, DynamicNodePointerCompare*/> nodes_to_complete;
 
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
 

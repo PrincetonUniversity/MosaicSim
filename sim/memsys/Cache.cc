@@ -3,6 +3,20 @@
 #include "DRAM.h"
 #include "../tile/Core.h"
 
+
+
+string l1_hits = "l1_hits";
+string l1_hits_non_prefetch = "l1_hits_non_prefetch";
+string l1_misses="l1_misses";
+string l1_misses_non_prefetch = "l1_misses_non_prefetch";
+string l2_hits="l2_hits";
+string l2_misses="l2_misses";
+string l2_hits_non_prefetch= "l2_hits_non_prefetch";
+string l2_mises="l2_misses";
+string l2_misses_non_prefetch="l2_misses_non_prefetch"; 
+string cache_evicts="cache_evicts";
+string cache_access="cache_access";
+
 bool Cache::process() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
@@ -13,8 +27,9 @@ bool Cache::process() {
     
     pq.pop();
   }
-
-  for(auto it = to_send.begin(); it!= to_send.end();) {
+  vector<MemTransaction*> next_to_send;
+  
+  for(auto it = to_send.begin(); it!= to_send.end();++it) {
     MemTransaction *t = *it;
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
    
@@ -26,48 +41,64 @@ bool Cache::process() {
         t->cache_q->push_front(this);
               
         memInterface->addTransaction(t, dramaddr, t->isLoad);
-        it = to_send.erase(it);        
+        //it = to_send.erase(it);        
       }
       else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded eviction, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false);
-        it = to_send.erase(it);
+        //it = to_send.erase(it);
         delete t;           
       }
-      else
-        ++it;
+      else {
+        next_to_send.push_back(t);
+        //++it;
+      }
     }
     else {
       if(parent_cache->willAcceptTransaction(t)) {
         t->cache_q->push_front(this);
         parent_cache->addTransaction(t);
-        it=to_send.erase(it);
+
+        //it=to_send.erase(it);
       }
-      else
-        ++it;
+      else {
+        next_to_send.push_back(t);
+        //++it;
+      }
     }
   }
+
+  to_send=next_to_send;
+
+  vector<uint64_t> next_to_evict;
   
-  for(auto it = to_evict.begin(); it!= to_evict.end();) {
+  for(auto it = to_evict.begin(); it!= to_evict.end();++it) {
     uint64_t eAddr = *it;
     if(isLLC) {
       if(memInterface->willAcceptTransaction(eAddr, false)) {
         memInterface->addTransaction(NULL, eAddr, false);
-        it = to_evict.erase(it);
+        //it = to_evict.erase(it);
       }
-      else
-        ++it;
+      else {
+        next_to_evict.push_back(eAddr);
+        //++it;
+      }
     }
     else {
       MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false);
       if(parent_cache->willAcceptTransaction(t)) {
         t->cache_q->push_front(this); 
         parent_cache->addTransaction(t);
-        it = to_evict.erase(it);
+        //it = to_evict.erase(it);
       }
-      else
-        ++it;
+      else {
+        next_to_evict.push_back(eAddr);
+        //++it;
+      }
     }
   }
+  
+  to_evict=next_to_evict;
+  
   cycles++;
   free_load_ports = load_ports;
   free_store_ports = store_ports;
@@ -118,13 +149,13 @@ void Cache::execute(MemTransaction* t) {
         if(evictedAddr!=-1) {
           
           assert(evictedAddr >= 0);
-          stat.update("cache_evicts");
+          stat.update(cache_evicts);
           child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
         }
         child_cache->TransactionComplete(t);
-        stat.update("l2_hits");
+        stat.update(l2_hits);
         if(!t->isPrefetch) {
-          stat.update("l2_hits_non_prefetch");
+          stat.update(l2_hits_non_prefetch);
         }
       }
     }
@@ -137,14 +168,14 @@ void Cache::execute(MemTransaction* t) {
       //do nothing, MSHR entry is set to miss by default   
     }
     else {
-      stat.update("l2_misses");
+      stat.update(l2_misses);
       if(!t->isPrefetch) {
-        stat.update("l2_misses_non_prefetch");
+        stat.update(l2_misses_non_prefetch);
       }
     }
 
     to_send.push_back(t); //send higher up in hierarchy
-    //d->print("Cache Miss", 1);
+    //d->print(Cache Miss, 1);
     //if(!t->isPrefetch) {
     
     //}
@@ -164,7 +195,7 @@ void Cache::addTransaction(MemTransaction *t) {
   else {
      pq.push(make_pair(t, cycles+latency));
   }
-  stat.update("cache_access");
+  stat.update(cache_access);
   if(t->isLoad)
     free_load_ports--;
   else
@@ -264,16 +295,16 @@ void Cache::TransactionComplete(MemTransaction *t) {
     //update hit/miss stats, account for each individual access
 
     if(mshr_entry.hit) {
-      stat.update("l1_hits",batch_size);
-      core->local_stat.update("l1_hits",batch_size);
-      stat.update("l1_hits_non_prefetch",non_prefetch_size);
-      core->local_stat.update("l1_hits_non_prefetch",non_prefetch_size);
+      stat.update(l1_hits,batch_size);
+      core->local_stat.update(l1_hits,batch_size);
+      stat.update(l1_hits_non_prefetch,non_prefetch_size);
+      core->local_stat.update(l1_hits_non_prefetch,non_prefetch_size);
     }
     else {
-      stat.update("l1_misses",batch_size);
-      core->local_stat.update("l1_misses",batch_size);
-      stat.update("l1_misses_non_prefetch",non_prefetch_size);
-      core->local_stat.update("l1_misses_non_prefetch",non_prefetch_size);
+      stat.update(l1_misses,batch_size);
+      core->local_stat.update(l1_misses,batch_size);
+      stat.update(l1_misses_non_prefetch,non_prefetch_size);
+      core->local_stat.update(l1_misses_non_prefetch,non_prefetch_size);
     }
     
     //process callback for each individual transaction in batch
@@ -307,7 +338,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
-      stat.update("cache_evicts");
+      stat.update(cache_evicts);
       c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
     }
     c->TransactionComplete(t);      

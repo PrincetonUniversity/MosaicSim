@@ -21,7 +21,7 @@ public:
   CacheLine *head;
   CacheLine *tail;
   std::vector<CacheLine*> freeEntries;
-  std::map<uint64_t, CacheLine*> addr_map;
+  std::unordered_map<uint64_t, CacheLine*> addr_map;
   CacheSet(int size)
   {
     head = new CacheLine;
@@ -89,11 +89,10 @@ public:
     addr_map[address] = c;
     insertFront(c);
   }
-  //returns isDirty to determine if you should store back data up cache hierarchy
+
+    //returns isDirty to determine if you should store back data up cache hierarchy
   //designing evict functionality, unfinished!!!
   bool evict(uint64_t address) {
-    
-    
     if(addr_map.find(address)!=addr_map.end()) {
       CacheLine *c = addr_map[address];        
       //c = tail->prev;
@@ -170,4 +169,13 @@ public:
     if(evicted && evictedTag != -1)
       *evicted = evictedTag * set_count + setid;
   }
+  bool evict(uint64_t address) {
+    uint64_t setid = extract(log_set_count-1, 0, address);
+    uint64_t tag = extract(58, log_set_count, address);
+    CacheSet *c = sets.at(setid);
+    
+    return c->evict(tag);
+  }
+
+  
 };

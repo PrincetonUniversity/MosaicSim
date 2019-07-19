@@ -46,6 +46,7 @@ class Core: public Tile {
 public:
   Graph g;
   IssueWindow window;
+  bool windowFull=false;
   Config local_cfg; 
   Cache* cache;
   Statistics local_stat;
@@ -60,8 +61,8 @@ public:
   uint64_t total_created_contexts = 0;
 
   /* Resources */
-  map<TInstr, int> available_FUs;
-  map<BasicBlock*, int> outstanding_contexts;
+  unordered_map<int, int> available_FUs;
+  unordered_map<BasicBlock*, int> outstanding_contexts;
   double total_energy = 0.0;
   double avg_power = 0.0;
 

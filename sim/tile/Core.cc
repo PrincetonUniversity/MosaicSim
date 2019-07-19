@@ -43,12 +43,13 @@ void Core::access(DynamicNode* d) {
 
 void IssueWindow::insertDN(DynamicNode* d) {
   issueMap.insert(make_pair(d,curr_index));
+  d->windowNumber=curr_index;
   curr_index++;
 }
 
 bool IssueWindow::canIssue(DynamicNode* d) {
-  assert(issueMap.find(d)!=issueMap.end());
-  uint64_t position=issueMap.at(d);
+  //assert(issueMap.find(d)!=issueMap.end());
+  uint64_t position=d->windowNumber;//issueMap.at(d);
   
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
     return true;
@@ -189,8 +190,10 @@ void Core::initialize(int id) {
   //assert(false);
 }
 
+ vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR"};
+
 string Core::getInstrName(TInstr instr) {  
-  vector<string> InstrName={ "I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR"};
+ 
   return InstrName[instr];
 }
 
@@ -277,7 +280,8 @@ bool Core::process() {
   if(id % 2 == 0) {
     sim->get_descq(this)->process();    
   }
-  
+
+  windowFull=false;
   for(auto it = live_context.begin(); it!=live_context.end(); ++it) {
     Context *c = *it;
     c->process();

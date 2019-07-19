@@ -245,7 +245,7 @@ void DynamicNode::register_issue_success() {
 uint64_t trans_id=0;
 
 void Context::process() {
-  bool window_full=false;
+  bool& window_full=core->windowFull;
   bool issue_stats_mode=false; 
 
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
@@ -538,11 +538,20 @@ void DynamicNode::handleMemoryReturn() {
 void DynamicNode::tryActivate() {
   //if cf_mode==1 or branch prediction is on, we immidiately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
   bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_prediction));
+
+  int branch_lookahead=50;
   
   if(must_wait_for_parents && (pending_parents > 0 || pending_external_parents > 0)) {  //not ready to activate
     return;
   }
 
+  //we don't want unneccessary contexts being spawned, when they have no chance of being issued
+  //if a terminator was activated too early (branch prediction) but could still be re-activated by a parent, return and have a parent try again to activate
+ 
+  if(type==TERMINATOR && windowNumber+branch_lookahead > core->window.window_end && (pending_parents > 0 || pending_external_parents > 0)) {   
+    return;
+  }
+  
   //don't activate multiple times when branch prediction is on
   if(!must_wait_for_parents && issued) {
     return;
@@ -783,7 +792,9 @@ bool DynamicNode::issueDESCNode() {
     }
     if(type == LD_PROD) {
       can_exit_rob=true; //allow rob to remove this if it's the head
-      descq->debug_send_set.insert(desc_id);
+      if(core->sim->debug_mode) {
+        descq->debug_send_set.insert(desc_id);
+      }
       //a RECV could get the forwarded value before finishNode() is called
       if(can_forward_from_lsq) {
         //do nothing, ld_prod goes to term_ld_buff lsq has fed value
