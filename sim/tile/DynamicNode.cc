@@ -624,7 +624,7 @@ bool DynamicNode::issueMemNode() {
   if(!core->canAccess(type == LD)) { 
     return false;
   }
-  //core->sim->evictAllCaches(addr);
+  //core->sim->evictAllCaches(addr); this was just used to test
   DESCQ* descq=core->sim->get_descq(this);
   
   //check DESCQ's Store Address Buffer for conflicts

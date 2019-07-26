@@ -87,8 +87,8 @@ public:
     else
     {
       // Get from Free Entries
-      c = freeEntries.front();
-      freeEntries.erase(freeEntries.begin());
+      c = freeEntries.back();
+      freeEntries.pop_back();
     }
     
     c->addr = address;
@@ -108,6 +108,7 @@ public:
       if(c) {
         addr_map.erase(address);      
         deleteNode(c);
+        freeEntries.push_back(c);
         if(c->dirty) { //you want to know if eviction actually took place
           return true;
         }
@@ -193,6 +194,5 @@ public:
     
     return c->evict(tag);
   }
-
   
 };
