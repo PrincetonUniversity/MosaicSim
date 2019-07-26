@@ -63,16 +63,22 @@ public:
   }
   void insert(uint64_t address, int64_t *evict = NULL)
   {
-    CacheLine *c = addr_map[address];    
+   
+    CacheLine *c = addr_map[address];
+     
+
     if(freeEntries.size() == 0)
     {
       
-      // Evict
+      // Evict the LRU
       
       c = tail->prev;
+      assert(c!=head);
+      //cout << "before res check \n";
       deleteNode(c);
+      //cout << "after res check \n";
       addr_map.erase(c->addr);
-    
+     
       if(evict && c->dirty) {
         *evict = c->addr;
         
@@ -84,10 +90,12 @@ public:
       c = freeEntries.front();
       freeEntries.erase(freeEntries.begin());
     }
+    
     c->addr = address;
     c->dirty = false;
     addr_map[address] = c;
     insertFront(c);
+ 
   }
 
     //returns isDirty to determine if you should store back data up cache hierarchy
@@ -96,11 +104,13 @@ public:
     if(addr_map.find(address)!=addr_map.end()) {
       CacheLine *c = addr_map[address];        
       //c = tail->prev;
-      deleteNode(c);
-      addr_map.erase(c->addr);
       
-      if(c->dirty) { //you want to know if eviction actually took place
-        return true;
+      if(c) {
+        addr_map.erase(address);      
+        deleteNode(c);
+        if(c->dirty) { //you want to know if eviction actually took place
+          return true;
+        }
       }
     }
     return false;   
@@ -161,17 +171,24 @@ public:
   }
   void insert(uint64_t address, int64_t *evicted = NULL)
   {
+
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
     CacheSet *c = sets.at(setid);
     int64_t evictedTag = -1;
+
     c->insert(tag, &evictedTag);
+
     if(evicted && evictedTag != -1)
       *evicted = evictedTag * set_count + setid;
+
   }
   bool evict(uint64_t address) {
+    
     uint64_t setid = extract(log_set_count-1, 0, address);
+    
     uint64_t tag = extract(58, log_set_count, address);
+    
     CacheSet *c = sets.at(setid);
     
     return c->evict(tag);

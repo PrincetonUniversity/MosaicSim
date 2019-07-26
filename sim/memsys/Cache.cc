@@ -17,6 +17,16 @@ string l2_misses_non_prefetch="l2_misses_non_prefetch";
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
 
+void Cache::evict(uint64_t addr) {
+  if(fc->evict(addr/size_of_cacheline)) { //evicts from the cache returns isDirty, in which case must write back to L2
+    MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false);
+    // if(parent_cache->willAcceptTransaction(t)) {
+    t->cache_q->push_front(this); 
+    parent_cache->addTransaction(t); //send eviction to parent cache
+      //}
+  }    
+}
+
 bool Cache::process() {
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
@@ -43,7 +53,7 @@ bool Cache::process() {
         memInterface->addTransaction(t, dramaddr, t->isLoad);
         //it = to_send.erase(it);        
       }
-      else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded eviction, will be treated as just a write, nothing to do
+      else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false);
         //it = to_send.erase(it);
         delete t;           
@@ -106,12 +116,17 @@ bool Cache::process() {
 }
 
 void Cache::execute(MemTransaction* t) {
+  
   uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
   bool res = true;  
- 
+
+
+  
   if(!ideal) {
     res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
   }
+
+
   //luwa change, just testing!!!
   //go to dram
   /*
@@ -122,12 +137,14 @@ void Cache::execute(MemTransaction* t) {
     res=false;
   }
   */
-  if (res) {                
+
+  if (res) {
+
     //d->print("Cache Hit", 1);
     if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache
-      
+         
       if(isL1) {
-       
+
         //don't do anything with prefetch instructions
         /*if(!t->isPrefetch) {
           sim->accessComplete(t);         
@@ -138,12 +155,15 @@ void Cache::execute(MemTransaction* t) {
         mshr[cacheline].hit=true;
         
         TransactionComplete(t);
+
       }
       //for l2 cache
-      else { 
+      else {
+       
         int64_t evictedAddr = -1;
         Cache* child_cache=t->cache_q->front();
-        t->cache_q->pop_front(); 
+        t->cache_q->pop_front();
+        
         child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, &evictedAddr); 
         
         if(evictedAddr!=-1) {
@@ -157,11 +177,15 @@ void Cache::execute(MemTransaction* t) {
         if(!t->isPrefetch) {
           stat.update(l2_hits_non_prefetch);
         }
+
       }
+          
+      
     }
     else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
       delete t; 
     }
+
   } //misses
   else {
     if(isL1) {
@@ -173,13 +197,14 @@ void Cache::execute(MemTransaction* t) {
         stat.update(l2_misses_non_prefetch);
       }
     }
-
+ 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print(Cache Miss, 1);
     //if(!t->isPrefetch) {
     
     //}
   }
+
 }
 
 void Cache::addTransaction(MemTransaction *t) {

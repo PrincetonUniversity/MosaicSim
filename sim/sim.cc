@@ -159,6 +159,22 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
   
 }
 
+void Simulator::evictAllCaches(uint64_t addr) {
+
+  for(auto id_tile: tiles) {
+    if(Core* core=dynamic_cast<Core*>(id_tile.second)) {
+      core->cache->evict(addr);      
+    }
+  }
+  
+  for(auto id_tile: tiles) {
+    if(Core* core=dynamic_cast<Core*>(id_tile.second)) {
+      assert(!core->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+      //should not be in cacheline anymore!
+    }
+  }
+}
+
 //tile ids must be non repeating
 void Simulator::registerTile(Tile* tile) {
   

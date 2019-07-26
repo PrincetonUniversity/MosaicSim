@@ -620,10 +620,11 @@ bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1; 
   // FIXME
+  
   if(!core->canAccess(type == LD)) { 
     return false;
   }
-  
+  //core->sim->evictAllCaches(addr);
   DESCQ* descq=core->sim->get_descq(this);
   
   //check DESCQ's Store Address Buffer for conflicts

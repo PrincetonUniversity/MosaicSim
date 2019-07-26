@@ -80,6 +80,7 @@ public:
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }
+  void evict(uint64_t addr);
   bool process();
   void execute(MemTransaction* t);
   void addTransaction(MemTransaction *t);

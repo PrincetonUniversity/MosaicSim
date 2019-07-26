@@ -107,6 +107,7 @@ public:
   DESCQ* get_descq(Tile* tile);
   int getAccelerator();
   void calculateGlobalEnergyPower();
+  void evictAllCaches(uint64_t addr);
 };
 
 class DESCQ {
