@@ -120,16 +120,16 @@ namespace {
       for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
         if (isFoI(*fI)) {
           assignID(*fI);
-          errs() << fI->getName() << "\n";
+          //errs() << fI->getName() << "\n";
           instInspect(*fI);
         }
       }
 
       for (Module::iterator fI = M.begin(), fE = M.end(); fI != fE; ++fI) {
-	errs() << "[" << fI->getName().str() << "]\n";
+	//errs() << "[" << fI->getName().str() << "]\n";
 	if (isMain(*fI)) {
-	  errs() << "[Found Main]\n";	  
-	  errs() << "[" << fI->getName().str() << "]\n";
+	  //errs() << "[Found Main]\n";	  
+	  //errs() << "[" << fI->getName().str() << "]\n";
 	  instrument_main(*fI);
 	}
       }
@@ -597,7 +597,7 @@ batch -> batch_size
         else if(auto *iI = dyn_cast<InvokeInst>(inst))
           printInvoke(iI);
         else if(inst->isTerminator()) {
-          errs() << "[WARNING] Terminator Instruction not handled : " << *inst <<"\n";
+          //errs() << "[WARNING] Terminator Instruction not handled : " << *inst <<"\n";
 	}
 	
       }

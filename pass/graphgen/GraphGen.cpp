@@ -75,7 +75,7 @@ bool GraphGen::runOnFunction(Function &func) {
     assert(!found_kernel);
     found_kernel = true;
     constructGraph(func);
-    errs() << "Done constructing graph" << func.getName().str() << "\n";
+    errs() << "Done constructing graph\n";// << func.getName().str() << "\n";
     addDataEdges(func);
     addControlEdges(func);
     addPhiEdges(func);
@@ -243,7 +243,7 @@ void GraphGen::constructGraph(Function &func) {
           store_to_addr.insert(std::make_pair(stinst, ipv));          
         }
         else {
-          errs() << "[WARNING] Store operand not from instruction: " << *pv << "\n";
+          //errs() << "[WARNING] Store operand not from instruction: " << *pv << "\n";
           //assert(false);
         }
       }
