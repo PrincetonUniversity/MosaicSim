@@ -107,7 +107,16 @@ public:
   DESCQ* get_descq(Tile* tile);
   int getAccelerator();
   void calculateGlobalEnergyPower();
+
+  /*atomic operations implementation*/
   void evictAllCaches(uint64_t addr);
+  unordered_map<uint64_t, DynamicNode*> lockedLineMap; //map from cacheline to core holding the lock
+  unordered_map<uint64_t, queue<Core*>> lockedLineQ; //map from cacheline to queue of lock requestors
+
+  //loop through all requestors. if lock not held, add to map
+  //loop thru map. execute all instructions in map
+  
+  
 };
 
 class DESCQ {
@@ -156,6 +165,7 @@ public:
   //map of desc id (of stval, also staddr) to #forwards to be expected
   map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
 
+  
   //map<uint64_t, uint64_t> recv_map;
   //map of desc id (same for ld_prod and recv) to desc id (stval)
   map<DynamicNode*, uint64_t> final_cycle; 

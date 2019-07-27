@@ -831,6 +831,11 @@ void DynamicNode::finishNode() {
     cout << "Cycle: " << core->cycles << " \n"; 
     print("Completed", 5);
   }
+  if(type==BARRIER) {
+    vector<DynamicNode*>& bVec=core->window.barrierVec;
+    assert(this==bVec[0]);
+    bVec.erase(bVec.begin());//remove the barrier, freeing up other instructions to issue
+  }
   if(core->sim->debug_mode) {
     //these assertions test to make sure decoupling dependencies are maintained
     if(type==SEND || type==LD_PROD) {

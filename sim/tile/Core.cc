@@ -44,12 +44,26 @@ void Core::access(DynamicNode* d) {
 void IssueWindow::insertDN(DynamicNode* d) {
   issueMap.insert(make_pair(d,curr_index));
   d->windowNumber=curr_index;
+ 
+  if(d->type==BARRIER)
+    barrierVec.push_back(d);
   curr_index++;
 }
 
 bool IssueWindow::canIssue(DynamicNode* d) {
   //assert(issueMap.find(d)!=issueMap.end());
+  
   uint64_t position=d->windowNumber;//issueMap.at(d);
+
+  //make sure there are no older barrier instructions
+  for(auto b:barrierVec) {
+    if(*d<*b) { //break once you find 1st younger barrier b
+      break;
+    }
+    if(*b<*d) { //if barrier is older, no younger instruction can issue 
+      return false;
+    }
+  }
   
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
     return true;

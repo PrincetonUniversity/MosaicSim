@@ -28,6 +28,8 @@ class IssueWindow {
 public:
   map<DynamicNode*, uint64_t, DNPointerLT> issueMap;
   vector<DynamicNode*> issueQ;
+  vector<DynamicNode*> barrierVec;
+ 
   int window_size=1;//128; // instrn window size
   uint64_t window_start=0;
   uint64_t curr_index=0;
