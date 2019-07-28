@@ -55,6 +55,12 @@ struct loadStat {
   int nodeId;
 };
 
+struct runaheadStat {
+  int runahead; 
+  int coreId;
+  int nodeId;
+};
+
 class Simulator {
 public:
 
@@ -73,7 +79,7 @@ public:
   map<int,Tile*> tiles;
   int tileCount=0;
   vector<uint64_t> clockspeedVec;
-  DESCQ* descq;
+  //DESCQ* descq;
   bool decoupling_mode=false;
   bool debug_mode=false;
   bool mem_stats_mode=true;
@@ -90,7 +96,10 @@ public:
   int clockspeed=2000; //default clockspeed in MHz
   uint64_t load_count=0;
   DRAMSimInterface* memInterface;
-  
+  //sum of all the runahead distances of all the decoupling pairs
+  //runahead distance is cycles between issue of prod/load_prod and issue of consume
+  uint64_t runahead_sum=0;
+  vector<runaheadStat> runaheadVec;
   unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
   vector<loadStat> load_stats_vector;
   
@@ -159,7 +168,8 @@ public:
   int SVB_size=128;
   uint64_t SVB_back=127;
   uint64_t SVB_issue_pointer=0;
-  map<uint64_t, int64_t> send_runahead_map;
+  
+  unordered_map<uint64_t, int64_t> send_runahead_map;
 
   //map of runahead distance in cycles between when a send (or ld_produce) completes and a receive completes
   map<uint64_t, int64_t> stval_runahead_map;

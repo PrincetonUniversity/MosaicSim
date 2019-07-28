@@ -372,44 +372,28 @@ void Simulator::run() {
     cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
 
-  string median_mlp_prefix="";
-  median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
-  string max_mlp_prefix="";
-  max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+  
+  // DESCQ* descq=descq_vec.at(0);
 
-  sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
-  //  for(auto epoch:accesses_per_epoch) {
-  //  cout << epoch << endl;
-  //}
-  
-  if(accesses_per_epoch.size()==0) {
-    cout << median_mlp_prefix << 0 << endl;
-    cout << max_mlp_prefix << 0 << endl;
-  }
-  else {
-    cout << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
-    cout << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
-  }
-  
-  DESCQ* descq=descq_vec.at(0);
-  if(descq->send_runahead_map.size()>0) {
+  if(runaheadVec.size()>0) {
     ofstream outfile;
     outfile.open(outputDir+"decouplingStats");
     
-    long send_runahead_sum=0;
-    outfile << "NODE_ID CONTEXT_ID DECOUPLING_ID RUNAHEAD_DIST" << endl;
-    for(auto it=descq->send_runahead_map.begin(); it!=descq->send_runahead_map.end(); ++it) {
-      DynamicNode* send_node = descq->send_map[it->first];
-      outfile << send_node->n->id << " " << send_node->c->id << " " << it->first << " " << it->second << endl;
-      send_runahead_sum+=it->second;      
-      //assert(send_runahead_sum > -1*pow(2, 63));
+    uint64_t send_runahead_sum=0;
+    string outstring="";
+    for(auto entry:runaheadVec) {
+      
+      outstring+=to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";
+      send_runahead_sum+=entry.runahead;      
     }
 
-    long size= descq->send_runahead_map.size();
-    long avg_send_runahead=send_runahead_sum/size;
-    cout<<"Avg SEND Runahead : " << avg_send_runahead << " cycles \n";
+    outfile<<"Total Runahead Distance (cycles): " << send_runahead_sum << "\n";
+    outfile << "Number of Receive_Instructions: " << runaheadVec.size() << "\n";
+    outfile << "Average Runahead Distance(cycles): " << send_runahead_sum/runaheadVec.size() << endl; 
+    outfile << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
+    outfile << outstring;
   }
-
+  /*
   if(descq->stval_runahead_map.size()>0) {
     long stval_runahead_sum=0;
     for(auto it=descq->stval_runahead_map.begin(); it!=descq->stval_runahead_map.end(); ++it) {
@@ -427,7 +411,19 @@ void Simulator::run() {
     long avg_recv_delay=recv_delay_sum/descq->recv_delay_map.size();
     cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
   }
-
+*/
+  //calculate mlp stats
+  string median_mlp_prefix="";
+  median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+  string max_mlp_prefix="";
+  max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+  
+  sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
+  //  for(auto epoch:accesses_per_epoch) {
+  //  cout << epoch << endl;
+  //}
+  
+  
   //calculate and print stats on load latencies
   if(load_stats_vector.size()>0) {
     
@@ -469,14 +465,28 @@ void Simulator::run() {
         
     ofstream loadfile;
     loadfile.open(outputDir+"memStats");
+    
+    if(accesses_per_epoch.size()==0) {
+    loadfile << median_mlp_prefix << 0 << endl;
+    loadfile << max_mlp_prefix << 0 << endl;
+    }
+    else {
+      loadfile << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
+      loadfile << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
+    }
+    
+    
     loadfile << "Total Mem Access Latency (cycles): " << totalLatency << endl;
     loadfile << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector.size() << endl;
+    
+    
+
     loadfile << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
     loadfile << outstring;
   }
   //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
   //cout << "Number of Vector Entries: " << load_count << endl; 
-}
+} 
 
 void Simulator::calculateGlobalEnergyPower() {
   stat.global_energy = 0.0;

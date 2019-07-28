@@ -754,8 +754,40 @@ bool DynamicNode::issueDESCNode() {
   }
   
   if(can_issue) {
+
     //collect stats on runahead distance
-    if(core->sim->debug_mode) {
+    if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
+      if(type==LD_PROD || type==SEND) {
+        if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+          //runaheadVec;
+          runaheadStat localStat;
+          localStat.runahead=descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+          localStat.coreId=core->id;
+          localStat.nodeId=n->id;
+          core->sim->runaheadVec.push_back(localStat);
+          descq->send_runahead_map.erase(desc_id);
+          
+        }
+        else {
+          descq->send_runahead_map[desc_id] = core->cycles;
+        }
+      }
+      if(type==RECV) {
+        if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
+          //runaheadVec;
+          runaheadStat localStat;
+          localStat.runahead=core->cycles-descq->send_runahead_map[desc_id]; 
+          localStat.coreId=core->id;
+          localStat.nodeId=n->id;
+          core->sim->runaheadVec.push_back(localStat);
+          descq->send_runahead_map.erase(desc_id);
+        }
+        else {
+          descq->send_runahead_map[desc_id] = core->cycles;
+        }
+      }
+    } /* don't need anymore
+    else if(core->sim->debug_mode) {
       if(type==LD_PROD || type==SEND) {
         if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
           descq->send_runahead_map[desc_id] =  descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
@@ -773,6 +805,7 @@ bool DynamicNode::issueDESCNode() {
         }
       }
     }
+      */
     if(type == STVAL) {
       can_exit_rob=true;
       stat.update(stval_issue_success);
