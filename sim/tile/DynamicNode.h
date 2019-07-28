@@ -50,6 +50,10 @@ public:
   vector<DynamicNode*> external_dependents;
   
   DynamicNode(Node *n, Context *c, Core *core, uint64_t addr = 0);
+  /*~DynamicNode() {
+    //delete from lsq
+    core->lsq.remove(d);
+  }*/
   bool operator== (const DynamicNode &in);
   bool operator< (const DynamicNode &in) const;
   void print(string str, int level = 0);

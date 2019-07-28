@@ -34,7 +34,14 @@ void LoadStoreQ::insert(DynamicNode *d) {
     unresolved_st_set.insert(d);
   }
 }
-
+/*
+void remove(DynamicNode* d) {
+  if(d->type==LOAD) {
+    lq.erase(d);
+    lm.at(d->addr).erase
+  }
+}
+*/
 bool LoadStoreQ::checkSize(int num_ld, int num_st) {
   int ld_need = lq.size() + num_ld - size;
   int st_need = sq.size() + num_st - size; 

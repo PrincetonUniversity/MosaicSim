@@ -369,7 +369,7 @@ void Core::deleteErasableContexts() {
 //  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
 //  cout << "--  live_context_list size=" << live_context.size() << endl;
 
-  int safetyWindow=1000000; 
+  int safetyWindow=10000000; 
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
     Context *c = *it;
     // safety measure: only erase contexts marked as erasable 1mill cycles apart
