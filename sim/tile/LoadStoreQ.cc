@@ -34,14 +34,41 @@ void LoadStoreQ::insert(DynamicNode *d) {
     unresolved_st_set.insert(d);
   }
 }
-/*
-void remove(DynamicNode* d) {
-  if(d->type==LOAD) {
-    lq.erase(d);
-    lm.at(d->addr).erase
+
+void LoadStoreQ::remove(DynamicNode* d) {
+  if(d->type==LD) {
+    ul.erase(d);
+    if(lm.find(d->addr)!=lm.end()) {
+      lm.at(d->addr).erase(d);
+      if(lm.at(d->addr).size() == 0)
+        lm.erase(d->addr);
+    }
+    for(auto it=lq.begin(); it!=lq.end();++it) {
+      if(*it==d) {
+        lq.erase(it);
+        break;
+      }
+    }
   }
+  if(d->type==ST) {
+    us.erase(d);
+    if(sm.find(d->addr)!=sm.end()) {
+      sm.at(d->addr).erase(d);
+      if(sm.at(d->addr).size() == 0)
+        sm.erase(d->addr);
+    }
+
+    for(auto it=sq.begin(); it!=sq.end();++it) {
+      if(*it==d) {
+        sq.erase(it);
+        break;
+      }
+    }
+  }
+  
+  
 }
-*/
+
 bool LoadStoreQ::checkSize(int num_ld, int num_st) {
   int ld_need = lq.size() + num_ld - size;
   int st_need = sq.size() + num_st - size; 

@@ -35,7 +35,7 @@ public:
   int check_load_issue(DynamicNode *in, bool speculation_enabled);
   bool check_store_issue(DynamicNode *in);
   int check_forwarding (DynamicNode* in);
-
+  void remove(DynamicNode* d);
   std::vector<DynamicNode*> check_speculation (DynamicNode* in);
 };
 #endif

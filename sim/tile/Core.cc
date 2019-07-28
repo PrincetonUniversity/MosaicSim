@@ -369,7 +369,7 @@ void Core::deleteErasableContexts() {
 //  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
 //  cout << "--  live_context_list size=" << live_context.size() << endl;
 
-  int safetyWindow=10000000; 
+  int safetyWindow=100000; 
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
     Context *c = *it;
     // safety measure: only erase contexts marked as erasable 1mill cycles apart
@@ -377,6 +377,7 @@ void Core::deleteErasableContexts() {
       // first, delete dynamic nodes associated to this context
       for(auto n_it=c->nodes.begin(); n_it != c->nodes.end(); ++n_it) {
         DynamicNode *d = n_it->second;
+        d->core->lsq.remove(d); //delete from LSQ
         delete d;   // delete the dynamic node
         erasedDynamicNodes++;
       }
