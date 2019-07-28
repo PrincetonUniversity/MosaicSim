@@ -4,6 +4,7 @@
 using namespace std;
 #define UNUSED 0
 
+string dram_access="dram_accesses";
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
@@ -72,7 +73,9 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
     }
 
   }
-  stat.update("dram_accesses");     
+
+  
+  stat.update(dram_access);     
 }
 
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {

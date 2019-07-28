@@ -159,6 +159,10 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
   
 }
 
+void Simulator::lockCacheline() {
+  
+}
+
 void Simulator::evictAllCaches(uint64_t addr) {
 
   for(auto id_tile: tiles) {
@@ -367,6 +371,25 @@ void Simulator::run() {
   else
     cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
+
+  string median_mlp_prefix="";
+  median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+  string max_mlp_prefix="";
+  max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+
+  sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
+  //  for(auto epoch:accesses_per_epoch) {
+  //  cout << epoch << endl;
+  //}
+  
+  if(accesses_per_epoch.size()==0) {
+    cout << median_mlp_prefix << 0 << endl;
+    cout << max_mlp_prefix << 0 << endl;
+  }
+  else {
+    cout << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
+    cout << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
+  }
   
   DESCQ* descq=descq_vec.at(0);
   if(descq->send_runahead_map.size()>0) {

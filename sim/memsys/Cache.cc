@@ -51,10 +51,16 @@ bool Cache::process() {
         t->cache_q->push_front(this);
               
         memInterface->addTransaction(t, dramaddr, t->isLoad);
+
+        //collect mlp stats
+        sim->curr_epoch_accesses++;
+        
         //it = to_send.erase(it);        
       }
       else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false);
+        //collect mlp stats
+        sim->curr_epoch_accesses++;
         //it = to_send.erase(it);
         delete t;           
       }
@@ -108,8 +114,17 @@ bool Cache::process() {
   }
   
   to_evict=next_to_evict;
+
   
   cycles++;
+
+  //reset mlp stats collection
+  if(cycles % sim->mlp_epoch==0 && cycles!=0) {
+    sim->accesses_per_epoch.push_back(sim->curr_epoch_accesses);
+    sim->curr_epoch_accesses=0;
+  }
+    
+  
   free_load_ports = load_ports;
   free_store_ports = store_ports;
   return (pq.size() > 0);  

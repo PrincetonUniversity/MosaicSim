@@ -61,6 +61,11 @@ public:
   chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time = chrono::high_resolution_clock::now();
+  //MLP stats
+  int mlp_epoch=1024; //cycles in which to collect mlp stats
+  int curr_epoch_accesses=0; 
+  vector<int> accesses_per_epoch; //outgoing dram accesses per epoch
+  
   uint64_t last_instr_count = 0;
   uint64_t cycles=0;
   uint64_t total_instructions=0;
@@ -107,8 +112,9 @@ public:
   DESCQ* get_descq(Tile* tile);
   int getAccelerator();
   void calculateGlobalEnergyPower();
-
+  
   /*atomic operations implementation*/
+  void lockCacheline();
   void evictAllCaches(uint64_t addr);
   unordered_map<uint64_t, DynamicNode*> lockedLineMap; //map from cacheline to core holding the lock
   unordered_map<uint64_t, queue<Core*>> lockedLineQ; //map from cacheline to queue of lock requestors

@@ -63,6 +63,8 @@ public:
   vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
+  
+  
   int latency;
   int size_of_cacheline;
   int load_ports;

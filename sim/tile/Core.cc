@@ -56,6 +56,7 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   uint64_t position=d->windowNumber;//issueMap.at(d);
 
   //make sure there are no older barrier instructions
+  
   for(auto b:barrierVec) {
     if(*d<*b) { //break once you find 1st younger barrier b
       break;
