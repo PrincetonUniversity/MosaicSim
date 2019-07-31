@@ -83,7 +83,15 @@ bool GraphGen::runOnFunction(Function &func) {
     //analyzeLoop();
     visualize();
     exportGraph();
+    errs() << "[Unknown instructions begin]\n";
+    
+    for ( const auto &myPair : unknown_instructions) {
+      errs() << myPair.first << " : " << myPair.second << "\n";
+    }
+    errs() << "[Unknown instructions end]\n";
+
   }
+  
   return false;
 }
 
