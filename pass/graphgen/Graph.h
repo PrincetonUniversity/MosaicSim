@@ -14,6 +14,8 @@
 #include "llvm/ADT/StringRef.h"
 
 using namespace llvm;
+std::map<std::string, int> unknown_instructions;
+
 namespace apollo {
   enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID,  BS_DONE, CORE_INTERRUPT, CALL_BS, BS_WAKE, BS_VECTOR_INC, BARRIER, ACCELERATOR};
 
@@ -81,6 +83,12 @@ public:
         itype = INVALID;
       else {
         itype = INVALID;
+	std::string my_str = inst->getOpcodeName();
+	if (unknown_instructions.find(my_str) == unknown_instructions.end()) {
+	  unknown_instructions[my_str] = 0;
+	}
+	unknown_instructions[my_str]++;
+
         //errs() << "WARNING, UNKNOWN INSTRUCTION: \n";// << inst->getName().str() << " instruction.\n";
 	//errs() << *inst << "\n";
         //inst->dump();
@@ -140,8 +148,9 @@ void Graph::addEdge(Node *u, Node *v, EdgeType ek) {
       break;
     case Edge_Phi:
       if(phiEdges[u].find(v)!=phiEdges[u].end()) {
-        errs() << "edge already there: "<< v->name << " from: \n";
-        errs() << u << "\n";
+	// I do not know what these printouts mean.
+        //errs() << "edge already there: "<< v->name << " from: \n";
+        //errs() << u << "\n";
           }
       else {
         phiEdges[u].insert(v);
