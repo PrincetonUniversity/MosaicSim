@@ -155,12 +155,43 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
       memInterface->fastForward(dst_inc);
     }
   }
-  
-  
 }
 
-void Simulator::lockCacheline() {
+bool Simulator::isLocked(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+  return lockedLineMap.find(cacheline)!=lockedLineMap.end() && lockedLineMap[cacheline]!=d;
+}
+
+bool Simulator::hasLock(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+  return lockedLineMap.find(cacheline)!=lockedLineMap.end() && lockedLineMap[cacheline]==d;
+}
+
+void Simulator::releaseLock(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+  if(hasLock(d) && !lockedLineQ[cacheline].empty()) {
+    lockedLineMap[cacheline]=lockedLineQ[cacheline].back();
+    lockedLineQ[cacheline].pop();
+  }
+  else {
+    lockedLineMap.erase(cacheline);
+  }
+}
+
+bool Simulator::lockCacheline(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+  if(isLocked(d)) { //if someone else holds lock
+    lockedLineQ[cacheline].push(d); //enqueue
+    return false;
+  }
   
+  //if no one holds the lock, must evict cachelines
+  //if you hold the lock, that was done right when you were given the lock (i.e., in the code line above or when the last owner released the lock)
+  if(lockedLineMap.find(cacheline)==lockedLineMap.end()) {
+    evictAllCaches(d->addr); //pass in address, not cacheline
+  } 
+  lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
+  return true;
 }
 
 void Simulator::evictAllCaches(uint64_t addr) {
@@ -543,12 +574,12 @@ bool Simulator::communicate(DynamicNode* d) {
 void Simulator::orderDESC(DynamicNode* d) {
   DESCQ* descq=get_descq(d);
   if(d->n->typeInstr == SEND) {     
-    descq->send_map.insert(make_pair(descq->last_send_id,d));
+    //descq->send_map.insert(make_pair(descq->last_send_id,d));
     d->desc_id=descq->last_send_id;
     descq->last_send_id++;
   }
   if(d->n->typeInstr == LD_PROD) {     
-    descq->send_map.insert(make_pair(descq->last_send_id,d));
+    //descq->send_map.insert(make_pair(descq->last_send_id,d));
     d->desc_id=descq->last_send_id;
     descq->last_send_id++;
   }
@@ -560,7 +591,7 @@ void Simulator::orderDESC(DynamicNode* d) {
   else if (d->n->typeInstr == RECV) {
     d->desc_id=descq->last_recv_id;
     descq->last_recv_id++;
-    descq->recv_map.insert({d->desc_id,d});
+    //descq->recv_map.insert({d->desc_id,d});
   }
   else if (d->n->typeInstr == STADDR) {
     d->desc_id=descq->last_staddr_id;

@@ -34,6 +34,7 @@ public:
   MemStatus mem_status = NONE;
   string acc_args;
   bool isMem;
+  bool atomic=false;
   bool isDESC;
   uint64_t desc_id;
   bool acc_initiated=false;

@@ -123,10 +123,13 @@ public:
   void calculateGlobalEnergyPower();
   
   /*atomic operations implementation*/
-  void lockCacheline();
+  bool lockCacheline(DynamicNode* d);
   void evictAllCaches(uint64_t addr);
-  unordered_map<uint64_t, DynamicNode*> lockedLineMap; //map from cacheline to core holding the lock
-  unordered_map<uint64_t, queue<Core*>> lockedLineQ; //map from cacheline to queue of lock requestors
+  bool isLocked(DynamicNode* d);
+  bool hasLock(DynamicNode* d);
+  void releaseLock(DynamicNode* d);
+  unordered_map<uint64_t, DynamicNode*> lockedLineMap; //map from cacheline to dn holding the lock
+  unordered_map<uint64_t, queue<DynamicNode*>> lockedLineQ; //map from cacheline to queue of lock requestors
 
   //loop through all requestors. if lock not held, add to map
   //loop thru map. execute all instructions in map
@@ -139,16 +142,16 @@ public:
   priority_queue<Operator, vector<Operator>, OpCompare> pq;
   deque<DynamicNode*> supply_q;
   deque<DynamicNode*> consume_q;
-  map<uint64_t,DynamicNode*> send_map;
-  map<uint64_t,DynamicNode*> stval_map;
-  map<uint64_t,DynamicNode*> recv_map;
+  //unordered_map<uint64_t,DynamicNode*> send_map;
+  unordered_map<uint64_t,DynamicNode*> stval_map;
+  //unordered_map<uint64_t,DynamicNode*> recv_map;
   set<DynamicNode*> execution_set; //sorted by desc_id
 
   map<uint64_t, DynamicNode*> SAB; //for stores (stval)
-  map<uint64_t, DynamicNode*>commQ; //for holding SEND and LD_PROD instructions 
+  unordered_map<uint64_t, DynamicNode*>commQ; //for holding SEND and LD_PROD instructions 
 
   map<uint64_t, DynamicNode*> commBuff; //for OoO data consumption by compute
-  map<uint64_t, uint64_t> STLMap; //map from recv desc_id to desc_id of send doing stl fwd
+  unordered_map<uint64_t, uint64_t> STLMap; //map from recv desc_id to desc_id of send doing stl fwd
   
   map<uint64_t, set<uint64_t>> SVB; //mapping from desc id of STVAL to STVAL instrn and desc id of RECVs awaiting forwards
   map<uint64_t, DynamicNode*> TLBuffer; //terminal load buffer, just to hold DNs waiting for mem response

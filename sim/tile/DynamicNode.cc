@@ -617,6 +617,17 @@ bool DynamicNode::issueAccNode() {
 }
 
 bool DynamicNode::issueMemNode() {
+  //atomic operations
+  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible 
+    return false;
+  }
+  //if you successfully acquire the lock, proceed as normal
+  
+  //if cacheline is locked by someone else, can't proceed
+  if(core->sim->isLocked(this)) {
+    return false;
+  }
+  
   bool speculate = false;
   int forwardRes = -1; 
   // FIXME
