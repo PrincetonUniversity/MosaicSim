@@ -618,15 +618,23 @@ bool DynamicNode::issueAccNode() {
 
 bool DynamicNode::issueMemNode() {
   //atomic operations
-  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible 
+
+  /*
+  bool hadLock=core->sim->hasLock(this);
+
+  if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
+    if(core->cycles>10000000)
+      cout << "no lock! \n";
     return false;
   }
+  
+  */ 
   //if you successfully acquire the lock, proceed as normal
   
   //if cacheline is locked by someone else, can't proceed
-  if(core->sim->isLocked(this)) {
-    return false;
-  }
+  //if(core->sim->isLocked(this)) {
+  //  return false;
+  //}
   
   bool speculate = false;
   int forwardRes = -1; 
@@ -702,6 +710,13 @@ bool DynamicNode::issueMemNode() {
     print(Access_Memory_Hierarchy, 5);
     core->access(this); //send to mem hierarchy
   }
+  /*
+  for(auto id_tile: core->sim->tiles) {
+    if(Core* core=dynamic_cast<Core*>(id_tile.second)) {
+      assert(hadLock || !core->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+      //should not be in cacheline anymore!
+    }
+  }*/
   return true;
 }
 
@@ -864,7 +879,10 @@ bool DynamicNode::issueDESCNode() {
 }
 
 void DynamicNode::finishNode() {
-
+  //if(core->sim->hasLock(this)) {
+  //core->sim->releaseLock(this);
+    //}
+  
   DESCQ* descq=core->sim->get_descq(this);
   
   if(completed) {

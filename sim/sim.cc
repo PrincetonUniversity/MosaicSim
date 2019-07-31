@@ -180,8 +180,9 @@ void Simulator::releaseLock(DynamicNode* d) {
 
 bool Simulator::lockCacheline(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  if(isLocked(d)) { //if someone else holds lock
+  if(isLocked(d) && !d->requestedLock) { //if someone else holds lock
     lockedLineQ[cacheline].push(d); //enqueue
+    d->requestedLock=true;
     return false;
   }
   
