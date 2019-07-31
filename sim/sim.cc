@@ -157,9 +157,10 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
   }
 }
 
+//someone else has lock
 bool Simulator::isLocked(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  return lockedLineMap.find(cacheline)!=lockedLineMap.end() && lockedLineMap[cacheline]!=d;
+  return lockedLineMap.find(cacheline)!=lockedLineMap.end();
 }
 
 bool Simulator::hasLock(DynamicNode* d) {
@@ -169,29 +170,49 @@ bool Simulator::hasLock(DynamicNode* d) {
 
 void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  if(hasLock(d) && !lockedLineQ[cacheline].empty()) {
-    lockedLineMap[cacheline]=lockedLineQ[cacheline].back();
-    lockedLineQ[cacheline].pop();
-  }
-  else {
-    lockedLineMap.erase(cacheline);
-  }
+  if(hasLock(d)) {
+    //assign lock to next in queue
+    if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
+      lockedLineMap[cacheline]=lockedLineQ[cacheline].back();
+      lockedLineQ[cacheline].pop();
+      evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
+    }
+    else {
+      lockedLineMap.erase(cacheline);
+      lockedLineQ.erase(cacheline);
+    }    
+  }  
 }
 
 bool Simulator::lockCacheline(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  if(isLocked(d) && !d->requestedLock) { //if someone else holds lock
-    lockedLineQ[cacheline].push(d); //enqueue
+  if(isLocked(d) && !hasLock(d)) { //if someone else holds lock
+    if(!d->requestedLock) {//havent requested before
+      lockedLineQ[cacheline].push(d); //enqueue
+    }
     d->requestedLock=true;
+    if(d->core->cycles>10000000) {
+      cout << "no lock! \n";
+    }
     return false;
   }
   
   //if no one holds the lock, must evict cachelines
   //if you hold the lock, that was done right when you were given the lock (i.e., in the code line above or when the last owner released the lock)
-  if(lockedLineMap.find(cacheline)==lockedLineMap.end()) {
+  if(!isLocked(d)) {
     evictAllCaches(d->addr); //pass in address, not cacheline
   } 
+  //somehow even though release lock pops back of queue, we're still
+  //getting d is at the back of the queue!!
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
+  if(lockedLineQ.find(cacheline)!=lockedLineQ.end()) {
+    queue<DynamicNode*> myQ=lockedLineQ[cacheline];
+    //while(!myQ.empty()) {
+      assert(d!=myQ.back());
+      //myQ.pop();
+      //}
+    
+  }
   return true;
 }
 
