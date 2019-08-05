@@ -413,6 +413,6 @@ void Core::calculateEnergyPower() {
     //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
   else { //for Xeon E7-8894V4 from McPAT on 22nm, which is 11.8 W per core
-    total_energy = 6 * cycles * /(clockspeed*1e6); 
+    total_energy = 6 * cycles / (clockspeed*1e6); 
   }
 }
