@@ -6,7 +6,7 @@
 
 #Technology
 5,technology_node #tech node in nm, enter 5 or 14
-5000,chip_freq #freq in MHz
+4000,chip_freq #freq in MHz
 
 #L2 Cache
 0,ideal_cache   #set 1 for always cache hit
