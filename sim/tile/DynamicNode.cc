@@ -685,8 +685,7 @@ bool DynamicNode::issueMemNode() {
       //should not be in cacheline anymore!
     }
   }
-  */
-  
+  */ 
   // at this point the memory request will be issued for sure
   //issued = true;
   if(type == LD) {
