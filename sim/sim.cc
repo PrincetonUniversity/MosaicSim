@@ -173,7 +173,7 @@ void Simulator::releaseLock(DynamicNode* d) {
   if(hasLock(d)) {
     //assign lock to next in queue
     if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
-      lockedLineMap[cacheline]=lockedLineQ[cacheline].back();
+      lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
       lockedLineQ[cacheline].pop();
       evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
     }
@@ -191,9 +191,6 @@ bool Simulator::lockCacheline(DynamicNode* d) {
       lockedLineQ[cacheline].push(d); //enqueue
     }
     d->requestedLock=true;
-    if(d->core->cycles>10000000) {
-      cout << "no lock! \n";
-    }
     return false;
   }
   
@@ -202,16 +199,10 @@ bool Simulator::lockCacheline(DynamicNode* d) {
   if(!isLocked(d)) {
     evictAllCaches(d->addr); //pass in address, not cacheline
   } 
-  //somehow even though release lock pops back of queue, we're still
-  //getting d is at the back of the queue!!
+
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
   if(lockedLineQ.find(cacheline)!=lockedLineQ.end()) {
-    queue<DynamicNode*> myQ=lockedLineQ[cacheline];
-    //while(!myQ.empty()) {
-      assert(d!=myQ.back());
-      //myQ.pop();
-      //}
-    
+    assert(d!=lockedLineQ[cacheline].front());   
   }
   return true;
 }

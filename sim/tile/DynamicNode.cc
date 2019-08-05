@@ -672,17 +672,20 @@ bool DynamicNode::issueMemNode() {
       return false;
   }
 
+  
+  /*  test
   bool hadLock=core->sim->hasLock(this);
-
   if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
     return false;
-  }
+    }
+  
   for(auto id_tile: core->sim->tiles) {
     if(Core* ncore=dynamic_cast<Core*>(id_tile.second)) {
       assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
       //should not be in cacheline anymore!
     }
   }
+  */
   
   // at this point the memory request will be issued for sure
   //issued = true;
@@ -717,8 +720,6 @@ bool DynamicNode::issueMemNode() {
     core->access(this); //send to mem hierarchy
   }
  
-
-
   return true;
 }
 
@@ -881,10 +882,11 @@ bool DynamicNode::issueDESCNode() {
 }
 
 void DynamicNode::finishNode() {
+  /* test    
   if(core->sim->hasLock(this)) {
     core->sim->releaseLock(this);
   }
-  
+  */
   DESCQ* descq=core->sim->get_descq(this);
   
   if(completed) {
