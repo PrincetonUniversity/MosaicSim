@@ -413,7 +413,8 @@ void Core::calculateEnergyPower() {
     //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
   else { //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
-    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively 
+    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively
+    //about .5 McPAT power, which is at 2x tech node
     total_energy = 6 * cycles / (clockspeed*1e6); 
   }
 }
