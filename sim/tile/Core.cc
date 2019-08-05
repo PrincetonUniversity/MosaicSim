@@ -54,28 +54,48 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   //assert(issueMap.find(d)!=issueMap.end());
   
   uint64_t position=d->windowNumber;//issueMap.at(d);
+ 
 
-  //make sure there are no older barrier instructions
-  
-  for(auto b:barrierVec) {
-    if(*d<*b) { //break once you find 1st younger barrier b
-      break;
-    }
-    if(*b<*d) { //if barrier is older, no younger instruction can issue 
-      return false;
-    }
-  }
-  
+  bool can_issue=true;
+   
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
-    return true;
+    can_issue=can_issue && true;
   }
-  if(window_size==-1) { //only issue width matters
-    return issueCount<issueWidth;
+  else if(window_size==-1) { //only issue width matters
+    can_issue = can_issue && issueCount<issueWidth;
   }
-  if (issueWidth==-1) { //only instruction window availability matters
-    return position>=window_start && position<=window_end;
+  else if(issueWidth==-1) { //only instruction window availability matters
+    can_issue = can_issue && position>=window_start && position<=window_end;
+  }  
+  else {
+    can_issue = can_issue && issueCount<issueWidth && position>=window_start && position<=window_end;
   }
-  return issueCount<issueWidth && position>=window_start && position<=window_end;
+
+  if(can_issue) {
+    for(auto b:barrierVec) {
+      if(*d<*b) { //break once you find 1st younger barrier b
+        break; //won't be a problem
+      }
+      if(*b < *d) { //if barrier is older, no younger instruction can issue 
+        can_issue=false;
+        break;
+      }
+    }
+  }
+  //make sure there no instructions older than the barrier that are uncompleted
+  if(can_issue && d->type==BARRIER) {
+    for(auto it=issueMap.begin(); it!=issueMap.end() && it->second <= window_end; it++) {
+      DynamicNode* ed=it->first;
+      if(*ed < *d && !ed->completed) {
+        can_issue=false;
+        break;
+      }
+      if(*d < *ed) {
+        break;
+      }
+    }
+  }
+  return can_issue;  
 }
 
 void IssueWindow::process() {
