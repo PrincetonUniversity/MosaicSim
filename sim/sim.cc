@@ -422,7 +422,7 @@ void Simulator::run() {
     ofstream outfile;
     outfile.open(outputDir+"decouplingStats");
     
-    uint64_t send_runahead_sum=0;
+    long long send_runahead_sum=0;
     string outstring="";
     for(auto entry:runaheadVec) {
       
