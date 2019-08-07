@@ -172,7 +172,7 @@ void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
  
     //assign lock to next in queue
-  /*
+  
   if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
     lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
     lockedLineQ[cacheline].pop();
@@ -182,8 +182,8 @@ void Simulator::releaseLock(DynamicNode* d) {
     lockedLineMap.erase(cacheline);
     lockedLineQ.erase(cacheline);
   }
-  */
-  lockedLineMap.erase(cacheline); //no one has lock right now
+  
+  //lockedLineMap.erase(cacheline); //no one has lock right now
   
   
 }
@@ -197,7 +197,7 @@ bool Simulator::lockCacheline(DynamicNode* d) {
     d->requestedLock=true;
     return false;
   }
-  
+  d->requestedLock=true;
   //if no one holds the lock, must evict cachelines
   //if you hold the lock, that was done right when you were given the lock (i.e., in the code line above or when the last owner released the lock)
   if(!isLocked(d)) {
@@ -205,9 +205,6 @@ bool Simulator::lockCacheline(DynamicNode* d) {
   } 
 
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
-  if(lockedLineQ.find(cacheline)!=lockedLineQ.end()) {
-    assert(d!=lockedLineQ[cacheline].front());   
-  }
   return true;
 }
 
