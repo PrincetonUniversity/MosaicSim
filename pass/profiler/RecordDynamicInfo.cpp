@@ -332,7 +332,8 @@ namespace {
           for (Use &use : inst->operands()) {
             Value *v = use.get();
             if(Function *f = dyn_cast<Function>(v)) {
-              if(f->getName().str().find("supply_consume") != std::string::npos) {
+              //luwa here or all the atomic instructions
+              if(f->getName().str().find("supply_consume") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos || f->getName().str().find("DECADES_COMPARE_AND_SWAP") != std::string::npos ||  f->getName().str().find("DECADES_FETCH_MIN") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
                
                 //errs() << "[STADDR]"<< *inst << "\n";
                 //LLVMContext& ctx = mod->getContext();

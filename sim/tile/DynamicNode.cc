@@ -72,7 +72,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
 
-    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD) {
+    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
       if(core->memory.find(n->id)==core->memory.end()) {
         cout << "Assertion about to fail for: " << n->name << endl;         }
 
@@ -82,7 +82,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
       
-      if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR) {
+      if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
         core->lsq.insert(d);
       }
     }
@@ -171,7 +171,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     print("Created (BB:" + to_string(bb->id) + ") " , 5);
   }
 }
-
+//update atomic instructions
 void DynamicNode::register_issue_try() {
   if(type == SEND) {
     stat.update(send_issue_try);
@@ -308,7 +308,7 @@ void Context::process() {
       }
 
       //DESC instructions are completed by desq and BARRIER instrs by the sim barrier object, ACC instrs are completed upon return of transaction
-      if(d->type != LD && !d->isDESC && d->type!=BARRIER && d->type!=ACCELERATOR) { 
+      if(d->type != LD && !d->isDESC && d->type!=BARRIER && d->type!=ACCELERATOR && !d->atomic) { //atomic instructions complete when they're fully read and written 
         insertQ(d);        
       }
       if(issue_stats_mode) {
@@ -368,11 +368,11 @@ void Context::complete() {
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;      
       
-      if (d->type == LD || d->type == LD_PROD) {
+      if (d->type == LD || d->type == LD_PROD || d->atomic) {
         stat.update(bytes_read, word_size_bytes);
         core->local_stat.update(bytes_read, word_size_bytes);
       }
-      else if (d->type == ST || d->type == STADDR) {
+      else if (d->type == ST || d->type == STADDR || d->atomic) {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
@@ -411,6 +411,11 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     isMem = false;
   else
     isMem = true;
+
+  if(n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
+
+    atomic=true;
+  }
 }
 
 bool DynamicNode::operator== (const DynamicNode &in) {  
@@ -516,14 +521,14 @@ void DynamicNode::handleMemoryReturn() {
   }
   print(Memory_Data_Ready, 5);
   print(to_string(outstanding_accesses), 5);
-  if(type == LD || type == LD_PROD) {
+  if(type == LD || type == LD_PROD || atomic) {
     if(core->local_cfg.mem_speculate) {
       if(outstanding_accesses > 0)
         outstanding_accesses--;
       if(outstanding_accesses != 0) 
         return;
     }
-    if(type == LD) {
+    if(type == LD || atomic) {
       c->insertQ(this);
     }
     //luwa desc modification
@@ -578,7 +583,7 @@ void DynamicNode::tryActivate() {
     
   }
   */
-  if(isMem || type==STADDR) { 
+  if(isMem || type==STADDR) { //ismem catches atomic 
     addr_resolved = true;
     core->lsq.resolveAddress(this);
   }
@@ -669,12 +674,15 @@ bool DynamicNode::issueMemNode() {
     else if(res == -1)
       return false;
   }
-  else if(type == ST) {
+  else if(type == ST || atomic) {
     if(!core->lsq.check_store_issue(this))
       return false;
   }
 
-  
+  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
+    return false;
+  }
+    
   /*  test
   bool hadLock=core->sim->hasLock(this);
   if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
@@ -717,7 +725,7 @@ bool DynamicNode::issueMemNode() {
       }
     }
   }
-  else if (type == ST) {
+  else if (type == ST || atomic) {
     print(Access_Memory_Hierarchy, 5);
     core->access(this); //send to mem hierarchy
   }
@@ -889,6 +897,9 @@ void DynamicNode::finishNode() {
     core->sim->releaseLock(this);
   }
   */
+  if(atomic && core->sim->hasLock(this)) {
+    core->sim->releaseLock(this);
+  }
   DESCQ* descq=core->sim->get_descq(this);
   
   if(completed) {

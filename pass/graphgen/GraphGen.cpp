@@ -150,19 +150,19 @@ void GraphGen::detectFunctions(Function &func) {
             }
             
             else if(f->getName().str().find("dec_bs_vector_inc") != std::string::npos) {
-               Value* pv=(cinst->getArgOperand(0));
-               if(ConstantInt *ipv = dyn_cast<llvm::ConstantInt>(pv)) {
-                 n->itype=BS_VECTOR_INC;
-                 n->width=ipv->getSExtValue();                                    
-                }
-                else {
-                  errs() << "couldn't convert to int \n";
-                 
-                  assert(false);
-                }
-               //add extra edge for width
-             }
-
+              Value* pv=(cinst->getArgOperand(0));
+              if(ConstantInt *ipv = dyn_cast<llvm::ConstantInt>(pv)) {
+                n->itype=BS_VECTOR_INC;
+                n->width=ipv->getSExtValue();                                    
+              }
+              else {
+                errs() << "couldn't convert to int \n";
+                
+                assert(false);
+              }
+              //add extra edge for width
+            }
+            
             else if (f->getName().str().find("dec_bs_wait") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = BS_WAKE;              
@@ -178,6 +178,22 @@ void GraphGen::detectFunctions(Function &func) {
             else if (f->getName().str().find("dec_bs_flush") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = CORE_INTERRUPT;
+            }
+            else if (f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_ADD;
+            }
+            else if (f->getName().str().find("DECADES_COMPARE_AND_SWAP") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_CAS;
+            }
+            else if (f->getName().str().find("DECADES_FETCH_MIN") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_MIN;
+            }
+            else if (f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_FADD;
             }
            
           }

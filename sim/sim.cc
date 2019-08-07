@@ -170,18 +170,18 @@ bool Simulator::hasLock(DynamicNode* d) {
 
 void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  if(hasLock(d)) {
+ 
     //assign lock to next in queue
-    if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
-      lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
-      lockedLineQ[cacheline].pop();
-      evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
-    }
-    else {
-      lockedLineMap.erase(cacheline);
-      lockedLineQ.erase(cacheline);
-    }    
-  }  
+  if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
+    lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
+    lockedLineQ[cacheline].pop();
+    evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
+  }
+  else {
+    lockedLineMap.erase(cacheline);
+    lockedLineQ.erase(cacheline);
+  }    
+  
 }
 
 bool Simulator::lockCacheline(DynamicNode* d) {

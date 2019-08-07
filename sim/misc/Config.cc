@@ -37,7 +37,11 @@ Config::Config() {
   instr_latency[BS_VECTOR_INC] = 1;
   instr_latency[BARRIER]=1;
   instr_latency[ACCELERATOR]=-1;
-
+  instr_latency[ATOMIC_ADD] = 1;
+  instr_latency[ATOMIC_FADD] = 1;
+  instr_latency[ATOMIC_MIN] = 1;
+  instr_latency[ATOMIC_CAS] = 1;
+  
   // # of FUs setting
   num_units[BS_DONE] = -1;
   num_units[CORE_INTERRUPT] = -1;
@@ -67,7 +71,11 @@ Config::Config() {
   num_units[INVALID] = -1;
   num_units[BARRIER] = -1;
   num_units[ACCELERATOR] = -1;
-
+  num_units[ATOMIC_ADD] = -1;
+  num_units[ATOMIC_FADD] = -1;
+  num_units[ATOMIC_MIN] = -1;
+  num_units[ATOMIC_CAS] = -1;
+  
   // EPI: energy_per_instr (in Joules)
   //  - measured at a Nominal Core Volt (VDD) of 1.0V - 2GHz frequency
   technology_node = 22;
@@ -174,6 +182,13 @@ Config::Config() {
   energy_per_DRAM_access[22] = 11050.14706*1e-12;
   energy_per_DRAM_access[14] = 8036.470588*1e-12;
   energy_per_DRAM_access[5]  = 5389.458088*1e-12;
+
+  for(auto& tnode_darray:energy_per_instr) {
+    tnode_darray.second[ATOMIC_ADD]=0;
+    tnode_darray.second[ATOMIC_FADD]=0;
+    tnode_darray.second[ATOMIC_MIN]=0;
+    tnode_darray.second[ATOMIC_CAS]=0;
+  }
 }
 
 vector<string> Config::split(const string &s, char delim) {

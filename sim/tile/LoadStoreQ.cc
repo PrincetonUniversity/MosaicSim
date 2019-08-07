@@ -50,7 +50,7 @@ void LoadStoreQ::remove(DynamicNode* d) {
       }
     }
   }
-  if(d->type==ST) {
+  if(d->type!=LD) {
     us.erase(d);
     if(sm.find(d->addr)!=sm.end()) {
       sm.at(d->addr).erase(d);
@@ -157,8 +157,7 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
   if(*d < *in || *d == *in) {    
     return true;
   }
-  else {
-    
+  else {    
     return false;
   }
 }

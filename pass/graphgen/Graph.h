@@ -12,12 +12,14 @@
 #include "llvm/Pass.h"
 #include "llvm/PassAnalysisSupport.h"
 #include "llvm/ADT/StringRef.h"
+#include "../../sim/common.h"
 
 using namespace llvm;
 std::map<std::string, int> unknown_instructions;
 
+
 namespace apollo {
-  enum InstType {I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, INVALID,  BS_DONE, CORE_INTERRUPT, CALL_BS, BS_WAKE, BS_VECTOR_INC, BARRIER, ACCELERATOR};
+  
 
 enum EdgeType {
   Edge_Control,
@@ -33,7 +35,7 @@ enum NodeType {
 class Node {
 public:
   const NodeType type;
-  InstType itype;
+  TInstr itype;
   std::string name;
   Value *val;
   int id;
