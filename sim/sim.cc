@@ -172,6 +172,7 @@ void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
  
     //assign lock to next in queue
+  /*
   if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
     lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
     lockedLineQ[cacheline].pop();
@@ -180,7 +181,10 @@ void Simulator::releaseLock(DynamicNode* d) {
   else {
     lockedLineMap.erase(cacheline);
     lockedLineQ.erase(cacheline);
-  }    
+  }
+  */
+  lockedLineMap.erase(cacheline); //no one has lock right now
+  
   
 }
 
