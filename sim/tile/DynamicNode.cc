@@ -583,7 +583,7 @@ void DynamicNode::tryActivate() {
     
   }
   */
-  if(isMem || type==STADDR) { //ismem catches atomic 
+  if(isMem || type==STADDR) { //ismem also catches atomic 
     addr_resolved = true;
     core->lsq.resolveAddress(this);
   }
@@ -679,7 +679,7 @@ bool DynamicNode::issueMemNode() {
       return false;
   }
 
-  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
+  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
     return false;
   }
     

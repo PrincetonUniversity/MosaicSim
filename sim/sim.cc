@@ -495,6 +495,18 @@ void Simulator::run() {
       else if (load_stat.type==STADDR) {
         MEMOP="ST_ADDR";
       }
+      else if (load_stat.type==ATOMIC_ADD) {
+        MEMOP="ATOMIC_ADD";
+      }
+      else if (load_stat.type==ATOMIC_FADD) {
+        MEMOP="ATOMIC_FADD";
+      }
+      else if (load_stat.type==ATOMIC_MIN) {
+        MEMOP="ATOMIC_MIN";
+      }
+      else if (load_stat.type==ATOMIC_CAS) {
+        MEMOP="ATOMIC_CAS";
+      }
       else {
         assert(false);
       }
