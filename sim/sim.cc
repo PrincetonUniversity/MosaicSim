@@ -432,7 +432,7 @@ void Simulator::run() {
 
     outfile<<"Total Runahead Distance (cycles): " << send_runahead_sum << "\n";
     outfile << "Number of Receive_Instructions: " << runaheadVec.size() << "\n";
-    outfile << "Average Runahead Distance(cycles): " << send_runahead_sum/runaheadVec.size() << endl; 
+    outfile << "Average Runahead Distance(cycles): " << send_runahead_sum/(long long)runaheadVec.size() << endl; 
     outfile << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
     outfile << outstring;
   }
