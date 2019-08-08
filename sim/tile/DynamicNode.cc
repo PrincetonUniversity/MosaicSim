@@ -888,6 +888,9 @@ bool DynamicNode::issueDESCNode() {
       stat.update(ld_prod_issue_success);
       core->local_stat.update(ld_prod_issue_success);
     }
+    if(atomic) {
+      can_exit_rob=true; //allow rob to remove this if it's the head
+    }
 
   }
   return can_issue;  
