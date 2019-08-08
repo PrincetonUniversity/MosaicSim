@@ -506,6 +506,15 @@ void Simulator::run() {
       else if (load_stat.type==ATOMIC_CAS) {
         MEMOP="ATOMIC_CAS";
       }
+      else if (load_stat.type==TRM_ATOMIC_FADD) {
+        MEMOP="TRM_ATOMIC_FADD";
+      }
+      else if (load_stat.type==TRM_ATOMIC_MIN) {
+        MEMOP="TRM_ATOMIC_MIN";
+      }
+      else if (load_stat.type==TRM_ATOMIC_CAS) {
+        MEMOP="TRM_ATOMIC_CAS";
+      }
       else {
         assert(false);
       }
