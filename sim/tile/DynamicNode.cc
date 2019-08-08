@@ -72,7 +72,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
 
-    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
+    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS) {
       if(core->memory.find(n->id)==core->memory.end()) {
         cout << "Assertion about to fail for: " << n->name << endl;         }
 
@@ -372,7 +372,7 @@ void Context::complete() {
         stat.update(bytes_read, word_size_bytes);
         core->local_stat.update(bytes_read, word_size_bytes);
       }
-      else if (d->type == ST || d->type == STADDR || d->atomic) {
+      if (d->type == ST || d->type == STADDR || d->atomic) {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
@@ -402,7 +402,7 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     pending_parents = n->parents.size();
   pending_external_parents = n->external_parents.size();
   
-  if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL || n->typeInstr==LD_PROD)
+  if(n->typeInstr==SEND || n->typeInstr==RECV || n->typeInstr==STADDR || n->typeInstr==STVAL || n->typeInstr==LD_PROD || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS)
     isDESC = true;
   else
     isDESC = false;
@@ -412,7 +412,7 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
   else
     isMem = true;
 
-  if(n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
+  if(n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS) {
 
     atomic=true;
   }
@@ -486,7 +486,7 @@ bool DynamicNode::operator< (const DynamicNode &in) const {
 }
 ostream& operator<<(ostream &os, DynamicNode &d) {
   string descid;
-  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR ||  d.n->typeInstr==LD_PROD) {
+  if (d.n->typeInstr==SEND || d.n->typeInstr==RECV || d.n->typeInstr==STVAL || d.n->typeInstr==STADDR ||  d.n->typeInstr==LD_PROD || d.n->typeInstr == TRM_ATOMIC_FADD || d.n->typeInstr == TRM_ATOMIC_MIN || d.n->typeInstr == TRM_ATOMIC_CAS) {
     descid=" [DESC ID: " + to_string(d.desc_id) + "]";
   }
   os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << "] [Instruction: " << d.n->name <<"] ";
@@ -528,11 +528,11 @@ void DynamicNode::handleMemoryReturn() {
       if(outstanding_accesses != 0) 
         return;
     }
-    if(type == LD || atomic) {
+    if(type == LD || type == ATOMIC_ADD || type == ATOMIC_FADD || type == ATOMIC_MIN || type == ATOMIC_CAS) {
       c->insertQ(this);
     }
     //luwa desc modification
-    if(type == LD_PROD) {
+    if(type == LD_PROD || type == TRM_ATOMIC_FADD || type == TRM_ATOMIC_MIN || type == TRM_ATOMIC_CAS) {
       
       //here tell descq to move       
       mem_status=RETURNED; //this signals DESCQ, it can move it from term ld buff to commQ and finally complete
@@ -750,6 +750,7 @@ bool DynamicNode::issueDESCNode() {
   bool can_forward_from_lsq = false;
   bool can_forward_from_svb = false;
   DynamicNode* forwarding_staddr=NULL;
+  //revisit lsq forwarding with terminal rmw
   if(type == LD_PROD) {
     can_forward_from_lsq = core->local_cfg.mem_forward && (core->lsq.check_forwarding(this)==1);
 
@@ -796,7 +797,7 @@ bool DynamicNode::issueDESCNode() {
 
     //collect stats on runahead distance
     if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
-      if(type==LD_PROD || type==SEND) {
+      if(type==LD_PROD || type==SEND || type == TRM_ATOMIC_FADD || type == TRM_ATOMIC_MIN || type == TRM_ATOMIC_CAS) {
         if(descq->send_runahead_map.find(desc_id)!=descq->send_runahead_map.end()) {
           //runaheadVec;
           runaheadStat localStat;
@@ -887,6 +888,7 @@ bool DynamicNode::issueDESCNode() {
       stat.update(ld_prod_issue_success);
       core->local_stat.update(ld_prod_issue_success);
     }
+
   }
   return can_issue;  
 }
@@ -917,7 +919,7 @@ void DynamicNode::finishNode() {
   }
   if(core->sim->debug_mode) {
     //these assertions test to make sure decoupling dependencies are maintained
-    if(type==SEND || type==LD_PROD) {
+    if(type==SEND || type==LD_PROD || type == TRM_ATOMIC_FADD || type == TRM_ATOMIC_MIN || type == TRM_ATOMIC_CAS) {
       
       descq->debug_send_set.insert(desc_id);
     }

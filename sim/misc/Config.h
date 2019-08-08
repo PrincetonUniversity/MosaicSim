@@ -6,7 +6,7 @@
 #include <assert.h>
 using namespace std;
 
-#define NUM_INST_TYPES 32
+#define NUM_INST_TYPES 35
 #define word_size_bytes  4  // TODO: allow different sizes. Now, word_size is a constant
 
 class Config {

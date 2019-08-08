@@ -195,6 +195,18 @@ void GraphGen::detectFunctions(Function &func) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = ATOMIC_FADD;
             }
+            else if (f->getName().str().find("desc_supply_alu_rmw_cas") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = TRM_ATOMIC_CAS;
+            }
+            else if (f->getName().str().find("desc_supply_alu_rmw_fetchmin") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = TRM_ATOMIC_MIN;
+            }
+            else if (f->getName().str().find("desc_supply_alu_rmw_fetchadd_float") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = TRM_ATOMIC_FADD;
+            }
            
           }
         }

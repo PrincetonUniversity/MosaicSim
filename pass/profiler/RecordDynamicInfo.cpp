@@ -332,8 +332,8 @@ namespace {
           for (Use &use : inst->operands()) {
             Value *v = use.get();
             if(Function *f = dyn_cast<Function>(v)) {
-              //luwa here or all the atomic instructions
-              if(f->getName().str().find("supply_consume") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos || f->getName().str().find("DECADES_COMPARE_AND_SWAP") != std::string::npos ||  f->getName().str().find("DECADES_FETCH_MIN") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
+              //luwa all the atomic instructions have mem traces printed here
+              if(f->getName().str().find("supply_consume") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos || f->getName().str().find("DECADES_COMPARE_AND_SWAP") != std::string::npos ||  f->getName().str().find("DECADES_FETCH_MIN") != std::string::npos || f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos ||  f->getName().str().find("desc_supply_alu_rmw_fetchadd_float") != std::string::npos ||  f->getName().str().find("desc_supply_alu_rmw_fetchmin") != std::string::npos || f->getName().str().find("desc_supply_alu_rmw_cas") != std::string::npos) {
                
                 //errs() << "[STADDR]"<< *inst << "\n";
                 //LLVMContext& ctx = mod->getContext();
@@ -348,6 +348,9 @@ namespace {
                 castI = Builder.CreatePtrToInt(v, llvm::Type::getInt64Ty(ctx), "castInst");
                 ConstantInt* ctype = llvm::ConstantInt::get(ctx, llvm::APInt(1, 1, false));
                 std::string namestr = std::to_string(findID(inst));
+                /*if(f->getName().str().find("desc_supply_alu_rmw_fetchadd_float") != std::string::npos ||  f->getName().str().find("desc_supply_alu_rmw_fetchmin") != std::string::npos || f->getName().str().find("desc_supply_alu_rmw_cas") != std::string::npos) {
+                  namestr="testing_terminal_rmw";
+                }*/
                 name = Builder.CreateGlobalStringPtr(namestr);
                 PointerType* vPtrType = cast<PointerType>(v->getType());
                 uint64_t storeSize = dl->getTypeStoreSize(vPtrType->getPointerElementType());

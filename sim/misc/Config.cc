@@ -41,6 +41,10 @@ Config::Config() {
   instr_latency[ATOMIC_FADD] = 1;
   instr_latency[ATOMIC_MIN] = 1;
   instr_latency[ATOMIC_CAS] = 1;
+  instr_latency[TRM_ATOMIC_FADD] = 1;
+  instr_latency[TRM_ATOMIC_MIN] = 1;
+  instr_latency[TRM_ATOMIC_CAS] = 1;
+
   
   // # of FUs setting
   num_units[BS_DONE] = -1;
@@ -75,6 +79,9 @@ Config::Config() {
   num_units[ATOMIC_FADD] = -1;
   num_units[ATOMIC_MIN] = -1;
   num_units[ATOMIC_CAS] = -1;
+  num_units[TRM_ATOMIC_FADD] = -1;
+  num_units[TRM_ATOMIC_MIN] = -1;
+  num_units[TRM_ATOMIC_CAS] = -1;
   
   // EPI: energy_per_instr (in Joules)
   //  - measured at a Nominal Core Volt (VDD) of 1.0V - 2GHz frequency
@@ -188,6 +195,9 @@ Config::Config() {
     tnode_darray.second[ATOMIC_FADD]=0;
     tnode_darray.second[ATOMIC_MIN]=0;
     tnode_darray.second[ATOMIC_CAS]=0;
+    tnode_darray.second[TRM_ATOMIC_FADD]=0;
+    tnode_darray.second[TRM_ATOMIC_MIN]=0;
+    tnode_darray.second[TRM_ATOMIC_CAS]=0;
   }
 }
 

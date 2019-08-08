@@ -602,7 +602,7 @@ void Simulator::orderDESC(DynamicNode* d) {
     d->desc_id=descq->last_send_id;
     descq->last_send_id++;
   }
-  if(d->n->typeInstr == LD_PROD) {     
+  if(d->n->typeInstr == LD_PROD || d->atomic) {     
     //descq->send_map.insert(make_pair(descq->last_send_id,d));
     d->desc_id=descq->last_send_id;
     descq->last_send_id++;
@@ -640,6 +640,7 @@ void DESCQ::process() {
 
   //go through execution set sorted in desc id
   //this also allows us to send out as many staddr instructions (that become SAB head) back to back
+  //should not be able to execute atomic instruction if can't get lock
   for(auto it=execution_set.begin(); it!=execution_set.end();) {   
     if(execute(*it)) {     
       it=execution_set.erase(it); //gets next iteration
@@ -685,7 +686,19 @@ DynamicNode* DESCQ::sab_has_dependency(DynamicNode* d) {
 }
 
 bool DESCQ::execute(DynamicNode* d) {
-  if(d->n->typeInstr==LD_PROD) {    
+  //if you're atomic, I wanna do an if
+  if(d->atomic) {    
+    if(!d->core->sim->lockCacheline(d)) {
+      return false;
+    }        
+    else {
+      d->core->access(d);
+      d->mem_status=PENDING;
+      TLBuffer.insert({d->desc_id,d});    
+      return true;
+    }
+  }
+  else if(d->n->typeInstr==LD_PROD) {    
     if(d->mem_status==NONE || d->mem_status==DESC_FWD || d->mem_status==FWD_COMPLETE) {     
       d->c->insertQ(d);
       return true;
@@ -775,9 +788,9 @@ bool DESCQ::execute(DynamicNode* d) {
 bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
   bool canInsert=true;
   
-  if(d->n->typeInstr==LD_PROD) {
+  if(d->n->typeInstr==LD_PROD || d->atomic) {
     
-    if(d->mem_status==PENDING) { //must insert in TLBuff
+    if(d->mem_status==PENDING || d->atomic) { //must insert in TLBuff
       if(term_ld_count==term_buffer_size || commQ_count==commQ_size) {  //check term ld buff size 
         canInsert=false;        
       }

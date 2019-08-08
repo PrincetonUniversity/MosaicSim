@@ -14,7 +14,6 @@ Config cfg;
 class Core;
 
 int main(int argc, char const *argv[]) {
-    
   string pythia_home;
   string wlpath;
   string cfgpath;
