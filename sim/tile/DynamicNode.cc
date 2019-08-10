@@ -530,7 +530,7 @@ void DynamicNode::handleMemoryReturn() {
     }
     
     //release lock
-    
+    //luwa just testing, remove true
     if(atomic && core->sim->hasLock(this)) {
       core->sim->releaseLock(this);
     }

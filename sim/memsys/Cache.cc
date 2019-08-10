@@ -143,13 +143,13 @@ void Cache::execute(MemTransaction* t) {
   if(isL1 && t->d) {
     DynamicNode* d=t->d;
 
-    if(d->atomic) {
+    if(d->atomic) { //luwa: just testing to ensure 100% miss rate
       if(!sim->lockCacheline(d)) {
          next_to_execute.push_back(t);
          return;
       }
     }    
-    else if(sim->isLocked(d) && !sim->hasLock(d)) {
+    else if(sim->isLocked(d)) {
       next_to_execute.push_back(t);
       return;
     }

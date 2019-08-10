@@ -197,12 +197,10 @@ bool Simulator::lockCacheline(DynamicNode* d) {
       if(lockedLineQ[cacheline].empty()) {
         lockedLineQ.erase(cacheline);
       }
-      evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
+      
     }    
   }
-
-
-  
+  evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines  
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
   return true;
 }

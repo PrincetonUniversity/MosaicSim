@@ -189,10 +189,10 @@ public:
   //map of desc id (same for ld_prod and recv) to desc id (stval)
   map<DynamicNode*, uint64_t> final_cycle; 
   uint64_t cycles=0;
-  uint64_t last_send_id;
-  uint64_t last_stval_id;
-  uint64_t last_recv_id;
-  uint64_t last_staddr_id;
+  uint64_t last_send_id=0;
+  uint64_t last_stval_id=0;
+  uint64_t last_recv_id=0;
+  uint64_t last_staddr_id=0;
   int latency=5;
 
   Config config;
