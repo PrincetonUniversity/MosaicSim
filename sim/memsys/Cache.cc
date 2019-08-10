@@ -139,7 +139,6 @@ bool Cache::process() {
 }
 
 void Cache::execute(MemTransaction* t) {
-
   if(isL1 && t->d) {
     DynamicNode* d=t->d;
 
