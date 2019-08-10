@@ -528,6 +528,13 @@ void DynamicNode::handleMemoryReturn() {
       if(outstanding_accesses != 0) 
         return;
     }
+    
+    //release lock
+    
+    if(atomic && core->sim->hasLock(this)) {
+      core->sim->releaseLock(this);
+    }
+    
     if(type == LD || type == ATOMIC_ADD || type == ATOMIC_FADD || type == ATOMIC_MIN || type == ATOMIC_CAS) {
       c->insertQ(this);
     }
@@ -678,11 +685,12 @@ bool DynamicNode::issueMemNode() {
     if(!core->lsq.check_store_issue(this))
       return false;
   }
-
+  /* gets acquired in cache now
   if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
     return false;
   }
-    
+  */
+  
   /*  test
   bool hadLock=core->sim->hasLock(this);
   if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
@@ -902,9 +910,6 @@ void DynamicNode::finishNode() {
     core->sim->releaseLock(this);
   }
   */
-  if(atomic && core->sim->hasLock(this)) {
-    core->sim->releaseLock(this);
-  }
   DESCQ* descq=core->sim->get_descq(this);
   
   if(completed) {

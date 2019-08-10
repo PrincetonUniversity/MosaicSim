@@ -170,38 +170,39 @@ bool Simulator::hasLock(DynamicNode* d) {
 
 void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
- 
-    //assign lock to next in queue
-
-  if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
-    lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
-    lockedLineQ[cacheline].pop();
-    evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
-  }
-  else {
-    lockedLineMap.erase(cacheline);
-    lockedLineQ.erase(cacheline);
-  }
-  
-  
+  lockedLineMap.erase(cacheline);  
 }
 
 bool Simulator::lockCacheline(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
-  if(isLocked(d) && !hasLock(d)) { //if someone else holds lock
+  bool hadLock=hasLock(d);
+  if(isLocked(d) && !hadLock) { //if someone else holds lock
     if(!d->requestedLock) {//havent requested before
       lockedLineQ[cacheline].push(d); //enqueue
     }
     d->requestedLock=true;
     return false;
   }
-  d->requestedLock=true;
-  //if no one holds the lock, must evict cachelines
-  //if you hold the lock, that was done right when you were given the lock (i.e., in the code line above or when the last owner released the lock)
-  if(!isLocked(d)) {
-    evictAllCaches(d->addr); //pass in address, not cacheline
-  } 
+  
+  if(!isLocked(d)) { //it's not locked (could maybe add && !hadLock) 
+    if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty() && lockedLineQ[cacheline].front()!=d) {  //not next in line for lock
+      if(!d->requestedLock) {//havent requested before
+        lockedLineQ[cacheline].push(d); //enqueue
+        d->requestedLock=true;
+      }      
+      return false;
+    }
+    else if (lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty() && lockedLineQ[cacheline].front()==d) { //you're next in line
+      lockedLineQ[cacheline].pop(); //dequeue
+      if(lockedLineQ[cacheline].empty()) {
+        lockedLineQ.erase(cacheline);
+      }
+      evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
+    }    
+  }
 
+
+  
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
   return true;
 }
@@ -604,33 +605,7 @@ bool Simulator::communicate(DynamicNode* d) {
   return descq->insert(d, NULL);
 }
 
-void Simulator::orderDESC(DynamicNode* d) {
-  DESCQ* descq=get_descq(d);
-  if(d->n->typeInstr == SEND) {     
-    //descq->send_map.insert(make_pair(descq->last_send_id,d));
-    d->desc_id=descq->last_send_id;
-    descq->last_send_id++;
-  }
-  if(d->n->typeInstr == LD_PROD || d->atomic) {     
-    //descq->send_map.insert(make_pair(descq->last_send_id,d));
-    d->desc_id=descq->last_send_id;
-    descq->last_send_id++;
-  }
-  else if(d->n->typeInstr == STVAL) {
-    descq->stval_map.insert(make_pair(descq->last_stval_id,d));
-    d->desc_id=descq->last_stval_id;
-    descq->last_stval_id++;
-  }
-  else if (d->n->typeInstr == RECV) {
-    d->desc_id=descq->last_recv_id;
-    descq->last_recv_id++;
-    //descq->recv_map.insert({d->desc_id,d});
-  }
-  else if (d->n->typeInstr == STADDR) {
-    d->desc_id=descq->last_staddr_id;
-    descq->last_staddr_id++;
-  }
-}
+
 
 void Simulator::accessComplete(MemTransaction *t) {
   if(Core* core=dynamic_cast<Core*>(tiles[t->src_id])) {
@@ -680,6 +655,34 @@ void DESCQ::process() {
   cycles++;
 }
 
+void Simulator::orderDESC(DynamicNode* d) {
+  DESCQ* descq=get_descq(d);
+  if(d->n->typeInstr == SEND) {
+    //descq->send_map.insert(make_pair(descq->last_send_id,d));
+    d->desc_id=descq->last_send_id;
+    descq->last_send_id++;
+  }
+  if(d->n->typeInstr == LD_PROD || d->atomic) {
+    //descq->send_map.insert(make_pair(descq->last_send_id,d));
+    d->desc_id=descq->last_send_id;
+    descq->last_send_id++;
+  }
+  else if(d->n->typeInstr == STVAL) {
+    descq->stval_map.insert(make_pair(descq->last_stval_id,d));
+    d->desc_id=descq->last_stval_id;
+    descq->last_stval_id++;
+  }
+  else if (d->n->typeInstr == RECV) {
+    d->desc_id=descq->last_recv_id;
+    descq->last_recv_id++;
+    //descq->recv_map.insert({d->desc_id,d});
+  }
+  else if (d->n->typeInstr == STADDR) {
+    d->desc_id=descq->last_staddr_id;
+    descq->last_staddr_id++;
+  }
+}
+
 DynamicNode* DESCQ::sab_has_dependency(DynamicNode* d) {
   //note:SAB is sorted by desc_id, which also sorts by program order
   for(auto it=SAB.begin(); it!=SAB.end();++it) {
@@ -697,15 +700,12 @@ DynamicNode* DESCQ::sab_has_dependency(DynamicNode* d) {
 bool DESCQ::execute(DynamicNode* d) {
   //if you're atomic, I wanna do an if
   if(d->atomic) {    
-    if(!d->core->sim->lockCacheline(d)) {
-      return false;
-    }        
-    else {
-      d->core->access(d);
-      d->mem_status=PENDING;
-      TLBuffer.insert({d->desc_id,d});    
-      return true;
-    }
+    
+    d->core->access(d);
+    d->mem_status=PENDING;
+    TLBuffer.insert({d->desc_id,d});    
+    return true;
+    
   }
   else if(d->n->typeInstr==LD_PROD) {    
     if(d->mem_status==NONE || d->mem_status==DESC_FWD || d->mem_status==FWD_COMPLETE) {     

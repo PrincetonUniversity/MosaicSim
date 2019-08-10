@@ -58,7 +58,8 @@ public:
   int min_stride=4; //bytes of strided access
 
   unordered_map<uint64_t,MSHR_entry> mshr; //map of cacheline to set to mshr_entry
-  
+  vector<MemTransaction*> to_execute;
+  vector<MemTransaction*> next_to_execute;
   //unordered_map<uint64_t,set<MemTransaction*>> memop_map; //map of cacheline to set of dynamic nodes
   vector<MemTransaction*> to_send;
   vector<uint64_t> to_evict;

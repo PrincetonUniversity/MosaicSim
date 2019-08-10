@@ -101,8 +101,13 @@ bool IssueWindow::canIssue(DynamicNode* d) {
 void IssueWindow::process() {
   issueCount=0;
   //shift RoB
+  /*
+  if(issueMap.size()!=0 && issueMap.begin()->first->core->cycles > 325000000) {
+    issueMap.begin()->first->print("head of rob", -10);
+  }
+  */
   for(auto it=issueMap.begin(); it!=issueMap.end();) {
-    if (it->first->completed || it->first->can_exit_rob) {//when Load_Produce, STADDR, and STVAL are marked as can_exit_rob if there are resources available, meaning you can remove them from RoB when they are at the head
+    if (it->first->completed || it->first->can_exit_rob) {//when Load_Produce, STADDR, STVAL, terminal RMW are marked as can_exit_rob if there are resources available, meaning you can remove them from RoB when they are at the head
       it->first->stage=LEFT_ROB;
       window_start=it->second+1;
       window_end=(window_size+window_start)-1;

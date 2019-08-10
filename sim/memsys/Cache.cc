@@ -28,6 +28,12 @@ void Cache::evict(uint64_t addr) {
 }
 
 bool Cache::process() {
+
+  next_to_execute.clear();
+  for(auto t:to_execute) {
+    execute(t);
+  }
+  
   while(pq.size() > 0) {
     if(pq.top().second > cycles)
       break;
@@ -37,6 +43,8 @@ bool Cache::process() {
     
     pq.pop();
   }
+  to_execute=next_to_execute;
+  
   vector<MemTransaction*> next_to_send;
   
   for(auto it = to_send.begin(); it!= to_send.end();++it) {
@@ -131,11 +139,26 @@ bool Cache::process() {
 }
 
 void Cache::execute(MemTransaction* t) {
-  
+
+  if(isL1 && t->d) {
+    DynamicNode* d=t->d;
+
+    if(d->atomic) {
+      if(!sim->lockCacheline(d)) {
+         next_to_execute.push_back(t);
+         return;
+      }
+    }    
+    else if(sim->isLocked(d) && !sim->hasLock(d)) {
+      next_to_execute.push_back(t);
+      return;
+    }
+
+  }
   uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
   bool res = true;  
 
-
+  
   
   if(!ideal) {
     res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
