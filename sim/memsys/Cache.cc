@@ -139,10 +139,10 @@ bool Cache::process() {
 }
 
 void Cache::execute(MemTransaction* t) {
-  if(isL1 && t->d) {
+  if(false && isL1 && t->d) { //testing, remove false!!!
     DynamicNode* d=t->d;
-
-    if(d->atomic) { //luwa: just testing to ensure 100% miss rate
+    
+    if(!t->isPrefetch && d->atomic) { //don't acquire locks based on accesses spurred by prefetch 
       if(!sim->lockCacheline(d)) {
          next_to_execute.push_back(t);
          return;

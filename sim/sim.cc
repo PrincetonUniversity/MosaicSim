@@ -157,7 +157,6 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
   }
 }
 
-//someone else has lock
 bool Simulator::isLocked(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
   return lockedLineMap.find(cacheline)!=lockedLineMap.end();
@@ -168,6 +167,7 @@ bool Simulator::hasLock(DynamicNode* d) {
   return lockedLineMap.find(cacheline)!=lockedLineMap.end() && lockedLineMap[cacheline]==d;
 }
 
+/*
 void Simulator::releaseLock(DynamicNode* d) {
   uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
   lockedLineMap.erase(cacheline);  
@@ -201,6 +201,45 @@ bool Simulator::lockCacheline(DynamicNode* d) {
     }    
   }
   evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines  
+  lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
+  return true;
+}
+*/
+
+void Simulator::releaseLock(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+
+  //assign lock to next in queue
+
+  if(lockedLineQ.find(cacheline)!=lockedLineQ.end() && !lockedLineQ[cacheline].empty()) {
+    lockedLineMap[cacheline]=lockedLineQ[cacheline].front();
+    lockedLineQ[cacheline].pop();
+    evictAllCaches(d->addr); //upon assignment of lock, must evict all cachelines
+  }
+  else {
+    lockedLineMap.erase(cacheline);
+    lockedLineQ.erase(cacheline);
+  }
+
+
+}
+
+bool Simulator::lockCacheline(DynamicNode* d) {
+  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+  if(isLocked(d) && !hasLock(d)) { //if someone else holds lock
+    if(!d->requestedLock) {//havent requested before
+      lockedLineQ[cacheline].push(d); //enqueue
+    }
+    d->requestedLock=true;
+    return false;
+  }
+  d->requestedLock=true;
+  //if no one holds the lock, must evict cachelines
+  //if you hold the lock, that was done right when you were given the lock (i.e., in the code line above or when the last owner released the lock)
+  if(!isLocked(d)) {
+    evictAllCaches(d->addr); //pass in address, not cacheline
+  }
+
   lockedLineMap[cacheline]=d; //get the lock, idempotent if you already have it
   return true;
 }
