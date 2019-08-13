@@ -833,6 +833,7 @@ bool DynamicNode::issueDESCNode() {
         else {
           descq->send_runahead_map[desc_id] = core->cycles;
         }
+        core->sim->recvLatencyMap[this]=core->cycles;
       }
     } /* don't need anymore
     else if(core->sim->debug_mode) {
@@ -924,6 +925,15 @@ void DynamicNode::finishNode() {
     vector<DynamicNode*>& bVec=core->window.barrierVec;
     assert(this==bVec[0]);
     bVec.erase(bVec.begin());//remove the barrier, freeing up other instructions to issue
+  }
+  
+  if(type==RECV) {
+    unordered_map<DynamicNode*, uint64_t>& recvLatencyMap=core->sim->recvLatencyMap;
+    if(recvLatencyMap.find(this)!=recvLatencyMap.end()) {
+      core->sim->total_recv_latency += core->cycles - recvLatencyMap[this];
+      recvLatencyMap.erase(this); 
+    }
+    
   }
   if(core->sim->debug_mode) {
     //these assertions test to make sure decoupling dependencies are maintained

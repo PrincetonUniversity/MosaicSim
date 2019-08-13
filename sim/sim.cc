@@ -459,9 +459,11 @@ void Simulator::run() {
   if(runaheadVec.size()>0) {
     ofstream outfile;
     outfile.open(outputDir+"decouplingStats");
-    
     long long send_runahead_sum=0;
     string outstring="";
+    outfile << "Total Recv Latency (cycles): " + to_string(total_recv_latency) + "\n";
+    outfile << "Avg Recv Latency (cycles): " + to_string((long long)total_recv_latency/runaheadVec.size()) + "\n";
+
     for(auto entry:runaheadVec) {
       
       outstring+=to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";

@@ -102,7 +102,8 @@ public:
   vector<runaheadStat> runaheadVec;
   unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
   vector<loadStat> load_stats_vector;
-  
+  unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
+  uint64_t total_recv_latency=0;
   Simulator(string home);
   void fastForward(int tid, uint64_t inc);
   bool communicate(DynamicNode* d);
