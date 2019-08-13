@@ -500,6 +500,9 @@ void Simulator::run() {
   median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
   string max_mlp_prefix="";
   max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+
+  string mean_mlp_prefix="";
+  mean_mlp_prefix+= "Mean # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
   
   sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
   //  for(auto epoch:accesses_per_epoch) {
@@ -571,10 +574,12 @@ void Simulator::run() {
     loadfile.open(outputDir+"memStats");
     
     if(accesses_per_epoch.size()==0) {
-    loadfile << median_mlp_prefix << 0 << endl;
-    loadfile << max_mlp_prefix << 0 << endl;
+      loadfile << mean_mlp_prefix << 0 << endl;
+      loadfile << median_mlp_prefix << 0 << endl;
+      loadfile << max_mlp_prefix << 0 << endl;
     }
     else {
+      loadfile << mean_mlp_prefix << accumulate(accesses_per_epoch.begin(), accesses_per_epoch.end(),0)/accesses_per_epoch.size() << endl;
       loadfile << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
       loadfile << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
     }
