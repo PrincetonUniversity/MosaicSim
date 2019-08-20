@@ -633,7 +633,7 @@ void Simulator::calculateGlobalEnergyPower() {
 
   // some debug stuff
     uint64_t total_flops=stat.get("FP_ADDSUB")+stat.get("FP_MULT")+stat.get("FP_REM");
-  uint64_t total_gflops=total_flops/(1e9);
+  double total_gflops=total_flops/(1e9);
 
   cout << "Total GFLOPs : " << total_gflops << endl;
   
