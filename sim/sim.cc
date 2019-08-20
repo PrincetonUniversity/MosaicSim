@@ -454,6 +454,8 @@ void Simulator::run() {
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
 
   
+  
+  
   // DESCQ* descq=descq_vec.at(0);
 
   if(runaheadVec.size()>0) {
@@ -630,6 +632,11 @@ void Simulator::calculateGlobalEnergyPower() {
   stat.global_avg_power = stat.global_energy * clockspeed*1e+6 / cycles;   // clockspeed is defined in MHz
 
   // some debug stuff
+    uint64_t total_flops=stat.get("FP_ADDSUB")+stat.get("FP_MULT")+stat.get("FP_REM");
+  uint64_t total_gflops=total_flops/(1e9);
+
+  cout << "Total GFLOPs : " << total_gflops << endl;
+  
   cout << "-------All (" << n_cores << ") cores energy (J) : " << e << endl;
   cout << "-------L2_energy (J) : " << L2_energy << endl;
   cout << "-------DRAM_energy (J) : " << DRAM_energy << endl;
