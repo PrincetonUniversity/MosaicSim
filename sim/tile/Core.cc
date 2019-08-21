@@ -424,7 +424,7 @@ void Core::calculateEnergyPower() {
   int tech_node = cfg.technology_node;
 
   // FIX THIS: for now we only calculate the energy for IN-ORDER cores
-  if( local_cfg.window_size == 1 && local_cfg.issueWidth == 1) {
+  if(/*in order*/ ( local_cfg.window_size == 1 && local_cfg.issueWidth == 1)  || /*ASIC models*/ ( local_cfg.window_size >= 1024 && local_cfg.issueWidth >= 1024) ||  ( local_cfg.window_size < 0 && local_cfg.issueWidth < 0)) {
     
     // add Energy Per Instruction (EPI) class
     for(int i=0; i<NUM_INST_TYPES; i++) {
@@ -442,6 +442,7 @@ void Core::calculateEnergyPower() {
   else { //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
     //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively
     //about .5 McPAT power, which is at 2x tech node
-    total_energy = 6 * cycles / (clockspeed*1e6); 
+    total_energy = 6 * cycles / (clockspeed*1e6);
+    
   }
 }
