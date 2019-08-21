@@ -3,8 +3,8 @@
 
 #Core
 #For in order mode, set window_size to 1
-2048,lsq_size
-2048,window_size   #effectively, ROB size
+1024,lsq_size
+1024,window_size   #effectively, ROB size
 1024,issueWidth   #num of issuable instrs per cycle
 0,cf_mode   #set 1 to create all contexts at once, perfect branch prediction
 1,mem_speculate #address alias speculation
