@@ -80,7 +80,19 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
   Reader r;
 
   r.readGraph(gName, core->g);
-  r.readProfMemory(memName, core->memory);
+  //r.readProfMemory(memName, core->memory);
+  uint64_t filesizeKB = r.fileSizeKB(memName);
+  core->memfile.open(memName, ifstream::in);
+  if (core->memfile.is_open()) {
+    cout << "[SIM] Start reading the Memory trace (" << memName << ") | size = " << filesizeKB << " KBytes\n";
+    if (filesizeKB > 100000)  // > 100 MB
+      cout << "[SIM] ...big file (>100MB), please, expect some minutes to read it.\n";
+    //r.readProfMemoryChunk(core->memfile, core->memory);
+  } else {
+    cout << "[ERROR] Cannot open the Memory trace file!\n";
+    assert(false);
+  }
+
   r.readProfCF(cfName, core->cf);
   r.readAccTrace(accName, core->acc_map);
   

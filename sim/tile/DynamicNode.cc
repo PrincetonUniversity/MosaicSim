@@ -1,5 +1,6 @@
 #include "DynamicNode.h"
 #include "Core.h"
+#include "../misc/Reader.h"
 #include "../memsys/Cache.h"
 
 using namespace std;
@@ -73,10 +74,16 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     DynamicNode* d;
 
     if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS) {
-      if(core->memory.find(n->id)==core->memory.end()) {
-        cout << "Assertion about to fail for: " << n->name << endl;         }
+      //if(core->memory.find(n->id)==core->memory.end()) {
+      //  cout << "Assertion about to fail for: " << n->name << endl;         }
+      //assert(core->memory.find(n->id)!=core->memory.end());
 
-      assert(core->memory.find(n->id)!=core->memory.end());
+      while(core->memory.find(n->id)==core->memory.end() || core->memory.at(n->id).empty()) {
+        Reader r;
+        r.readProfMemoryChunk(core->memfile, core->memory);
+      }
+      assert(false);
+
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       
       nodes.insert(make_pair(n,d));

@@ -15,6 +15,8 @@
 #include "misc/Statistics.h"
 //#include "memsys/Cache.h"
 
+#define chunk_size 1024
+
 class Config;
 class Statistics;
 class Cache;

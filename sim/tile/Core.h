@@ -7,6 +7,9 @@
 #include "LoadStoreQ.h"
 #include <string>
 #include <chrono>
+#include <fstream>
+#include <iostream>
+#include <sstream>
 using namespace std;
 
 class DyanmicNode;
@@ -70,6 +73,7 @@ public:
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
+  ifstream memfile;
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   unordered_map<int, queue<string> > acc_map;  // List of memory accesses per instruction in a program order
   

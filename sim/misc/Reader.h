@@ -186,6 +186,31 @@ public:
     memfile.close();
   }
 
+  // Read Dynamic Memory accesses from profiling file in chunks where <memory> will be a map of { <instr_id>, <queue of addresses> }
+  bool readProfMemoryChunk(std::ifstream& memfile, std::unordered_map<int, std::queue<uint64_t> > &memory) {
+    string line;
+    int numLines = 0;
+    if (memfile.is_open()) {
+      while ( getline(memfile,line) && numLines <= chunk_size ) {
+        vector<string> s = split(line, ',');
+        int id = stoi(s.at(1));
+        if(memory.find(id) == memory.end()) 
+          memory.insert(make_pair(id, queue<uint64_t>()));
+        memory.at(id).push(stoull(s.at(2)));  // insert the <address> into the memory instructions's <queue>
+        numLines++;
+      }
+      if ( !getline(memfile,line) ) {
+        cout << "[SIM] ...Finished reading the Memory trace!\n\n";
+        memfile.close();
+      }
+      return true;
+    }
+    else {
+      cout << "[ERROR] Cannot open the Memory trace file!\n";
+      return false;
+    }
+  }
+
   //read accelerator file
   //eg 1,decadesTF_matmul,3,3,3,3
   //node id, acc_kernel_name, sizes ...
