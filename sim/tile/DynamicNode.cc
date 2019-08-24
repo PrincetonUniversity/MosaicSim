@@ -80,9 +80,9 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
 
       while(core->memory.find(n->id)==core->memory.end() || core->memory.at(n->id).empty()) {
         Reader r;
-        r.readProfMemoryChunk(core->memfile, core->memory);
+        assert(r.readProfMemoryChunk(core->memfile, core->memory));
       }
-      assert(false);
+      //assert(false);
 
       d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
       

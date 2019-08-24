@@ -190,8 +190,10 @@ public:
   bool readProfMemoryChunk(std::ifstream& memfile, std::unordered_map<int, std::queue<uint64_t> > &memory) {
     string line;
     int numLines = 0;
+    bool progressed=false;
     if (memfile.is_open()) {
-      while ( getline(memfile,line) && numLines <= chunk_size ) {
+      while (numLines <= chunk_size && getline(memfile,line) ) {
+        progressed=true;
         vector<string> s = split(line, ',');
         int id = stoi(s.at(1));
         if(memory.find(id) == memory.end()) 
@@ -199,11 +201,11 @@ public:
         memory.at(id).push(stoull(s.at(2)));  // insert the <address> into the memory instructions's <queue>
         numLines++;
       }
-      if ( !getline(memfile,line) ) {
+      if ( memfile.eof() ) {
         cout << "[SIM] ...Finished reading the Memory trace!\n\n";
         memfile.close();
       }
-      return true;
+      return progressed;
     }
     else {
       cout << "[ERROR] Cannot open the Memory trace file!\n";
