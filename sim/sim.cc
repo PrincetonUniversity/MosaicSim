@@ -18,6 +18,7 @@ Simulator::Simulator(string home) {
   pythia_home=home;
   clockspeed=cfg.chip_freq;
   cache = new Cache(cfg);
+  mem_chunk_size=cfg.mem_chunk_size; 
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
   cache->isLLC=true;

@@ -80,7 +80,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
 
       while(core->memory.find(n->id)==core->memory.end() || core->memory.at(n->id).empty()) {
         Reader r;
-        assert(r.readProfMemoryChunk(core->memfile, core->memory));
+        assert(r.readProfMemoryChunk(core));
       }
       //assert(false);
 
@@ -88,6 +88,9 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       
       nodes.insert(make_pair(n,d));
       core->memory.at(n->id).pop();
+      if(core->memory.at(n->id).empty()) {
+        core->memory.erase(n->id);
+      }
       
       if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
         core->lsq.insert(d);

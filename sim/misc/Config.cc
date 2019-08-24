@@ -317,6 +317,9 @@ void Config::getCfg(int id, int val) {
   case 32:
     num_IS = val;
     break;
+  case 33:
+    mem_chunk_size = val; 
+    break;
   default:
     break;
   }

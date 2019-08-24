@@ -187,12 +187,16 @@ public:
   }
 
   // Read Dynamic Memory accesses from profiling file in chunks where <memory> will be a map of { <instr_id>, <queue of addresses> }
-  bool readProfMemoryChunk(std::ifstream& memfile, std::unordered_map<int, std::queue<uint64_t> > &memory) {
+  bool readProfMemoryChunk(Core* core) {
+    std::ifstream& memfile=core->memfile;
+    std::unordered_map<int, std::queue<uint64_t> > &memory=core->memory;
+    long long chunk_size=core->sim->mem_chunk_size;
+    
     string line;
     int numLines = 0;
     bool progressed=false;
     if (memfile.is_open()) {
-      while (numLines <= chunk_size && getline(memfile,line) ) {
+      while ((chunk_size < 0 || numLines <= chunk_size) && getline(memfile,line) ) {
         progressed=true;
         vector<string> s = split(line, ',');
         int id = stoi(s.at(1));
@@ -205,6 +209,7 @@ public:
         cout << "[SIM] ...Finished reading the Memory trace!\n\n";
         memfile.close();
       }
+
       return progressed;
     }
     else {
