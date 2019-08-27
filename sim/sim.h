@@ -71,7 +71,7 @@ public:
   int mlp_epoch=1024; //cycles in which to collect mlp stats
   int curr_epoch_accesses=0; 
   vector<int> accesses_per_epoch; //outgoing dram accesses per epoch
-  long long mem_chunk_size=1024; //granularity of reading from trace file 
+  long long mem_chunk_size=256*1024; //granularity of reading from trace file 
   uint64_t last_instr_count = 0;
   uint64_t cycles=0;
   uint64_t total_instructions=0;

@@ -343,8 +343,16 @@ void Simulator::run() {
   int simulate = 1;
   clockspeed=findlcm(clockspeedVec,clockspeedVec.size());
 
+  // Stats files
+  ofstream decouplingStats;
+  long long send_runahead_sum = 0;
+  string decouplingOutstring;
+
+  ofstream memStats;
+  long long totalLatency = 0;
+  string memOutstring;
+
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
-  
   last_time = Clock::now();  
   while(simulate > 0) {
 
@@ -415,9 +423,84 @@ void Simulator::run() {
       last_instr_count = stat.get("total_instructions");
       last_time = curr_time;
       
-      //stat.print_epoch(cout);
-    }
-    else if(tiles[0]->cycles == 0) {
+      // decouplingStats chunking
+      if(runaheadVec.size() > 0) { 
+        const char* decouplingFileName = (outputDir+"decouplingStats").c_str();
+        ifstream decouplingStatsIn(decouplingFileName);
+        if (!decouplingStatsIn) {
+          decouplingStats.open(decouplingFileName);
+          decouplingStats << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
+        }
+
+        decouplingOutstring = "";
+        for(auto it = runaheadVec.begin(); it != runaheadVec.end(); it++) {
+          auto entry = *it;
+          decouplingOutstring += to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";
+          send_runahead_sum += entry.runahead;      
+        }
+          
+        runaheadVec.clear();
+        decouplingStats << decouplingOutstring;
+      }
+
+      // memStats chunking
+      if(load_stats_vector.size() > 0) {
+        const char* memFileName = (outputDir+"memStats").c_str();
+        ifstream memStatsIn(memFileName);
+        if (!memStatsIn) {
+          memStats.open(memFileName);      
+          memStats << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+        }
+
+        long long issue_cycle, return_cycle, diff;
+        int node_id;
+        memOutstring = "";
+        for(auto load_stat:load_stats_vector) {
+          issue_cycle=load_stat.issueCycle;
+          return_cycle=load_stat.completeCycle;
+      
+          string isHit="Miss";
+          if (load_stat.hit) {
+            isHit="Hit";
+          }
+          string MEMOP="";
+          if (load_stat.type==LD) {
+            MEMOP="LD";
+          } else if (load_stat.type==LD_PROD) {
+            MEMOP="LD_PROD";
+          } else if (load_stat.type==ST) {
+            MEMOP="ST";
+          } else if (load_stat.type==STADDR) {
+            MEMOP="ST_ADDR";
+          } else if (load_stat.type==ATOMIC_ADD) {
+            MEMOP="ATOMIC_ADD";
+          } else if (load_stat.type==ATOMIC_FADD) {
+            MEMOP="ATOMIC_FADD";
+          } else if (load_stat.type==ATOMIC_MIN) {
+            MEMOP="ATOMIC_MIN";
+          } else if (load_stat.type==ATOMIC_CAS) {
+            MEMOP="ATOMIC_CAS";
+          } else if (load_stat.type==TRM_ATOMIC_FADD) {
+            MEMOP="TRM_ATOMIC_FADD";
+          } else if (load_stat.type==TRM_ATOMIC_MIN) {
+            MEMOP="TRM_ATOMIC_MIN";
+          } else if (load_stat.type==TRM_ATOMIC_CAS) {
+            MEMOP="TRM_ATOMIC_CAS";
+          } else {
+            assert(false);
+          }
+
+          node_id=load_stat.nodeId;
+          diff=(return_cycle-issue_cycle);
+          totalLatency=totalLatency + diff;
+      
+          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+        }
+    
+        load_stats_vector.clear();
+        memStats << memOutstring;
+      }
+    } else if(tiles[0]->cycles == 0) {
       last_time = Clock::now();
       last_instr_count = 0;
     }
@@ -465,32 +548,23 @@ void Simulator::run() {
   else
     cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
-
-  
-  
-  
+ 
   // DESCQ* descq=descq_vec.at(0);
 
-  if(runaheadVec.size()>0) {
-    ofstream outfile;
-    outfile.open(outputDir+"decouplingStats");
-    long long send_runahead_sum=0;
-    string outstring="";
-    outfile << "Total Recv Latency (cycles): " + to_string(total_recv_latency) + "\n";
-    outfile << "Avg Recv Latency (cycles): " + to_string((long long)total_recv_latency/runaheadVec.size()) + "\n";
-
-    for(auto entry:runaheadVec) {
-      
-      outstring+=to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";
-      send_runahead_sum+=entry.runahead;      
-    }
-
-    outfile<<"Total Runahead Distance (cycles): " << send_runahead_sum << "\n";
-    outfile << "Number of Receive_Instructions: " << runaheadVec.size() << "\n";
-    outfile << "Average Runahead Distance(cycles): " << send_runahead_sum/(long long)runaheadVec.size() << endl; 
-    outfile << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
-    outfile << outstring;
+  // print summary stats on decoupling
+  const char* decouplingFileName = (outputDir+"decouplingStats").c_str();
+  ifstream decouplingStatsIn(decouplingFileName);
+  if (decouplingStatsIn) {
+    decouplingStats << "\n";
+    decouplingStats << "SUMMARY\n";
+    decouplingStats << "Total Recv Latency (cycles): " + to_string(total_recv_latency) + "\n";
+    decouplingStats << "Avg Recv Latency (cycles): " + to_string((long long)total_recv_latency/runaheadVec.size()) + "\n";
+    decouplingStats << "Total Runahead Distance (cycles): " << send_runahead_sum << "\n";
+    decouplingStats << "Number of Receive_Instructions: " << runaheadVec.size() << "\n";
+    decouplingStats << "Average Runahead Distance(cycles): " << send_runahead_sum/(long long)runaheadVec.size() << endl; 
+    decouplingStats.close();
   }
+
   /*
   if(descq->stval_runahead_map.size()>0) {
     long stval_runahead_sum=0;
@@ -510,106 +584,36 @@ void Simulator::run() {
     cout<<"Avg RECV Delay : " << avg_recv_delay << " cycles \n";
   }
 */
-  //calculate mlp stats
-  string median_mlp_prefix="";
-  median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
-  string max_mlp_prefix="";
-  max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
 
-  string mean_mlp_prefix="";
-  mean_mlp_prefix+= "Mean # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
-  
-  sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
-  //  for(auto epoch:accesses_per_epoch) {
-  //  cout << epoch << endl;
-  //}
-  
-  
-  //calculate and print stats on load latencies
-  if(load_stats_vector.size()>0) {
-    
-    long long totalLatency=0;
-    string outstring="";
-    for(auto load_stat:load_stats_vector) {
+  //calculate and print summary stats on load latencies
+  const char* memFileName = (outputDir+"memStats").c_str();
+  ifstream memStatsIn(memFileName);
+  if (memStatsIn) {
+    memStats << "\n";
+    memStats << "SUMMARY\n";
 
-      long long issue_cycle=load_stat.issueCycle;
-      long long return_cycle=load_stat.completeCycle;
-      
-      string isHit="Miss";
-      if (load_stat.hit) {
-        isHit="Hit";
-      }
-      string MEMOP="";
-      if (load_stat.type==LD) {
-        MEMOP="LD";
-      }
-      else if (load_stat.type==LD_PROD) {
-        MEMOP="LD_PROD";
-      }
-      else if (load_stat.type==ST) {
-        MEMOP="ST";
-      }
-      else if (load_stat.type==STADDR) {
-        MEMOP="ST_ADDR";
-      }
-      else if (load_stat.type==ATOMIC_ADD) {
-        MEMOP="ATOMIC_ADD";
-      }
-      else if (load_stat.type==ATOMIC_FADD) {
-        MEMOP="ATOMIC_FADD";
-      }
-      else if (load_stat.type==ATOMIC_MIN) {
-        MEMOP="ATOMIC_MIN";
-      }
-      else if (load_stat.type==ATOMIC_CAS) {
-        MEMOP="ATOMIC_CAS";
-      }
-      else if (load_stat.type==TRM_ATOMIC_FADD) {
-        MEMOP="TRM_ATOMIC_FADD";
-      }
-      else if (load_stat.type==TRM_ATOMIC_MIN) {
-        MEMOP="TRM_ATOMIC_MIN";
-      }
-      else if (load_stat.type==TRM_ATOMIC_CAS) {
-        MEMOP="TRM_ATOMIC_CAS";
-      }
-      else {
-        assert(false);
-      }
-      int node_id=load_stat.nodeId;
-      long long diff=(return_cycle-issue_cycle);
-      totalLatency=totalLatency + diff;
-      
-      //cout << "ret: " << return_cycle << ", issue: "<< issue_cycle << ", diff: " << diff << endl;
-      //assert(diff>0);
-      outstring+=MEMOP+" "+to_string(load_stat.addr) + " " + to_string(node_id) + " " + to_string(issue_cycle) + " " + to_string(return_cycle) + " " + to_string(diff) + " " + isHit + "\n";
-    }
-        
-    ofstream loadfile;
-    loadfile.open(outputDir+"memStats");
-    
+    //calculate mlp stats
+    string median_mlp_prefix="";
+    median_mlp_prefix+= "Median # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+    string max_mlp_prefix="";
+    max_mlp_prefix+= "Max # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+    string mean_mlp_prefix="";
+    mean_mlp_prefix+= "Mean # DRAM Accesses Per " + to_string(mlp_epoch) + "-cycle Epoch: ";
+    sort(accesses_per_epoch.begin(), accesses_per_epoch.end());
+  
     if(accesses_per_epoch.size()==0) {
-      loadfile << mean_mlp_prefix << 0 << endl;
-      loadfile << median_mlp_prefix << 0 << endl;
-      loadfile << max_mlp_prefix << 0 << endl;
+      memStats << mean_mlp_prefix << 0 << endl;
+      memStats << median_mlp_prefix << 0 << endl;
+      memStats << max_mlp_prefix << 0 << endl;
+    } else {
+      memStats << mean_mlp_prefix << accumulate(accesses_per_epoch.begin(), accesses_per_epoch.end(),0)/accesses_per_epoch.size() << endl;
+      memStats << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
+      memStats << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
     }
-    else {
-      loadfile << mean_mlp_prefix << accumulate(accesses_per_epoch.begin(), accesses_per_epoch.end(),0)/accesses_per_epoch.size() << endl;
-      loadfile << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
-      loadfile << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
-    }
     
-    
-    loadfile << "Total Mem Access Latency (cycles): " << totalLatency << endl;
-    loadfile << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector.size() << endl;
-    
-    
-
-    loadfile << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
-    loadfile << outstring;
+    memStats << "Total Mem Access Latency (cycles): " << totalLatency << endl;
+    memStats << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector.size() << endl;
   }
-  //cout << "DeSC Forward Count: " << desc_fwd_count << endl;
-  //cout << "Number of Vector Entries: " << load_count << endl; 
 } 
 
 void Simulator::calculateGlobalEnergyPower() {
