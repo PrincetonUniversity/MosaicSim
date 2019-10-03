@@ -15,14 +15,20 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
   while(q.size() > 0) {
     
     MemTransaction* t = static_cast<MemTransaction*>(q.front());
-   
+
+    int nodeId = t->d->n->id;
+    int graphNodeId = -1;
+    int dirtyEvict = -1;
     int64_t evictedAddr = -1;
+    int evictedNodeId = -1;
+    int evictedGraphNodeId = -1;
+
     Cache* c = t->cache_q->front();
     
     assert(c->isLLC);
     t->cache_q->pop_front();
     
-    c->fc->insert(addr/c->size_of_cacheline, &evictedAddr);
+    c->fc->insert(addr/c->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId);
     if(evictedAddr!=-1) {
 
       assert(evictedAddr >= 0);

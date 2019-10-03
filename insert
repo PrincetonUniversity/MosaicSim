@@ -1,0 +1,11 @@
+sim/memsys/DRAM.cc:    c->fc->insert(addr/c->size_of_cacheline, &evictedAddr);
+sim/memsys/Cache.cc:  if(fc->evict(addr/size_of_cacheline)) { //evicts from the cache returns isDirty, in which case must write back to L2
+sim/memsys/Cache.cc:    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+sim/memsys/Cache.cc:        child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, &evictedAddr); 
+sim/memsys/Cache.cc:    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
+sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+sim/sim.cc:      assert(!core->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+src_id:sim/memsys/Cache.cc:    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+src_id:sim/memsys/Cache.cc:    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
+src_id:insert:sim/memsys/Cache.cc:    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+src_id:insert:sim/memsys/Cache.cc:    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);

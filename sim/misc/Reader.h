@@ -200,9 +200,20 @@ public:
         progressed=true;
         vector<string> s = split(line, ',');
         int id = stoi(s.at(1));
+        uint64_t address = stoull(s.at(2));
         if(memory.find(id) == memory.end()) 
           memory.insert(make_pair(id, queue<uint64_t>()));
-        memory.at(id).push(stoull(s.at(2)));  // insert the <address> into the memory instructions's <queue>
+        memory.at(id).push(address);  // insert the <address> into the memory instructions's <queue>
+        if (s.size() >= 5) {
+          int graphNodeId = stoi(s.at(4));
+          if(core->graphNodeIdMap.find(address) == core->graphNodeIdMap.end()) { 
+            core->graphNodeIdMap[address] = graphNodeId;
+          } else { // address already in map
+            if (core->graphNodeIdMap[address] != graphNodeId) {
+              assert(false);
+            }
+          }
+        }
         numLines++;
       }
       if ( memfile.eof() ) {

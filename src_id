@@ -1,0 +1,1295 @@
+.git/hooks/applypatch-msg.sample:. git-sh-setup
+.git/hooks/applypatch-msg.sample:test -x "$GIT_DIR/hooks/commit-msg" &&
+.git/hooks/applypatch-msg.sample:	exec "$GIT_DIR/hooks/commit-msg" ${1+"$@"}
+.git/hooks/commit-msg.sample:# To enable this hook, rename this file to "commit-msg".
+.git/hooks/commit-msg.sample:# Doing this in a hook is a bad idea in general, but the prepare-commit-msg
+.git/hooks/post-update.sample:# To enable this hook, rename this file to "post-update".
+.git/hooks/pre-applypatch.sample:. git-sh-setup
+.git/hooks/prepare-commit-msg.sample:# To enable this hook, rename this file to "prepare-commit-msg".
+.git/hooks/update.sample:	newrev_type=$(git cat-file -t $newrev)
+Binary file .git/objects/pack/pack-e1b07d5c025dd933c91aac54c3ecd21d0f2cdd9c.pack matches
+Binary file .git/objects/pack/pack-e1b07d5c025dd933c91aac54c3ecd21d0f2cdd9c.idx matches
+Binary file .git/objects/pack/pack-f39b70787ffd6083763219d15d3c7e2d1036ea3d.pack matches
+Binary file .git/objects/pack/pack-9bf21b1abce5716fe401a2bec9e337f91d28d44b.pack matches
+Binary file .git/objects/pack/pack-3c2757f7f3f56f203547efd93f8a047ab0082edd.pack matches
+Binary file .git/objects/pack/pack-fcabec9c9923475419a816ccb78430bd9af9397c.pack matches
+Binary file .git/objects/pack/pack-fcabec9c9923475419a816ccb78430bd9af9397c.idx matches
+Binary file .git/objects/pack/pack-559568fa9736859df779cbe1ccb00716f204676d.pack matches
+Binary file .git/objects/b0/2640e8dddf8969746bff764e0ee005339bea0d matches
+Binary file .git/objects/d7/d270a6b29b92dc66135a519b5abeec0dbaaec7 matches
+Binary file .git/objects/ed/831c5bbb81e83ee5dbd507e236daa3d6c7288f matches
+.git/objects/21/514c514d858552b4fdb59abc9393921f87a414:x•ŒMj√0@·Æ}äπ@å4≤ı°ƒç]M[ì8t-Kch$#Àãﬁæ°WËﬁ«sÒ~øe@£ür"Ç…VÇºÚàLà%Í #ó‹r√‘82RV£6™òm¢êAz≠˝$•FÜF*‰÷‘Bå5yÁî44"Í…
+Binary file .git/objects/d8/182a5d3054f60583040fbd1f3dbabe0f1c2849 matches
+Binary file .git/objects/25/622aa999adb2b5545458207a6fb2ae94edcff2 matches
+Binary file .git/objects/1f/bab19050078a98ea864a1c01e87c11c62c2d18 matches
+Binary file .git/objects/d4/8e0f45527fb8c887fa05ee0da3cc8685df12c4 matches
+Binary file .git/objects/7d/de418644d58d851482b4080fb7283b35b8bc2f matches
+Binary file .git/objects/e5/203f9baf463b1811ffdb444298c070f4008308 matches
+Binary file .git/objects/af/fdba614957b9434b32fe56d02bb65b3ca41033 matches
+Binary file .git/objects/0b/1b0a73b5fab85190e30e574b521954a1ac1003 matches
+Binary file .git/objects/68/1973d9d5d06a63097e7676207f3d70b9fb6bfe matches
+Binary file .git/objects/a1/d9793a5916295297aa7c132f40879ac4ffaea0 matches
+Binary file .git/objects/2c/8f53c3826348cd901d4a088e282bed808eccc5 matches
+Binary file .git/objects/4c/4cbd31529508a1cfc85d2a0aaa4ea659087e26 matches
+Binary file .git/objects/d9/15a6d7ba96fc6e284271d91ece2b62ce8aa178 matches
+Binary file .git/objects/7f/3d8035ea57765d672dbc20e7569ee506fb8c31 matches
+.git/logs/refs/remotes/origin/master:0a2aa210cf83db09b0fa1506bb1e353cdf2b09d0 472f04d0758bc79a90b07e8b46e4718fb9350d80 amanocha <amanocha@princeton.edu> 1558316597 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:472f04d0758bc79a90b07e8b46e4718fb9350d80 f4d4cc0490031e81d6ba01cf01ffec803baf3aea amanocha <amanocha@princeton.edu> 1558393678 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:77ceddb77acb40a2e105b7d628849083e53fa673 ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 amanocha <amanocha@princeton.edu> 1558995210 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 c9d4da03c2bd34f42632f1bd22aa7f36809df7df amanocha <amanocha@princeton.edu> 1559153994 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:c9d4da03c2bd34f42632f1bd22aa7f36809df7df dc70a24e94a213d769b3317a8739404730eca9b7 amanocha <amanocha@princeton.edu> 1559170849 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:dc70a24e94a213d769b3317a8739404730eca9b7 b0508d66890826aff9559884c12b947b4fb87fbe amanocha <amanocha@princeton.edu> 1559523878 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:b0508d66890826aff9559884c12b947b4fb87fbe 1b171ced69278f3b0a0a71b69d522ea3b035f7d4 amanocha <amanocha@princeton.edu> 1560350406 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:1b171ced69278f3b0a0a71b69d522ea3b035f7d4 91a4c75492842944787bf2ba368f8956e96d3944 amanocha <amanocha@princeton.edu> 1560535690 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:91a4c75492842944787bf2ba368f8956e96d3944 66e430bf2bfc63310787e1f56adf43e2f4a2dca1 amanocha <amanocha@princeton.edu> 1562003516 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:66e430bf2bfc63310787e1f56adf43e2f4a2dca1 fa36ab0d62775139011b0fce529ec09b26b55529 amanocha <amanocha@princeton.edu> 1562350541 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:fa36ab0d62775139011b0fce529ec09b26b55529 9be4ab595cff83b226f449794ed0bad5838aca4b amanocha <amanocha@princeton.edu> 1562441218 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:9be4ab595cff83b226f449794ed0bad5838aca4b 2c9aae6143e48019983d8dfb00417c7110fe4926 amanocha <amanocha@princeton.edu> 1562821273 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:2c9aae6143e48019983d8dfb00417c7110fe4926 6d88df66820296721a9533b5edcc769eb228fa32 amanocha <amanocha@princeton.edu> 1562942420 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:6d88df66820296721a9533b5edcc769eb228fa32 7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 amanocha <amanocha@princeton.edu> 1564177749 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 277bf3b6be14704f7ccc45299ea877a85faf3b55 amanocha <amanocha@princeton.edu> 1564325748 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:277bf3b6be14704f7ccc45299ea877a85faf3b55 8145be0bde15e4ac232c04ba97800fa2770e4172 amanocha <amanocha@princeton.edu> 1564353012 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:8145be0bde15e4ac232c04ba97800fa2770e4172 6fb45c20a3756996d07fa19ddedf7d3046c0bc83 amanocha <amanocha@princeton.edu> 1564355945 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:6fb45c20a3756996d07fa19ddedf7d3046c0bc83 570eaae4d48b79120a2c8efb2bcfcac718fdc81c amanocha <amanocha@princeton.edu> 1565055846 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:570eaae4d48b79120a2c8efb2bcfcac718fdc81c f6424aa3b3403f4a3f07f7e10db231dab6bd824a amanocha <amanocha@princeton.edu> 1565149362 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:f6424aa3b3403f4a3f07f7e10db231dab6bd824a f777ad083479c89795587c31debe1475a95092e9 amanocha <amanocha@princeton.edu> 1565213679 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:f777ad083479c89795587c31debe1475a95092e9 40b7a46b96e00e6453c8896ef140bf7a55381824 amanocha <amanocha@princeton.edu> 1565220402 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:40b7a46b96e00e6453c8896ef140bf7a55381824 b0135371646e6e436e6ab1239ac8fa6e1c74bae4 amanocha <amanocha@princeton.edu> 1565222037 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:b0135371646e6e436e6ab1239ac8fa6e1c74bae4 1f7f6180a309678b5f949c72453b8f8d19e3d58f amanocha <amanocha@princeton.edu> 1565226338 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:1f7f6180a309678b5f949c72453b8f8d19e3d58f e730b16d93bea4403d03a71559cfbe7ff44134fd amanocha <amanocha@princeton.edu> 1565294175 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:e730b16d93bea4403d03a71559cfbe7ff44134fd 9c7e6dd0de07f884a67dc231fb5386b315f2d204 amanocha <amanocha@princeton.edu> 1565298111 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:9c7e6dd0de07f884a67dc231fb5386b315f2d204 0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f amanocha <amanocha@princeton.edu> 1565481478 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f 2b90288b8154ef565bc8034a64313291fa242306 amanocha <amanocha@princeton.edu> 1565540680 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:2b90288b8154ef565bc8034a64313291fa242306 e95a77c12b347c2ae866e18b6cc68d597d490c76 amanocha <amanocha@princeton.edu> 1565656821 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:e95a77c12b347c2ae866e18b6cc68d597d490c76 fd3d272336213b1cc1d4b2249817dacc12d25dca amanocha <amanocha@princeton.edu> 1565669932 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:fd3d272336213b1cc1d4b2249817dacc12d25dca 7bad765fd7f830c08c1f3fddc06a7e16dc4a6c6a amanocha <amanocha@princeton.edu> 1566567357 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/master:7573d7c67ab6cad4ac6862407ef9751dda2fa0f9 30f9e4bbf5526abf81ea2fd6d328ed89c956a3d5 amanocha <amanocha@princeton.edu> 1566675991 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/accelerator_models:56248a45d81baa3423b93c2f3719cbf2bd769972 1932c7877352b4ce2445b152ba30cff4342682c9 amanocha <amanocha@princeton.edu> 1559153994 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/accelerator_models:1932c7877352b4ce2445b152ba30cff4342682c9 087f16135655ebab4fcc38eb52ce7e03bbb0489a amanocha <amanocha@princeton.edu> 1559170849 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/dynamic_reconfig:55cdfd99bfa1349c5ba97fab23e6b8af29654734 bb1050f9c695d8976eb5e96452b5f68e8bd42212 amanocha <amanocha@princeton.edu> 1566239236 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/dynamic_reconfig:bb1050f9c695d8976eb5e96452b5f68e8bd42212 1305cec4d1f27a14437fb3082de17742669383d3 amanocha <amanocha@princeton.edu> 1566567357 -0400	pull: fast-forward
+.git/logs/refs/remotes/origin/dynamic_reconfig:1305cec4d1f27a14437fb3082de17742669383d3 5937f0ba0f64d11b0ad2d5159b1483234caa8f5b amanocha <amanocha@princeton.edu> 1566675991 -0400	pull: fast-forward
+.git/logs/refs/heads/master:0a2aa210cf83db09b0fa1506bb1e353cdf2b09d0 472f04d0758bc79a90b07e8b46e4718fb9350d80 amanocha <amanocha@princeton.edu> 1558316597 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:472f04d0758bc79a90b07e8b46e4718fb9350d80 f4d4cc0490031e81d6ba01cf01ffec803baf3aea amanocha <amanocha@princeton.edu> 1558393678 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:77ceddb77acb40a2e105b7d628849083e53fa673 ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 amanocha <amanocha@princeton.edu> 1558995218 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 c9d4da03c2bd34f42632f1bd22aa7f36809df7df amanocha <amanocha@princeton.edu> 1559153995 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:c9d4da03c2bd34f42632f1bd22aa7f36809df7df dc70a24e94a213d769b3317a8739404730eca9b7 amanocha <amanocha@princeton.edu> 1559170850 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:dc70a24e94a213d769b3317a8739404730eca9b7 b0508d66890826aff9559884c12b947b4fb87fbe amanocha <amanocha@princeton.edu> 1559523878 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:b0508d66890826aff9559884c12b947b4fb87fbe 1b171ced69278f3b0a0a71b69d522ea3b035f7d4 amanocha <amanocha@princeton.edu> 1560350407 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:1b171ced69278f3b0a0a71b69d522ea3b035f7d4 91a4c75492842944787bf2ba368f8956e96d3944 amanocha <amanocha@princeton.edu> 1560535691 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:91a4c75492842944787bf2ba368f8956e96d3944 66e430bf2bfc63310787e1f56adf43e2f4a2dca1 amanocha <amanocha@princeton.edu> 1562003516 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:66e430bf2bfc63310787e1f56adf43e2f4a2dca1 fa36ab0d62775139011b0fce529ec09b26b55529 amanocha <amanocha@princeton.edu> 1562350541 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:fa36ab0d62775139011b0fce529ec09b26b55529 9be4ab595cff83b226f449794ed0bad5838aca4b amanocha <amanocha@princeton.edu> 1562441218 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:9be4ab595cff83b226f449794ed0bad5838aca4b 2c9aae6143e48019983d8dfb00417c7110fe4926 amanocha <amanocha@princeton.edu> 1562821273 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:2c9aae6143e48019983d8dfb00417c7110fe4926 6d88df66820296721a9533b5edcc769eb228fa32 amanocha <amanocha@princeton.edu> 1562942420 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:6d88df66820296721a9533b5edcc769eb228fa32 7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 amanocha <amanocha@princeton.edu> 1564177749 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 277bf3b6be14704f7ccc45299ea877a85faf3b55 amanocha <amanocha@princeton.edu> 1564325748 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:277bf3b6be14704f7ccc45299ea877a85faf3b55 8145be0bde15e4ac232c04ba97800fa2770e4172 amanocha <amanocha@princeton.edu> 1564353012 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:8145be0bde15e4ac232c04ba97800fa2770e4172 6fb45c20a3756996d07fa19ddedf7d3046c0bc83 amanocha <amanocha@princeton.edu> 1564355945 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:6fb45c20a3756996d07fa19ddedf7d3046c0bc83 570eaae4d48b79120a2c8efb2bcfcac718fdc81c amanocha <amanocha@princeton.edu> 1565055846 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:570eaae4d48b79120a2c8efb2bcfcac718fdc81c f6424aa3b3403f4a3f07f7e10db231dab6bd824a amanocha <amanocha@princeton.edu> 1565149362 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:f6424aa3b3403f4a3f07f7e10db231dab6bd824a f777ad083479c89795587c31debe1475a95092e9 amanocha <amanocha@princeton.edu> 1565213679 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:f777ad083479c89795587c31debe1475a95092e9 40b7a46b96e00e6453c8896ef140bf7a55381824 amanocha <amanocha@princeton.edu> 1565220402 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:40b7a46b96e00e6453c8896ef140bf7a55381824 b0135371646e6e436e6ab1239ac8fa6e1c74bae4 amanocha <amanocha@princeton.edu> 1565222037 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:b0135371646e6e436e6ab1239ac8fa6e1c74bae4 1f7f6180a309678b5f949c72453b8f8d19e3d58f amanocha <amanocha@princeton.edu> 1565226338 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:1f7f6180a309678b5f949c72453b8f8d19e3d58f e730b16d93bea4403d03a71559cfbe7ff44134fd amanocha <amanocha@princeton.edu> 1565294175 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:e730b16d93bea4403d03a71559cfbe7ff44134fd 9c7e6dd0de07f884a67dc231fb5386b315f2d204 amanocha <amanocha@princeton.edu> 1565298111 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:9c7e6dd0de07f884a67dc231fb5386b315f2d204 0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f amanocha <amanocha@princeton.edu> 1565481478 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f 2b90288b8154ef565bc8034a64313291fa242306 amanocha <amanocha@princeton.edu> 1565540680 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:2b90288b8154ef565bc8034a64313291fa242306 e95a77c12b347c2ae866e18b6cc68d597d490c76 amanocha <amanocha@princeton.edu> 1565656821 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:e95a77c12b347c2ae866e18b6cc68d597d490c76 fd3d272336213b1cc1d4b2249817dacc12d25dca amanocha <amanocha@princeton.edu> 1565669932 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:fd3d272336213b1cc1d4b2249817dacc12d25dca 7bad765fd7f830c08c1f3fddc06a7e16dc4a6c6a amanocha <amanocha@princeton.edu> 1566571461 -0400	pull: Fast-forward
+.git/logs/refs/heads/master:7573d7c67ab6cad4ac6862407ef9751dda2fa0f9 30f9e4bbf5526abf81ea2fd6d328ed89c956a3d5 amanocha <amanocha@princeton.edu> 1566676023 -0400	pull: Fast-forward
+.git/logs/refs/heads/dynamic_reconfig:bb1050f9c695d8976eb5e96452b5f68e8bd42212 1305cec4d1f27a14437fb3082de17742669383d3 amanocha <amanocha@princeton.edu> 1566567357 -0400	pull: Fast-forward
+.git/logs/HEAD:0a2aa210cf83db09b0fa1506bb1e353cdf2b09d0 472f04d0758bc79a90b07e8b46e4718fb9350d80 amanocha <amanocha@princeton.edu> 1558316597 -0400	pull: Fast-forward
+.git/logs/HEAD:472f04d0758bc79a90b07e8b46e4718fb9350d80 f4d4cc0490031e81d6ba01cf01ffec803baf3aea amanocha <amanocha@princeton.edu> 1558393678 -0400	pull: Fast-forward
+.git/logs/HEAD:77ceddb77acb40a2e105b7d628849083e53fa673 ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 amanocha <amanocha@princeton.edu> 1558995218 -0400	pull: Fast-forward
+.git/logs/HEAD:ea7bfa3c697d1c91d46bd18217c05d02b5c7fdb9 c9d4da03c2bd34f42632f1bd22aa7f36809df7df amanocha <amanocha@princeton.edu> 1559153995 -0400	pull: Fast-forward
+.git/logs/HEAD:c9d4da03c2bd34f42632f1bd22aa7f36809df7df dc70a24e94a213d769b3317a8739404730eca9b7 amanocha <amanocha@princeton.edu> 1559170850 -0400	pull: Fast-forward
+.git/logs/HEAD:dc70a24e94a213d769b3317a8739404730eca9b7 b0508d66890826aff9559884c12b947b4fb87fbe amanocha <amanocha@princeton.edu> 1559523878 -0400	pull: Fast-forward
+.git/logs/HEAD:b0508d66890826aff9559884c12b947b4fb87fbe 1b171ced69278f3b0a0a71b69d522ea3b035f7d4 amanocha <amanocha@princeton.edu> 1560350407 -0400	pull: Fast-forward
+.git/logs/HEAD:1b171ced69278f3b0a0a71b69d522ea3b035f7d4 91a4c75492842944787bf2ba368f8956e96d3944 amanocha <amanocha@princeton.edu> 1560535691 -0400	pull: Fast-forward
+.git/logs/HEAD:91a4c75492842944787bf2ba368f8956e96d3944 66e430bf2bfc63310787e1f56adf43e2f4a2dca1 amanocha <amanocha@princeton.edu> 1562003516 -0400	pull: Fast-forward
+.git/logs/HEAD:66e430bf2bfc63310787e1f56adf43e2f4a2dca1 fa36ab0d62775139011b0fce529ec09b26b55529 amanocha <amanocha@princeton.edu> 1562350541 -0400	pull: Fast-forward
+.git/logs/HEAD:fa36ab0d62775139011b0fce529ec09b26b55529 9be4ab595cff83b226f449794ed0bad5838aca4b amanocha <amanocha@princeton.edu> 1562441218 -0400	pull: Fast-forward
+.git/logs/HEAD:9be4ab595cff83b226f449794ed0bad5838aca4b 2c9aae6143e48019983d8dfb00417c7110fe4926 amanocha <amanocha@princeton.edu> 1562821273 -0400	pull: Fast-forward
+.git/logs/HEAD:2c9aae6143e48019983d8dfb00417c7110fe4926 6d88df66820296721a9533b5edcc769eb228fa32 amanocha <amanocha@princeton.edu> 1562942420 -0400	pull: Fast-forward
+.git/logs/HEAD:6d88df66820296721a9533b5edcc769eb228fa32 7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 amanocha <amanocha@princeton.edu> 1564177749 -0400	pull: Fast-forward
+.git/logs/HEAD:7c5789c398e2b9cb9d8957e16c01b96c26ee6a67 277bf3b6be14704f7ccc45299ea877a85faf3b55 amanocha <amanocha@princeton.edu> 1564325748 -0400	pull: Fast-forward
+.git/logs/HEAD:277bf3b6be14704f7ccc45299ea877a85faf3b55 8145be0bde15e4ac232c04ba97800fa2770e4172 amanocha <amanocha@princeton.edu> 1564353012 -0400	pull: Fast-forward
+.git/logs/HEAD:8145be0bde15e4ac232c04ba97800fa2770e4172 6fb45c20a3756996d07fa19ddedf7d3046c0bc83 amanocha <amanocha@princeton.edu> 1564355945 -0400	pull: Fast-forward
+.git/logs/HEAD:6fb45c20a3756996d07fa19ddedf7d3046c0bc83 570eaae4d48b79120a2c8efb2bcfcac718fdc81c amanocha <amanocha@princeton.edu> 1565055846 -0400	pull: Fast-forward
+.git/logs/HEAD:570eaae4d48b79120a2c8efb2bcfcac718fdc81c f6424aa3b3403f4a3f07f7e10db231dab6bd824a amanocha <amanocha@princeton.edu> 1565149362 -0400	pull: Fast-forward
+.git/logs/HEAD:f6424aa3b3403f4a3f07f7e10db231dab6bd824a f777ad083479c89795587c31debe1475a95092e9 amanocha <amanocha@princeton.edu> 1565213679 -0400	pull: Fast-forward
+.git/logs/HEAD:f777ad083479c89795587c31debe1475a95092e9 40b7a46b96e00e6453c8896ef140bf7a55381824 amanocha <amanocha@princeton.edu> 1565220402 -0400	pull: Fast-forward
+.git/logs/HEAD:40b7a46b96e00e6453c8896ef140bf7a55381824 b0135371646e6e436e6ab1239ac8fa6e1c74bae4 amanocha <amanocha@princeton.edu> 1565222037 -0400	pull: Fast-forward
+.git/logs/HEAD:b0135371646e6e436e6ab1239ac8fa6e1c74bae4 1f7f6180a309678b5f949c72453b8f8d19e3d58f amanocha <amanocha@princeton.edu> 1565226338 -0400	pull: Fast-forward
+.git/logs/HEAD:1f7f6180a309678b5f949c72453b8f8d19e3d58f e730b16d93bea4403d03a71559cfbe7ff44134fd amanocha <amanocha@princeton.edu> 1565294175 -0400	pull: Fast-forward
+.git/logs/HEAD:e730b16d93bea4403d03a71559cfbe7ff44134fd 9c7e6dd0de07f884a67dc231fb5386b315f2d204 amanocha <amanocha@princeton.edu> 1565298111 -0400	pull: Fast-forward
+.git/logs/HEAD:9c7e6dd0de07f884a67dc231fb5386b315f2d204 0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f amanocha <amanocha@princeton.edu> 1565481478 -0400	pull: Fast-forward
+.git/logs/HEAD:0a4dee6eb8c96c9e485bc41ad1d83da78b4edd4f 2b90288b8154ef565bc8034a64313291fa242306 amanocha <amanocha@princeton.edu> 1565540680 -0400	pull: Fast-forward
+.git/logs/HEAD:2b90288b8154ef565bc8034a64313291fa242306 e95a77c12b347c2ae866e18b6cc68d597d490c76 amanocha <amanocha@princeton.edu> 1565656821 -0400	pull: Fast-forward
+.git/logs/HEAD:e95a77c12b347c2ae866e18b6cc68d597d490c76 fd3d272336213b1cc1d4b2249817dacc12d25dca amanocha <amanocha@princeton.edu> 1565669932 -0400	pull: Fast-forward
+.git/logs/HEAD:bb1050f9c695d8976eb5e96452b5f68e8bd42212 1305cec4d1f27a14437fb3082de17742669383d3 amanocha <amanocha@princeton.edu> 1566567357 -0400	pull: Fast-forward
+.git/logs/HEAD:fd3d272336213b1cc1d4b2249817dacc12d25dca 7bad765fd7f830c08c1f3fddc06a7e16dc4a6c6a amanocha <amanocha@princeton.edu> 1566571461 -0400	pull: Fast-forward
+.git/logs/HEAD:7573d7c67ab6cad4ac6862407ef9751dda2fa0f9 30f9e4bbf5526abf81ea2fd6d328ed89c956a3d5 amanocha <amanocha@princeton.edu> 1566676023 -0400	pull: Fast-forward
+Binary file .git/index matches
+.git/FETCH_HEAD:a719c70926d570c6e0173fe297f3813678c5c347	not-for-merge	branch 'acc_test' of github.com:PrincetonUniversity/pythia
+.git/FETCH_HEAD:087f16135655ebab4fcc38eb52ce7e03bbb0489a	not-for-merge	branch 'accelerator_models' of github.com:PrincetonUniversity/pythia
+.git/FETCH_HEAD:3e9ace8568b3dcbf531ce1cdb951ba172f2dd595	not-for-merge	branch 'decpp_v_0_2_compatibility' of github.com:PrincetonUniversity/pythia
+.git/FETCH_HEAD:0fef92d2e685faaebcf87b036568bcd7e14ca97c	not-for-merge	branch 'desc_dramsim' of github.com:PrincetonUniversity/pythia
+.git/FETCH_HEAD:f57576f6c86a11c13566c3eb3ccac9f5490ef711	not-for-merge	branch 'desc_inf_bw' of github.com:PrincetonUniversity/pythia
+.git/FETCH_HEAD:5937f0ba0f64d11b0ad2d5159b1483234caa8f5b	not-for-merge	branch 'dynamic_reconfig' of github.com:PrincetonUniversity/pythia
+compiler_passes/server.c:// From https://www.geeksforgeeks.org/socket-programming-cc/
+pass/graphgen/Graph.h:      unsigned op = inst->getOpcode();
+pass/graphgen/Graph.h:      else if(inst->isTerminator())
+pass/graphgen/Graph.h:	std::string my_str = inst->getOpcodeName();
+pass/graphgen/Graph.h:        //errs() << "WARNING, UNKNOWN INSTRUCTION: \n";// << inst->getName().str() << " instruction.\n";
+pass/graphgen/Graph.h:        //inst->dump();
+pass/graphgen/GraphGen.cpp:              Value* pv=(cinst->getArgOperand(0));
+pass/graphgen/GraphGen.cpp:        Value *pv = stinst->getPointerOperand();
+pass/graphgen/GraphGen.cpp:                Value* pv=(cinst->getArgOperand(0));
+pass/graphgen/GraphGen.cpp:               Value* pv=(cinst->getArgOperand(0));
+pass/graphgen/GraphGen.cpp:        fout << n->uid << " -> " << dst->uid << "[color=black];\n";
+pass/graphgen/GraphGen.cpp:          if(inst->getParent() == dst->val) {
+pass/graphgen/GraphGen.cpp:          fout << n->uid << " -> " << dst->uid << "[color=blue];\n";
+pass/graphgen/GraphGen.cpp:          fout << dst->uid << " -> " << n->uid << "[color=blue,dir=back];\n";
+pass/graphgen/GraphGen.cpp:        fout << n->uid << " -> " << dst->uid << "[color=red];\n";
+pass/graphgen/GraphGen.cpp:        if(isa<Instruction>(n->val) && isa<Instruction>(dst->val)) {
+pass/graphgen/GraphGen.cpp:          Instruction *dstinst = cast<Instruction>(dst->val);
+pass/graphgen/GraphGen.cpp:          if(srcinst->getParent() == dstinst->getParent())
+pass/graphgen/GraphGen.cpp:          fout << n->uid << " -> " << dst->uid << "[color=navyblue];\n";
+pass/graphgen/GraphGen.cpp:          fout << dst->uid << " -> " << n->uid << "[color=navyblue,dir=back];\n";
+pass/graphgen/GraphGen.cpp:          cfile << src->id << "," << dst->id << ",0\n";
+pass/graphgen/GraphGen.cpp:          cfile << src->id << "," << dst->id << ",1\n";
+pass/graphgen/GraphGen.cpp:      Node *src = nodeMap.at(it->first);
+pass/graphgen/GraphGen.cpp:      Node *dst = nodeMap.at(it->second);
+pass/graphgen/GraphGen.cpp:      cfile << src->id << "," << dst->id <<",-1\n";
+pass/profiler/RecordDynamicInfo.cpp:          for (Use &use : inst->operands()) {
+pass/profiler/RecordDynamicInfo.cpp:                //Value* addr=cinst->getArgOperand(0);
+pass/profiler/RecordDynamicInfo.cpp:                v=(cinst->getArgOperand(0));
+pass/profiler/RecordDynamicInfo.cpp:                //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
+pass/profiler/RecordDynamicInfo.cpp:                //Value* addr=cinst->getArgOperand(0);
+pass/profiler/RecordDynamicInfo.cpp:                v=(cinst->getArgOperand(0));
+pass/profiler/RecordDynamicInfo.cpp:                //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
+pass/profiler/RecordDynamicInfo.cpp:                rowsa_val=(cinst->getArgOperand(0));
+pass/profiler/RecordDynamicInfo.cpp:                colsa_val=(cinst->getArgOperand(1));                
+pass/profiler/RecordDynamicInfo.cpp:                rowsb_val=(cinst->getArgOperand(2));
+pass/profiler/RecordDynamicInfo.cpp:                colsb_val=(cinst->getArgOperand(3));
+pass/profiler/RecordDynamicInfo.cpp:                batch_val=(cinst->getArgOperand(4));
+pass/profiler/RecordDynamicInfo.cpp:                //errs() << "STADDR Addr: " << *(cinst->getArgOperand(0)) << "\n";
+pass/profiler/RecordDynamicInfo.cpp:                working_mode=(cinst->getArgOperand(0));
+pass/profiler/RecordDynamicInfo.cpp:                size=(cinst->getArgOperand(1));
+pass/profiler/RecordDynamicInfo.cpp:                batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(13));pool_height=(cinst->getArgOperand(15));pool_width=(cinst->getArgOperand(16));vertical_pool_stride=(cinst->getArgOperand(17));horizontal_pool_stride=(cinst->getArgOperand(18));
+pass/profiler/RecordDynamicInfo.cpp:                //batch=(cinst->getArgOperand(0));in_channels=(cinst->getArgOperand(3)); in_height=(cinst->getArgOperand(1));in_width=(cinst->getArgOperand(2));out_channels=(cinst->getArgOperand(6));filter_height=(cinst->getArgOperand(4));filter_width=(cinst->getArgOperand(5));zero_pad=(cinst->getArgOperand(7));vert_conv_stride=(cinst->getArgOperand(8));horiz_conv_stride=(cinst->getArgOperand(9));pooling=(cinst->getArgOperand(10));pool_height=(cinst->getArgOperand(11));pool_width=(cinst->getArgOperand(12));vertical_pool_stride=(cinst->getArgOperand(13));horizontal_pool_stride=(cinst->getArgOperand(14));
+pass/profiler/RecordDynamicInfo.cpp:                batch=(cinst->getArgOperand(0));
+pass/profiler/RecordDynamicInfo.cpp:                in_channels=(cinst->getArgOperand(1));
+pass/profiler/RecordDynamicInfo.cpp:                out_channels=(cinst->getArgOperand(2));
+pass/profiler/RecordDynamicInfo.cpp:        else if(inst->isTerminator()) {
+sim/graph/Graph.cc:    if(dest->bbid == this->bbid) {
+sim/graph/Graph.cc:      dest->parents.insert(this);
+sim/graph/Graph.cc:      if(dest->typeInstr == PHI)
+sim/graph/Graph.cc:      dest->external_parents.insert(this);
+sim/graph/Graph.cc:    dest->phi_parents.insert(this);
+sim/graph/Graph.cc:    if(dest->bbid == this->bbid) {
+sim/graph/Graph.cc:      dest->parents.erase(this);
+sim/graph/Graph.cc:      dest->external_parents.erase(this);
+sim/graph/Graph.cc:    dest->phi_parents.erase(this);
+sim/graph/Graph.cc:    eraseNode(it->second);
+sim/graph/Graph.cc:    cout << it->first << ":" << *it->second << "\n";
+sim/graph/GraphOpt.h:    assert(init->typeInstr == PHI);
+sim/graph/GraphOpt.h:    for(auto pit = init->phi_parents.begin(); pit!= init->phi_parents.end(); ++pit) {
+sim/graph/GraphOpt.h:      //if(sn->bbid == init->bbid) {
+sim/graph/GraphOpt.h:      if(sn->typeInstr == PHI && sn->bbid == init->bbid)
+sim/graph/GraphOpt.h:        if(n->phi_parents.size() == 1 && (*(n->phi_parents.begin()))->bbid != init->bbid) {
+sim/graph/GraphOpt.h:          if(sn->typeInstr == PHI && sn->bbid == init->bbid) {
+sim/graph/GraphOpt.h:          if(sn->typeInstr == PHI && sn->bbid == init->bbid)
+sim/graph/GraphOpt.h:      Node *n = it->second;
+sim/graph/GraphOpt.h:      Node *n = it->second;
+sim/memsys/DRAMSim2/Bank.cpp:	DataStruct *rowHeadNode = rowEntries[busPacket->column];
+sim/memsys/DRAMSim2/Bank.cpp:	if ((foundNode = Bank::searchForRow(busPacket->row, rowHeadNode)) == NULL)
+sim/memsys/DRAMSim2/Bank.cpp:		//if(SHOW_SIM_OUTPUT) DEBUG("== Warning - Read from previously unwritten row " << busPacket->row);
+sim/memsys/DRAMSim2/Bank.cpp:		busPacket->data = garbage;
+sim/memsys/DRAMSim2/Bank.cpp:		busPacket->data = foundNode->data;
+sim/memsys/DRAMSim2/Bank.cpp:	busPacket->busPacketType = DATA;
+sim/memsys/DRAMSim2/Bank.cpp:	if (busPacket->column >= NUM_COLS)
+sim/memsys/DRAMSim2/Bank.cpp:		ERROR("== Error - Bus Packet column "<< busPacket->column <<" out of bounds");
+sim/memsys/DRAMSim2/Bank.cpp:	DataStruct *rowHeadNode = rowEntries[busPacket->column];
+sim/memsys/DRAMSim2/Bank.cpp:	if ((foundNode = Bank::searchForRow(busPacket->row, rowHeadNode)) == NULL)
+sim/memsys/DRAMSim2/Bank.cpp:		newRowNode->row = busPacket->row;
+sim/memsys/DRAMSim2/Bank.cpp:		newRowNode->data = busPacket->data;
+sim/memsys/DRAMSim2/Bank.cpp:		rowEntries[busPacket->column] = newRowNode;
+sim/memsys/DRAMSim2/Bank.cpp:		foundNode->data = busPacket->data;
+sim/memsys/DRAMSim2/Bank.cpp:			PRINTN(" -- Bank "<<busPacket->bank<<" writing to physical address 0x" << hex << busPacket->physicalAddress<<dec<<":");
+sim/memsys/DRAMSim2/Bank.cpp:			busPacket->printData();
+sim/memsys/DRAMSim2/CommandQueue.cpp:	unsigned rank = newBusPacket->rank;
+sim/memsys/DRAMSim2/CommandQueue.cpp:	unsigned bank = newBusPacket->bank;
+sim/memsys/DRAMSim2/CommandQueue.cpp:						if (packet->row == bankStates[refreshRank][b].openRowAddress &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:								packet->bank == b)
+sim/memsys/DRAMSim2/CommandQueue.cpp:							if (packet->busPacketType != ACTIVATE && isIssuable(packet))
+sim/memsys/DRAMSim2/CommandQueue.cpp:						if (bankStates[refreshRank][b].openRowAddress == packet->row &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:								b == packet->bank)
+sim/memsys/DRAMSim2/CommandQueue.cpp:							if (packet->busPacketType != ACTIVATE)
+sim/memsys/DRAMSim2/CommandQueue.cpp:								if (prevPacket->busPacketType != ACTIVATE &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:										prevPacket->bank == packet->bank &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:										prevPacket->row == packet->row)
+sim/memsys/DRAMSim2/CommandQueue.cpp:	switch (busPacket->busPacketType)
+sim/memsys/DRAMSim2/CommandQueue.cpp:		if ((bankStates[busPacket->rank][busPacket->bank].currentBankState == Idle ||
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        bankStates[busPacket->rank][busPacket->bank].currentBankState == Refreshing) &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        currentClockCycle >= bankStates[busPacket->rank][busPacket->bank].nextActivate &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        tFAWCountdown[busPacket->rank].size() < 4)
+sim/memsys/DRAMSim2/CommandQueue.cpp:		if (bankStates[busPacket->rank][busPacket->bank].currentBankState == RowActive &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        currentClockCycle >= bankStates[busPacket->rank][busPacket->bank].nextWrite &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        busPacket->row == bankStates[busPacket->rank][busPacket->bank].openRowAddress &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        rowAccessCounters[busPacket->rank][busPacket->bank] < TOTAL_ROW_ACCESSES)
+sim/memsys/DRAMSim2/CommandQueue.cpp:		if (bankStates[busPacket->rank][busPacket->bank].currentBankState == RowActive &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        currentClockCycle >= bankStates[busPacket->rank][busPacket->bank].nextRead &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        busPacket->row == bankStates[busPacket->rank][busPacket->bank].openRowAddress &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        rowAccessCounters[busPacket->rank][busPacket->bank] < TOTAL_ROW_ACCESSES)
+sim/memsys/DRAMSim2/CommandQueue.cpp:		if (bankStates[busPacket->rank][busPacket->bank].currentBankState == RowActive &&
+sim/memsys/DRAMSim2/CommandQueue.cpp:		        currentClockCycle >= bankStates[busPacket->rank][busPacket->bank].nextPrecharge)
+sim/memsys/DRAMSim2/CommandQueue.cpp:		busPacket->print();
+sim/memsys/DRAMSim2/IniReader.cpp:		string key = it->first; 
+sim/memsys/DRAMSim2/IniReader.cpp:		string value = it->second; 
+sim/memsys/DRAMSim2/MemoryController.cpp:	if (bpacket->busPacketType != DATA)
+sim/memsys/DRAMSim2/MemoryController.cpp:		bpacket->print();
+sim/memsys/DRAMSim2/MemoryController.cpp:		bpacket->print();
+sim/memsys/DRAMSim2/MemoryController.cpp:	returnTransaction.push_back(new Transaction(RETURN_DATA, bpacket->physicalAddress, bpacket->data));
+sim/memsys/DRAMSim2/MemoryController.cpp:	totalReadsPerBank[SEQUENTIAL(bpacket->rank,bpacket->bank)]++;
+sim/memsys/DRAMSim2/MemoryController.cpp:		cmdCyclesLeft--;
+sim/memsys/DRAMSim2/MemoryController.cpp:			(*ranks)[outgoingCmdPacket->rank]->receiveFromBus(outgoingCmdPacket);
+sim/memsys/DRAMSim2/MemoryController.cpp:		dataCyclesLeft--;
+sim/memsys/DRAMSim2/MemoryController.cpp:				(*parentMemorySystem->WriteDataDone)(parentMemorySystem->systemID,outgoingDataPacket->physicalAddress, currentClockCycle);
+sim/memsys/DRAMSim2/MemoryController.cpp:			(*ranks)[outgoingDataPacket->rank]->receiveFromBus(outgoingDataPacket);
+sim/memsys/DRAMSim2/MemoryController.cpp:		if (poppedBusPacket->busPacketType == WRITE || poppedBusPacket->busPacketType == WRITE_P)
+sim/memsys/DRAMSim2/MemoryController.cpp:			writeDataToSend.push_back(new BusPacket(DATA, poppedBusPacket->physicalAddress, poppedBusPacket->column,
+sim/memsys/DRAMSim2/MemoryController.cpp:			                                    poppedBusPacket->row, poppedBusPacket->rank, poppedBusPacket->bank,
+sim/memsys/DRAMSim2/MemoryController.cpp:			                                    poppedBusPacket->data, dramsim_log));
+sim/memsys/DRAMSim2/MemoryController.cpp:		unsigned rank = poppedBusPacket->rank;
+sim/memsys/DRAMSim2/MemoryController.cpp:		unsigned bank = poppedBusPacket->bank;
+sim/memsys/DRAMSim2/MemoryController.cpp:		switch (poppedBusPacket->busPacketType)
+sim/memsys/DRAMSim2/MemoryController.cpp:				if (poppedBusPacket->busPacketType == READ_P) 
+sim/memsys/DRAMSim2/MemoryController.cpp:				else if (poppedBusPacket->busPacketType == READ)
+sim/memsys/DRAMSim2/MemoryController.cpp:						if (i!=poppedBusPacket->rank)
+sim/memsys/DRAMSim2/MemoryController.cpp:				if (poppedBusPacket->busPacketType == READ_P)
+sim/memsys/DRAMSim2/MemoryController.cpp:				if (poppedBusPacket->busPacketType == WRITE_P) 
+sim/memsys/DRAMSim2/MemoryController.cpp:				else if (poppedBusPacket->busPacketType == WRITE)
+sim/memsys/DRAMSim2/MemoryController.cpp:						if (i!=poppedBusPacket->rank)
+sim/memsys/DRAMSim2/MemoryController.cpp:				if (poppedBusPacket->busPacketType == WRITE_P)
+sim/memsys/DRAMSim2/MemoryController.cpp:				bankStates[rank][bank].openRowAddress = poppedBusPacket->row;
+sim/memsys/DRAMSim2/MemoryController.cpp:					if (i!=poppedBusPacket->bank)
+sim/memsys/DRAMSim2/MemoryController.cpp:				ERROR("== Error - Popped a command we shouldn't have of type : " << poppedBusPacket->busPacketType);
+sim/memsys/DRAMSim2/MemoryController.cpp:			poppedBusPacket->print();
+sim/memsys/DRAMSim2/MemoryController.cpp:			PRINT( "       ["<< it->first <<"-"<<it->first+(HISTOGRAM_BIN_SIZE-1)<<"] : "<< it->second );
+sim/memsys/DRAMSim2/MemoryController.cpp:				csvOut.getOutputStream() << it->first <<"="<< it->second << endl;
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.cpp:		csvOut->finalize();
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.cpp:	csvOut->finalize();
+Binary file sim/memsys/DRAMSim2/README.pdf matches
+sim/memsys/DRAMSim2/README.txt:6 Results Output--------------------------------------------------------------------------------
+sim/memsys/DRAMSim2/Rank.cpp:		packet->print();
+sim/memsys/DRAMSim2/Rank.cpp:		packet->print(currentClockCycle,false);
+sim/memsys/DRAMSim2/Rank.cpp:	switch (packet->busPacketType)
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != RowActive ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextRead ||
+sim/memsys/DRAMSim2/Rank.cpp:		        packet->row != bankStates[packet->bank].openRowAddress)
+sim/memsys/DRAMSim2/Rank.cpp:			packet->print();
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + READ_TO_PRE_DELAY);
+sim/memsys/DRAMSim2/Rank.cpp:		banks[packet->bank].read(packet);
+sim/memsys/DRAMSim2/Rank.cpp:		packet->busPacketType = DATA;
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != RowActive ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextRead ||
+sim/memsys/DRAMSim2/Rank.cpp:		        packet->row != bankStates[packet->bank].openRowAddress)
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].currentBankState = Idle;
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + READ_AUTOPRE_DELAY);
+sim/memsys/DRAMSim2/Rank.cpp:		banks[packet->bank].read(packet);
+sim/memsys/DRAMSim2/Rank.cpp:		packet->busPacketType = DATA;
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != RowActive ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextWrite ||
+sim/memsys/DRAMSim2/Rank.cpp:		        packet->row != bankStates[packet->bank].openRowAddress)
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].print();
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextPrecharge = max(bankStates[packet->bank].nextPrecharge, currentClockCycle + WRITE_TO_PRE_DELAY);
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteBank = packet->bank;
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteRow = packet->row;
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteColumn = packet->column;
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != RowActive ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextWrite ||
+sim/memsys/DRAMSim2/Rank.cpp:		        packet->row != bankStates[packet->bank].openRowAddress)
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].currentBankState = Idle;
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + WRITE_AUTOPRE_DELAY);
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteBank = packet->bank;
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteRow = packet->row;
+sim/memsys/DRAMSim2/Rank.cpp:		incomingWriteColumn = packet->column;
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != Idle ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextActivate)
+sim/memsys/DRAMSim2/Rank.cpp:			packet->print();
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].print();
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].currentBankState = RowActive;
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextActivate = currentClockCycle + tRC;
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].openRowAddress = packet->row;
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].nextWrite = currentClockCycle + (tRCD-AL);
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].nextRead = currentClockCycle + (tRCD-AL);
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].nextWrite = currentClockCycle + (tRCD-AL);
+sim/memsys/DRAMSim2/Rank.cpp:			bankStates[packet->bank].nextRead = currentClockCycle + (tRCD-AL);
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextPrecharge = currentClockCycle + tRAS;
+sim/memsys/DRAMSim2/Rank.cpp:			if (i != packet->bank)
+sim/memsys/DRAMSim2/Rank.cpp:		if (bankStates[packet->bank].currentBankState != RowActive ||
+sim/memsys/DRAMSim2/Rank.cpp:		        currentClockCycle < bankStates[packet->bank].nextPrecharge)
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].currentBankState = Idle;
+sim/memsys/DRAMSim2/Rank.cpp:		bankStates[packet->bank].nextActivate = max(bankStates[packet->bank].nextActivate, currentClockCycle + tRP);
+sim/memsys/DRAMSim2/Rank.cpp:		if(packet->bank != incomingWriteBank ||
+sim/memsys/DRAMSim2/Rank.cpp:			 packet->row != incomingWriteRow ||
+sim/memsys/DRAMSim2/Rank.cpp:			 packet->column != incomingWriteColumn)
+sim/memsys/DRAMSim2/Rank.cpp:				packet->print();
+sim/memsys/DRAMSim2/Rank.cpp:				bankStates[packet->bank].print();
+sim/memsys/DRAMSim2/Rank.cpp:		banks[packet->bank].write(packet);
+sim/memsys/DRAMSim2/Rank.cpp:		dataCyclesLeft--;
+sim/memsys/DRAMSim2/Rank.cpp:			outgoingDataPacket->print();
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:				if (it->second.size() == 0)
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:				if (it->second.size() == 0)
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-t, --tracefile=FILENAME \tspecify a tracefile to run  "<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-s, --systemini=FILENAME \tspecify an ini file that describes the memory system parameters  "<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-d, --deviceini=FILENAME \tspecify an ini file that describes the device-level parameters"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-c, --numcycles=# \t\tspecify number of cycles to run the simulation for [default=30] "<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-q, --quiet \t\t\tflag to suppress simulation output (except final stats) [default=no]"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-o, --option=OPTION_A=234,tFAW=14\t\t\toverwrite any ini file option from the command line"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-p, --pwd=DIRECTORY\t\tSet the working directory (i.e. usually DRAMSim directory where ini/ and results/ are)"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-S, --size=# \t\t\tSize of the memory system in megabytes [default=2048M]"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-n, --notiming \t\t\tDo not use the clock cycle information in the trace file"<<endl;
+sim/memsys/DRAMSim2/TraceBasedSim.cpp:	cout << "\t-v, --visfile \t\t\tVis output filename"<<endl;
+Binary file sim/memsys/DRAMSim2/lib matches
+Binary file sim/memsys/DRAMSim2/traces/k6_aoe_02_short.trc.gz matches
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/IniReader.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/CommandQueue.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MemoryController.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/ClockDomain.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Bank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/SimulatorObject.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/SimulatorObject.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/SimulatorObject.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/SimulatorObject.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/SimulatorObject.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MemorySystem.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Rank.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BankState.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BusPacket.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Transaction.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/PrintMacros.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/AddressMapping.deppo: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/IniReader.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MultiChannelMemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/CommandQueue.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MemoryController.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/ClockDomain.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Bank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/TraceBasedSim.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/SimulatorObject.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/SimulatorObject.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/SimulatorObject.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/SimulatorObject.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/SimulatorObject.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/MemorySystem.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Rank.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BankState.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/BusPacket.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/Transaction.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/PrintMacros.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++config.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/os_defines.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/cpu_defines.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdarg.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stddef.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++locale.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/gthr-default.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/atomic_word.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++allocator.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_base.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/ctype_inline.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/basic_file.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/include/c++/4.8.2/x86_64-redhat-linux/bits/c++io.h \
+sim/memsys/DRAMSim2/AddressMapping.dep: /usr/lib/gcc/x86_64-redhat-linux/4.8.5/include/stdint.h \
+Binary file sim/memsys/DRAMSim2/TraceBasedSim.o matches
+Binary file sim/memsys/DRAMSim2/MemoryController.o matches
+Binary file sim/memsys/DRAMSim2/CommandQueue.o matches
+Binary file sim/memsys/DRAMSim2/DRAMSim matches
+Binary file sim/memsys/DRAMSim2/MemoryController.po matches
+Binary file sim/memsys/DRAMSim2/CommandQueue.po matches
+Binary file sim/memsys/DRAMSim2/MultiChannelMemorySystem.po matches
+Binary file sim/memsys/DRAMSim2/libdramsim.so matches
+sim/memsys/DRAM.cc:    Cache* c = t->cache_q->front();
+sim/memsys/DRAM.cc:    t->cache_q->pop_front();
+sim/memsys/Cache.h:    if(!t->isPrefetch) {
+sim/memsys/Cache.cc:    t->cache_q->push_front(this); 
+sim/memsys/Cache.cc:    uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
+sim/memsys/Cache.cc:      if((t->src_id!=-1) && memInterface->willAcceptTransaction(dramaddr,  t->isLoad)) {
+sim/memsys/Cache.cc:        //assert(t->isLoad);
+sim/memsys/Cache.cc:        t->cache_q->push_front(this);
+sim/memsys/Cache.cc:        memInterface->addTransaction(t, dramaddr, t->isLoad);
+sim/memsys/Cache.cc:      else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
+sim/memsys/Cache.cc:        t->cache_q->push_front(this);
+sim/memsys/Cache.cc:        t->cache_q->push_front(this); 
+sim/memsys/Cache.cc:  if(false && isL1 && t->d) { //testing, remove false!!!
+sim/memsys/Cache.cc:    DynamicNode* d=t->d;
+sim/memsys/Cache.cc:    if(!t->isPrefetch && d->atomic) { //don't acquire locks based on accesses spurred by prefetch 
+sim/memsys/Cache.cc:  uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
+sim/memsys/Cache.cc:    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+sim/memsys/Cache.cc:  if(t->src_id!=-1 && t->d->type==LD) {
+sim/memsys/Cache.cc:    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache
+sim/memsys/Cache.cc:        /*if(!t->isPrefetch) {
+sim/memsys/Cache.cc:        uint64_t cacheline=t->addr/size_of_cacheline;
+sim/memsys/Cache.cc:        Cache* child_cache=t->cache_q->front();
+sim/memsys/Cache.cc:        t->cache_q->pop_front();
+sim/memsys/Cache.cc:        nodeIdMap[dramaddr/child_cache->size_of_cacheline * child_cache->size_of_cacheline] = t->d->n->id;
+sim/memsys/Cache.cc:        if(!t->isPrefetch) {
+sim/memsys/Cache.cc:      if(!t->isPrefetch) {
+sim/memsys/Cache.cc:    //if(!t->isPrefetch) {
+sim/memsys/Cache.cc:  if(isL1 && t->src_id!=-1) { //not eviction
+sim/memsys/Cache.cc:    uint64_t cacheline = t->addr/size_of_cacheline;
+sim/memsys/Cache.cc:  if(t->isLoad)
+sim/memsys/Cache.cc:  if(isL1 && t->src_id>=0 && num_prefetched_lines>0) {
+sim/memsys/Cache.cc:    //int cache_line = t->d->addr/size_of_cacheline;
+sim/memsys/Cache.cc:      if(prefetch_set.find(t->d->addr-stride*i)==prefetch_set.end()) {
+sim/memsys/Cache.cc:        if(prefetch_set.find(t->d->addr-stride*i)==prefetch_set.end()) {
+sim/memsys/Cache.cc:    if(!t->issuedPrefetch && !t->isPrefetch) {
+sim/memsys/Cache.cc:          MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true); //prefetch some distance ahead
+sim/memsys/Cache.cc:          prefetch_t->d=t->d;
+sim/memsys/Cache.cc:          prefetch_t->isPrefetch=true;
+sim/memsys/Cache.cc:        if(t->d->type==LD_PROD) {
+sim/memsys/Cache.cc:          //cout << "PREFETCHING LD_PROD addr: " << t->d->addr << endl;
+sim/memsys/Cache.cc:        prefetch_set.insert(t->d->addr);
+sim/memsys/Cache.cc:        prefetch_set.erase(t->d->addr-stride*pattern_threshold); 
+sim/memsys/Cache.cc:        prefetch_set.insert(t->d->addr);
+sim/memsys/Cache.cc:        prefetch_queue.push(t->d->addr);
+sim/memsys/Cache.cc:  if(!t || t->id==-1) { //eviction or null transaction
+sim/memsys/Cache.cc:  else if(t->isLoad) {
+sim/memsys/Cache.cc:    uint64_t cacheline=t->addr/size_of_cacheline;
+sim/memsys/Cache.cc:      if(!curr_t->isPrefetch) {
+sim/memsys/Cache.cc:          DynamicNode* d=curr_t->d;
+sim/memsys/Cache.cc:    Cache* c = t->cache_q->front();
+sim/memsys/Cache.cc:    t->cache_q->pop_front();    
+sim/memsys/Cache.cc:    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
+sim/memsys/Cache.cc:    nodeIdMap[t->addr/c->size_of_cacheline * c->size_of_cacheline] = t->d->n->id; 
+sim/memsys/Cache.cc:    if (t->d->n->typeInstr == TRM_ATOMIC_CAS) {
+sim/memsys/FunctionalCache.h:    c->next->prev = c;
+sim/memsys/FunctionalCache.h:    c->next->prev = c->prev;
+sim/memsys/FunctionalCache.h:    uint64_t setid = extract(log_set_count-1, 0, address);
+sim/memsys/FunctionalCache.h:    uint64_t setid = extract(log_set_count-1, 0, address);
+sim/memsys/FunctionalCache.h:    uint64_t setid = extract(log_set_count-1, 0, address);
+sim/misc/Statistics.h:    return stats.at(str).first-old_stats.at(str).first;
+sim/misc/Statistics.h:      it->second.first = 0;
+sim/misc/Statistics.h:      ofile << it->first << " : " << it->second.first << "\n";
+sim/misc/Statistics.h:      //cout << "failing stat" << it->first << endl;
+sim/misc/Statistics.h:      if(old_stats.find(it->first)!=old_stats.end())
+sim/misc/Statistics.h:        ofile << it->first << " : " << it->second.first - old_stats.at(it->first).first << "\n";
+sim/power_model/cacti-p/README:                  set-associative caches
+sim/power_model/cacti-p/Ucache.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/Ucache.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/arbiter.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/arbiter.cc:  Vdd = dt->Vdd;
+sim/power_model/cacti-p/arbiter.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/area.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/area.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/bank.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/bank.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/basic_circuit.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/basic_circuit.cc:  return (dt->C_g_ideal + dt->C_overlap + 3*dt->C_fringe)*width + dt->l_phy*Cpolywire;
+sim/power_model/cacti-p/basic_circuit.cc:  return (dt->C_g_ideal + dt->C_overlap + 3*dt->C_fringe)*width + dt->l_phy*Cpolywire;
+sim/power_model/cacti-p/basic_circuit.cc:  double c_junc_area = dt->C_junc;
+sim/power_model/cacti-p/basic_circuit.cc:  double c_junc_sidewall = dt->C_junc_sidewall;
+sim/power_model/cacti-p/basic_circuit.cc:  double c_fringe    = 2*dt->C_fringe;
+sim/power_model/cacti-p/basic_circuit.cc:  double c_overlap   = 2*dt->C_overlap;
+sim/power_model/cacti-p/basic_circuit.cc:  double restrans = (nchannel) ? dt->R_nch_on : dt->R_pch_on;
+sim/power_model/cacti-p/basic_circuit.cc:  double restrans = (nchannel) ? dt->R_nch_on : dt->R_pch_on;
+sim/power_model/cacti-p/basic_circuit.cc:  return nWidth*dt->I_off_n + pWidth*dt->I_off_p;
+sim/power_model/cacti-p/basic_circuit.cc:  return nwidth * dt->I_on_n;
+sim/power_model/cacti-p/basic_circuit.cc:  return pwidth * dt->I_on_n/dt->n_to_p_eff_curr_drv_ratio;
+sim/power_model/cacti-p/basic_circuit.cc:  return nwidth * dt->I_off_n;
+sim/power_model/cacti-p/basic_circuit.cc:  return pwidth * dt->I_off_p;
+sim/power_model/cacti-p/basic_circuit.cc:  return nWidth*dt->I_g_on_n;
+sim/power_model/cacti-p/basic_circuit.cc:  return pWidth*dt->I_g_on_p;
+sim/power_model/cacti-p/basic_circuit.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/cacti_interface.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/cacti_interface.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/component.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/component.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/const.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/crossbar.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/crossbar.cc:  Vdd = dt->Vdd;
+sim/power_model/cacti-p/crossbar.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/decoder.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/decoder.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/htree2.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/htree2.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/io.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/io.cc://      file << "Unit-length wire delay (ps), ";
+sim/power_model/cacti-p/io.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/main.cc: *         Copyright 2008 Hewlett-Packard Development Corporation
+sim/power_model/cacti-p/main.cc: * hereby grant back to Hewlett-Packard Company and its affiliated companies ("HP")
+sim/power_model/cacti-p/main.cc: *                       Hewlett-Packard Company
+sim/power_model/cacti-p/mat.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/mat.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/nuca.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/nuca.cc:        /* This code has a blatant array-out-of-bounds error and doesn't even
+sim/power_model/cacti-p/nuca.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/parameter.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/parameter.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/powergating.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/powergating.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/router.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/router.cc:  Vdd = dt->Vdd;
+sim/power_model/cacti-p/router.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/subarray.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/subarray.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/technology.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/technology.cc:  g_tp.gm_sense_amp_latch = gmn_sense_amp_latch + gmp_sense_amp_latch * pow((g_tp.peri_global.Vdd-g_tp.peri_global.Vth)/(g_tp.peri_global.Vdd_default-g_tp.peri_global.Vth),1.3)/(g_tp.peri_global.Vdd/g_tp.peri_global.Vdd_default);
+sim/power_model/cacti-p/uca.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/uca.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/version_cacti.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/wire.cc: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+sim/power_model/cacti-p/wire.cc:  double short_ckt = 0;  // short-circuit energy
+sim/power_model/cacti-p/wire.cc:  // short-circuit energy
+sim/power_model/cacti-p/wire.h: *            Copyright 2012 Hewlett-Packard Development Company, L.P.
+Binary file sim/power_model/cacti-p/io.o matches
+sim/tile/tile_example/Core.cc:  t->d=d;
+sim/tile/tile_example/Core.cc:    if (it->first->completed || (it->first->n->typeInstr==LD_PROD && it->first->issued)) {//when Load_Produce is at head of RoB, you can remove it, even if it's been issued but not completed
+sim/tile/tile_example/Core.cc:      window_start=it->second+1;
+sim/tile/tile_example/Core.cc:      //eraseVector.push_back(it->first);
+sim/tile/tile_example/Core.cc:  int tid = t->id;
+sim/tile/tile_example/Core.cc:  t->complete=true;
+sim/tile/tile_example/Core.cc:      assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
+sim/tile/tile_example/DynamicNode.cc:  os << "[Context-" << c.id <<"] ";
+sim/tile/tile_example/DynamicNode.cc:    pq.push(make_pair(d, core->cycles+d->n->lat-1));
+sim/tile/tile_example/DynamicNode.cc:    DynamicNode *d = it->second;
+sim/tile/tile_example/DynamicNode.cc:    assert(!it->second->issued && !it->second->completed);
+sim/tile/tile_example/DynamicNode.cc:    DynamicNode* d=it->second;
+sim/tile/tile_example/DynamicNode.cc:          newt->data_width=2; 
+sim/tile/tile_example/DynamicNode.cc:          newt->data_height=2;
+sim/tile/tile_example/DynamicNode.cc:          d->t->complete=false;          
+sim/tile/tile_example/DynamicNode.cc:          res=res && d->t->complete && d->issueCompNode();      
+sim/tile/tile_example/DynamicNode.cc:      dst->addr_resolved = true;
+sim/tile/tile_example/DynamicNode.cc:    dst->pending_parents--;
+sim/tile/tile_example/DynamicNode.cc:    dst->tryActivate();
+sim/tile/tile_example/DynamicNode.cc:      dst->addr_resolved = true;
+sim/tile/tile_example/DynamicNode.cc:    dst->pending_external_parents--;
+sim/tile/tile_example/DynamicNode.cc:    assert(!dst->issued && !dst->completed);
+sim/tile/tile_example/DynamicNode.cc:    dst->tryActivate();    
+sim/tile/tile_example/DynamicNode.cc:    if(c->next_bbid == dst->bbid) {
+sim/tile/tile_example/ExampleTile.cc:    if(t->type==TILE_COMPLETE) {
+sim/tile/accelerator_models/README.md:  - Element-wise arithmetic
+sim/tile/accelerator_models/c-kernel/sdp.c:	// element-wise operation between matrix inA and matrix inB
+sim/tile/accelerator_models/c-kernel/sdp.c:	// element-wise operation between matrix inA and scalar inB
+sim/tile/accelerator_models/c-kernel/sdp.c:	// element-wise operation between matrix inA and vector inB
+Binary file sim/tile/accelerator_models/c-model/area_power.xlsx matches
+sim/tile/accelerator_models/doc/accelerators_list.txt:  - Element-wise Matrix Operations
+sim/tile/accelerator_models/doc/accelerators_list.txt:  - tensor element-wise multiplication -> tf.math.multiply, tf.keras.layers.multiply
+sim/tile/accelerator_models/doc/accelerators_list.txt:  - tensor element-wise division -> tf.math.divide
+sim/tile/accelerator_models/hls/common/nmf-data/nmf_fpdata.hpp:            HLS_UNROLL_LOOP(ON, "fp2int-loop");
+sim/tile/accelerator_models/hls/common/nmf-data/nmf_fpdata.hpp:            HLS_UNROLL_LOOP(ON, "fp2int-loop");
+sim/tile/accelerator_models/hls/common/wami-data/wami_fpdata.hpp:            HLS_UNROLL_LOOP(ON, "fp2int-loop");
+sim/tile/accelerator_models/hls/common/wami-data/wami_fpdata.hpp:            HLS_UNROLL_LOOP(ON, "fp2int-loop");
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:                matrix_out->data,     // matrix_out val
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:#else //  Not-efficient implementation 
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:            matrix_out->data[d1 * matrix_in2->dims[0] + d2] = accumulator;
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:    assert(matrix_out->dim == 2);
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:    assert(matrix_out->dims != NULL);
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:    assert(matrix_out->data != NULL);
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:    assert(matrix_out->dims[0] == matrix_in1->dims[0]);
+sim/tile/accelerator_models/hls/gemm/pvc/src/multt.c:    assert(matrix_out->dims[1] == matrix_in2->dims[0]);
+sim/tile/accelerator_models/hls/gemm/src/nmf_multt.cpp:        HLS_DEFINE_PROTOCOL("reset-load");
+sim/tile/accelerator_models/hls/gemm/src/nmf_multt.cpp:        HLS_DEFINE_PROTOCOL("reset-compute");
+sim/tile/accelerator_models/hls/gemm/src/nmf_multt.cpp:                    HLS_CONSTRAIN_LATENCY(0, HLS_ACHIEVABLE, "reset-acc");
+sim/tile/accelerator_models/hls/gemm/src/nmf_multt.cpp:        HLS_DEFINE_PROTOCOL("reset-store");
+sim/tile/accelerator_models/hls/gemm/tb/system.cpp:            matrix_out->data[k] = elem.to_double();
+sim/tile/accelerator_models/hls/gemm/tb/system.cpp:        if (check_error_threshold(matrix_out->data[d2], matrix_out_gold->data[d2], rel_error))
+sim/tile/accelerator_models/hls/gemm/tb/system.cpp:                  matrix_out->data[d2], matrix_out_gold->data[d2], rel_error * 100);
+sim/tile/accelerator_models/hls/sdp/README:- element-wise tensor addition, subtraction, multiplication, division
+sim/tile/accelerator_models/hls/sdp/src/sdp.cpp:        HLS_DEFINE_PROTOCOL("reset-load");
+sim/tile/accelerator_models/hls/sdp/src/sdp.cpp:        HLS_DEFINE_PROTOCOL("reset-compute");
+sim/tile/accelerator_models/hls/sdp/src/sdp.cpp:        HLS_DEFINE_PROTOCOL("reset-store");
+sim/tile/accelerator_models/hls/utils/memgen/memgen.py:    print("      <width>            : Word bit-width")
+sim/tile/accelerator_models/hls/utils/memgen/memgen.py:            die_werr("Memory "+name+" has illegal bit-width")
+sim/tile/accelerator_models/hls/utils/memgen/memgen.py:        # Horizontally composed banks to obtain desired bit-width
+sim/tile/accelerator_models/hls/Makefile:print-available-accelerators:
+sim/tile/accelerator_models/hls/Makefile:.PHONY: print-available-accelerators
+sim/tile/accelerator_models/user-api/dec_accelerators_api.py:# Python API layer for element-wise arithmetic accelerator
+sim/tile/Accelerator.cc:    cout << "acc_arguments: " << t->d->acc_args << endl;
+sim/tile/Core.cc:  t->d=d;
+sim/tile/Core.cc:    for(auto it=issueMap.begin(); it!=issueMap.end() && it->second <= window_end; it++) {
+sim/tile/Core.cc:      DynamicNode* ed=it->first;
+sim/tile/Core.cc:  if(issueMap.size()!=0 && issueMap.begin()->first->core->cycles > 325000000) {
+sim/tile/Core.cc:    issueMap.begin()->first->print("head of rob", -10);
+sim/tile/Core.cc:    if (it->first->completed || it->first->can_exit_rob) {//when Load_Produce, STADDR, STVAL, terminal RMW are marked as can_exit_rob if there are resources available, meaning you can remove them from RoB when they are at the head
+sim/tile/Core.cc:      it->first->stage=LEFT_ROB;
+sim/tile/Core.cc:      window_start=it->second+1;
+sim/tile/Core.cc:  d=t->d;
+sim/tile/Core.cc:  int tid = t->id;
+sim/tile/Core.cc:  t->complete=true;
+sim/tile/Core.cc:  DynamicNode* d=t->d;
+sim/tile/Core.cc:  cout << "Cycles taken: " << t->perf.cycles << endl;
+sim/tile/Core.cc:  cout << "Bytes: " << t->perf.bytes << endl;
+sim/tile/Core.cc:  cout << "Power: " << t->perf.power << endl;
+sim/tile/Core.cc:  cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
+sim/tile/Core.cc:  cout << "Acc_Completed; Cycle: " << cycles <<"; Power: " << t->perf.power << "; Args: " << d->acc_args << endl;
+sim/tile/Core.cc:  stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
+sim/tile/Core.cc:  double energy=(t->perf.power * t->perf.cycles * 1e-9)/cfg.chip_freq;
+sim/tile/Core.cc:      assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
+sim/tile/Core.cc:        DynamicNode *d = n_it->second;
+sim/tile/DynamicNode.cc:  os << "[Context-" << c.id <<"] ";
+sim/tile/DynamicNode.cc:    //pq.push(make_pair(d, core->cycles+d->n->lat-1));
+sim/tile/DynamicNode.cc:    DynamicNode *d = it->second;
+sim/tile/DynamicNode.cc:    assert(!it->second->issued && !it->second->completed);
+sim/tile/DynamicNode.cc:    DynamicNode* d=it->second;
+sim/tile/DynamicNode.cc:  t->d=this;
+sim/tile/DynamicNode.cc:      dst->addr_resolved = true;
+sim/tile/DynamicNode.cc:    dst->pending_parents--;
+sim/tile/DynamicNode.cc:    dst->tryActivate();    
+sim/tile/DynamicNode.cc:      dst->addr_resolved = true;
+sim/tile/DynamicNode.cc:    dst->pending_external_parents--;
+sim/tile/DynamicNode.cc:    if(!((core->local_cfg.branch_prediction && dst->type==TERMINATOR) || (!dst->issued && !dst->completed))) {
+sim/tile/DynamicNode.cc:      //dst->print("should not be issued or completed", -10); //luwahere
+sim/tile/DynamicNode.cc:    dst->tryActivate();    
+sim/tile/DynamicNode.cc:    if(c->next_bbid == dst->bbid) {
+sim/sim.cc:      bd=it->second;
+sim/sim.cc:  assert(tiles.find(t->src_id)!=tiles.end());
+sim/sim.cc:  assert(tiles.find(t->dst_id)!=tiles.end());  
+sim/sim.cc:  int dst_clockspeed=tiles[t->dst_id]->clockspeed;
+sim/sim.cc:  int src_clockspeed=tiles[t->src_id]->clockspeed;
+sim/sim.cc:  //if(t->src_id==0)
+sim/sim.cc:  //if(transq_map[t->dst_id].size()==0) {
+sim/sim.cc:    //transq_map[t->dst_id]=pq;
+sim/sim.cc:  transq_map[t->dst_id].push({t,final_cycle});
+sim/sim.cc:    if(it->second->name=="accelerator")
+sim/sim.cc:      return it->second->id;
+sim/sim.cc:      Tile* tile = it->second;
+sim/sim.cc:        processVec.at(it->first)=tile->process();
+sim/sim.cc:    Tile* tile=it->second;
+sim/sim.cc:      stval_runahead_sum+=it->second;    
+sim/sim.cc:      recv_delay_sum+=it->second;    
+sim/sim.cc:    Tile* tile=it->second;
+sim/sim.cc:  if(Core* core=dynamic_cast<Core*>(tiles[t->src_id])) {
+sim/sim.cc:    DynamicNode* d=it->second;
+sim/sim.cc:      term_ld_count--; //free up space in term ld buff
+sim/sim.cc:    DynamicNode* store_d = it->second; 
+sim/sim.cc:      commQ_count--; //free up commQ entry
+sim/sim.cc:    //if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
+sim/sim.cc:      SVB_count--;
+sim/sim.cc:      assert(d==sab_front->second);
+sim/sim.cc:      SAB_count--;
+tools/tracer.llvm:attributes #0 = { noinline uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #2 = { nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #3 = { inlinehint uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #4 = { noreturn nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #5 = { uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #6 = { "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #8 = { nounwind readonly "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #9 = { nounwind uwtable "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "min-legal-vector-width"="0" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-jump-tables"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #10 = { argmemonly nounwind readonly "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #11 = { nobuiltin nounwind "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #12 = { nobuiltin "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/tracer.llvm:attributes #13 = { noreturn "correctly-rounded-divide-sqrt-fp-math"="false" "disable-tail-calls"="false" "less-precise-fpmad"="false" "no-frame-pointer-elim"="false" "no-infs-fp-math"="false" "no-nans-fp-math"="false" "no-signed-zeros-fp-math"="false" "no-trapping-math"="false" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "unsafe-fp-math"="false" "use-soft-float"="false" }
+tools/makefile:OMP_INCLUDE=-I/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7/include/
+tools/makefile:	$(CXX)  -S -O3 -emit-llvm -fopenmp=libomp $(OMP_INCLUDE)  -o tracer.llvm tracer.cc
+Binary file tools/tracer.so matches
+workloads/graphqube/main.cpp:auto cmp = [](Candidate* left, Candidate* right) { return left->weight > right->weight;};
+workloads/graphqube/main.cpp:      cout << "(" << it->first << ": " << it->second << ") ";
+workloads/graphqube/main.cpp:                    cout << "(" << it->first << ": " << it->second << ") ";
+workloads/graphqube/main.cpp:            cout << it->first << ":" << it->second << "\t";
+workloads/graphqube/makefile:	$(CC) -static -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cpp
+workloads/inline_test/makefile:	$(CC) -static -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+workloads/inline_test/makefile~:	$(CC) -static -g -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+Binary file workloads/inline_test/output/opeoluwa@portal.cs.princeton.edu matches
+workloads/microbench/Makefile:CXXFLAGS = -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/parboil/sgemm/main.cc:	char transa = arg_struct->transa;
+workloads/parboil/sgemm/main.cc:	char transb = arg_struct->transb;
+workloads/parboil/sgemm/main.cc:	int m = arg_struct->m;
+workloads/parboil/sgemm/main.cc:	int n = arg_struct->n;
+workloads/parboil/sgemm/main.cc:	int k = arg_struct->k;
+workloads/parboil/sgemm/main.cc:	float alpha = arg_struct->alpha;
+workloads/parboil/sgemm/main.cc:	const float *A = arg_struct-> A;
+workloads/parboil/sgemm/main.cc:	int lda = arg_struct->lda;
+workloads/parboil/sgemm/main.cc:	const float *B = arg_struct-> B;
+workloads/parboil/sgemm/main.cc:	int ldb = arg_struct->ldb;
+workloads/parboil/sgemm/main.cc:	float beta = arg_struct->beta;
+workloads/parboil/sgemm/main.cc:	float *C = arg_struct->C;
+workloads/parboil/sgemm/main.cc:	int ldc = arg_struct->ldc;
+workloads/parboil/sgemm/main.cc:	_kernel_sgemm(transa,transb,m,n,k,alpha,A,lda,B,ldb,beta,C,ldc,arg_struct->tid);
+workloads/parboil/sgemm/makefile:	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+workloads/parboil/sgemm/parboil.c:  ret->outFile = NULL;
+workloads/parboil/sgemm/parboil.c:  ret->inpFiles = (char **)malloc(sizeof(char *));
+workloads/parboil/sgemm/parboil.c:  ret->inpFiles[0] = NULL;
+workloads/parboil/sgemm/parboil.c:	free(ret->outFile);
+workloads/parboil/sgemm/parboil.c:	ret->outFile = strdup(consume_argument(&ap));
+workloads/parboil/sgemm/parboil.c:	ret->inpFiles = read_string_array(consume_argument(&ap));
+workloads/parboil/sgemm/run.sh:$compiler -O1  -S -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o $name.llvm $name.$ext
+workloads/parboil/sgemm/run.sh:#$compiler -O1  -S -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o $name-normal.llvm $name-normal.$ext
+workloads/parboil/spmv/convert-dataset/Makefile:convert-dataset: test.c convert_dataset.o mmio.o
+workloads/parboil/spmv/convert-dataset/Makefile:	$(CC) -g test.c convert_dataset.o mmio.o -o convert-dataset
+workloads/parboil/spmv/convert-dataset/Makefile:	rm -f *.o convert-dataset
+workloads/parboil/spmv/convert-dataset/commontools.mk:SRCDIR_OBJS += ../../common_src/convert-dataset/convert_dataset.o ../../common_src/convert-dataset/mmio.o
+workloads/parboil/spmv/main.c:#include "convert-dataset/convert_dataset.h"
+workloads/parboil/spmv/main.c:	int dim =  arg_struct->dim;
+workloads/parboil/spmv/main.c:	float *h_data = arg_struct->h_data;
+workloads/parboil/spmv/main.c:	int *h_nzcnt= arg_struct->h_nzcnt;
+workloads/parboil/spmv/main.c:	int *h_ptr = arg_struct->h_ptr;
+workloads/parboil/spmv/main.c:	int *h_indices = arg_struct->h_indices;
+workloads/parboil/spmv/main.c:	int *h_perm = arg_struct->h_perm;
+workloads/parboil/spmv/main.c:	float *h_Ax_vector = arg_struct->h_Ax_vector;
+workloads/parboil/spmv/main.c:	float *h_x_vector = arg_struct->h_x_vector;
+workloads/parboil/spmv/makefile:	$(CXX) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).c
+workloads/parboil/spmv/makefile:	$(CXX) int/$(NAME).o main.c file.c parboil.c convert-dataset/convert_dataset.c convert-dataset/mmio.c -o $(NAME)-profile.out
+workloads/parboil/spmv/parboil.c:  ret->outFile = NULL;
+workloads/parboil/spmv/parboil.c:  ret->inpFiles = (char **)malloc(sizeof(char *));
+workloads/parboil/spmv/parboil.c:  ret->inpFiles[0] = NULL;
+workloads/parboil/spmv/parboil.c:	free(ret->outFile);
+workloads/parboil/spmv/parboil.c:	ret->outFile = strdup(consume_argument(&ap));
+workloads/parboil/spmv/parboil.c:	ret->inpFiles = read_string_array(consume_argument(&ap));
+workloads/parboil/spmv/run.sh:$compiler -O1  -S -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o $name.llvm $name.$ext
+workloads/parboil/spmv/run.sh:$compiler -pthread -I/home/tae/parboil/spmv/convert-dataset -o $name.out  convert-dataset/convert_dataset.o convert-dataset/mmio.o $name.o  main.c file.c /home/tae/parboil/lib/parboil.c -lm
+workloads/parboil/spmv/run.sh:$compiler -pthread -I/home/tae/parboil/spmv/convert-dataset -o $name-normal.out convert-dataset/convert_dataset.o convert-dataset/mmio.o $name-normal.o main-normal.c file.c /home/tae/parboil/lib/parboil.c -lm
+workloads/recv_test/makefile:	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+workloads/send_test/makefile:	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+workloads/shoc/bfs/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/fft/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/gemm/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/md/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/scan/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/sort/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/stencil/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/shoc/triad/Makefile:CXXFLAGS = -std=c++14 -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -S
+workloads/test/makefile:	$(CC) -S -O3 -fno-inline -fno-slp-vectorize -fno-vectorize -emit-llvm -o int/$(NAME).llvm $(NAME).cc
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_93e91 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_93e91.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_93e91 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_93e91.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_59aef /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_59aef.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_59aef /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_59aef.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_24c0e /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_24c0e.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_24c0e /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_24c0e.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_64ee8 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_64ee8.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_64ee8 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_64ee8.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ba836 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_ba836.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_ba836 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_ba836.dir/CMakeCCompilerABI.c.o -lgcc --as-needed -lgcc_s --no-as-needed -lc -lgcc --as-needed -lgcc_s --no-as-needed /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/CMakeOutput.log:Using built-in specs.
+build/CMakeFiles/CMakeOutput.log:COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper
+build/CMakeFiles/CMakeOutput.log:Target: x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux
+build/CMakeFiles/CMakeOutput.log:COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/
+build/CMakeFiles/CMakeOutput.log:LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/
+build/CMakeFiles/CMakeOutput.log: /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_3b674 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_3b674.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Using built-in specs.]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COLLECT_LTO_WRAPPER=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/lto-wrapper]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Target: x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [Configured with: ../configure --prefix=/usr --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=http://bugzilla.redhat.com/bugzilla --enable-bootstrap --enable-shared --enable-threads=posix --enable-checking=release --with-system-zlib --enable-__cxa_atexit --disable-libunwind-exceptions --enable-gnu-unique-object --enable-linker-build-id --with-linker-hash-style=gnu --enable-languages=c,c++,objc,obj-c++,java,fortran,ada,go,lto --enable-plugin --enable-initfini-array --disable-libgcj --with-isl=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/isl-install --with-cloog=/builddir/build/BUILD/gcc-4.8.5-20150702/obj-x86_64-redhat-linux/cloog-install --enable-gnu-indirect-function --with-tune=generic --with-arch_32=x86-64 --build=x86_64-redhat-linux]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [COMPILER_PATH=/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/:/usr/libexec/gcc/x86_64-redhat-linux/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/]
+build/CMakeFiles/CMakeOutput.log:  ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-redhat-linux/4.8.5/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/:/lib/../lib64/:/usr/lib/../lib64/:/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../:/lib/:/usr/lib/]
+build/CMakeFiles/CMakeOutput.log:  link line: [ /usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2 --build-id --no-add-needed --eh-frame-hdr --hash-style=gnu -m elf_x86_64 -dynamic-linker /lib64/ld-linux-x86-64.so.2 -o cmTC_3b674 /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64 -L/lib/../lib64 -L/usr/lib/../lib64 -L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../.. CMakeFiles/cmTC_3b674.dir/CMakeCXXCompilerABI.cpp.o -lstdc++ -lm -lgcc_s -lgcc -lc -lgcc_s -lgcc /usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o /usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/libexec/gcc/x86_64-redhat-linux/4.8.5/collect2] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crt1.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crti.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtbegin.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64]
+build/CMakeFiles/CMakeOutput.log:    arg [-L/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..]
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/crtend.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:    arg [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64/crtn.o] ==> ignore
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5] ==> [/usr/lib/gcc/x86_64-redhat-linux/4.8.5]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../../../lib64] ==> [/usr/lib64]
+build/CMakeFiles/CMakeOutput.log:  collapse library dir [/usr/lib/gcc/x86_64-redhat-linux/4.8.5/../../..] ==> [/usr/lib]
+build/CMakeFiles/CMakeOutput.log:  implicit dirs: [/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib]
+build/CMakeFiles/3.13.4/CMakeCCompiler.cmake:set(CMAKE_C_IMPLICIT_LINK_DIRECTORIES "/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib")
+build/CMakeFiles/3.13.4/CMakeCXXCompiler.cmake:set(CMAKE_CXX_IMPLICIT_LINK_DIRECTORIES "/usr/lib/gcc/x86_64-redhat-linux/4.8.5;/usr/lib64;/lib64;/usr/lib")
+Binary file build/pass/profiler/CMakeFiles/RecordDynamicInfo.dir/RecordDynamicInfo.cpp.o matches
+Binary file build/sim/CMakeFiles/sim.dir/tile/Accelerator.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/tile/Core.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/tile/DynamicNode.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/memsys/DRAM.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/memsys/Cache.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/graph/Graph.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/sim.cc.o matches
+build/build.ninja:# Built-in targets
+Binary file build/.ninja_deps matches
+Binary file lib/libdramsim.so matches
+Binary file lib/libRecordDynamicInfo.so matches
+Binary file bin/sim matches
+README.md: + `libomp` 4.5 (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
+README.md:(For CentOS, [PATH_TO_OMP_SHARED_LIB] would typically be /opt/rh/llvm-toolset-7/root/usr/lib64/)
+insert:sim/memsys/Cache.cc:    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+insert:sim/memsys/Cache.cc:    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);

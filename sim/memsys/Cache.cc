@@ -19,7 +19,7 @@ string cache_access="cache_access";
 
 void Cache::evict(uint64_t addr) {
   if(fc->evict(addr/size_of_cacheline)) { //evicts from the cache returns isDirty, in which case must write back to L2
-    MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false);
+    MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false, -1);
     // if(parent_cache->willAcceptTransaction(t)) {
     t->cache_q->push_front(this); 
     parent_cache->addTransaction(t); //send eviction to parent cache
@@ -108,7 +108,7 @@ bool Cache::process() {
       }
     }
     else {
-      MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false);
+      MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false, -1);
       if(parent_cache->willAcceptTransaction(t)) {
         t->cache_q->push_front(this); 
         parent_cache->addTransaction(t);
@@ -139,7 +139,7 @@ bool Cache::process() {
 }
 
 void Cache::execute(MemTransaction* t) {
-  if(false && isL1 && t->d) { //testing, remove false!!!
+  if(isL1 && t->d) { //testing, remove false!!!
     DynamicNode* d=t->d;
     
     if(!t->isPrefetch && d->atomic) { //don't acquire locks based on accesses spurred by prefetch 
@@ -158,9 +158,16 @@ void Cache::execute(MemTransaction* t) {
   bool res = true;  
 
   
-  
+  int nodeId = -1;
+  if(t->src_id!=-1) {
+    nodeId = t->d->n->id;
+  }
+  int graphNodeId = -1;
+  if (core->graphNodeIdMap.find(dramaddr) != core->graphNodeIdMap.end()) {
+    graphNodeId = core->graphNodeIdMap[dramaddr];
+  }
   if(!ideal) {
-    res = fc->access(dramaddr/size_of_cacheline, t->isLoad);
+    res = fc->access(dramaddr/size_of_cacheline, nodeId, graphNodeId, t->isLoad);
   }
 
 
@@ -196,18 +203,28 @@ void Cache::execute(MemTransaction* t) {
       }
       //for l2 cache
       else {
-       
+        int nodeId = t->d->n->id;
+        int graphNodeId = -1;
+        if (core->graphNodeIdMap.find(dramaddr) != core->graphNodeIdMap.end()) {
+          graphNodeId = core->graphNodeIdMap[dramaddr];
+        }
+        int dirtyEvict = -1;
         int64_t evictedAddr = -1;
+        int evictedNodeId = -1;
+        int evictedGraphNodeId = -1;
         Cache* child_cache=t->cache_q->front();
         t->cache_q->pop_front();
         
-        child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, &evictedAddr); 
+        child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId); 
         
-        if(evictedAddr!=-1) {
+        if(evictedAddr != -1) {
           
           assert(evictedAddr >= 0);
           stat.update(cache_evicts);
-          child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
+          
+          if (dirtyEvict) {
+            child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
+          }
         }
         child_cache->TransactionComplete(t);
         stat.update(l2_hits);
@@ -295,7 +312,7 @@ void Cache::addTransaction(MemTransaction *t) {
       if(pattern_detected) { 
 
         for (int i=0; i<num_prefetched_lines; i++) {
-          MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true); //prefetch some distance ahead
+          MemTransaction* prefetch_t = new MemTransaction(-2, -2, -2, t->addr + size_of_cacheline*(prefetch_distance+i), true, -1); //prefetch some distance ahead
           prefetch_t->d=t->d;
           prefetch_t->isPrefetch=true;
           //pq.push(make_pair(prefetch_t, cycles+latency));
@@ -393,15 +410,28 @@ void Cache::TransactionComplete(MemTransaction *t) {
     mshr.erase(cacheline); //clear mshr for that cacheline
   }
   else {
+    int nodeId = t->d->n->id;
+    int graphNodeId = -1;
+    if (core->graphNodeIdMap.find(t->addr) != core->graphNodeIdMap.end()) {
+      graphNodeId = core->graphNodeIdMap[t->addr];
+    }
+    int dirtyEvict = -1;
     int64_t evictedAddr = -1;
+    int evictedNodeId = -1;
+    int evictedGraphNodeId = -1;
+
     Cache* c = t->cache_q->front();
     
     t->cache_q->pop_front();    
-    c->fc->insert(t->addr/c->size_of_cacheline, &evictedAddr);
+    c->fc->insert(t->addr/c->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId);
+
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
       stat.update(cache_evicts);
-      c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
+
+      if (dirtyEvict) {
+        c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
+      }
     }
     c->TransactionComplete(t);      
   }

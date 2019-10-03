@@ -1,0 +1,328 @@
+sim/memsys/Cache.cc:      core->local_stat.update(l1_hits,batch_size);
+sim/memsys/Cache.cc:      core->local_stat.update(l1_hits_non_prefetch,non_prefetch_size);
+sim/memsys/Cache.cc:      core->local_stat.update(l1_misses,batch_size);
+sim/memsys/Cache.cc:      core->local_stat.update(l1_misses_non_prefetch,non_prefetch_size);
+sim/memsys/Cache.cc:        if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+sim/memsys/Cache.cc:          assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+sim/memsys/Cache.cc:          get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
+sim/misc/Reader.h:    std::ifstream& memfile=core->memfile;
+sim/misc/Reader.h:    std::unordered_map<int, std::queue<uint64_t> > &memory=core->memory;
+sim/misc/Reader.h:    std::unordered_map<uint64_t, int> &graph_node_mem=core->graph_node_mem;
+sim/misc/Reader.h:    long long chunk_size=core->sim->mem_chunk_size;
+sim/tile/tile_example/Core.cc:  if(d->core->cycles >= 1000000 && d->core->cycles %500000==0) {
+sim/tile/tile_example/DynamicNode.cc:  if(core->context_list.size() > id+1)
+sim/tile/tile_example/DynamicNode.cc:    return core->context_list.at(id+1);
+sim/tile/tile_example/DynamicNode.cc:    return core->context_list.at(id-1);
+sim/tile/tile_example/DynamicNode.cc:    pq.push(make_pair(d, core->cycles+d->n->lat-1));
+sim/tile/tile_example/DynamicNode.cc:    pq.push(make_pair(d, core->cycles));
+sim/tile/tile_example/DynamicNode.cc:      if(core->memory.find(n->id)==core->memory.end()) {
+sim/tile/tile_example/DynamicNode.cc:      assert(core->memory.find(n->id)!=core->memory.end());
+sim/tile/tile_example/DynamicNode.cc:      d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
+sim/tile/tile_example/DynamicNode.cc:      core->memory.at(n->id).pop();
+sim/tile/tile_example/DynamicNode.cc:      core->lsq.insert(d); 
+sim/tile/tile_example/DynamicNode.cc:      core->sim->load_count+=d->width;
+sim/tile/tile_example/DynamicNode.cc:      core->sim->orderDESC(d);    
+sim/tile/tile_example/DynamicNode.cc:    core->window.insertDN(d);
+sim/tile/tile_example/DynamicNode.cc:  if(core->curr_owner.find(bb->id) == core->curr_owner.end())
+sim/tile/tile_example/DynamicNode.cc:    core->curr_owner.insert(make_pair(bb->id,this));
+sim/tile/tile_example/DynamicNode.cc:    core->curr_owner.at(bb->id) = this;
+sim/tile/tile_example/DynamicNode.cc:        Context *cc = core->curr_owner.at(src->bbid);
+sim/tile/tile_example/DynamicNode.cc:    if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR) {
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(send_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(recv_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(staddr_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(stval_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(ld_prod_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(load_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(store_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(comp_issue_try);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(send_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(recv_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(staddr_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(stval_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(ld_prod_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(load_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(store_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(comp_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    bool window_available = core->window.canIssue(d);
+sim/tile/tile_example/DynamicNode.cc:      if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
+sim/tile/tile_example/DynamicNode.cc:        core->context_to_create++;     
+sim/tile/tile_example/DynamicNode.cc:          ExampleTransaction* newt=new ExampleTransaction(trans_id,core->id,1);
+sim/tile/tile_example/DynamicNode.cc:          core->sim->InsertTransaction(newt, core->cycles);
+sim/tile/tile_example/DynamicNode.cc:          cout << "Sent Transaction at Cycle: " << core->cycles << endl;
+sim/tile/tile_example/DynamicNode.cc:      //if(core->cycles >= 1000000)
+sim/tile/tile_example/DynamicNode.cc:      //if(d->type == RECV && d->c->core->sim->descq->consume_count<d->c->core->sim->descq->consume_size) {        
+sim/tile/tile_example/DynamicNode.cc:      core->window.issue();
+sim/tile/tile_example/DynamicNode.cc:    if(core->local_cfg.mem_speculate && (d->type == LD || d->type == LD_PROD) && d->speculated && core->lsq.check_unresolved_store(d)) { //added ld_prod here even though we don't currently speculate with it 
+sim/tile/tile_example/DynamicNode.cc:    if(pq.top().second > core->cycles)
+sim/tile/tile_example/DynamicNode.cc:    if (core->local_cfg.max_active_contexts_BB > 0) {
+sim/tile/tile_example/DynamicNode.cc:      core->outstanding_contexts.at(bb)++;
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update("contexts");
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(total_instructions, completed_nodes.size());
+sim/tile/tile_example/DynamicNode.cc:        core->local_stat.update(bytes_read, word_size_bytes);
+sim/tile/tile_example/DynamicNode.cc:        core->local_stat.update(bytes_write, word_size_bytes);
+sim/tile/tile_example/DynamicNode.cc:      stat.update(core->instrToStr(d->type));
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(core->instrToStr(d->type));      
+sim/tile/tile_example/DynamicNode.cc:  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << "] [Instruction: " << d.n->name <<"] ";
+sim/tile/tile_example/DynamicNode.cc:    if(core->local_cfg.mem_speculate) {
+sim/tile/tile_example/DynamicNode.cc:      core->communicate(this);
+sim/tile/tile_example/DynamicNode.cc:  if(pending_parents > 0 || pending_external_parents > 0 || (core->local_cfg.cf_mode==1 && type==TERMINATOR && (issued || completed))) {
+sim/tile/tile_example/DynamicNode.cc:    if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
+sim/tile/tile_example/DynamicNode.cc:      core->context_to_create++;       
+sim/tile/tile_example/DynamicNode.cc:  assert((core->local_cfg.cf_mode == 1 && type == TERMINATOR) || c->issue_set.find(this) == c->issue_set.end());
+sim/tile/tile_example/DynamicNode.cc:      core->lsq.resolveAddress(this);
+sim/tile/tile_example/DynamicNode.cc:  if (core->available_FUs.at(n->typeInstr) != -1) {
+sim/tile/tile_example/DynamicNode.cc:    if (core->available_FUs.at(n->typeInstr) == 0)
+sim/tile/tile_example/DynamicNode.cc:      core->available_FUs.at(n->typeInstr)--;
+sim/tile/tile_example/DynamicNode.cc:  core->local_stat.update(comp_issue_success);
+sim/tile/tile_example/DynamicNode.cc:  if(!core->canAccess(type == LD))
+sim/tile/tile_example/DynamicNode.cc:  if(type == LD && core->local_cfg.mem_forward) {
+sim/tile/tile_example/DynamicNode.cc:    forwardRes = core->lsq.check_forwarding(this);
+sim/tile/tile_example/DynamicNode.cc:    if(forwardRes == 0 && core->local_cfg.mem_speculate) {
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update("speculatively_forwarded");
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update("forwarded");
+sim/tile/tile_example/DynamicNode.cc:    int res = core->lsq.check_load_issue(this, core->local_cfg.mem_speculate);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update("speculated");
+sim/tile/tile_example/DynamicNode.cc:    if(!core->lsq.check_store_issue(this))
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(load_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    core->local_stat.update(store_issue_success);
+sim/tile/tile_example/DynamicNode.cc:    else if(forwardRes == 0 && core->local_cfg.mem_speculate) { 
+sim/tile/tile_example/DynamicNode.cc:      core->access(this);
+sim/tile/tile_example/DynamicNode.cc:    core->access(this);
+sim/tile/tile_example/DynamicNode.cc:    if(!core->lsq.check_store_issue(this)) {
+sim/tile/tile_example/DynamicNode.cc:    can_issue=core->lsq.check_load_issue(this, core->local_cfg.mem_speculate)==1;
+sim/tile/tile_example/DynamicNode.cc:    lpd_can_forward=can_issue && core->sim->descq->updateSAB(this);
+sim/tile/tile_example/DynamicNode.cc:      can_issue=can_issue && core->communicate(this);
+sim/tile/tile_example/DynamicNode.cc:      can_issue=can_issue && core->canAccess(true); //here, must rely on memsystem
+sim/tile/tile_example/DynamicNode.cc:    can_issue=can_issue && core->communicate(this);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(stval_issue_success);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(staddr_issue_success);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(recv_issue_success);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(send_issue_success);
+sim/tile/tile_example/DynamicNode.cc:        core->access(this); //handlememoryreturn() calls communicate on ld_prod
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update(ld_prod_issue_success);
+sim/tile/tile_example/DynamicNode.cc:  if(d->c->id==35682 && d->n->id==14 && d->core->id==0) {
+sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==RECV) || core->sim->descq->debug_send_set.find(desc_id)!=core->sim->descq->debug_send_set.end());         
+sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==STADDR) || core->sim->descq->debug_stval_set.find(desc_id)!=core->sim->descq->debug_send_set.end());
+sim/tile/tile_example/DynamicNode.cc:    assert( core->sim->descq->send_runahead_map.find(desc_id)==core->sim->descq->send_runahead_map.end());
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id]=core->cycles;    
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id] = core->cycles - core->sim->descq->stval_runahead_map[desc_id];
+sim/tile/tile_example/DynamicNode.cc:  if ( core->available_FUs.at(n->typeInstr) != -1 )
+sim/tile/tile_example/DynamicNode.cc:    core->available_FUs.at(n->typeInstr)++; 
+sim/tile/tile_example/DynamicNode.cc:  if (core->local_cfg.mem_speculate && n->typeInstr == ST) {
+sim/tile/tile_example/DynamicNode.cc:    auto misspeculated = core->lsq.check_speculation(this);
+sim/tile/tile_example/DynamicNode.cc:      core->local_stat.update("misspeculated");
+sim/tile/tile_example/DynamicNode.cc:      core->lsq.resolveAddress(dst);      
+sim/tile/tile_example/DynamicNode.cc:      core->lsq.resolveAddress(dst);
+sim/tile/LoadStoreQ.cc:  if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
+sim/tile/LoadStoreQ.cc:  if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
+sim/tile/LoadStoreQ.cc:  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+sim/tile/LoadStoreQ.cc:  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+sim/tile/LoadStoreQ.cc:  if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
+sim/tile/Core.cc:  if(issueMap.size()!=0 && issueMap.begin()->first->core->cycles > 325000000) {
+sim/tile/Core.cc:        d->core->lsq.remove(d); //delete from LSQ
+sim/tile/DynamicNode.cc:  if(core->context_list.size() > id+1)
+sim/tile/DynamicNode.cc:    return core->context_list.at(id+1);
+sim/tile/DynamicNode.cc:    return core->context_list.at(id-1);
+sim/tile/DynamicNode.cc:    //pq.push(make_pair(d, core->cycles+d->n->lat-1));
+sim/tile/DynamicNode.cc:    pq.push(make_pair(d, core->cycles+d->n->lat));
+sim/tile/DynamicNode.cc:    pq.push(make_pair(d, core->cycles));
+sim/tile/DynamicNode.cc:      //if(core->memory.find(n->id)==core->memory.end()) {
+sim/tile/DynamicNode.cc:      //assert(core->memory.find(n->id)!=core->memory.end());
+sim/tile/DynamicNode.cc:      while(core->memory.find(n->id)==core->memory.end() || core->memory.at(n->id).empty()) {
+sim/tile/DynamicNode.cc:      d = new DynamicNode(n, this, core, core->memory.at(n->id).front());
+sim/tile/DynamicNode.cc:      core->memory.at(n->id).pop();
+sim/tile/DynamicNode.cc:      if(core->memory.at(n->id).empty()) {
+sim/tile/DynamicNode.cc:        core->memory.erase(n->id);
+sim/tile/DynamicNode.cc:        core->lsq.insert(d);
+sim/tile/DynamicNode.cc:      if (core->acc_map.find(n->id)==core->acc_map.end()) {
+sim/tile/DynamicNode.cc:      d->acc_args=core->acc_map.at(n->id).front();
+sim/tile/DynamicNode.cc:      core->acc_map.at(n->id).pop();
+sim/tile/DynamicNode.cc:      core->sim->load_count+=d->width;
+sim/tile/DynamicNode.cc:      core->sim->orderDESC(d);
+sim/tile/DynamicNode.cc:    core->window.insertDN(d); //this helps maitain a program-order ordering of all instructions
+sim/tile/DynamicNode.cc:  if(core->curr_owner.find(bb->id) == core->curr_owner.end())
+sim/tile/DynamicNode.cc:    core->curr_owner.insert(make_pair(bb->id,this));
+sim/tile/DynamicNode.cc:    Context *old_owner = core->curr_owner.at(bb->id);
+sim/tile/DynamicNode.cc:    old_owner->cycleMarkedAsErasable = core->cycles;
+sim/tile/DynamicNode.cc:    core->curr_owner.at(bb->id) = this;
+sim/tile/DynamicNode.cc:        Context *cc = core->curr_owner.at(src->bbid);
+sim/tile/DynamicNode.cc:    if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR) {
+sim/tile/DynamicNode.cc:    if (d->type == TERMINATOR && core->local_cfg.branch_prediction) {
+sim/tile/DynamicNode.cc:      if(!core->predict_branch(d)) {
+sim/tile/DynamicNode.cc:        d->n->lat+=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
+sim/tile/DynamicNode.cc:    core->local_stat.update(send_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(recv_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(staddr_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(stval_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(ld_prod_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(load_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(store_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(comp_issue_try);
+sim/tile/DynamicNode.cc:    core->local_stat.update(send_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(recv_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(staddr_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(stval_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(ld_prod_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(load_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(store_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(comp_issue_success);
+sim/tile/DynamicNode.cc:  bool& window_full=core->windowFull;
+sim/tile/DynamicNode.cc:    bool window_available = core->window.canIssue(d);
+sim/tile/DynamicNode.cc:      if (core->local_cfg.cf_mode == 0 && d->type == TERMINATOR)
+sim/tile/DynamicNode.cc:        core->context_to_create++;     
+sim/tile/DynamicNode.cc:      core->window.issue();
+sim/tile/DynamicNode.cc:        cout << "Cycle: " << core->cycles << " \n"; 
+sim/tile/DynamicNode.cc:    if(core->local_cfg.mem_speculate && (d->type == LD || d->type == LD_PROD) && d->speculated && core->lsq.check_unresolved_store(d)) { //added ld_prod here even though we don't currently speculate with it 
+sim/tile/DynamicNode.cc:    if(pq.top().second > core->cycles)
+sim/tile/DynamicNode.cc:    if (core->local_cfg.max_active_contexts_BB > 0) {      
+sim/tile/DynamicNode.cc:      core->outstanding_contexts.at(bb)++;      
+sim/tile/DynamicNode.cc:    core->local_stat.update("contexts");
+sim/tile/DynamicNode.cc:    core->local_stat.update(total_instructions, completed_nodes.size());
+sim/tile/DynamicNode.cc:        core->local_stat.update(bytes_read, word_size_bytes);
+sim/tile/DynamicNode.cc:        core->local_stat.update(bytes_write, word_size_bytes);
+sim/tile/DynamicNode.cc:      stat.update(core->getInstrName(d->type));
+sim/tile/DynamicNode.cc:      core->local_stat.update(core->getInstrName(d->type));
+sim/tile/DynamicNode.cc:  os << "[Core: " <<d.core->id << "] [Context: " <<d.c->id << "]" << descid << " [Node: " << d.n->id << "] [Instruction: " << d.n->name <<"] ";
+sim/tile/DynamicNode.cc:  if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+sim/tile/DynamicNode.cc:    assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
+sim/tile/DynamicNode.cc:    long long current_cycle = core->cycles;
+sim/tile/DynamicNode.cc:    auto& entry_tuple=core->sim->load_stats_map[this];
+sim/tile/DynamicNode.cc:    if (core->graph_node_mem.find(addr) == core->graph_node_mem.end()) {
+sim/tile/DynamicNode.cc:        graphNodeId = core->graph_node_mem[addr];
+sim/tile/DynamicNode.cc:    core->sim->load_stats_vector.push_back(load_stat);
+sim/tile/DynamicNode.cc:    core->sim->load_stats_map.erase(this);
+sim/tile/DynamicNode.cc:    if(core->local_cfg.mem_speculate) {
+sim/tile/DynamicNode.cc:    if(atomic && core->sim->hasLock(this)) {
+sim/tile/DynamicNode.cc:      core->sim->releaseLock(this);
+sim/tile/DynamicNode.cc:  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_prediction));
+sim/tile/DynamicNode.cc:  if(type==TERMINATOR && windowNumber+branch_lookahead > core->window.window_end && (pending_parents > 0 || pending_external_parents > 0)) {   
+sim/tile/DynamicNode.cc:      if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
+sim/tile/DynamicNode.cc:      core->context_to_create++;       
+sim/tile/DynamicNode.cc:    core->lsq.resolveAddress(this);
+sim/tile/DynamicNode.cc:  if (core->available_FUs.at(n->typeInstr) != -1) {
+sim/tile/DynamicNode.cc:    if (core->available_FUs.at(n->typeInstr) == 0)
+sim/tile/DynamicNode.cc:      core->available_FUs.at(n->typeInstr)--;
+sim/tile/DynamicNode.cc:    can_issue=core->sim->barrier->register_barrier(this);
+sim/tile/DynamicNode.cc:    core->local_stat.update(comp_issue_success);
+sim/tile/DynamicNode.cc:  //cout << "Cycle: " << core->cycles << "; Acc Invoke: " << acc_args << endl;
+sim/tile/DynamicNode.cc:  int acc_tid=core->sim->getAccelerator();
+sim/tile/DynamicNode.cc:  Transaction* t=new Transaction(0,core->id,acc_tid);
+sim/tile/DynamicNode.cc:  core->sim->InsertTransaction(t, core->cycles);
+sim/tile/DynamicNode.cc:  /*if(core->sim->isLocked(this)) {
+sim/tile/DynamicNode.cc:  if(!core->canAccess(type == LD)) { 
+sim/tile/DynamicNode.cc:  //core->sim->evictAllCaches(addr); this was just used to test
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:  if(type == LD && core->local_cfg.mem_forward) {
+sim/tile/DynamicNode.cc:    forwardRes = core->lsq.check_forwarding(this);
+sim/tile/DynamicNode.cc:    if(forwardRes == 0 && core->local_cfg.mem_speculate) {
+sim/tile/DynamicNode.cc:      core->local_stat.update("speculatively_forwarded");
+sim/tile/DynamicNode.cc:      core->local_stat.update("forwarded");
+sim/tile/DynamicNode.cc:    int res = core->lsq.check_load_issue(this, core->local_cfg.mem_speculate);
+sim/tile/DynamicNode.cc:      core->local_stat.update("speculated");
+sim/tile/DynamicNode.cc:    if(!core->lsq.check_store_issue(this))
+sim/tile/DynamicNode.cc:  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
+sim/tile/DynamicNode.cc:  bool hadLock=core->sim->hasLock(this);
+sim/tile/DynamicNode.cc:  if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
+sim/tile/DynamicNode.cc:  for(auto id_tile: core->sim->tiles) {
+sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+sim/tile/DynamicNode.cc:    core->local_stat.update(load_issue_success);
+sim/tile/DynamicNode.cc:    core->local_stat.update(store_issue_success);
+sim/tile/DynamicNode.cc:    else if(forwardRes == 0 && core->local_cfg.mem_speculate) { 
+sim/tile/DynamicNode.cc:      core->access(this);  //send to mem hierarchy
+sim/tile/DynamicNode.cc:    core->access(this); //send to mem hierarchy
+sim/tile/DynamicNode.cc:    if(!core->lsq.check_store_issue(this)) {
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:    can_forward_from_lsq = core->local_cfg.mem_forward && (core->lsq.check_forwarding(this)==1);
+sim/tile/DynamicNode.cc:    lsq_result = core->lsq.check_load_issue(this, false);
+sim/tile/DynamicNode.cc:      can_issue=can_issue && core->canAccess(true);
+sim/tile/DynamicNode.cc:    if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
+sim/tile/DynamicNode.cc:          localStat.runahead=descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+sim/tile/DynamicNode.cc:          localStat.coreId=core->id;
+sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] = core->cycles;
+sim/tile/DynamicNode.cc:          localStat.runahead=core->cycles-descq->send_runahead_map[desc_id]; 
+sim/tile/DynamicNode.cc:          localStat.coreId=core->id;
+sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] = core->cycles;
+sim/tile/DynamicNode.cc:        core->sim->recvLatencyMap[this]=core->cycles;
+sim/tile/DynamicNode.cc:    else if(core->sim->debug_mode) {
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] =  descq->send_runahead_map[desc_id] - core->cycles; //runahead will be negative here because recv finished first
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] = core->cycles;
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] = core->cycles - descq->send_runahead_map[desc_id];
+sim/tile/DynamicNode.cc:          descq->send_runahead_map[desc_id] = core->cycles;
+sim/tile/DynamicNode.cc:      core->local_stat.update(stval_issue_success);
+sim/tile/DynamicNode.cc:      core->local_stat.update(staddr_issue_success);
+sim/tile/DynamicNode.cc:      core->local_stat.update(recv_issue_success);
+sim/tile/DynamicNode.cc:      core->local_stat.update(send_issue_success);
+sim/tile/DynamicNode.cc:      if(core->sim->debug_mode) {
+sim/tile/DynamicNode.cc:        core->access(this); //send out load to mem hier       
+sim/tile/DynamicNode.cc:      core->local_stat.update(ld_prod_issue_success);
+sim/tile/DynamicNode.cc:  if(core->sim->hasLock(this)) {
+sim/tile/DynamicNode.cc:    core->sim->releaseLock(this);
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:    cout << "Cycle: " << core->cycles << " \n"; 
+sim/tile/DynamicNode.cc:    vector<DynamicNode*>& bVec=core->window.barrierVec;
+sim/tile/DynamicNode.cc:    unordered_map<DynamicNode*, uint64_t>& recvLatencyMap=core->sim->recvLatencyMap;
+sim/tile/DynamicNode.cc:      core->sim->total_recv_latency += core->cycles - recvLatencyMap[this];
+sim/tile/DynamicNode.cc:  if(core->sim->debug_mode) {
+sim/tile/DynamicNode.cc:      descq->stval_runahead_map[desc_id]=core->cycles;    
+sim/tile/DynamicNode.cc:      descq->stval_runahead_map[desc_id] = core->cycles - descq->stval_runahead_map[desc_id];
+sim/tile/DynamicNode.cc:  if ( core->available_FUs.at(n->typeInstr) != -1 )
+sim/tile/DynamicNode.cc:    core->available_FUs.at(n->typeInstr)++; 
+sim/tile/DynamicNode.cc:  if (core->local_cfg.mem_speculate && n->typeInstr == ST &&  core->window.issueWidth>1 && core->window.window_size>1) {
+sim/tile/DynamicNode.cc:    auto misspeculated = core->lsq.check_speculation(this);
+sim/tile/DynamicNode.cc:      core->local_stat.update("misspeculated");
+sim/tile/DynamicNode.cc:  if (core->local_cfg.cf_mode == 0 && type == TERMINATOR) {
+sim/tile/DynamicNode.cc:    core->context_to_create++;    
+sim/tile/DynamicNode.cc:      core->lsq.resolveAddress(dst);      
+sim/tile/DynamicNode.cc:      core->lsq.resolveAddress(dst);
+sim/tile/DynamicNode.cc:    if(!((core->local_cfg.branch_prediction && dst->type==TERMINATOR) || (!dst->issued && !dst->completed))) {
+sim/sim.cc:  int tile_id =  d->core->id;
+sim/sim.cc:  if(barrier_map.find(d->core->id)!=barrier_map.end()) {
+sim/sim.cc:  barrier_map.insert({d->core->id,d});
+sim/sim.cc:  core->local_cfg.read(cfgpath+cfgname);
+sim/sim.cc:  core->name=name;
+sim/sim.cc:  r.readGraph(gName, core->g);
+sim/sim.cc:  //r.readProfMemory(memName, core->memory);
+sim/sim.cc:  core->memfile.open(memName, ifstream::in);
+sim/sim.cc:  if (core->memfile.is_open()) {
+sim/sim.cc:    //r.readProfMemoryChunk(core->memfile, core->memory);
+sim/sim.cc:  r.readProfCF(cfName, core->cf);
+sim/sim.cc:  r.readAccTrace(accName, core->acc_map);
+sim/sim.cc:  //GraphOpt opt(core->g);
+sim/sim.cc:  core->sim=this;
+sim/sim.cc:  core->initialize(id);
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:  uint64_t cacheline=d->addr/d->core->cache->size_of_cacheline;
+sim/sim.cc:      core->cache->evict(addr);      
+sim/sim.cc:      assert(!core->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+sim/sim.cc:      stat.set("cycles", core->cycles);
+sim/sim.cc:      core->local_stat.set("cycles", core->cycles);
+sim/sim.cc:      cout << "------------- Final " << core->name << " Stats --------------\n";
+sim/sim.cc:      core->local_stat.print(cout);
+sim/sim.cc:      core->calculateEnergyPower();
+sim/sim.cc:      cout << "total_energy : " << core->total_energy << " Joules\n";
+sim/sim.cc:      cout << "avg_power : " << core->avg_power << " Watts\n";
+sim/sim.cc:      if(core->total_energy==0.0)
+sim/sim.cc:        core->calculateEnergyPower();
+sim/sim.cc:      stat.global_energy += core->total_energy;
+sim/sim.cc:  Cache* cache = core->cache;
+sim/sim.cc:    core->accessComplete(t);
+sim/sim.cc:    d->core->access(d);
+sim/sim.cc:      d->core->access(d); //now that you've gotten the value, access memory 
+Binary file build/sim/CMakeFiles/sim.dir/tile/DynamicNode.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/memsys/Cache.cc.o matches
+Binary file bin/sim matches
+insert:sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+insert:sim/sim.cc:      assert(!core->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+src_id:sim/tile/tile_example/DynamicNode.cc:    pq.push(make_pair(d, core->cycles+d->n->lat-1));
+src_id:sim/tile/Core.cc:  if(issueMap.size()!=0 && issueMap.begin()->first->core->cycles > 325000000) {
+src_id:sim/tile/DynamicNode.cc:    //pq.push(make_pair(d, core->cycles+d->n->lat-1));
+src_id:sim/tile/DynamicNode.cc:    if(!((core->local_cfg.branch_prediction && dst->type==TERMINATOR) || (!dst->issued && !dst->completed))) {

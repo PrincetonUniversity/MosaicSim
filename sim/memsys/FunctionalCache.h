@@ -11,6 +11,8 @@ struct CacheLine
   uint64_t addr;
   CacheLine* prev;
   CacheLine* next;
+  int nodeId;
+  int graphNodeId;
   bool dirty=false;
 };
 
@@ -42,7 +44,7 @@ public:
     delete tail;
     delete [] entries;
   }
-  bool access(uint64_t address, bool isLoad)
+  bool access(uint64_t address, int nodeId, int graphNodeId, bool isLoad)
   {
     CacheLine *c = addr_map[address];
     if(c)
@@ -53,7 +55,9 @@ public:
       insertFront(c);
       if(!isLoad)
         c->dirty = true;
-      
+      c->nodeId = nodeId;
+      c->graphNodeId = graphNodeId;
+     
       return true;
     }
     else
@@ -61,28 +65,28 @@ public:
       return false;
     }
   }
-  void insert(uint64_t address, int64_t *evict = NULL)
+  void insert(uint64_t address, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNode)
   {
    
     CacheLine *c = addr_map[address];
      
-
     if(freeEntries.size() == 0)
     {
       
-      // Evict the LRU
-      
+      // Evict the LRU      
       c = tail->prev;
       assert(c!=head);
-      //cout << "before res check \n";
       deleteNode(c);
-      //cout << "after res check \n";
       addr_map.erase(c->addr);
      
-      if(evict && c->dirty) {
-        *evict = c->addr;
-        
-      }  
+      if(c->dirty) {
+        *dirtyEvict = 1;
+      } else {
+        *dirtyEvict = 0;
+        *evictedAddr = c->addr;
+        *evictedNodeId = c->nodeId;
+        *evictedGraphNode = c->graphNodeId;
+      } 
     }
     else
     {
@@ -92,6 +96,8 @@ public:
     }
     
     c->addr = address;
+    c->nodeId = nodeId;
+    c->graphNodeId = graphNodeId;
     c->dirty = false;
     addr_map[address] = c;
     insertFront(c);
@@ -157,20 +163,20 @@ public:
       uint64_t minmask = ((uint64_t)1 << (min))-1;
       uint64_t mask = maxmask - minmask;
       uint64_t val = address & mask;
-      if(min > 0)
-        val = val >> (min-1);
+      val = val >> (min-1);
       return val;
   }
 
-  bool access(uint64_t address, bool isLoad)
+  bool access(uint64_t address, int nodeId, int graphNodeId, bool isLoad)
   {
     uint64_t setid = extract(log_set_count-1, 0, address);
     uint64_t tag = extract(58, log_set_count, address);
     CacheSet *c = sets.at(setid);
-    bool res = c->access(tag, isLoad);
+    bool res = c->access(tag, nodeId, graphNodeId, isLoad);
     return res;
   }
-  void insert(uint64_t address, int64_t *evicted = NULL)
+
+  void insert(uint64_t address, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNodeId)
   {
 
     uint64_t setid = extract(log_set_count-1, 0, address);
@@ -178,10 +184,10 @@ public:
     CacheSet *c = sets.at(setid);
     int64_t evictedTag = -1;
 
-    c->insert(tag, &evictedTag);
+    c->insert(tag, nodeId, graphNodeId, dirtyEvict, &evictedTag, evictedNodeId, evictedGraphNodeId);
 
-    if(evicted && evictedTag != -1)
-      *evicted = evictedTag * set_count + setid;
+    if(evictedAddr && evictedTag != -1)
+      *evictedAddr = evictedTag * set_count + setid;
 
   }
   bool evict(uint64_t address) {
