@@ -22,7 +22,6 @@ std::ofstream f3[MAX_THREADS]; // for acc.txt
 __attribute__((noinline))
 extern "C"
 void tracer_cleanup() {
- 
   for (int i = 0; i < MAX_THREADS; i++) {
     if (f1[i].is_open()) {
       f1[i].close();
@@ -37,14 +36,16 @@ void tracer_cleanup() {
 }
 
 __attribute__((noinline))
-const char * get_dir_name(std::string run_dir, std::string kernel_type, std::string type) {
+std::string get_dir_name(std::string run_dir, std::string kernel_type, std::string type) {
   if (omp_get_thread_num() >= MAX_THREADS) {
     std::cout << "ERROR: Unable to log for all threads! Increase MAX_THREADS in tracer.cc" << "\n";
     assert(0);
   }
   std::ostringstream ret;
   ret << run_dir << "/output_" << kernel_type << "_" << omp_get_thread_num() << "/" << type;
-  return ret.str().c_str();
+  ret.flush();
+  //ret << "tmp" << omp_get_thread_num() << ".txt";
+  return ret.str();
 }
 
 __attribute__((noinline))
@@ -93,15 +94,28 @@ void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long
   }
   
   if(!f2[omp_get_thread_num()].is_open()) {
-    f2[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "mem.txt"), std::ofstream::out | std::ofstream::app);
+
+
+    auto fname = get_dir_name(run_dir, kernel_type, "mem.txt");
+    //std::cout << omp_get_thread_num() <<  fname << "\n";
+    f2[omp_get_thread_num()].exceptions(std::ifstream::failbit | std::ifstream::badbit);
+    f2[omp_get_thread_num()].open(fname, std::ofstream::out | std::ofstream::app);
+
+
   }
-	
-  if (type == 0)
+
+  //printf("%s %d: recording mem trace\n", get_dir_name(run_dir, kernel_type, "mem.txt"), omp_get_thread_num());
+  if (type == 0) {
     f2[omp_get_thread_num()] << "L,"<< name << "," << addr << ","<< size <<"\n";
+
+    //std::cout << omp_get_thread_num() << " " << f2[omp_get_thread_num()].good() << "," << std::ifstream::badbit << "," << "L,"<< name << "," << addr << ","<< size <<"\n";
+      
+  }
   else if (type == 1)
     f2[omp_get_thread_num()] << "S,"<< name << "," << addr << ","<< size <<"\n";
 
-  //f2[omp_get_thread_num()].close();
+  //f2[omp_get_thread_num()].flush();
+
 }
 
 __attribute__((noinline))
