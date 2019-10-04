@@ -143,7 +143,7 @@ public:
   FunctionalCache(int size, int assoc, int line_size)
   {
     cache_line_size = line_size;
-    line_count = size * 1024 / cache_line_size;
+    line_count = 1024 * size / cache_line_size;
     set_count = line_count / assoc;
     log_set_count = log2(set_count);
     for(int i=0; i<set_count; i++)
@@ -157,7 +157,7 @@ public:
       uint64_t minmask = ((uint64_t)1 << (min))-1;
       uint64_t mask = maxmask - minmask;
       uint64_t val = address & mask;
-      val = val >> (min-1);
+      val = val >> min;
       return val;
   }
 

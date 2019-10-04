@@ -302,8 +302,8 @@ void Config::getCfg(int id, int val) {
     break;
   case 29:
     //we only support 5 and 14 nm
-    if(!(val==5 || val==14)) {
-      cout << "currently only support 5 and 14 nm \n";
+    if(!(val==5 || val==14 || val==22)) {
+      cout << "currently only support 5, 14, and 22 nm \n";
       assert(false);
     }
     technology_node = val;

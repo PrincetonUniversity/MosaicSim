@@ -347,10 +347,12 @@ void Simulator::run() {
   ofstream decouplingStats;
   long long send_runahead_sum = 0;
   string decouplingOutstring;
+  int runaheadVec_size = 0;
 
   ofstream memStats;
   long long totalLatency = 0;
   string memOutstring;
+  int load_stats_vector_size = 0;
 
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   last_time = Clock::now();  
@@ -425,10 +427,9 @@ void Simulator::run() {
       
       // decouplingStats chunking
       if(runaheadVec.size() > 0) { 
-        const char* decouplingFileName = (outputDir+"decouplingStats").c_str();
-        ifstream decouplingStatsIn(decouplingFileName);
+        ifstream decouplingStatsIn(outputDir+"decouplingStats");
         if (!decouplingStatsIn) {
-          decouplingStats.open(decouplingFileName);
+          decouplingStats.open(outputDir+"decouplingStats");
           decouplingStats << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
         }
 
@@ -438,17 +439,17 @@ void Simulator::run() {
           decouplingOutstring += to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";
           send_runahead_sum += entry.runahead;      
         }
-          
+
+        runaheadVec_size += runaheadVec.size();          
         runaheadVec.clear();
         decouplingStats << decouplingOutstring;
       }
 
       // memStats chunking
       if(load_stats_vector.size() > 0) {
-        const char* memFileName = (outputDir+"memStats").c_str();
-        ifstream memStatsIn(memFileName);
+        ifstream memStatsIn(outputDir+"memStats");
         if (!memStatsIn) {
-          memStats.open(memFileName);      
+          memStats.open(outputDir+"memStats");      
           memStats << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
         }
 
@@ -497,6 +498,7 @@ void Simulator::run() {
           memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
         }
     
+        load_stats_vector_size += load_stats_vector.size();
         load_stats_vector.clear();
         memStats << memOutstring;
       }
@@ -549,19 +551,96 @@ void Simulator::run() {
     cout << "Total Simulation Time: " << tdiff_milliseconds << " ms \n";
   cout << "Average Global Simulation Speed: " << 1000*total_instructions/tdiff_milliseconds << " Instructions per sec \n";
  
+  // decouplingStats chunking
+  if(runaheadVec.size() > 0) { 
+    ifstream decouplingStatsIn(outputDir+"decouplingStats");
+    if (!decouplingStatsIn) {
+      decouplingStats.open(outputDir+"decouplingStats");
+      decouplingStats << "NODE_ID CORE_ID RUNAHEAD_DIST" << endl;
+    }
+
+    decouplingOutstring = "";
+    for(auto it = runaheadVec.begin(); it != runaheadVec.end(); it++) {
+      auto entry = *it;
+      decouplingOutstring += to_string(entry.nodeId) + " " + to_string(entry.coreId) + " " + to_string(entry.runahead) + "\n";
+      send_runahead_sum += entry.runahead;      
+    }
+          
+    runaheadVec_size += runaheadVec.size();
+    runaheadVec.clear();
+    decouplingStats << decouplingOutstring;
+  }
+
+  // memStats chunking
+  if(load_stats_vector.size() > 0) {
+    ifstream memStatsIn(outputDir+"memStats");
+    if (!memStatsIn) {
+      memStats.open(outputDir+"memStats");      
+      memStats << "Memop Adress Node_ID GraphNode_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+    }
+
+    long long issue_cycle, return_cycle, diff;
+    int node_id;
+    memOutstring = "";
+    for(auto load_stat:load_stats_vector) {
+      issue_cycle=load_stat.issueCycle;
+      return_cycle=load_stat.completeCycle;
+      
+      string isHit="Miss";
+      if (load_stat.hit) {
+        isHit="Hit";
+      }
+      string MEMOP="";
+      if (load_stat.type==LD) {
+        MEMOP="LD";
+      } else if (load_stat.type==LD_PROD) {
+        MEMOP="LD_PROD";
+      } else if (load_stat.type==ST) {
+        MEMOP="ST";
+      } else if (load_stat.type==STADDR) {
+        MEMOP="ST_ADDR";
+      } else if (load_stat.type==ATOMIC_ADD) {
+        MEMOP="ATOMIC_ADD";
+      } else if (load_stat.type==ATOMIC_FADD) {
+        MEMOP="ATOMIC_FADD";
+      } else if (load_stat.type==ATOMIC_MIN) {
+        MEMOP="ATOMIC_MIN";
+      } else if (load_stat.type==ATOMIC_CAS) {
+        MEMOP="ATOMIC_CAS";
+      } else if (load_stat.type==TRM_ATOMIC_FADD) {
+        MEMOP="TRM_ATOMIC_FADD";
+      } else if (load_stat.type==TRM_ATOMIC_MIN) {
+        MEMOP="TRM_ATOMIC_MIN";
+      } else if (load_stat.type==TRM_ATOMIC_CAS) {
+        MEMOP="TRM_ATOMIC_CAS";
+      } else {
+        assert(false);
+      }
+
+      node_id=load_stat.nodeId;
+      diff=(return_cycle-issue_cycle);
+      totalLatency=totalLatency + diff;
+      
+      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+    }
+    
+    load_stats_vector_size += load_stats_vector.size();
+    load_stats_vector.clear();
+    memStats << memOutstring;
+  }
+
   // DESCQ* descq=descq_vec.at(0);
 
   // print summary stats on decoupling
-  const char* decouplingFileName = (outputDir+"decouplingStats").c_str();
-  ifstream decouplingStatsIn(decouplingFileName);
+  ifstream decouplingStatsIn(outputDir+"decouplingStats");
   if (decouplingStatsIn) {
     decouplingStats << "\n";
     decouplingStats << "SUMMARY\n";
     decouplingStats << "Total Recv Latency (cycles): " + to_string(total_recv_latency) + "\n";
-    decouplingStats << "Avg Recv Latency (cycles): " + to_string((long long)total_recv_latency/runaheadVec.size()) + "\n";
+    decouplingStats << "Avg Recv Latency (cycles): " + to_string((long long)total_recv_latency/runaheadVec_size) + "\n";
     decouplingStats << "Total Runahead Distance (cycles): " << send_runahead_sum << "\n";
-    decouplingStats << "Number of Receive_Instructions: " << runaheadVec.size() << "\n";
-    decouplingStats << "Average Runahead Distance(cycles): " << send_runahead_sum/(long long)runaheadVec.size() << endl; 
+    decouplingStats << "Number of Receive_Instructions: " << runaheadVec_size << "\n";
+    decouplingStats << "Average Runahead Distance(cycles): " << send_runahead_sum/(long long)runaheadVec_size << endl; 
     decouplingStats.close();
   }
 
@@ -586,8 +665,7 @@ void Simulator::run() {
 */
 
   //calculate and print summary stats on load latencies
-  const char* memFileName = (outputDir+"memStats").c_str();
-  ifstream memStatsIn(memFileName);
+  ifstream memStatsIn(outputDir+"memStats");
   if (memStatsIn) {
     memStats << "\n";
     memStats << "SUMMARY\n";
@@ -612,7 +690,7 @@ void Simulator::run() {
     }
     
     memStats << "Total Mem Access Latency (cycles): " << totalLatency << endl;
-    memStats << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector.size() << endl;
+    memStats << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector_size << endl;
   }
 } 
 
