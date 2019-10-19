@@ -1,0 +1,29 @@
+#Config file, goal is to match DECADES Ariane In Order processor
+#For infinite size, set value to -1
+
+#Core
+#For in order mode, set window_size to 1
+-1,lsq_size
+1,window_size   #effectively, ROB size
+1,issueWidth   #num of issuable instrs per cycle
+0,cf_mode   #set 1 to create all contexts at once, perfect branch prediction
+0,mem_speculate #address alias speculation
+0,mem_forward #lsq store to load forwarding
+-1,max_active_contexts_BB 
+0,branch_prediction # no effect anyway, since it's single-stage, single-issue pipeline 
+0,misprediction_penalty # enter penalty of 0 for perfect prediction
+
+#Cache
+0,ideal_cache   #set 1 for always cache hit
+1024,cache_size
+1,cache_latency
+256,cache_assoc
+4,cache_linesize
+8,cache_load_ports
+8,cache_store_ports
+0,prefetch_distance #distance (in num cachelines) before first prefetch
+2,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+
+#Memory
+4,mem_load_ports
+4,mem_store_ports

@@ -3,8 +3,6 @@
 #include "DRAM.h"
 #include "../tile/Core.h"
 
-
-
 string l1_hits = "l1_hits";
 string l1_hits_non_prefetch = "l1_hits_non_prefetch";
 string l1_misses="l1_misses";
@@ -169,7 +167,7 @@ void Cache::execute(MemTransaction* t) {
   if(!ideal) {
     res = fc->access(dramaddr/size_of_cacheline, nodeId, graphNodeId, t->isLoad);
   }
-
+  cout << "RES = " << res << endl;
 
   //luwa change, just testing!!!
   //go to dram
@@ -216,7 +214,7 @@ void Cache::execute(MemTransaction* t) {
         t->cache_q->pop_front();
         
         child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId); 
-        
+
         if(evictedAddr != -1) {
           
           assert(evictedAddr >= 0);

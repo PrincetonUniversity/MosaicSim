@@ -36,10 +36,14 @@ void Core::access(DynamicNode* d) {
   tracker_id.pop();
   access_tracker.insert(make_pair(tid, d));
   */
-  int graphNodeId = graphNodeIdMap[d->addr];
+  int graphNodeId = -1;
+  if (graphNodeIdMap.find(d->addr) != graphNodeIdMap.end()) {
+    graphNodeId = graphNodeIdMap[d->addr];
+  }
   MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId);
   t->d=d;
   cache->addTransaction(t);
+  cout << "ADDED " << d->addr << endl;
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
