@@ -34,15 +34,20 @@ public:
     registerStat("l1_misses", 1);
     registerStat("l1_hits_non_prefetch", 1);
     registerStat("l1_misses_non_prefetch", 1);
+    registerStat("l1_load_hits", 1);
+    registerStat("l1_load_misses", 1);
     registerStat("l2_hits", 0);
     registerStat("l2_misses", 0);
     registerStat("l2_hits_non_prefetch", 0);
     registerStat("l2_misses_non_prefetch", 0);
-    
+    registerStat("l2_load_hits", 1);
+    registerStat("l2_load_misses", 1);
+ 
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
     registerStat("cache_evicts", 1);
     registerStat("dram_accesses", 1);
+    registerStat("dram_loads", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
     

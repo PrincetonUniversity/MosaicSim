@@ -7,13 +7,16 @@
 
 string l1_hits = "l1_hits";
 string l1_hits_non_prefetch = "l1_hits_non_prefetch";
+string l1_load_hits = "l1_load_hits";
 string l1_misses="l1_misses";
 string l1_misses_non_prefetch = "l1_misses_non_prefetch";
+string l1_load_misses = "l1_load_misses";
 string l2_hits="l2_hits";
-string l2_misses="l2_misses";
 string l2_hits_non_prefetch= "l2_hits_non_prefetch";
-string l2_mises="l2_misses";
+string l2_load_hits = "l2_load_hits";
+string l2_misses="l2_misses";
 string l2_misses_non_prefetch="l2_misses_non_prefetch"; 
+string l2_load_misses="l2_load_misses";
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
 
@@ -214,7 +217,9 @@ void Cache::execute(MemTransaction* t) {
         if(!t->isPrefetch) {
           stat.update(l2_hits_non_prefetch);
         }
-
+        if(t->isLoad) {
+          stat.update(l2_load_hits);
+        }
       }
           
       
@@ -232,6 +237,9 @@ void Cache::execute(MemTransaction* t) {
       stat.update(l2_misses);
       if(!t->isPrefetch) {
         stat.update(l2_misses_non_prefetch);
+      }
+      if(t->isLoad) {
+        stat.update(l2_load_misses);
       }
     }
  
@@ -361,12 +369,20 @@ void Cache::TransactionComplete(MemTransaction *t) {
       core->local_stat.update(l1_hits,batch_size);
       stat.update(l1_hits_non_prefetch,non_prefetch_size);
       core->local_stat.update(l1_hits_non_prefetch,non_prefetch_size);
+      if(t->isLoad) {
+        stat.update(l1_load_hits,batch_size);
+        core->local_stat.update(l1_load_hits,batch_size);
+      }
     }
     else {
       stat.update(l1_misses,batch_size);
       core->local_stat.update(l1_misses,batch_size);
       stat.update(l1_misses_non_prefetch,non_prefetch_size);
       core->local_stat.update(l1_misses_non_prefetch,non_prefetch_size);
+      if(t->isLoad) {
+        stat.update(l1_load_misses,batch_size);
+        core->local_stat.update(l1_load_misses,batch_size);
+      }
     }
     
     //process callback for each individual transaction in batch
