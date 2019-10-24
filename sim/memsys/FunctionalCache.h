@@ -69,11 +69,11 @@ public:
   {
    
     CacheLine *c = addr_map[address];
-     
+    
     if(freeEntries.size() == 0)
     {
       
-      // Evict the LRU      
+      // Evict the LRU
       c = tail->prev;
       assert(c!=head);
       deleteNode(c);
@@ -94,7 +94,7 @@ public:
       c = freeEntries.back();
       freeEntries.pop_back();
     }
-    
+   
     c->addr = address;
     c->nodeId = nodeId;
     c->graphNodeId = graphNodeId;
@@ -112,7 +112,7 @@ public:
       //c = tail->prev;
       
       if(c) {
-        addr_map.erase(address);      
+        addr_map.erase(address);
         deleteNode(c);
         freeEntries.push_back(c);
         if(c->dirty) { //you want to know if eviction actually took place
@@ -120,7 +120,7 @@ public:
         }
       }
     }
-    return false;   
+    return false;
   }
   
   void insertFront(CacheLine *c)
@@ -136,7 +136,6 @@ public:
     c->next->prev = c->prev;
   }
 };
-
 
 class FunctionalCache
 {
@@ -200,5 +199,5 @@ public:
     
     return c->evict(tag);
   }
-  
+ 
 };
