@@ -16,6 +16,9 @@ string cache_evicts="cache_evicts";
 string cache_access="cache_access";
 
 void Cache::evict(uint64_t addr) {
+  int evictedNodeId = -1;
+  int evictedGraphNodeId = -1;
+
   if(fc->evict(addr/size_of_cacheline)) { //evicts from the cache returns isDirty, in which case must write back to L2
     MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false, -1);
     // if(parent_cache->willAcceptTransaction(t)) {
@@ -23,6 +26,13 @@ void Cache::evict(uint64_t addr) {
     parent_cache->addTransaction(t); //send eviction to parent cache
       //}
   }    
+         
+  cacheStat cache_stat;
+  cache_stat.cacheline = addr/size_of_cacheline*size_of_cacheline;
+  cache_stat.cycle = cycles;
+  cache_stat.nodeId = evictedNodeId;
+  cache_stat.graphNodeId = evictedGraphNodeId;
+  sim->evictStatsVec.push_back(cache_stat);          
 }
 
 bool Cache::process() {
@@ -154,20 +164,21 @@ void Cache::execute(MemTransaction* t) {
   }
   uint64_t dramaddr = t->addr; // /size_of_cacheline * size_of_cacheline;
   bool res = true;  
-
   
   int nodeId = -1;
+  int graphNodeId = -1;
   if(t->src_id!=-1) {
     nodeId = t->d->n->id;
   }
-  int graphNodeId = -1;
-  if (core->graphNodeIdMap.find(dramaddr) != core->graphNodeIdMap.end()) {
-    graphNodeId = core->graphNodeIdMap[dramaddr];
-  }
+  graphNodeId = t->graphNodeId;
+  /*if (sim->graphNodeIdMap.find(dramaddr) != sim->graphNodeIdMap.end()) {
+    graphNodeId = sim->graphNodeIdMap[dramaddr];
+  }*/
+ 
   if(!ideal) {
     res = fc->access(dramaddr/size_of_cacheline, nodeId, graphNodeId, t->isLoad);
+    
   }
-  cout << "RES = " << res << endl;
 
   //luwa change, just testing!!!
   //go to dram
@@ -202,10 +213,10 @@ void Cache::execute(MemTransaction* t) {
       //for l2 cache
       else {
         int nodeId = t->d->n->id;
-        int graphNodeId = -1;
-        if (core->graphNodeIdMap.find(dramaddr) != core->graphNodeIdMap.end()) {
-          graphNodeId = core->graphNodeIdMap[dramaddr];
-        }
+        int graphNodeId = t->graphNodeId;
+        /*if (sim->graphNodeIdMap.find(dramaddr) != sim->graphNodeIdMap.end()) {
+          graphNodeId = sim->graphNodeIdMap[dramaddr];
+        }*/
         int dirtyEvict = -1;
         int64_t evictedAddr = -1;
         int evictedNodeId = -1;
@@ -223,6 +234,13 @@ void Cache::execute(MemTransaction* t) {
           if (dirtyEvict) {
             child_cache->to_evict.push_back(evictedAddr*child_cache->size_of_cacheline);
           }
+
+          cacheStat cache_stat;
+          cache_stat.cacheline = evictedAddr*child_cache->size_of_cacheline;
+          cache_stat.cycle = cycles;
+          cache_stat.nodeId = evictedNodeId;
+          cache_stat.graphNodeId = evictedGraphNodeId;
+          sim->evictStatsVec.push_back(cache_stat);          
         }
         child_cache->TransactionComplete(t);
         stat.update(l2_hits);
@@ -409,10 +427,10 @@ void Cache::TransactionComplete(MemTransaction *t) {
   }
   else {
     int nodeId = t->d->n->id;
-    int graphNodeId = -1;
-    if (core->graphNodeIdMap.find(t->addr) != core->graphNodeIdMap.end()) {
-      graphNodeId = core->graphNodeIdMap[t->addr];
-    }
+    int graphNodeId = t->graphNodeId;
+    /*if (sim->graphNodeIdMap.find(t->addr) != sim->graphNodeIdMap.end()) {
+      graphNodeId = sim->graphNodeIdMap[t->addr];
+    }*/
     int dirtyEvict = -1;
     int64_t evictedAddr = -1;
     int evictedNodeId = -1;
@@ -430,6 +448,13 @@ void Cache::TransactionComplete(MemTransaction *t) {
       if (dirtyEvict) {
         c->to_evict.push_back(evictedAddr*c->size_of_cacheline);
       }
+
+      cacheStat cache_stat;
+      cache_stat.cacheline = evictedAddr*c->size_of_cacheline;
+      cache_stat.cycle = cycles;
+      cache_stat.nodeId = evictedNodeId;
+      cache_stat.graphNodeId = evictedGraphNodeId;
+      sim->evictStatsVec.push_back(cache_stat);          
     }
     c->TransactionComplete(t);      
   }

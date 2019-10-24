@@ -53,6 +53,7 @@ struct loadStat {
   long long completeCycle;
   bool hit;
   int nodeId;
+  int graphNodeId;
 };
 
 struct runaheadStat {
@@ -108,6 +109,7 @@ public:
   uint64_t runahead_sum=0;
   vector<runaheadStat> runaheadVec;
   unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
+  unordered_map<uint64_t, int> graphNodeIdMap; //List of graph node IDs per address;
   vector<loadStat> load_stats_vector;
   unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
   vector<cacheStat> evictStatsVec;

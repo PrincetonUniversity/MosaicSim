@@ -453,11 +453,11 @@ void Simulator::run() {
         ifstream memStatsIn(outputDir+"memStats");
         if (!memStatsIn) {
           memStats.open(outputDir+"memStats");      
-          memStats << "Memop Adress Node_ID GraphNode_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+          memStats << "Memop Address Node_ID GraphNode_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
         }
 
         long long issue_cycle, return_cycle, diff;
-        int node_id;
+        int node_id, graph_node_id;
         memOutstring = "";
         for(auto load_stat:load_stats_vector) {
           issue_cycle=load_stat.issueCycle;
@@ -495,10 +495,11 @@ void Simulator::run() {
           }
 
           node_id=load_stat.nodeId;
+          graph_node_id=load_stat.graphNodeId;
           diff=(return_cycle-issue_cycle);
           totalLatency=totalLatency + diff;
       
-          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
         }
     
         load_stats_vector_size += load_stats_vector.size();
@@ -601,7 +602,7 @@ void Simulator::run() {
     }
 
     long long issue_cycle, return_cycle, diff;
-    int node_id;
+    int node_id, graph_node_id;
     memOutstring = "";
     for(auto load_stat:load_stats_vector) {
       issue_cycle=load_stat.issueCycle;
@@ -639,10 +640,11 @@ void Simulator::run() {
       }
 
       node_id=load_stat.nodeId;
+      graph_node_id=load_stat.graphNodeId;
       diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
-      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
     }
     
     load_stats_vector_size += load_stats_vector.size();
@@ -666,6 +668,7 @@ void Simulator::run() {
           
     evictStatsVec.clear();
     evictStats << evictOutstring;
+    evictStats.close();
   }
 
   // DESCQ* descq=descq_vec.at(0);
@@ -730,6 +733,7 @@ void Simulator::run() {
     
     memStats << "Total Mem Access Latency (cycles): " << totalLatency << endl;
     memStats << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector_size << endl;
+    memStats.close();
   }
 } 
 

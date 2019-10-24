@@ -163,7 +163,7 @@ public:
       uint64_t minmask = ((uint64_t)1 << (min))-1;
       uint64_t mask = maxmask - minmask;
       uint64_t val = address & mask;
-      val = val >> (min-1);
+      val = val >> min;
       return val;
   }
 

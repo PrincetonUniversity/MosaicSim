@@ -514,6 +514,10 @@ void DynamicNode::handleMemoryReturn() {
     long long current_cycle = core->cycles;
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
+    int graphNodeId = -1;
+    if (core->sim->graphNodeIdMap.find(addr) != core->sim->graphNodeIdMap.end()) {
+      graphNodeId = core->sim->graphNodeIdMap[addr];
+    }
 
     //copy into loads stats vector
     
@@ -524,6 +528,7 @@ void DynamicNode::handleMemoryReturn() {
     load_stat.completeCycle=get<1>(entry_tuple);
     load_stat.hit=get<2>(entry_tuple);
     load_stat.nodeId=n->id;
+    load_stat.graphNodeId=graphNodeId;
     core->sim->load_stats_vector.push_back(load_stat);
 
     //clean up

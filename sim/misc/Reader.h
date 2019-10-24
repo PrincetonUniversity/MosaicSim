@@ -206,10 +206,10 @@ public:
         memory.at(id).push(address);  // insert the <address> into the memory instructions's <queue>
         if (s.size() >= 5) {
           int graphNodeId = stoi(s.at(4));
-          if(core->graphNodeIdMap.find(address) == core->graphNodeIdMap.end()) {
-            core->graphNodeIdMap[address] = graphNodeId;
+          if(core->sim->graphNodeIdMap.find(address) == core->sim->graphNodeIdMap.end()) {
+            core->sim->graphNodeIdMap[address] = graphNodeId;
           } else { // address already in map
-            if (core->graphNodeIdMap[address] != graphNodeId) {
+            if (core->sim->graphNodeIdMap[address] != graphNodeId) {
               assert(false);
             }
           }
