@@ -320,6 +320,30 @@ void Config::getCfg(int id, int val) {
   case 33:
     mem_chunk_size = val; 
     break;
+  case 34:
+    llama_ideal_cache = val;
+    break;
+  case 35:
+    llama_cache_size = val;
+    break;
+  case 36:
+    llama_cache_assoc = val;
+    break;
+  case 37:
+    llama_cache_linesize = val;
+    break;
+  case 38:
+    llama_cache_load_ports = val;
+    break;
+  case 39:
+    llama_cache_store_ports = val;
+    break;
+  case 40:
+    llama_prefetch_distance = val;
+    break;
+  case 41:
+    llama_num_prefetched_lines = val;
+    break;
   default:
     break;
   }

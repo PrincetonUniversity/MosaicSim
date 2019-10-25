@@ -67,6 +67,7 @@ struct cacheStat {
   long long cycle;
   int nodeId;
   int graphNodeId;
+  int unusedSpace;
 };
 
 class Simulator {
@@ -114,7 +115,6 @@ public:
   unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
   vector<cacheStat> evictStatsVec;
   uint64_t total_recv_latency=0;
-  Simulator(string home);
   void fastForward(int tid, uint64_t inc);
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
@@ -144,8 +144,8 @@ public:
 
   //loop through all requestors. if lock not held, add to map
   //loop thru map. execute all instructions in map
-  
-  
+   
+  Simulator(string home);
 };
 
 class DESCQ {

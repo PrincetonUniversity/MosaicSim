@@ -54,6 +54,7 @@ public:
   bool windowFull=false;
   Config local_cfg; 
   Cache* cache;
+  Cache* llama_cache;
   Statistics local_stat;
   
   chrono::high_resolution_clock::time_point curr;

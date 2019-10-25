@@ -69,13 +69,26 @@ public:
   int num_accels = 8;
   int num_IS = 8;
   long long mem_chunk_size=1024; 
+  
+  // llama cache
+  bool llama_ideal_cache;
+  int llama_cache_size = 32768;
+  int llama_cache_assoc = 8;
+  int llama_cache_linesize = 64;
+  int llama_cache_load_ports;
+  int llama_cache_store_ports;
+  int llama_prefetch_distance = 0;
+  int llama_num_prefetched_lines = 1;
+
   map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},
                 {"ideal_cache",5},{"cache_size",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_load_ports",9},
                 {"mem_store_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, 
                 {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19}, 
                 {"desc_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}, 
                 {"prefetch_distance", 24}, {"num_prefetched_lines",25}, {"SimpleDRAM",26}, {"dram_bw",27}, {"dram_latency",28}, 
-                                {"technology_node",29}, {"chip_freq",30}, {"num_accels",31}, {"num_IS",32}, {"mem_chunk_size",33}}; 
+                {"technology_node",29}, {"chip_freq",30}, {"num_accels",31}, {"num_IS",32}, {"mem_chunk_size",33},
+                {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
+                {"llama_cache_load_ports", 38}, {"llama_cache_store_ports", 39}, {"llama_prefetch_distance", 40}, {"llama_num_prefetched_lines", 41}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -112,6 +125,13 @@ public:
   int cache_size;     // KB
   int cache_assoc = 8; 
   int cache_linesize = 64; // bytes
+  // llama cache
+  bool llama_ideal_cache;
+  int llama_cache_size;
+  int llama_cache_assoc = 8;
+  int llama_cache_linesize = 64;
+  int llama_cache_load_ports;
+  int llama_cache_store_ports;
 };
 
 #endif

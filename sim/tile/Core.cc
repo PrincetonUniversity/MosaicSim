@@ -42,7 +42,11 @@ void Core::access(DynamicNode* d) {
   }
   MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId);
   t->d=d;
-  cache->addTransaction(t);
+  if (graphNodeId == -1) { // not a LLAMA access
+    cache->addTransaction(t);
+  } else {
+    llama_cache->addTransaction(t);
+  }
 }
 
 void IssueWindow::insertDN(DynamicNode* d) {
@@ -193,6 +197,13 @@ void Core::initialize(int id) {
   cache->isL1=true;
   cache->memInterface = sim->memInterface;
   lsq.mem_speculate=local_cfg.mem_speculate;
+  // Set up LLAMA cache
+  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc);
+  llama_cache->core=this;
+  llama_cache->sim = sim;
+  llama_cache->parent_cache=sim->cache;
+  llama_cache->isL1=true;
+  llama_cache->memInterface = sim->memInterface;
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
@@ -310,6 +321,7 @@ bool Core::createContext() {
 void Core::fastForward(uint64_t inc) {
   cycles+=inc;
   cache->cycles+=inc;
+  llama_cache->cycles+=inc;
   window.cycles+=inc;
   if(id % 2 == 0) {
     sim->get_descq(this)->cycles+=inc;    
@@ -320,7 +332,7 @@ bool Core::process() {
   //process the instruction window and RoB
   window.process();
   //process the private cache
-  bool simulate = cache->process();
+  bool simulate = cache->process() || llama_cache->process();
 
   //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
   if(id % 2 == 0) {
@@ -334,10 +346,9 @@ bool Core::process() {
   }
  
   for(auto it = live_context.begin(); it!=live_context.end();) {
-    
     Context *c = *it;
     c->complete();
-      
+    
     if(it!=live_context.begin()) {   
       assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
     }
@@ -364,7 +375,7 @@ bool Core::process() {
   }
   context_to_create -= context_created;   // note that some contexts could be left pending for later cycles
   cycles++;
-
+  
   // Print current stats every "stat.printInterval" cycles
   if(cfg.verbLevel >= 5)
     cout << "[Cycle: " << cycles << "]\n";

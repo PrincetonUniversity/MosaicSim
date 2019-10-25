@@ -15,14 +15,24 @@
 
 #Cache
 0,ideal_cache   #set 1 for always cache hit
-1024,cache_size
+0,cache_size
 1,cache_latency
 1,cache_assoc
 1024,cache_linesize
-8,cache_load_ports
-8,cache_store_ports
+0,cache_load_ports
+0,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
 0,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+
+#LLAMA Cache
+0,llama_ideal_cache   #set 1 for always cache hit
+1024,llama_cache_size
+1,llama_cache_assoc
+1024,llama_cache_linesize
+4,llama_cache_load_ports
+4,llama_cache_store_ports
+1,llama_prefetch_distance #distance (in num cachelines) before first prefetch
+0,llama_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Memory
 4,mem_load_ports

@@ -21,8 +21,9 @@ string cache_access="cache_access";
 void Cache::evict(uint64_t addr) {
   int evictedNodeId = -1;
   int evictedGraphNodeId = -1;
+  int unusedSpace = 0;
 
-  if(fc->evict(addr/size_of_cacheline)) { //evicts from the cache returns isDirty, in which case must write back to L2
+  if(fc->evict(addr, &evictedNodeId, &evictedGraphNodeId, &unusedSpace)) { //evicts from the cache returns isDirty, in which case must write back to L2
     MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false, -1);
     // if(parent_cache->willAcceptTransaction(t)) {
     t->cache_q->push_front(this); 
@@ -178,9 +179,12 @@ void Cache::execute(MemTransaction* t) {
     graphNodeId = sim->graphNodeIdMap[dramaddr];
   }*/
  
-  if(!ideal) {
-    res = fc->access(dramaddr/size_of_cacheline, nodeId, graphNodeId, t->isLoad);
-    
+  bool bypassCache = size == 0; //graphNodeId == -1 && isL1; //set as false to turn this off
+
+  if(!ideal && !bypassCache) {
+    res = fc->access(dramaddr, nodeId, graphNodeId, t->isLoad);    
+  } else if (bypassCache) {
+    res = false;
   }
 
   //luwa change, just testing!!!
@@ -224,10 +228,14 @@ void Cache::execute(MemTransaction* t) {
         int64_t evictedAddr = -1;
         int evictedNodeId = -1;
         int evictedGraphNodeId = -1;
+        int unusedSpace = 0;
         Cache* child_cache=t->cache_q->front();
         t->cache_q->pop_front();
         
-        child_cache->fc->insert(dramaddr/child_cache->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId); 
+        bool bypassCache = child_cache->size == 0; //graphNodeId == -1;
+        if (!bypassCache) {    
+          child_cache->fc->insert(dramaddr, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId, &unusedSpace); 
+        }
 
         if(evictedAddr != -1) {
           
@@ -243,6 +251,7 @@ void Cache::execute(MemTransaction* t) {
           cache_stat.cycle = cycles;
           cache_stat.nodeId = evictedNodeId;
           cache_stat.graphNodeId = evictedGraphNodeId;
+          cache_stat.unusedSpace = unusedSpace;
           sim->evictStatsVec.push_back(cache_stat);          
         }
         child_cache->TransactionComplete(t);
@@ -451,11 +460,16 @@ void Cache::TransactionComplete(MemTransaction *t) {
     int64_t evictedAddr = -1;
     int evictedNodeId = -1;
     int evictedGraphNodeId = -1;
+    int unusedSpace = 0;
 
     Cache* c = t->cache_q->front();
     
-    t->cache_q->pop_front();    
-    c->fc->insert(t->addr/c->size_of_cacheline, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId);
+    t->cache_q->pop_front();
+
+    bool bypassCache = c->size == 0; //graphNodeId == -1;
+    if (!bypassCache) {    
+      c->fc->insert(t->addr, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId, &unusedSpace);
+    }
 
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
@@ -470,6 +484,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
       cache_stat.cycle = cycles;
       cache_stat.nodeId = evictedNodeId;
       cache_stat.graphNodeId = evictedGraphNodeId;
+      cache_stat.unusedSpace = unusedSpace;
       sim->evictStatsVec.push_back(cache_stat);          
     }
     c->TransactionComplete(t);      

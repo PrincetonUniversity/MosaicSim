@@ -24,7 +24,10 @@ public:
   CacheLine *tail;
   std::vector<CacheLine*> freeEntries;
   std::unordered_map<uint64_t, CacheLine*> addr_map;
-  CacheSet(int size)
+  int num_addresses;
+  int *used;
+
+  CacheSet(int size, int num_blocks)
   {
     head = new CacheLine;
     tail = new CacheLine;
@@ -37,14 +40,21 @@ public:
     head->next = tail;
     tail->next = NULL;
     tail->prev = head;
+    num_addresses = num_blocks;
+    used = new int[num_addresses];
+    for(int i=0; i<num_addresses;i++)
+    {
+      used[i] = 0;
+    }
   }
   ~CacheSet()
   {
     delete head;
     delete tail;
     delete [] entries;
+    delete used;
   }
-  bool access(uint64_t address, int nodeId, int graphNodeId, bool isLoad)
+  bool access(uint64_t address, uint64_t offset, int nodeId, int graphNodeId, bool isLoad)
   {
     CacheLine *c = addr_map[address];
     if(c)
@@ -57,7 +67,8 @@ public:
         c->dirty = true;
       c->nodeId = nodeId;
       c->graphNodeId = graphNodeId;
-     
+      used[offset] = 1;
+
       return true;
     }
     else
@@ -65,7 +76,8 @@ public:
       return false;
     }
   }
-  void insert(uint64_t address, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNode)
+
+  void insert(uint64_t address, uint64_t offset, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNodeId, int *unusedSpace)
   {
    
     CacheLine *c = addr_map[address];
@@ -78,15 +90,22 @@ public:
       assert(c!=head);
       deleteNode(c);
       addr_map.erase(c->addr);
+      *evictedAddr = c->addr;
+      *evictedNodeId = c->nodeId;
+      *evictedGraphNodeId = c->graphNodeId;
      
       if(c->dirty) {
         *dirtyEvict = 1;
       } else {
         *dirtyEvict = 0;
-        *evictedAddr = c->addr;
-        *evictedNodeId = c->nodeId;
-        *evictedGraphNode = c->graphNodeId;
       } 
+
+      for(int i=0; i<num_addresses; i++) 
+      {
+        *unusedSpace+= used[i];
+        used[i] = 0;
+      }
+      *unusedSpace = 4*(num_addresses-*unusedSpace); // unused space in bytes
     }
     else
     {
@@ -95,6 +114,7 @@ public:
       freeEntries.pop_back();
     }
    
+    used[offset] = 1;
     c->addr = address;
     c->nodeId = nodeId;
     c->graphNodeId = graphNodeId;
@@ -106,7 +126,7 @@ public:
 
     //returns isDirty to determine if you should store back data up cache hierarchy
   //designing evict functionality, unfinished!!!
-  bool evict(uint64_t address) {
+  bool evict(uint64_t address, uint64_t offset, int *evictedNodeId, int *evictedGraphNodeId, int *unusedSpace) {
     if(addr_map.find(address)!=addr_map.end()) {
       CacheLine *c = addr_map[address];        
       //c = tail->prev;
@@ -115,9 +135,19 @@ public:
         addr_map.erase(address);
         deleteNode(c);
         freeEntries.push_back(c);
+        *evictedNodeId = c->nodeId;
+        *evictedGraphNodeId = c->graphNodeId;
         if(c->dirty) { //you want to know if eviction actually took place
           return true;
         }
+
+        for(int i=0; i<num_addresses; i++)
+        {
+          *unusedSpace+=used[i];
+          used[i] = 0;
+        }
+        *unusedSpace = 4*(num_addresses-*unusedSpace); // unused space in bytes
+        used[offset] = 1;
       }
     }
     return false;
@@ -144,6 +174,7 @@ public:
   int set_count;
   int log_set_count;
   int cache_line_size;
+  int log_line_size;
   std::vector<CacheSet*> sets;
   FunctionalCache(int size, int assoc, int line_size)
   {
@@ -151,9 +182,10 @@ public:
     line_count = size / cache_line_size;
     set_count = line_count / assoc;
     log_set_count = log2(set_count);
+    log_line_size = log2(cache_line_size);
     for(int i=0; i<set_count; i++)
     {
-      sets.push_back(new CacheSet(assoc));
+      sets.push_back(new CacheSet(assoc, cache_line_size/4));
     }
   } 
   uint64_t extract(int max, int min, uint64_t address) // inclusive
@@ -168,36 +200,37 @@ public:
 
   bool access(uint64_t address, int nodeId, int graphNodeId, bool isLoad)
   {
-    uint64_t setid = extract(log_set_count-1, 0, address);
-    uint64_t tag = extract(58, log_set_count, address);
+    uint64_t offset = extract(log_line_size-1, 0, address);
+    uint64_t setid = extract(log_set_count+log_line_size-1, log_line_size, address);
+    uint64_t tag = extract(63, log_set_count+log_line_size, address);
     CacheSet *c = sets.at(setid);
-    bool res = c->access(tag, nodeId, graphNodeId, isLoad);
+    bool res = c->access(tag, offset/4, nodeId, graphNodeId, isLoad);
     return res;
   }
 
-  void insert(uint64_t address, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNodeId)
+  void insert(uint64_t address, int nodeId, int graphNodeId, int *dirtyEvict, int64_t *evictedAddr, int *evictedNodeId, int *evictedGraphNodeId, int *unusedSpace)
   {
-
-    uint64_t setid = extract(log_set_count-1, 0, address);
-    uint64_t tag = extract(58, log_set_count, address);
+    uint64_t offset = extract(log_line_size-1, 0, address);
+    uint64_t setid = extract(log_set_count-1+log_line_size, log_line_size, address);
+    uint64_t tag = extract(63, log_set_count+log_line_size, address);
     CacheSet *c = sets.at(setid);
     int64_t evictedTag = -1;
 
-    c->insert(tag, nodeId, graphNodeId, dirtyEvict, &evictedTag, evictedNodeId, evictedGraphNodeId);
+    c->insert(tag, offset/4, nodeId, graphNodeId, dirtyEvict, &evictedTag, evictedNodeId, evictedGraphNodeId, unusedSpace);
 
     if(evictedAddr && evictedTag != -1)
       *evictedAddr = evictedTag * set_count + setid;
 
   }
-  bool evict(uint64_t address) {
-    
-    uint64_t setid = extract(log_set_count-1, 0, address);
-    
-    uint64_t tag = extract(58, log_set_count, address);
-    
+
+  // reserved for decoupling
+  bool evict(uint64_t address, int *evictedNodeId, int *evictedGraphNodeId, int *unusedSpace) { 
+    uint64_t offset = extract(log_line_size-1, 0, address);
+    uint64_t setid = extract(log_set_count-1+log_line_size, log_line_size, address); 
+    uint64_t tag = extract(63, log_set_count+log_line_size, address);
     CacheSet *c = sets.at(setid);
     
-    return c->evict(tag);
+    return c->evict(tag, offset/4, evictedNodeId, evictedGraphNodeId, unusedSpace);
   }
  
 };

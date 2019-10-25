@@ -378,7 +378,8 @@ void Simulator::run() {
         //only core tiles can affect whether to continue processing, accelerator tiles return false
 
         //register activity of tile
-        processVec.at(it->first)=tile->process();
+        bool processed = tile->process();
+        processVec.at(it->first)=processed;
         
         //process transactions
         priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>& pq=transq_map[tile->id];
@@ -404,7 +405,7 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
-          cache->process();          
+          cache->process();        
           memInterface->process();                  
         }                
       }
@@ -512,13 +513,13 @@ void Simulator::run() {
         ifstream evictStatsIn(outputDir+"evictStats");
         if (!evictStatsIn) {
           evictStats.open(outputDir+"evictStats");
-          evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID" << endl;
+          evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID\tUnused Space" << endl;
         }
 
         evictOutstring = "";
         for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
           auto entry = *it;
-          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\n";
+          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t" + to_string(entry.unusedSpace) + "\n";
         }
           
         evictStatsVec.clear();
@@ -657,13 +658,13 @@ void Simulator::run() {
     ifstream evictStatsIn(outputDir+"evictStats");
     if (!evictStatsIn) {
       evictStats.open(outputDir+"evictStats");
-      evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID" << endl;
+      evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID\tUnused Space" << endl;
     }
 
     evictOutstring = "";
     for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
       auto entry = *it;
-      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\n";
+      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t" + to_string(entry.unusedSpace) + "\n";
     }
           
     evictStatsVec.clear();
@@ -783,10 +784,17 @@ void Simulator::calculateGlobalEnergyPower() {
 
 bool Simulator::canAccess(Core* core, bool isLoad) {
   Cache* cache = core->cache;
-  if(isLoad)
-    return cache->free_load_ports > 0 || cache->load_ports==-1;
-  else
-    return cache->free_store_ports > 0 || cache->store_ports==-1;
+  Cache* llama_cache = core->llama_cache;
+
+  if(isLoad) {
+    bool normal_load = cache->free_load_ports > 0 || cache->load_ports==-1;
+    bool llama_load = llama_cache->free_load_ports > 0 || llama_cache->load_ports==-1;
+    return normal_load || llama_load;
+  } else {
+    bool normal_store = cache->free_store_ports > 0 || cache->store_ports==-1;
+    bool llama_store = llama_cache->free_store_ports > 0 || llama_cache->store_ports==-1;
+    return normal_store || llama_store;
+  }
 }
 
 bool Simulator::communicate(DynamicNode* d) {
