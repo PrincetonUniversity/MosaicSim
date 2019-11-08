@@ -20,8 +20,8 @@
 #L2 LLAMA Cache
 0,llama_ideal_cache
 2097152,llama_cache_size
-524288,llama_cache_assoc
-4,llama_cache_linesize
+131072,llama_cache_assoc
+16,llama_cache_linesize
 7,llama_cache_load_ports
 7,llama_cache_store_ports
 
