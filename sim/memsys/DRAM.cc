@@ -19,10 +19,13 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
 
     int nodeId = t->d->n->id;
     int graphNodeId = -1;
+    int graphNodeDeg = -1;
     int dirtyEvict = -1;
     int64_t evictedAddr = -1;
+    uint64_t evictedOffset = 0;
     int evictedNodeId = -1;
     int evictedGraphNodeId = -1;
+    int evictedGraphNodeDeg = -1;
     int unusedSpace = 0;
 
     Cache* c = t->cache_q->front();
@@ -30,7 +33,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     assert(c->isLLC);
     t->cache_q->pop_front();
     
-    c->fc->insert(addr, nodeId, graphNodeId, &dirtyEvict, &evictedAddr, &evictedNodeId, &evictedGraphNodeId, &unusedSpace);
+    c->fc->insert(addr, nodeId, graphNodeId, graphNodeDeg, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
     if(evictedAddr!=-1) {
 
       assert(evictedAddr >= 0);

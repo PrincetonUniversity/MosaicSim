@@ -19,11 +19,17 @@ Simulator::Simulator(string home) {
   clockspeed=cfg.chip_freq;
   cache = new Cache(cfg);
   mem_chunk_size=cfg.mem_chunk_size; 
+  recordEvictions=cfg.record_evictions;
+
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
   cache->isLLC=true;
   cache->memInterface = memInterface;
-  
+  llama_cache = new Cache(cfg.cache_latency, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
+  llama_cache->sim = this;
+  llama_cache->isLLC=true;
+  llama_cache->memInterface = memInterface;  
+
   epoch_stats_out.open(outputDir+"epochStats");
   //descq = new DESCQ(cfg);
 }
@@ -165,6 +171,7 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
     //increment L2 and DRAM..assumed to be on the same clockspeed as core 0
     if(tile->id==0) {
       cache->cycles+=dst_inc;
+      llama_cache->cycles+=dst_inc;
       memInterface->fastForward(dst_inc);
     }
   }
@@ -405,7 +412,8 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
-          cache->process();        
+          cache->process();       
+          llama_cache->process(); 
           memInterface->process();                  
         }                
       }
@@ -454,11 +462,11 @@ void Simulator::run() {
         ifstream memStatsIn(outputDir+"memStats");
         if (!memStatsIn) {
           memStats.open(outputDir+"memStats");      
-          memStats << "Memop Address Node_ID GraphNode_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+          memStats << "Memop Address Node_ID Graph_Node_ID Graph_Node_Deg Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
         }
 
         long long issue_cycle, return_cycle, diff;
-        int node_id, graph_node_id;
+        int node_id, graph_node_id, graph_node_deg;
         memOutstring = "";
         for(auto load_stat:load_stats_vector) {
           issue_cycle=load_stat.issueCycle;
@@ -497,10 +505,11 @@ void Simulator::run() {
 
           node_id=load_stat.nodeId;
           graph_node_id=load_stat.graphNodeId;
+          graph_node_deg=load_stat.graphNodeDeg;
           diff=(return_cycle-issue_cycle);
           totalLatency=totalLatency + diff;
       
-          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(graph_node_deg)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
         }
     
         load_stats_vector_size += load_stats_vector.size();
@@ -513,13 +522,13 @@ void Simulator::run() {
         ifstream evictStatsIn(outputDir+"evictStats");
         if (!evictStatsIn) {
           evictStats.open(outputDir+"evictStats");
-          evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID\tUnused Space" << endl;
+          evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space" << endl;
         }
 
         evictOutstring = "";
         for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
           auto entry = *it;
-          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t" + to_string(entry.unusedSpace) + "\n";
+          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\n";
         }
           
         evictStatsVec.clear();
@@ -599,11 +608,11 @@ void Simulator::run() {
     ifstream memStatsIn(outputDir+"memStats");
     if (!memStatsIn) {
       memStats.open(outputDir+"memStats");      
-      memStats << "Memop Adress Node_ID GraphNode_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+      memStats << "Memop Adress Node_ID Graph_Node_ID Graph_Node_Deg Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
     }
 
     long long issue_cycle, return_cycle, diff;
-    int node_id, graph_node_id;
+    int node_id, graph_node_id, graph_node_deg;
     memOutstring = "";
     for(auto load_stat:load_stats_vector) {
       issue_cycle=load_stat.issueCycle;
@@ -642,10 +651,11 @@ void Simulator::run() {
 
       node_id=load_stat.nodeId;
       graph_node_id=load_stat.graphNodeId;
+      graph_node_deg=load_stat.graphNodeDeg;
       diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
-      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(graph_node_deg)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
     }
     
     load_stats_vector_size += load_stats_vector.size();
@@ -658,13 +668,13 @@ void Simulator::run() {
     ifstream evictStatsIn(outputDir+"evictStats");
     if (!evictStatsIn) {
       evictStats.open(outputDir+"evictStats");
-      evictStats << "Cacheline\tEviction Cycle\tNode ID\tGraph Node ID\tUnused Space" << endl;
+      evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space" << endl;
     }
 
     evictOutstring = "";
     for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
       auto entry = *it;
-      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.cycle) + "\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t" + to_string(entry.unusedSpace) + "\n";
+      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\n";
     }
           
     evictStatsVec.clear();
@@ -727,14 +737,43 @@ void Simulator::run() {
       memStats << median_mlp_prefix << 0 << endl;
       memStats << max_mlp_prefix << 0 << endl;
     } else {
-      memStats << mean_mlp_prefix << accumulate(accesses_per_epoch.begin(), accesses_per_epoch.end(),0)/accesses_per_epoch.size() << endl;
+      memStats << mean_mlp_prefix << ((float) accumulate(accesses_per_epoch.begin(), accesses_per_epoch.end(),0))/accesses_per_epoch.size() << endl;
       memStats << median_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()/2] << endl;
       memStats << max_mlp_prefix << accesses_per_epoch[accesses_per_epoch.size()-1] << endl;
+      
+      ofstream mlpStats;
+      mlpStats.open(outputDir + "mlpStats");
+      for(auto it = accesses_per_epoch.begin(); it != accesses_per_epoch.end(); it++) { 
+        auto access = *it;
+        mlpStats << access << endl;
+      }
+      mlpStats.close();
     }
     
     memStats << "Total Mem Access Latency (cycles): " << totalLatency << endl;
     memStats << "Avg Mem Access Latency (cycles): " << totalLatency/load_stats_vector_size << endl;
     memStats.close();
+  }
+
+  // queue sizes
+  if(commQSizes.size() > 0) {
+    ofstream queueStats;
+    queueStats.open(outputDir+"queueStats");
+    queueStats << "Mean CommQ Size: " << ((float) accumulate(commQSizes.begin(), commQSizes.end(), 0))/commQSizes.size() << endl;
+    queueStats << "Max CommQ Size: " << commQMax << endl;
+    if (SABSizes.size() > 0) {
+      queueStats << "Mean SAB Size: " << ((float) accumulate(SABSizes.begin(), SABSizes.end(), 0))/SABSizes.size() << endl;
+      queueStats << "Max SAB Size: " << SABMax << endl;
+    }
+    if (SVBSizes.size() > 0) {
+      queueStats << "Mean SVB Size: " << ((float) accumulate(SVBSizes.begin(), SVBSizes.end(), 0))/SVBSizes.size() << endl;
+      queueStats << "Max SVB Size: " << SVBMax << endl;
+    }
+    if (termBuffSizes.size() > 0) {
+      queueStats << "Mean TermBuff Size: " << ((float) accumulate(termBuffSizes.begin(), termBuffSizes.end(), 0))/termBuffSizes.size() << endl;
+      queueStats << "Max TermBuff Size: " << termBuffMax << endl;
+    }
+    queueStats.close();
   }
 } 
 
@@ -799,7 +838,7 @@ bool Simulator::canAccess(Core* core, bool isLoad) {
 
 bool Simulator::communicate(DynamicNode* d) {
   DESCQ* descq=get_descq(d);
-  return descq->insert(d, NULL);
+  return descq->insert(d, NULL, this);
 }
 
 
@@ -991,12 +1030,19 @@ bool DESCQ::execute(DynamicNode* d) {
 
 //checks if there are resource limitations
 //if not inserts respective instructions into their buffers
-bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
+bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim) {
   bool canInsert=true;
   
   if(d->n->typeInstr==LD_PROD || d->atomic) {
-    
+    sim->commQSizes.push_back(commQ_count);
+    if (sim->commQMax < commQ_count) {
+      sim->commQMax = commQ_count;
+    }  
     if(d->mem_status==PENDING || d->atomic) { //must insert in TLBuff
+      sim->termBuffSizes.push_back(term_ld_count);
+      if (sim->termBuffMax < term_ld_count) {
+        sim->termBuffMax = term_ld_count;
+      }
       if(term_ld_count==term_buffer_size || commQ_count==commQ_size) {  //check term ld buff size 
         canInsert=false;        
       }
@@ -1028,6 +1074,10 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
     }
   }
   else if(d->n->typeInstr==SEND) { 
+    sim->commQSizes.push_back(commQ_count);    
+    if (sim->commQMax < commQ_count) {
+      sim->commQMax = commQ_count;
+    }
     if(commQ_count==commQ_size) { //check commQ size
       canInsert=false;
     }
@@ -1041,6 +1091,10 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
     //no resource constraints here
   }
   else if(d->n->typeInstr==STADDR) {
+    sim->SABSizes.push_back(SAB_count);
+    if (sim->SABMax < SAB_count) {
+      sim->SABMax = SAB_count;
+    }
     if(d->desc_id!=SAB_issue_pointer || d->desc_id>SAB_back ||  SAB_count==SAB_size) { //check SAB size, check that it's not younger than youngest allowed staddr instruction, based on SAB size, force in order issue/dispatch of staddrs
       canInsert=false;
     }
@@ -1051,6 +1105,10 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr) {
     }
   }
   else if(d->n->typeInstr==STVAL) {
+    sim->SVBSizes.push_back(SVB_count);
+    if (sim->SVBMax < SVB_count) {
+      sim->SVBMax = SVB_count;
+    }
     if(d->desc_id!=SVB_issue_pointer || d->desc_id>SVB_back ||  SVB_count==SVB_size) { //check SVB size, check that it's not younger than youngest allowed stval instruction, based on SVB size, force in order issue/dispatch of stvals
       canInsert=false;
     }

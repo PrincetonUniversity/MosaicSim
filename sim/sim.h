@@ -54,6 +54,7 @@ struct loadStat {
   bool hit;
   int nodeId;
   int graphNodeId;
+  int graphNodeDeg;
 };
 
 struct runaheadStat {
@@ -65,8 +66,10 @@ struct runaheadStat {
 struct cacheStat {
   uint64_t cacheline;
   long long cycle;
+  uint64_t offset;
   int nodeId;
   int graphNodeId;
+  int graphNodeDeg;
   int unusedSpace;
 };
 
@@ -98,6 +101,7 @@ public:
   vector<DESCQ*> descq_vec;
   Barrier* barrier = new Barrier();
   Cache* cache;
+  Cache* llama_cache;
   string pythia_home;
   //every tile has a transaction priority queue
   unordered_map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
@@ -111,10 +115,22 @@ public:
   vector<runaheadStat> runaheadVec;
   unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
   unordered_map<uint64_t, int> graphNodeIdMap; //List of graph node IDs per address;
+  unordered_map<int, int> graphNodeDegMap; //List of graph node degrees per ID
   vector<loadStat> load_stats_vector;
   unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
   vector<cacheStat> evictStatsVec;
+  int recordEvictions;
   uint64_t total_recv_latency=0;
+
+  vector<int> commQSizes;
+  vector<int> SABSizes;  
+  vector<int> SVBSizes;
+  vector<int> termBuffSizes;
+  int commQMax = 0;
+  int SABMax = 0;
+  int SVBMax = 0; 
+  int termBuffMax = 0;
+ 
   void fastForward(int tid, uint64_t inc);
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
@@ -220,7 +236,7 @@ public:
   
   void process();
   bool execute(DynamicNode* d);
-  bool insert(DynamicNode* d, DynamicNode* forwarding_staddr);
+  bool insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim);
 
   DynamicNode* sab_has_dependency(DynamicNode* d);
   

@@ -515,8 +515,12 @@ void DynamicNode::handleMemoryReturn() {
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
     int graphNodeId = -1;
+    int graphNodeDeg = -1;
     if (core->sim->graphNodeIdMap.find(addr) != core->sim->graphNodeIdMap.end()) {
       graphNodeId = core->sim->graphNodeIdMap[addr];
+
+      assert(core->sim->graphNodeDegMap.find(graphNodeId) != core->sim->graphNodeDegMap.end());
+      graphNodeDeg = core->sim->graphNodeDegMap[graphNodeId];
     }
 
     //copy into loads stats vector
@@ -529,6 +533,7 @@ void DynamicNode::handleMemoryReturn() {
     load_stat.hit=get<2>(entry_tuple);
     load_stat.nodeId=n->id;
     load_stat.graphNodeId=graphNodeId;
+    load_stat.graphNodeDeg=graphNodeDeg;
     core->sim->load_stats_vector.push_back(load_stat);
 
     //clean up
@@ -810,7 +815,7 @@ bool DynamicNode::issueDESCNode() {
 
   //insert into the desc structures if there's space, insert() returns false otherwise
   //note: relies on lazy evaluation of booleans, must call insert() last
-  can_issue=can_issue && descq->insert(this,forwarding_staddr);
+  can_issue=can_issue && descq->insert(this,forwarding_staddr,core->sim);
   
   if(!can_issue) {
     mem_status=NONE; //reset mem status 

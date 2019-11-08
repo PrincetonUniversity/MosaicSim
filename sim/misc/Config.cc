@@ -289,7 +289,11 @@ void Config::getCfg(int id, int val) {
     prefetch_distance = val;  
     break;
   case 25:
-    num_prefetched_lines = val;
+    if (cache_size > 0) {
+      num_prefetched_lines = val;
+    } else {
+      num_prefetched_lines = 0;
+    }
     break;
   case 26:
     SimpleDRAM = val;
@@ -342,7 +346,32 @@ void Config::getCfg(int id, int val) {
     llama_prefetch_distance = val;
     break;
   case 41:
-    llama_num_prefetched_lines = val;
+    if (llama_cache_size > 0) {
+      llama_num_prefetched_lines = val;
+    } else {
+      llama_num_prefetched_lines = 0;
+    }
+    break;
+  case 42:
+    eviction_policy = val;
+    break;
+  case 43:
+    llama_eviction_policy = val;
+    break;
+  case 44:
+    partition_L1 = val;
+    break;
+  case 45:
+    partition_L2 = val;
+    break;
+  case 46:
+    cache_by_temperature = val;
+    break;
+  case 47:
+    node_degree_threshold = val;
+    break;
+  case 48:
+    record_evictions = val;
     break;
   default:
     break;

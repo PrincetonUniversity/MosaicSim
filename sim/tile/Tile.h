@@ -75,13 +75,14 @@ public:
 
 class MemTransaction : public Transaction {
 public: 
-  MemTransaction(int id, int src_id, int dst_id, uint64_t addr, bool isLoad, int graphNodeId) : Transaction(id,src_id,dst_id), addr(addr), isLoad(isLoad), graphNodeId(graphNodeId) {}; 
+  MemTransaction(int id, int src_id, int dst_id, uint64_t addr, bool isLoad, int graphNodeId, int graphNodeDeg) : Transaction(id,src_id,dst_id), addr(addr), isLoad(isLoad), graphNodeId(graphNodeId), graphNodeDeg(graphNodeDeg) {}; 
 
   uint64_t addr;
   bool isLoad;
   bool isPrefetch = false;
   bool issuedPrefetch = false;
   int graphNodeId;
+  int graphNodeDeg;
   
   deque<Cache*>* cache_q = new deque<Cache*>(); //trail of originating caches
   ~MemTransaction(){

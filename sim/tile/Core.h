@@ -55,6 +55,8 @@ public:
   Config local_cfg; 
   Cache* cache;
   Cache* llama_cache;
+  int partition_L1;
+  int partition_L2;
   Statistics local_stat;
   
   chrono::high_resolution_clock::time_point curr;

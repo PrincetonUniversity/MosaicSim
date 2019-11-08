@@ -37,15 +37,20 @@ void Core::access(DynamicNode* d) {
   access_tracker.insert(make_pair(tid, d));
   */
   int graphNodeId = -1;
+  int graphNodeDeg = -1;
   if (sim->graphNodeIdMap.find(d->addr) != sim->graphNodeIdMap.end()) {
     graphNodeId = sim->graphNodeIdMap[d->addr];
+
+    assert(sim->graphNodeDegMap.find(graphNodeId) != sim->graphNodeDegMap.end());
+    graphNodeDeg = sim->graphNodeDegMap[graphNodeId];
   }
-  MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId);
+  MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId, graphNodeDeg);
   t->d=d;
-  if (graphNodeId == -1) { // not a LLAMA access
-    cache->addTransaction(t);
-  } else {
+
+  if (partition_L1 && graphNodeId != -1) { // LLAMA access
     llama_cache->addTransaction(t);
+  } else {
+    cache->addTransaction(t);
   }
 }
 
@@ -189,6 +194,9 @@ bool Core::ReceiveTransaction(Transaction* t) {
 void Core::initialize(int id) {
   this->id = id;
     
+  // Set up caching strategies
+  partition_L1 = local_cfg.partition_L1;
+  partition_L2 = local_cfg.partition_L2;
   // Set up cache
   cache = new Cache(local_cfg);
   cache->core=this;
@@ -198,10 +206,14 @@ void Core::initialize(int id) {
   cache->memInterface = sim->memInterface;
   lsq.mem_speculate=local_cfg.mem_speculate;
   // Set up LLAMA cache
-  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc);
+  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
   llama_cache->core=this;
   llama_cache->sim = sim;
-  llama_cache->parent_cache=sim->cache;
+  if (partition_L2) {
+    llama_cache->parent_cache=sim->llama_cache;
+  } else {
+    llama_cache->parent_cache=sim->cache;
+  }
   llama_cache->isL1=true;
   llama_cache->memInterface = sim->memInterface;
   // Initialize Resources / Limits

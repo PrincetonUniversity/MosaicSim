@@ -9,7 +9,7 @@
 2000,chip_freq #freq in MHz
 
 #L2 Cache
-0,ideal_cache   #set 1 for always cache hit
+0,ideal_cache   #set 1 for always cache hit2048,cache_size_in_kb
 2097152,cache_size #2097152
 6,cache_latency
 8,cache_assoc

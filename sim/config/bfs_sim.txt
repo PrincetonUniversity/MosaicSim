@@ -10,12 +10,26 @@
 
 #L2 Cache
 0,ideal_cache   #set 1 for always cache hit
-2097152,cache_size #2097152
+512,cache_size
 6,cache_latency
-8,cache_assoc
-64,cache_linesize
-8,cache_load_ports
-8,cache_store_ports
+32,cache_assoc
+16,cache_linesize
+1,cache_load_ports
+1,cache_store_ports
+
+#L2 LLAMA Cache
+0,llama_ideal_cache
+2097152,llama_cache_size
+524288,llama_cache_assoc
+4,llama_cache_linesize
+7,llama_cache_load_ports
+7,llama_cache_store_ports
+
+#Eviction
+0,eviction_policy
+1,llama_eviction_policy
+
+1,record_evictions
 
 #Memory
 #Simple DRAM Model
