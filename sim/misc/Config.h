@@ -72,7 +72,7 @@ public:
   
   // llama cache
   bool llama_ideal_cache;
-  int llama_cache_size = 32768;
+  int llama_cache_size = 0;
   int llama_cache_assoc = 8;
   int llama_cache_linesize = 64;
   int llama_cache_load_ports;
@@ -90,6 +90,10 @@ public:
   int cache_by_temperature = 0;
   int node_degree_threshold = 0;
 
+  int cache_by_signature = 0;
+  int partition_ratio = 2;
+  int perfect_llama = 0;
+
   int record_evictions = 0;
 
   map<string, int> param_map = {{"lsq_size",0},{"cf_mode",1},{"mem_speculate",2},{"mem_forward",3},{"max_active_contexts_BB",4},
@@ -102,7 +106,7 @@ public:
                 {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
                 {"llama_cache_load_ports", 38}, {"llama_cache_store_ports", 39}, {"llama_prefetch_distance", 40}, {"llama_num_prefetched_lines", 41},
                 {"eviction_policy", 42}, {"llama_eviction_policy", 43}, {"partition_L1", 44}, {"partition_L2", 45}, {"cache_by_temperature", 46}, {"node_degree_threshold", 47},
-                {"record_evictions", 48}}; 
+                {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -154,6 +158,10 @@ public:
   int partition_L2 = 0;
   int cache_by_temperature = 0;
   int node_degree_threshold = 0;
+
+  int cache_by_signature = 0;
+  int partition_ratio = 2;
+  int perfect_llama = 0;
 };
 
 #endif

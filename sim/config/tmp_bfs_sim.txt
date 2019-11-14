@@ -9,23 +9,20 @@
 2000,chip_freq #freq in MHz
 
 #L2 Cache
-0,ideal_cache
-2097152,cache_size
+0,ideal_cache   #set 1 for always cache hit
+512,cache_size
 6,cache_latency
-16,cache_assoc
-64,cache_linesize
-8,cache_load_ports
-8,cache_store_ports
+32,cache_assoc
+16,cache_linesize
+1,cache_load_ports
+1,cache_store_ports
 
 #Eviction
 0,eviction_policy
 
 #Caching Strategies
-0,cache_by_signature
+1,cache_by_signature
 2,partition_ratio
-0,perfect_llama
-0,cache_by_temperature
-0,node_degree_threshold
 
 1,record_evictions
 

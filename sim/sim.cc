@@ -18,13 +18,20 @@ Simulator::Simulator(string home) {
   pythia_home=home;
   clockspeed=cfg.chip_freq;
   cache = new Cache(cfg);
-  mem_chunk_size=cfg.mem_chunk_size; 
-  recordEvictions=cfg.record_evictions;
-
-  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
   cache->sim = this;
   cache->isLLC=true;
   cache->memInterface = memInterface;
+  
+  l2_cache = new Cache(cfg.l2_cache_latency, cfg.l2_cache_linesize, cfg.l2_cache_load_ports, cfg.l2_cache_store_ports, cfg.l2_ideal_cache, cfg.l2_prefetch_distance, cfg.l2_num_prefetched_lines, cfg.l2_cache_size, cfg.l2_cache_assoc, cfg.eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
+  l2_cache->sim = this;
+  l2_cache->isLLC=false;
+  l2_cache->memInterface = memInterface;
+
+  recordEvictions=cfg.record_evictions;
+  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  mem_chunk_size=cfg.mem_chunk_size; 
+
+  // LLAMA Cache
   llama_cache = new Cache(cfg.cache_latency, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
   llama_cache->sim = this;
   llama_cache->isLLC=true;
@@ -522,13 +529,13 @@ void Simulator::run() {
         ifstream evictStatsIn(outputDir+"evictStats");
         if (!evictStatsIn) {
           evictStats.open(outputDir+"evictStats");
-          evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space" << endl;
+          evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space\tCache Level" << endl;
         }
 
         evictOutstring = "";
         for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
           auto entry = *it;
-          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\n";
+          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\t\t" + to_string(entry.cacheLevel) + "\n";
         }
           
         evictStatsVec.clear();
@@ -668,13 +675,13 @@ void Simulator::run() {
     ifstream evictStatsIn(outputDir+"evictStats");
     if (!evictStatsIn) {
       evictStats.open(outputDir+"evictStats");
-      evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space" << endl;
+      evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space\tCache Level" << endl;
     }
 
     evictOutstring = "";
     for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
       auto entry = *it;
-      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\n";
+      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\t\t" + to_string(entry.cacheLevel) + "\n";
     }
           
     evictStatsVec.clear();
@@ -798,7 +805,7 @@ void Simulator::calculateGlobalEnergyPower() {
 
   // Add the DRAM energy
   //Note: dram_accesses is on a cache line granularity
-  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
+  double DRAM_energy = (stat.get("dram_accesses") + stat.get("llama_dram_accesses")) * cfg.energy_per_DRAM_access.at(cfg.technology_node);
   stat.global_energy += DRAM_energy;
 
   // For Luwa: 

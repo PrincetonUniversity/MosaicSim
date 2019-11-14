@@ -371,6 +371,15 @@ void Config::getCfg(int id, int val) {
     node_degree_threshold = val;
     break;
   case 48:
+    cache_by_signature = val;
+    break;
+  case 49:
+    partition_ratio = val;
+    break;
+  case 50:
+    perfect_llama = val;
+    break;
+  case 51:
     record_evictions = val;
     break;
   default:

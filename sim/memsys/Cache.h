@@ -62,7 +62,7 @@ public:
   vector<MemTransaction*> next_to_execute;
   //unordered_map<uint64_t,set<MemTransaction*>> memop_map; //map of cacheline to set of dynamic nodes
   vector<MemTransaction*> to_send;
-  vector<uint64_t> to_evict;
+  vector<tuple<uint64_t, int>> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
   
   int size;
@@ -76,20 +76,18 @@ public:
   bool ideal;
   int prefetch_distance=0;
   int num_prefetched_lines=1;
-  int cache_by_temperature;
-  int node_degree_threshold;
   FunctionalCache *fc;
 
   Cache(Config cache_cfg):
-    size(cache_cfg.cache_size), latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), cache_by_temperature(cache_cfg.cache_by_temperature), node_degree_threshold(cache_cfg.node_degree_threshold) {
-    fc = new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize, cache_cfg.eviction_policy);
+    size(cache_cfg.cache_size), latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines) {
+    fc = new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize, cache_cfg.cache_by_signature, cache_cfg.partition_ratio, cache_cfg.perfect_llama, cache_cfg.eviction_policy, cache_cfg.cache_by_temperature, cache_cfg.node_degree_threshold);
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }
 
   Cache(int latency, int linesize, int load_ports, int store_ports, bool ideal, int prefetch_distance, int num_prefetched_lines, int size, int assoc, int eviction_policy, int cache_by_temperature, int node_degree_threshold):
-    size(size), latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal),  prefetch_distance(prefetch_distance), num_prefetched_lines(num_prefetched_lines), cache_by_temperature(cache_by_temperature), node_degree_threshold(node_degree_threshold) {
-    fc = new FunctionalCache(size, assoc, linesize, eviction_policy);
+    size(size), latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal),  prefetch_distance(prefetch_distance), num_prefetched_lines(num_prefetched_lines) {
+    fc = new FunctionalCache(size, assoc, linesize, 0, 2, 0, eviction_policy, cache_by_temperature, node_degree_threshold);
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }

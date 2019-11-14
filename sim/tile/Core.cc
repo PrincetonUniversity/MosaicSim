@@ -47,7 +47,7 @@ void Core::access(DynamicNode* d) {
   MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId, graphNodeDeg);
   t->d=d;
 
-  if (partition_L1 && graphNodeId != -1) { // LLAMA access
+  if (partition_L1 == 1 && graphNodeId != -1) { // LLAMA access
     llama_cache->addTransaction(t);
   } else {
     cache->addTransaction(t);
@@ -180,7 +180,13 @@ bool Core::ReceiveTransaction(Transaction* t) {
   cout << "Acc_Completed; Cycle: " << cycles <<"; Power: " << t->perf.power << "; Args: " << d->acc_args << endl;
   
   //register energy and dram access stats
-  stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
+  MemTransaction* mt = (MemTransaction*) t;
+  if (mt && mt->graphNodeDeg == -1) {
+    stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
+  } else {
+    stat.update("llama_dram_accesses",t->perf.bytes/4);
+  }
+  
   //power is mW, freq in MHz --> 1e-3*1e-6
   double energy=(t->perf.power * t->perf.cycles * 1e-9)/cfg.chip_freq;
   stat.acc_energy+=energy;
@@ -209,7 +215,7 @@ void Core::initialize(int id) {
   llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
   llama_cache->core=this;
   llama_cache->sim = sim;
-  if (partition_L2) {
+  if (partition_L2 == 1) {
     llama_cache->parent_cache=sim->llama_cache;
   } else {
     llama_cache->parent_cache=sim->cache;

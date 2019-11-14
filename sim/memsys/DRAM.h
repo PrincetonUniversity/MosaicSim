@@ -48,7 +48,7 @@ public:
   }
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
-  void addTransaction(Transaction* t, uint64_t addr, bool isLoad);
+  void addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size);
   bool willAcceptTransaction(uint64_t addr, bool isLoad);
   void initialize(int clockspeed) {
     mem->setCPUClockSpeed(clockspeed * 1000000);

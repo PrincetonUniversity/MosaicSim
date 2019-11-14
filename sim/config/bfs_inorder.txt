@@ -15,32 +15,36 @@
 
 #Cache
 0,ideal_cache   #set 1 for always cache hit
-128,cache_size
+32768,cache_size
 1,cache_latency
 8,cache_assoc
-16,cache_linesize
-1,cache_load_ports
-1,cache_store_ports
+64,cache_linesize
+8,cache_load_ports
+8,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
 2,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #LLAMA Cache
 0,llama_ideal_cache
-32768,llama_cache_size
-2048,llama_cache_assoc
-16,llama_cache_linesize
-7,llama_cache_load_ports
-7,llama_cache_store_ports
+0,llama_cache_size
+8,llama_cache_assoc
+64,llama_cache_linesize
+0,llama_cache_load_ports
+0,llama_cache_store_ports
 1,llama_prefetch_distance #distance (in num cachelines) before first prefetch
 0,llama_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
 0,eviction_policy
-1,llama_eviction_policy
+0,llama_eviction_policy
 
 #Caching Strategies
-1,partition_L1
-1,partition_L2
+0,partition_L1
+0,partition_L2
+
+0,cache_by_signature
+2,partition_ratio
+0,perfect_llama
 0,cache_by_temperature
 0,node_degree_threshold
 

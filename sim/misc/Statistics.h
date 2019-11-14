@@ -47,6 +47,7 @@ public:
     registerStat("cache_pending", 1);
     registerStat("cache_evicts", 1);
     registerStat("dram_accesses", 1);
+    registerStat("llama_dram_accesses", 1);
     registerStat("dram_loads", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
@@ -100,6 +101,7 @@ public:
   void print(ostream& ofile) {
     ofile << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
     ofile << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / (64 * 2)) << " GB/s \n";
+    ofile << "Average Bandwidth (PBC) : "  << (double) get("dram_accesses") / (get("cycles")/2) << " GB/s \n";
     
     if(get("l1_misses")!=0)
       {
@@ -120,7 +122,8 @@ public:
     //return;
     ofile << "IPC : " << (double) get_epoch("total_instructions") / get_epoch("cycles") << "\n";
     ofile << "Average BW : " << (double) get_epoch("dram_accesses") / (get_epoch ("cycles") / (64 * 2)) << " GB/s \n";
-    
+    ofile << "Average Bandwidth (PBC) : "  << (double) get_epoch("dram_accesses") / (get_epoch("cycles")/2) << " GB/s \n";
+ 
     if(get_epoch("l1_misses")!=0)
       {
         ofile << "L1 Miss Rate: " <<  ((100.0 * get_epoch("l1_misses"))/ (get_epoch("l1_misses")+get_epoch("l1_hits"))) << "%"<< endl;

@@ -214,6 +214,7 @@ public:
             core->sim->graphNodeDegMap[graphNodeId] = graphNodeDeg;
           } else { // address already in map
             if (core->sim->graphNodeIdMap[address] != graphNodeId) {
+              cout << address << " " << core->sim->graphNodeIdMap[address] << " " << graphNodeId << endl;
               assert(false);
             }
             if (core->sim->graphNodeDegMap[graphNodeId] != graphNodeDeg) {
