@@ -21,10 +21,15 @@ Simulator::Simulator(string home) {
   cache->sim = this;
   cache->isLLC=true;
   cache->memInterface = memInterface;
-  
+ 
   l2_cache = new Cache(cfg.l2_cache_latency, cfg.l2_cache_linesize, cfg.l2_cache_load_ports, cfg.l2_cache_store_ports, cfg.l2_ideal_cache, cfg.l2_prefetch_distance, cfg.l2_num_prefetched_lines, cfg.l2_cache_size, cfg.l2_cache_assoc, cfg.eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
   l2_cache->sim = this;
-  l2_cache->isLLC=false;
+  if (cfg.use_l2) {
+    l2_cache->isLLC=false;
+    l2_cache->parent_cache=cache;
+  } else {
+    cache->isLLC=true;
+  }
   l2_cache->memInterface = memInterface;
 
   recordEvictions=cfg.record_evictions;
@@ -178,6 +183,7 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
     //increment L2 and DRAM..assumed to be on the same clockspeed as core 0
     if(tile->id==0) {
       cache->cycles+=dst_inc;
+      l2_cache->cycles+=dst_inc;
       llama_cache->cycles+=dst_inc;
       memInterface->fastForward(dst_inc);
     }
@@ -420,6 +426,7 @@ void Simulator::run() {
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
           cache->process();       
+          l2_cache->process();
           llama_cache->process(); 
           memInterface->process();                  
         }                
@@ -992,8 +999,8 @@ bool DESCQ::execute(DynamicNode* d) {
     //if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
     if(SVB.find(d->desc_id)!=SVB.end()) {
       //loop through all ld_prod and mark their mem_status as fwd_complete, so recv can get the value
-      for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
-        assert(commQ.find(*it)!=commQ.end());
+       for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
+       assert(commQ.find(*it)!=commQ.end());
         
         commQ[*it]->mem_status=FWD_COMPLETE;       
       }

@@ -382,6 +382,40 @@ void Config::getCfg(int id, int val) {
   case 51:
     record_evictions = val;
     break;
+  case 52:
+    use_l2 = val;
+    break;
+  case 53:
+    l2_ideal_cache = val;
+    break;
+  case 54:
+    l2_cache_latency = val;
+    break;
+  case 55:
+    l2_cache_size = val;
+    break;
+  case 56:
+    l2_cache_assoc = val;
+    break;
+  case 57:
+    l2_cache_linesize = val;
+    break;
+  case 58:
+    l2_cache_load_ports = val;
+    break;
+  case 59:
+    l2_cache_store_ports = val;
+    break;
+  case 60:
+    l2_prefetch_distance = val;
+    break;
+  case 61:
+    if (l2_cache_size > 0) {
+      l2_num_prefetched_lines = val;
+    } else {
+      l2_num_prefetched_lines = 0;
+    }
+    break;
   default:
     break;
   }

@@ -54,6 +54,28 @@ public:
   int issueWidth = 8; //total # issues per cycle
   int prefetch_distance=0; // number of cachelines ahead to prefetch
 
+  // l2 cache
+  bool use_l2=false;
+  bool l2_ideal_cache;
+  int l2_cache_latency = 6;
+  int l2_cache_size = 0;
+  int l2_cache_assoc = 8;
+  int l2_cache_linesize = 64;
+  int l2_cache_load_ports;
+  int l2_cache_store_ports;
+  int l2_prefetch_distance = 0;
+  int l2_num_prefetched_lines = 1;
+
+  // llama cache
+  bool llama_ideal_cache;
+  int llama_cache_size = 0;
+  int llama_cache_assoc = 8;
+  int llama_cache_linesize = 64;
+  int llama_cache_load_ports;
+  int llama_cache_store_ports;
+  int llama_prefetch_distance = 0;
+  int llama_num_prefetched_lines = 1;
+
   int commBuff_size=64; //comm buff size
   int commQ_size=512; //comm queue size
   int SAB_size=128; //store address buffer size
@@ -70,16 +92,6 @@ public:
   int num_IS = 8;
   long long mem_chunk_size=1024; 
   
-  // llama cache
-  bool llama_ideal_cache;
-  int llama_cache_size = 0;
-  int llama_cache_assoc = 8;
-  int llama_cache_linesize = 64;
-  int llama_cache_load_ports;
-  int llama_cache_store_ports;
-  int llama_prefetch_distance = 0;
-  int llama_num_prefetched_lines = 1;
-
   // eviction
   int eviction_policy = 0;
   int llama_eviction_policy = 0;
@@ -106,7 +118,9 @@ public:
                 {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
                 {"llama_cache_load_ports", 38}, {"llama_cache_store_ports", 39}, {"llama_prefetch_distance", 40}, {"llama_num_prefetched_lines", 41},
                 {"eviction_policy", 42}, {"llama_eviction_policy", 43}, {"partition_L1", 44}, {"partition_L2", 45}, {"cache_by_temperature", 46}, {"node_degree_threshold", 47},
-                {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51}}; 
+                {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51},
+                {"use_l2", 52}, {"l2_ideal_cache", 53}, {"l2_cache_latency", 54}, {"l2_cache_size", 55}, {"l2_cache_assoc", 56}, {"l2_cache_linesize", 57}, 
+                {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}}; 
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -143,6 +157,15 @@ public:
   int cache_size;     // KB
   int cache_assoc = 8; 
   int cache_linesize = 64; // bytes
+  // l2 cache
+  bool use_l2 = 0;
+  bool l2_ideal_cache;
+  int l2_cache_latency = 9;
+  int l2_cache_size = 0;
+  int l2_cache_assoc = 8;
+  int l2_cache_linesize = 64;
+  int l2_cache_load_ports;
+  int l2_cache_store_ports;
   // llama cache
   bool llama_ideal_cache;
   int llama_cache_size;

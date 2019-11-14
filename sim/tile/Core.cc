@@ -207,10 +207,15 @@ void Core::initialize(int id) {
   cache = new Cache(local_cfg);
   cache->core=this;
   cache->sim = sim;
-  cache->parent_cache=sim->cache;
+  if (local_cfg.use_l2) {
+    cache->parent_cache=sim->l2_cache;
+  } else {
+    cache->parent_cache=sim->cache;
+  }
   cache->isL1=true;
   cache->memInterface = sim->memInterface;
   lsq.mem_speculate=local_cfg.mem_speculate;
+  
   // Set up LLAMA cache
   llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
   llama_cache->core=this;
@@ -222,6 +227,7 @@ void Core::initialize(int id) {
   }
   llama_cache->isL1=true;
   llama_cache->memInterface = sim->memInterface;
+  
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
