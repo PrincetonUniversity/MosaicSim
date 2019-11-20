@@ -1,12 +1,12 @@
 CC=clang++
 NAME=main
-SUPPLY_LL=/home/luwa/pythia/workloads/graphqube/decoupled/decoupled_supply.ll
-COMPUTE_LL=/home/luwa/pythia/workloads/graphqube/decoupled/decoupled_compute.ll
+SUPPLY_LL=/home/luwa/mosaic/workloads/graphqube/decoupled/decoupled_supply.ll
+COMPUTE_LL=/home/luwa/mosaic/workloads/graphqube/decoupled/decoupled_compute.ll
 
 decoupled: 
 	DEC++ $(NAME).cpp
-	python pythia_pass.py $(SUPPLY_LL) supply
-	python pythia_pass.py $(COMPUTE_LL) compute
+	python mosaic_pass.py $(SUPPLY_LL) supply
+	python mosaic_pass.py $(COMPUTE_LL) compute
 	cd decoupled; python run.py ../../_data/edges_small.tsv ../../_data/queryGraph.Subgraph.4.5.txt 20
 
 testbench: main.cpp

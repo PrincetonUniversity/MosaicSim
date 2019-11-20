@@ -12,7 +12,7 @@
 #define MAX_THREADS 1024
 
 int64_t remaining_mem_accesses=130000000; //max num of mem accesses (130 Mill trace lines ~= 2.5GB in mem access trace file size)
-bool expert_mode=std::getenv("PYTHIA_EXPERT")!=NULL;
+bool expert_mode=std::getenv("MOSAIC_EXPERT")!=NULL;
 //expert mode doesn't limit size of memory trace files
 
 std::ofstream f1[MAX_THREADS]; //for mem.txt

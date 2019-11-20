@@ -1,4 +1,4 @@
-# Pythia
+# MosaicSim
 
 Simulator for DECADES Project
 
@@ -18,7 +18,7 @@ No compatibility is guaranteed for older compilers/versions of these toolchains,
 
 Add the following lines to your ~/.bashrc
     
-    export PATH=[DECADES_COMPILER_INSTALL_DIR]/build/bin/:[PYTHIA_INSTALL_DIR]/tools/:$PATH
+    export PATH=[DECADES_COMPILER_INSTALL_DIR]/build/bin/:[MOSAIC_INSTALL_DIR]/tools/:$PATH
     
 Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to your ~/.bashrc:
 
@@ -28,7 +28,7 @@ Your $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this line to
 
 Finally, to remove restrictions due to running with limited resources, add the following line to your bashrc:
     
-    export PYTHIA_EXPERT=true
+    export MOSAIC_EXPERT=true
 
 Source your bashrc to enable the change:
     
@@ -49,7 +49,7 @@ in the root directory will compile the files.
 
 
 ## Compiling Workloads
-Workloads must be specially compiled through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). For this, we must use a Pythia wrapper (PDEC++) around the DECADES compiler. Then, the generated binary must be run natively.
+Workloads must be specially compiled through some LLVM passes (to generate a data dependency graph for the simulator) and run on the host (to generate a trace of memory accesses and control flow paths). For this, we must use a MosaicSim wrapper (PDEC++) around the DECADES compiler. Then, the generated binary must be run natively.
 
 Type PDEC++ -h for all compilation options. 
 
@@ -61,21 +61,21 @@ For example, to compile the graph projections benchmark for 2 threads with decou
       
 After compiling and running, there should be files generated in a directory prefixed by "output". Check that decades_base/output*/ctrl.txt, decades_base/output*/mem.txt and decades_base/output*/graphOutput.txt are not empty. 
 
-## Running Pythia
+## Running MosaicSim
 
-Type pythiarun -h for all run options. 
+Type mosaicrun -h for all run options. 
 
-To run the workload on Pythia, navigate back to the parent folder of decades_base (i.e. cd workloads/graph_projections/gp_count/decades). We must enter commandline arguments corresponding to what the workload was compiled for (for the example above, it would be decoupling with 2 threads). Type:
+To run the workload on MosaicSim, navigate back to the parent folder of decades_base (i.e. cd workloads/graph_projections/gp_count/decades). We must enter commandline arguments corresponding to what the workload was compiled for (for the example above, it would be decoupling with 2 threads). Type:
     
-    pythiarun -n 2 -d .    
+    mosaicrun -n 2 -d .    
 
 This defaults to the explicit command (core_inorder and sim_default are the default configs):
 
-    pythiarun -n 2 -d -cc core_inorder -sc sim_default .
+    mosaicrun -n 2 -d -cc core_inorder -sc sim_default .
 
 CUSTOM CONFIGURATION FILES:
 
-There are config files in sim/config for the different preset modes "pythiarun -h" displays. You can modify the current ones to change the size of hardware resources or create new ones. Note that config files must be named in the form [configname].txt. 
+There are config files in sim/config for the different preset modes "mosaicrun -h" displays. You can modify the current ones to change the size of hardware resources or create new ones. Note that config files must be named in the form [configname].txt. 
 
 For a number of pre-automated compilation and test runs, navigate back to workloads/graph_projections/gp_count/decades. Type:
 
@@ -83,7 +83,7 @@ For a number of pre-automated compilation and test runs, navigate back to worklo
 
 ## Statistics
 
-After completion, the simulator outputs run statistics directly to the console (e.g., # cycles, # cache misses, # dram accesses, IPC, etc). Pythia can be run with an optional -o flag to specify a directory for these stats. Pythia also prints out additional statistics to specific files, outputted to the provided directory name or the run directory, if none is provided. 
+After completion, the simulator outputs run statistics directly to the console (e.g., # cycles, # cache misses, # dram accesses, IPC, etc). MosaicSim can be run with an optional -o flag to specify a directory for these stats. MosaicSim also prints out additional statistics to specific files, outputted to the provided directory name or the run directory, if none is provided. 
 
 Statistics on runahead distances (# cycles between issues of a PRODUCE or LOAD_PRODUCE instructions and issues of corresponding CONSUME instructions) will be outputted to "decouplingStats" 
 
@@ -91,4 +91,4 @@ Statistics of latencies of each load instruction will be outputed to "loadStats"
 
 ## API Documentation
 
-In order to integrate other core or accelerator models with Pythia and have them interract together, we have documented an API. See Section E in the linked document: https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb
+In order to integrate other core or accelerator models with MosaicSim and have them interract together, we have documented an API. See Section E in the linked document: https://www.overleaf.com/project/5c87bee2b8ed496eb059acfb

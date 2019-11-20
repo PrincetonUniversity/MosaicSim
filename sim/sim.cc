@@ -15,7 +15,7 @@
 using namespace std;
 
 Simulator::Simulator(string home) {
-  pythia_home=home;
+  mosaic_home=home;
   clockspeed=cfg.chip_freq;
   cache = new Cache(cfg);
   mem_chunk_size=cfg.mem_chunk_size; 
@@ -64,7 +64,7 @@ bool Barrier::register_barrier(DynamicNode* d) {
 }
 
 void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int id) {
-  string name = "Pythia Core "+ to_string(id);
+  string name = "MosaicSim Core "+ to_string(id);
   string gName = wlpath + "/graphOutput.txt";
   string cfName = wlpath + "/ctrl.txt";     
   string memName = wlpath + "/mem.txt";   
@@ -514,7 +514,7 @@ void Simulator::run() {
   }
   cout << "[SIM] ------- End of Simulation!!! ------------------------" << endl << endl;
 
-  // print stats for each pythia tile
+  // print stats for each mosaic tile
   for (auto it=tiles.begin(); it!=tiles.end(); it++) {
     Tile* tile=it->second;
     if(Core* core=dynamic_cast<Core*>(tile)) {

@@ -5,8 +5,8 @@ import sys
 import argparse
 
 
-PYTHIA_HOME=os.path.dirname(os.path.realpath(os.path.realpath(__file__)+"/.."))
-PYTHIA_BIN=PYTHIA_HOME+"/bin"
+MOSAIC_HOME=os.path.dirname(os.path.realpath(os.path.realpath(__file__)+"/.."))
+MOSAIC_BIN=MOSAIC_HOME+"/bin"
 
 
 def main():
@@ -19,25 +19,25 @@ def main():
     parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
     parser.add_argument("-db", "--debug", help="Flag to run in debug mode; collect load and decoupling stats", action='store_true')
     parser.add_argument("-opt", "--optmode", help="Flag to run in optimized mode. No debugging, not stats collection.", action='store_true')
-    parser.add_argument("-o", "--output", type=str, help="Output directory for Pythia run statistics (default is stdout for general stats and run directory for decoupling and load stats)")
+    parser.add_argument("-o", "--output", type=str, help="Output directory for MosaicSim run statistics (default is stdout for general stats and run directory for decoupling and load stats)")
     args=parser.parse_args()
     numcores=args.num_cores
     #print(args.source_directory)
     cmd=""
-    pythia_numcores=numcores
+    mosaic_numcores=numcores
 
     source_directory=os.path.realpath(args.source_directory[0])
-    core_config_path=PYTHIA_HOME+"/sim/config/"+args.core_config+".txt"
-    sim_config_path=PYTHIA_HOME+"/sim/config/"+args.sim_config+".txt"
+    core_config_path=MOSAIC_HOME+"/sim/config/"+args.core_config+".txt"
+    sim_config_path=MOSAIC_HOME+"/sim/config/"+args.sim_config+".txt"
 
     decoupled_path=source_directory+"/decades_decoupled_implicit"
     base_path=source_directory+"/decades_base"
     home_path=base_path
     if args.decoupled:
-        pythia_numcores=2*numcores
+        mosaic_numcores=2*numcores
         home_path=decoupled_path
         
-    cmd = PYTHIA_BIN+"/sim -n "+str(pythia_numcores)+" "+sim_config_path
+    cmd = MOSAIC_BIN+"/sim -n "+str(mosaic_numcores)+" "+sim_config_path
     
     #loop through number of threads collecting args
     for i in range(numcores):

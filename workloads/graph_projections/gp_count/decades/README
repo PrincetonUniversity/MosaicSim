@@ -1,4 +1,4 @@
-Readme for the makefile to conduct a pre-automated compilation and run of graph projections on Pythia simulator
+Readme for the makefile to conduct a pre-automated compilation and run of graph projections on MosaicSim simulator
 
 The script conducts 2 runs each (1 thread, 2 threads) for non-decoupled and decoupled supply/compute, using default config file (in order core)
 
