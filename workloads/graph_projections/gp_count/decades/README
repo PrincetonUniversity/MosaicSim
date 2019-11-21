@@ -1,0 +1,8 @@
+Readme for the makefile to conduct a pre-automated compilation and run of graph projections on MosaicSim simulator
+
+The script conducts 2 runs each (1 thread, 2 threads) for non-decoupled and decoupled supply/compute, using default config file (in order core)
+
+Output files for runs are in sim_output/base_nthreads and sim_output/decoupled_nthreads, where n is 1 or 2
+Most relevant stats are under "GLOBAL STATS" at the bottom of the files
+
+To compile and run, simply type make

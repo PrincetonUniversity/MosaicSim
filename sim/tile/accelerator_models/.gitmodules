@@ -1,0 +1,3 @@
+[submodule "hls/esp-accelerator-templates"]
+	path = hls/esp-accelerator-templates
+	url = git@github.com:sld-columbia/esp-accelerator-templates.git

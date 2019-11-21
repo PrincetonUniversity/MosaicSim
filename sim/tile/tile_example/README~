@@ -1,0 +1,30 @@
+Here is a roadmap for all the key actions required for setting up this Example FP Multiplication tile that a core tile offloads all its FP multiplication instructions to.
+
+Source code of the example tile:
+mosaic/sim/tile/ExampleTile.cc
+
+Registering the example tile with CMAKE, for mosaic to be able to compile
+
+line 17, mosaic/sim/CMakeLists.txt, see "tile/ExampeTile.cc" on that line
+
+Instantiating the FP multiplication accelerator tile (contrived example tile):
+line 61, mosaic/sim/main.cc
+(You can play around with the tile's core frequency)
+
+Sending FP multiplication requests to the example tile:
+line 252,  mosaic/sim/tile/DynamicNode.cc
+
+Killing the accelerator tile when the core is done:
+line 259 mosaic/sim/tile/Core.cc
+Here, we kill the accelerator tile, so digestor doesn't call it's process() anymore and can eventually end the simulation
+
+Core receiving response back from example tile:
+line 100, mosaic/sim/tile/Core.cc
+
+Running it:
+cd mosaic/workloads/parboil/
+make
+cd mosaic/bin
+./sim -n 1 default ../workloads/parboil/sgemm default
+
+It should print out real time information about what cycles transactions are being sent and received by the core

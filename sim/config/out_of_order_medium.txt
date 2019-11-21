@@ -1,0 +1,25 @@
+#Config file, goal is to match an OoO processor
+#For infinite size, set value to -1
+
+#Core
+#For in order mode, set window_size to 1
+64,lsq_size
+64,window_size   #effectively, ROB size
+4,issueWidth   #num of issuable instrs per cycle
+0,cf_mode   #set 1 to create all contexts at once
+0,mem_speculate
+1,mem_forward
+-1,max_active_contexts_BB
+
+#Cache
+0,ideal_cache   #set 1 for always cache hit
+32,cache_size_in_kb
+1,cache_latency
+8,cache_assoc
+64,cache_linesize
+8,cache_load_ports
+8,cache_store_ports
+
+#Memory
+4,mem_load_ports
+4,mem_store_ports
