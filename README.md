@@ -22,9 +22,9 @@ No compatibility is guaranteed for older compilers/versions of these toolchains,
 
 Define the next set of variables:
 
-    `DECADES_COMPILER_INSTALL_DIR=[COMPILER_DIRECTORY]`
-    `MOSAIC_INSTALL_DIR=[SIMULATOR_DIRECTORY]`
-    `OMP_SHARED_LIB=[PATH_TO_OPEN_MP_LIB]`
+    DECADES_COMPILER_INSTALL_DIR=[COMPILER_DIRECTORY]
+    MOSAIC_INSTALL_DIR=[SIMULATOR_DIRECTORY]
+    OMP_SHARED_LIB=[PATH_TO_OPEN_MP_LIB]
 
 Your Compiler path must be defined and $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this lines to your ~/.bashrc:
 Add the following lines to your ~/.bashrc
@@ -119,3 +119,7 @@ We also provide further documentation about the simulator and compiler within th
 We provide further workloads, used withing the DECADES project in the next repo:
 
   https://github.com/amanocha/DECADES_Applications
+
+## License
+
+  [BSD License (BSD 2-Clause License)](BSD-License.txt)
