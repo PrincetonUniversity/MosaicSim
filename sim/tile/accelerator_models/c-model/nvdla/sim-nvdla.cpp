@@ -1,8 +1,6 @@
 /*
  * sim-nvdla.cpp
- *
- *  Created on: May 21, 2019
- *      Author: geichler
+ * Author: Guy Eichler
  */
 
 #include "nvdla.h"
@@ -38,12 +36,12 @@ int main(void)
 	config.pool_width = 3;
 	config.vertical_pool_dim = 2;
 	config.horizontal_pool_dim = 2;
-	//config.winograd = 0;
+	// config.winograd = 0;
 	config.type = conv;
 	config.batch_size = 1;
-//	config.dram_bw_limit = 10; //GB/s
-//	config.frequency = 1000; //MHz
-//	config.num_of_mul = 2048;
+        // config.dram_bw_limit = 10; //GB/s
+        // config.frequency = 1000; //MHz
+        // config.num_of_mul = 2048;
 
 	acc_perf_t nvdla_perf = sim_nvdla(config_sys, config);
 
@@ -55,7 +53,6 @@ int main(void)
 	cout << endl;
 
 	//AlexNet_example();
-
 }
 
 void AlexNet_example()

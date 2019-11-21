@@ -1,3 +1,8 @@
+/*
+ * sdp_model.cpp
+ * Author: Davide Giri
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>

@@ -1,3 +1,8 @@
+/*
+ * gemm_model.hpp
+ * Author: Davide Giri
+ */
+
 #ifndef _GEMM_MODEL_HPP_
 #define _GEMM_MODEL_HPP_
 

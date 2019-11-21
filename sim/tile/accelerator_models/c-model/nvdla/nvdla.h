@@ -1,8 +1,6 @@
 /*
  * nvdla.h
- *
- *  Created on: May 17, 2019
- *      Author: geichler
+ * Author: Guy Eichler
  */
 
 #ifndef NVDLA_H_

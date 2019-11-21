@@ -1,3 +1,8 @@
+/*
+ * sdp_model.hpp
+ * Author: Davide Giri
+ */
+
 #ifndef _SDP_MODEL_HPP_
 #define _SDP_MODEL_HPP_
 
