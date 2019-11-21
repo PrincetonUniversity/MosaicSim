@@ -14,9 +14,14 @@ This project was built with the following tools:
  
 DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
 
+To fetch submodules within MosaicSim repo (like DRAMSim2) do a submodule update:
+
+     git submodule update --init --recursive
+
 No compatibility is guaranteed for older compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
 Define the next set of variables:
+
     `DECADES_COMPILER_INSTALL_DIR=[COMPILER_DIRECTORY]`
     `MOSAIC_INSTALL_DIR=[SIMULATOR_DIRECTORY]`
     `OMP_SHARED_LIB=[PATH_TO_OPEN_MP_LIB]`
