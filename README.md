@@ -17,9 +17,9 @@ DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compile
 No compatibility is guaranteed for older compilers/versions of these toolchains, mainly because LLVM is fairly backwards-incompatible.
 
 Define the next set of variables:
-    DECADES_COMPILER_INSTALL_DIR=[COMPILER_DIRECTORY]
-    MOSAIC_INSTALL_DIR=[SIMULATOR_DIRECTORY]
-    OMP_SHARED_LIB=[PATH_TO_OPEN_MP_LIB]
+    `DECADES_COMPILER_INSTALL_DIR=[COMPILER_DIRECTORY]`
+    `MOSAIC_INSTALL_DIR=[SIMULATOR_DIRECTORY]`
+    `OMP_SHARED_LIB=[PATH_TO_OPEN_MP_LIB]`
 
 Your Compiler path must be defined and $LD_LIBRARY_PATH must be updated to always find libomp.so. Add this lines to your ~/.bashrc:
 Add the following lines to your ~/.bashrc
