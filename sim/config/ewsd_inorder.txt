@@ -14,9 +14,9 @@
 0,misprediction_penalty # enter penalty of 0 for perfect prediction
 
 #Cache
-0,ideal_cache
+0,ideal_cache   #set 1 for always cache hit
 32768,cache_size
-3,cache_latency
+4,cache_latency
 8,cache_assoc
 16,cache_linesize
 8,cache_load_ports
@@ -26,9 +26,9 @@
 
 #L2 Cache
 1,use_l2
-0,l2_ideal_cache
+0,l2_ideal_cache   #set 1 for always cache hit
 262144,l2_cache_size
-6,l2_cache_latency
+12,l2_cache_latency
 8,l2_cache_assoc
 16,l2_cache_linesize
 8,l2_cache_load_ports
@@ -37,7 +37,7 @@
 2,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
-1,eviction_policy
+0,eviction_policy
 0,llama_eviction_policy
 
 #Caching Strategies
@@ -45,14 +45,15 @@
 0,partition_L2
 
 1,cache_by_signature
-3,partition_ratio
+0,partition_ratio
 0,perfect_llama
-1,cache_by_temperature
-21,node_degree_threshold
-1,l2_cache_by_temperature
-2,l2_node_degree_threshold
+0,cache_by_temperature
+0,node_degree_threshold
+0,l2_cache_by_temperature
+0,l2_node_degree_threshold
+51,llama_node_id
 
-0,record_evictions
+1,record_evictions
 
 #Memory
 4,mem_load_ports

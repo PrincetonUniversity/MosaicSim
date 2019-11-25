@@ -42,6 +42,12 @@ public:
     registerStat("l2_misses_non_prefetch", 0);
     registerStat("l2_load_hits", 1);
     registerStat("l2_load_misses", 1);
+    registerStat("l3_hits", 0);
+    registerStat("l3_misses", 0);
+    registerStat("l3_hits_non_prefetch", 0);
+    registerStat("l3_misses_non_prefetch", 0);
+    registerStat("l3_load_hits", 1);
+    registerStat("l3_load_misses", 1);
  
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
@@ -49,6 +55,7 @@ public:
     registerStat("dram_accesses", 1);
     registerStat("llama_dram_accesses", 1);
     registerStat("dram_loads", 1);
+    registerStat("dram_access_count", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
     
@@ -100,7 +107,7 @@ public:
   }
   void print(ostream& ofile) {
     ofile << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    ofile << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / (64 * 2)) << " GB/s \n";
+    ofile << "Average BW : " << (double) get("dram_accesses") / (get ("cycles") / 2) << " GB/s \n";
     ofile << "Average Bandwidth (PBC) : "  << (double) get("dram_accesses") / (get("cycles")/2) << " GB/s \n";
     
     if(get("l1_misses")!=0)
@@ -113,6 +120,11 @@ public:
         ofile << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
       }
     
+    if(get("l3_misses")!=0)
+      {
+        ofile << "L3 Miss Rate: " << ( (100.0 * get("l3_misses"))/(get("l3_misses")+get("l3_hits"))) << "%"<< endl;
+      }
+    
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       ofile << it->first << " : " << it->second.first << "\n";
     }
@@ -121,7 +133,7 @@ public:
     //ofile << "PRINTING EPOCH \n";
     //return;
     ofile << "IPC : " << (double) get_epoch("total_instructions") / get_epoch("cycles") << "\n";
-    ofile << "Average BW : " << (double) get_epoch("dram_accesses") / (get_epoch ("cycles") / (64 * 2)) << " GB/s \n";
+    ofile << "Average BW : " << (double) get_epoch("dram_accesses") / (get_epoch ("cycles") / 2) << " GB/s \n";
     ofile << "Average Bandwidth (PBC) : "  << (double) get_epoch("dram_accesses") / (get_epoch("cycles")/2) << " GB/s \n";
  
     if(get_epoch("l1_misses")!=0)
@@ -132,6 +144,11 @@ public:
     if(get_epoch("l2_misses")!=0)
       {
         ofile << "L2 Miss Rate: " << ( (100.0 * get_epoch("l2_misses"))/(get_epoch("l2_misses")+get_epoch("l2_hits"))) << "%"<< endl;
+      }
+    
+    if(get_epoch("l3_misses")!=0)
+      {
+        ofile << "L3 Miss Rate: " << ( (100.0 * get_epoch("l3_misses"))/(get_epoch("l3_misses")+get_epoch("l3_hits"))) << "%"<< endl;
       }
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {

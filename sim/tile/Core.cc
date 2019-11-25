@@ -41,10 +41,18 @@ void Core::access(DynamicNode* d) {
   if (sim->graphNodeIdMap.find(d->addr) != sim->graphNodeIdMap.end()) {
     graphNodeId = sim->graphNodeIdMap[d->addr];
 
-    assert(sim->graphNodeDegMap.find(graphNodeId) != sim->graphNodeDegMap.end());
+    //assert(sim->graphNodeDegMap.find(graphNodeId) != sim->graphNodeDegMap.end());
     graphNodeDeg = sim->graphNodeDegMap[graphNodeId];
   }
-  MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD, graphNodeId, graphNodeDeg);
+  TInstr i_type = d->type;
+  if (i_type == ATOMIC_CAS || i_type == ATOMIC_MIN || i_type == ATOMIC_FADD || i_type == LLAMA || d->n->id == llamaNodeId) {
+    graphNodeId = 0;
+    graphNodeDeg = 0;
+    if (sim->graphNodeIdMap.find(d->addr) == sim->graphNodeIdMap.end()) {
+      sim->graphNodeIdMap[d->addr] = graphNodeId;
+    }
+  }
+  MemTransaction *t = new MemTransaction(1, id, id, d->addr, d->type == LD || d->type == LD_PROD || d->type == LLAMA, graphNodeId, graphNodeDeg);
   t->d=d;
 
   if (partition_L1 == 1 && graphNodeId != -1) { // LLAMA access
@@ -199,16 +207,23 @@ bool Core::ReceiveTransaction(Transaction* t) {
 
 void Core::initialize(int id) {
   this->id = id;
+  this->llamaNodeId = local_cfg.llama_node_id;
     
   // Set up caching strategies
   partition_L1 = local_cfg.partition_L1;
   partition_L2 = local_cfg.partition_L2;
-  // Set up cache
+  
+  // Set up caches
+  l2_cache = new Cache(local_cfg.l2_cache_latency, local_cfg.l2_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_size, local_cfg.l2_cache_assoc, local_cfg.eviction_policy, local_cfg.cache_by_signature, local_cfg.use_l2, local_cfg.partition_ratio, local_cfg.perfect_llama, local_cfg.l2_cache_by_temperature, local_cfg.l2_node_degree_threshold);
+  l2_cache->sim = sim;
+  l2_cache->parent_cache=sim->cache;
+  l2_cache->memInterface = sim->memInterface;
+
   cache = new Cache(local_cfg);
   cache->core=this;
   cache->sim = sim;
   if (local_cfg.use_l2) {
-    cache->parent_cache=sim->l2_cache;
+    cache->parent_cache=l2_cache;
   } else {
     cache->parent_cache=sim->cache;
   }
@@ -217,7 +232,7 @@ void Core::initialize(int id) {
   lsq.mem_speculate=local_cfg.mem_speculate;
   
   // Set up LLAMA cache
-  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
+  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, 0, local_cfg.use_l2, 2, 0, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
   llama_cache->core=this;
   llama_cache->sim = sim;
   if (partition_L2 == 1) {
@@ -272,7 +287,7 @@ void Core::initialize(int id) {
 
 //extern vector<string> InstrStr;
 
-vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
+vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS", "LLAMA"};
 
 string Core::getInstrName(TInstr instr) {  
   return InstrStr[instr];
@@ -345,6 +360,7 @@ bool Core::createContext() {
 void Core::fastForward(uint64_t inc) {
   cycles+=inc;
   cache->cycles+=inc;
+  l2_cache->cycles+=inc;
   llama_cache->cycles+=inc;
   window.cycles+=inc;
   if(id % 2 == 0) {
@@ -356,7 +372,7 @@ bool Core::process() {
   //process the instruction window and RoB
   window.process();
   //process the private cache
-  bool simulate = cache->process() || llama_cache->process();
+  bool simulate = cache->process() || l2_cache->process() || llama_cache->process();
 
   //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
   if(id % 2 == 0) {

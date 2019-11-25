@@ -17,27 +17,17 @@ using namespace std;
 Simulator::Simulator(string home) {
   pythia_home=home;
   clockspeed=cfg.chip_freq;
+  recordEvictions=cfg.record_evictions;
+  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  mem_chunk_size=cfg.mem_chunk_size; 
+
   cache = new Cache(cfg);
   cache->sim = this;
   cache->isLLC=true;
   cache->memInterface = memInterface;
  
-  l2_cache = new Cache(cfg.l2_cache_latency, cfg.l2_cache_linesize, cfg.l2_cache_load_ports, cfg.l2_cache_store_ports, cfg.l2_ideal_cache, cfg.l2_prefetch_distance, cfg.l2_num_prefetched_lines, cfg.l2_cache_size, cfg.l2_cache_assoc, cfg.eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
-  l2_cache->sim = this;
-  if (cfg.use_l2) {
-    l2_cache->isLLC=false;
-    l2_cache->parent_cache=cache;
-  } else {
-    cache->isLLC=true;
-  }
-  l2_cache->memInterface = memInterface;
-
-  recordEvictions=cfg.record_evictions;
-  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
-  mem_chunk_size=cfg.mem_chunk_size; 
-
   // LLAMA Cache
-  llama_cache = new Cache(cfg.cache_latency, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, cfg.cache_by_temperature, cfg.node_degree_threshold);
+  llama_cache = new Cache(cfg.cache_latency, cfg.llama_cache_linesize, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, 0, cfg.use_l2, 2, 0, cfg.cache_by_temperature, cfg.node_degree_threshold);
   llama_cache->sim = this;
   llama_cache->isLLC=true;
   llama_cache->memInterface = memInterface;  
@@ -183,7 +173,6 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
     //increment L2 and DRAM..assumed to be on the same clockspeed as core 0
     if(tile->id==0) {
       cache->cycles+=dst_inc;
-      l2_cache->cycles+=dst_inc;
       llama_cache->cycles+=dst_inc;
       memInterface->fastForward(dst_inc);
     }
@@ -426,7 +415,6 @@ void Simulator::run() {
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {
           cache->process();       
-          l2_cache->process();
           llama_cache->process(); 
           memInterface->process();                  
         }                
@@ -491,7 +479,7 @@ void Simulator::run() {
             isHit="Hit";
           }
           string MEMOP="";
-          if (load_stat.type==LD) {
+          if (load_stat.type==LD || load_stat.type==LLAMA) {
             MEMOP="LD";
           } else if (load_stat.type==LD_PROD) {
             MEMOP="LD_PROD";
@@ -637,7 +625,7 @@ void Simulator::run() {
         isHit="Hit";
       }
       string MEMOP="";
-      if (load_stat.type==LD) {
+      if (load_stat.type==LD || load_stat.type==LLAMA) {
         MEMOP="LD";
       } else if (load_stat.type==LD_PROD) {
         MEMOP="LD_PROD";
@@ -806,13 +794,13 @@ void Simulator::calculateGlobalEnergyPower() {
   }
   double e = stat.global_energy;
 
-  // Add the L2 cache energy (we assume it is shared - NOTE this can change in a future)
-  double L2_energy = (stat.get("l2_hits") + stat.get("l2_misses") ) * cfg.energy_per_L2_access.at(cfg.technology_node);
-  stat.global_energy += L2_energy;      
+  // Add the L3 cache energy (we assume it is shared - NOTE this can change in a future)
+  double L3_energy = (stat.get("l3_hits") + stat.get("l3_misses") ) * cfg.energy_per_L3_access.at(cfg.technology_node);
+  stat.global_energy += L3_energy;      
 
   // Add the DRAM energy
   //Note: dram_accesses is on a cache line granularity
-  double DRAM_energy = (stat.get("dram_accesses") + stat.get("llama_dram_accesses")) * cfg.energy_per_DRAM_access.at(cfg.technology_node);
+  double DRAM_energy = stat.get("dram_access_count") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
   stat.global_energy += DRAM_energy;
 
   // For Luwa: 
@@ -830,7 +818,7 @@ void Simulator::calculateGlobalEnergyPower() {
   cout << "Total GFLOPs : " << total_gflops << endl;
   
   cout << "-------All (" << n_cores << ") cores energy (J) : " << e << endl;
-  cout << "-------L2_energy (J) : " << L2_energy << endl;
+  cout << "-------L3_energy (J) : " << L3_energy << endl;
   cout << "-------DRAM_energy (J) : " << DRAM_energy << endl;
   cout << "-------Acc_energy (J) : " << Acc_energy << endl;
 }

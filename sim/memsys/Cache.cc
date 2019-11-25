@@ -15,6 +15,12 @@ string l2_load_hits = "l2_load_hits";
 string l2_misses="l2_misses";
 string l2_misses_non_prefetch="l2_misses_non_prefetch"; 
 string l2_load_misses="l2_load_misses";
+string l3_hits="l3_hits";
+string l3_hits_non_prefetch= "l3_hits_non_prefetch";
+string l3_load_hits = "l3_load_hits";
+string l3_misses="l3_misses";
+string l3_misses_non_prefetch="l3_misses_non_prefetch"; 
+string l3_load_misses="l3_load_misses";
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
 
@@ -26,7 +32,7 @@ void Cache::evict(uint64_t addr) {
   int unusedSpace = 0;
 
   if(fc->evict(addr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace)) { //evicts from the cache returns isDirty, in which case must write back to L2
-    MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false, -1, -1);
+    MemTransaction* t = new MemTransaction(-1, -1, -1, addr, false, evictedGraphNodeId, evictedGraphNodeDeg);
     // if(parent_cache->willAcceptTransaction(t)) {
     t->cache_q->push_front(this); 
     parent_cache->addTransaction(t); //send eviction to parent cache
@@ -42,7 +48,11 @@ void Cache::evict(uint64_t addr) {
     cache_stat.graphNodeId = evictedGraphNodeId;
     cache_stat.graphNodeDeg = evictedGraphNodeDeg;
     cache_stat.unusedSpace = unusedSpace;
-    cache_stat.cacheLevel = 1;
+    if (isL1) {
+      cache_stat.cacheLevel = 1;
+    } else {
+      cache_stat.cacheLevel = 2;
+    }
     sim->evictStatsVec.push_back(cache_stat);  
   }        
 }
@@ -70,7 +80,7 @@ bool Cache::process() {
     MemTransaction *t = *it;
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
     int cacheline_size;
-    if (t->graphNodeDeg == -1) {
+    if (cacheBySignature == 0 || t->graphNodeId == -1) {
       cacheline_size = size_of_cacheline;
     } else {
       cacheline_size = 4;
@@ -101,8 +111,7 @@ bool Cache::process() {
         next_to_send.push_back(t);
         //++it;
       }
-    }
-    else {
+    } else {
       if(size == 0 || parent_cache->willAcceptTransaction(t)) {
         t->cache_q->push_front(this);
         parent_cache->addTransaction(t);
@@ -118,30 +127,33 @@ bool Cache::process() {
 
   to_send=next_to_send;
 
-  vector<tuple<uint64_t, int>> next_to_evict;
+  vector<tuple<uint64_t, int, int, int>> next_to_evict;
   
   for(auto it = to_evict.begin(); it!= to_evict.end();++it) {
     uint64_t eAddr = get<0>(*it);
-    int cacheline_size = get<1>(*it);
+    int graphNodeId = get<1>(*it);
+    int graphNodeDeg = get<2>(*it);
+    int cacheline_size = get<3>(*it);
     if(isLLC) {
       if(memInterface->willAcceptTransaction(eAddr, false)) {
+        
         memInterface->addTransaction(NULL, eAddr, false, cacheline_size);
         //it = to_evict.erase(it);
       }
       else {
-        next_to_evict.push_back(make_tuple(eAddr, cacheline_size));
+        next_to_evict.push_back(make_tuple(eAddr, graphNodeId, graphNodeDeg, cacheline_size));
         //++it;
       }
     }
     else {
-      MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false, -1, -1);
+      MemTransaction* t = new MemTransaction(-1, -1, -1, eAddr, false, graphNodeId, graphNodeDeg);
       if(size == 0 || parent_cache->willAcceptTransaction(t)) {
         t->cache_q->push_front(this); 
         parent_cache->addTransaction(t);
         //it = to_evict.erase(it);
       }
       else {
-        next_to_evict.push_back(make_tuple(eAddr, cacheline_size));
+        next_to_evict.push_back(make_tuple(eAddr, graphNodeId, graphNodeDeg, cacheline_size));
         //++it;
       }
     }
@@ -232,7 +244,7 @@ void Cache::execute(MemTransaction* t) {
         TransactionComplete(t);
 
       }
-      //for l2 cache
+      //for l2 and l3 cache
       else {
         int nodeId = t->d->n->id;
         int graphNodeId = t->graphNodeId;
@@ -258,14 +270,14 @@ void Cache::execute(MemTransaction* t) {
           stat.update(cache_evicts);
           
           int cacheline_size;
-          if (evictedGraphNodeDeg == -1) {
+          if (cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
             cacheline_size = child_cache->size_of_cacheline;
           } else {
             cacheline_size = 4;
           }
 
           if (dirtyEvict) {
-            child_cache->to_evict.push_back(make_tuple(evictedAddr*child_cache->size_of_cacheline + evictedOffset, cacheline_size));
+            child_cache->to_evict.push_back(make_tuple(evictedAddr*child_cache->size_of_cacheline + evictedOffset, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
           }
 
           if (sim->recordEvictions) {
@@ -277,17 +289,32 @@ void Cache::execute(MemTransaction* t) {
             cache_stat.graphNodeId = evictedGraphNodeId;
             cache_stat.graphNodeDeg = evictedGraphNodeDeg;
             cache_stat.unusedSpace = unusedSpace;
-            cache_stat.cacheLevel = 1;
+            if (child_cache->isL1) {
+              cache_stat.cacheLevel = 1;
+            } else {
+              cache_stat.cacheLevel = 2;
+            }
             sim->evictStatsVec.push_back(cache_stat);  
           }        
         }
         child_cache->TransactionComplete(t);
-        stat.update(l2_hits);
-        if(!t->isPrefetch) {
-          stat.update(l2_hits_non_prefetch);
-        }
-        if(t->isLoad) {
-          stat.update(l2_load_hits);
+
+        if (isLLC && useL2) {
+          stat.update(l3_hits);
+          if(!t->isPrefetch) {
+            stat.update(l3_hits_non_prefetch);
+          }
+          if(t->isLoad) {
+            stat.update(l3_load_hits);
+          }
+        } else {
+          stat.update(l2_hits);
+          if(!t->isPrefetch) {
+            stat.update(l2_hits_non_prefetch);
+          }
+          if(t->isLoad) {
+            stat.update(l2_load_hits);
+          }
         }
       }
           
@@ -301,8 +328,15 @@ void Cache::execute(MemTransaction* t) {
   else {
     if(isL1) {
       //do nothing, MSHR entry is set to miss by default   
-    }
-    else {
+    } else if (isLLC && useL2) {
+      stat.update(l3_misses);
+      if(!t->isPrefetch) {
+        stat.update(l3_misses_non_prefetch);
+      }
+      if(t->isLoad) {
+        stat.update(l3_load_misses);
+      }
+    } else {
       stat.update(l2_misses);
       if(!t->isPrefetch) {
         stat.update(l2_misses_non_prefetch);
@@ -345,7 +379,7 @@ void Cache::addTransaction(MemTransaction *t) {
     free_store_ports--;
 
   //for prefetching, don't issue prefetch for evict or for access with outstanding prefetches or for access that IS  prefetch or eviction
-  if(isL1 && t->src_id>=0 && num_prefetched_lines>0 && t->graphNodeDeg == -1) {
+  if(isL1 && t->src_id>=0 && num_prefetched_lines>0 && t->graphNodeId == -1) {
     //int cache_line = t->d->addr/size_of_cacheline;
     bool pattern_detected=false;
     bool single_stride=true;
@@ -512,14 +546,14 @@ void Cache::TransactionComplete(MemTransaction *t) {
       stat.update(cache_evicts);
 
       int cacheline_size;
-      if (evictedGraphNodeDeg == -1) {
+      if (cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
         cacheline_size = c->size_of_cacheline;
       } else {
         cacheline_size = 4;
       }
 
       if (dirtyEvict) {
-        c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline + evictedOffset, cacheline_size));
+        c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline + evictedOffset, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
       }
 
       if (sim->recordEvictions) {
@@ -531,7 +565,11 @@ void Cache::TransactionComplete(MemTransaction *t) {
         cache_stat.graphNodeId = evictedGraphNodeId;
         cache_stat.graphNodeDeg = evictedGraphNodeDeg;
         cache_stat.unusedSpace = unusedSpace;
-        cache_stat.cacheLevel = 1;
+        if (c->isL1) {
+          cache_stat.cacheLevel = 1;
+        } else {
+          cache_stat.cacheLevel = 2;
+        }
         sim->evictStatsVec.push_back(cache_stat);         
       } 
     }

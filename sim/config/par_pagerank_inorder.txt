@@ -37,7 +37,7 @@
 2,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
-1,eviction_policy
+2,eviction_policy
 0,llama_eviction_policy
 
 #Caching Strategies
@@ -45,12 +45,12 @@
 0,partition_L2
 
 1,cache_by_signature
-3,partition_ratio
+7,partition_ratio
 0,perfect_llama
-1,cache_by_temperature
-21,node_degree_threshold
-1,l2_cache_by_temperature
-2,l2_node_degree_threshold
+0,cache_by_temperature
+0,node_degree_threshold
+0,l2_cache_by_temperature
+0,l2_node_degree_threshold
 
 0,record_evictions
 

@@ -54,7 +54,9 @@ public:
   bool windowFull=false;
   Config local_cfg; 
   Cache* cache;
+  Cache* l2_cache;
   Cache* llama_cache;
+  int llamaNodeId;
   int partition_L1;
   int partition_L2;
   Statistics local_stat;
