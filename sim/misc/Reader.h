@@ -210,7 +210,7 @@ public:
           if(core->sim->graphNodeIdMap.find(address) == core->sim->graphNodeIdMap.end()) {
             core->sim->graphNodeIdMap[address] = graphNodeId;
 
-            assert(core->sim->graphNodeDegMap.find(graphNodeId) == core->sim->graphNodeDegMap.end());
+            //assert(core->sim->graphNodeDegMap.find(graphNodeId) == core->sim->graphNodeDegMap.end());
             core->sim->graphNodeDegMap[graphNodeId] = graphNodeDeg;
           } else { // address already in map
             if (core->sim->graphNodeIdMap[address] != graphNodeId) {

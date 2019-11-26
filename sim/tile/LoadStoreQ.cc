@@ -10,7 +10,7 @@ void LoadStoreQ::resolveAddress(DynamicNode *d) {
   if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
     return;
   }
-  if(d->type == LD || d->type == LD_PROD)
+  if(d->type == LD || d->type == LD_PROD || d->type == LLAMA)
     unresolved_ld_set.erase(d);
   else
     unresolved_st_set.erase(d);
@@ -19,7 +19,7 @@ void LoadStoreQ::insert(DynamicNode *d) {
   if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
     return;
   }
-  if(d->type == LD || d->type == LD_PROD) {
+  if(d->type == LD || d->type == LD_PROD || d->type == LLAMA) {
     lq.push_back(d);
     if(lm.find(d->addr) == lm.end())
       lm.insert(make_pair(d->addr, set<DynamicNode*,DynamicNodePointerCompare>()));
@@ -36,7 +36,7 @@ void LoadStoreQ::insert(DynamicNode *d) {
 }
 
 void LoadStoreQ::remove(DynamicNode* d) {
-  if(d->type==LD) {
+  if(d->type==LD || d->type==LLAMA) {
     ul.erase(d);
     if(lm.find(d->addr)!=lm.end()) {
       lm.at(d->addr).erase(d);
@@ -185,7 +185,7 @@ int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
       return 1;
     } 
     if(!(d->stage==LEFT_ROB)) {
-      if(in->type==LD) {
+      if(in->type==LD || in->type==LLAMA) {
         if(!d->issued) {
           return -1;
         }

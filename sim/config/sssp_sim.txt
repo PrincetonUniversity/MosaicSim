@@ -5,15 +5,16 @@
 8,num_IS #num intelligent storage tiles
 
 #Technology
-14,technology_node #tech node in nm, enter 5 or 14
+22,technology_node #tech node in nm, enter 5 or 14
 2000,chip_freq #freq in MHz
 
-#L2 Cache
+#LLC
+1,use_l2
 0,ideal_cache
 2097152,cache_size
-6,cache_latency
+24,cache_latency
 16,cache_assoc
-16,cache_linesize
+64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
 
@@ -22,12 +23,13 @@
 
 #Caching Strategies
 1,cache_by_signature
-15,partition_ratio
+7,partition_ratio
 0,perfect_llama
 0,cache_by_temperature
 0,node_degree_threshold
 
 1,record_evictions
+64,llama_cache_linesize
 
 #Memory
 #Simple DRAM Model

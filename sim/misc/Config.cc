@@ -44,7 +44,7 @@ Config::Config() {
   instr_latency[TRM_ATOMIC_FADD] = 1;
   instr_latency[TRM_ATOMIC_MIN] = 1;
   instr_latency[TRM_ATOMIC_CAS] = 1;
-
+  instr_latency[LLAMA] = -1;
   
   // # of FUs setting
   num_units[BS_DONE] = -1;
@@ -82,7 +82,8 @@ Config::Config() {
   num_units[TRM_ATOMIC_FADD] = -1;
   num_units[TRM_ATOMIC_MIN] = -1;
   num_units[TRM_ATOMIC_CAS] = -1;
-  
+  num_units[LLAMA] = -1;
+ 
   // EPI: energy_per_instr (in Joules)
   //  - measured at a Nominal Core Volt (VDD) of 1.0V - 2GHz frequency
   technology_node = 22;
@@ -114,7 +115,8 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
-  
+  energy_per_instr[technology_node][LLAMA] = 14.180625*1e-12;
+
   technology_node = 14;
   energy_per_instr[technology_node][I_ADDSUB] = 8.828181818*1e-12;
   energy_per_instr[technology_node][I_MULT]   =  27.02805642*1e-12;
@@ -144,6 +146,7 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
+  energy_per_instr[technology_node][LLAMA] = 10.31318182*1e-12;
 
   technology_node = 5;
   energy_per_instr[technology_node][I_ADDSUB] = 5.920399432*1e-12;
@@ -174,14 +177,16 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
+  energy_per_instr[technology_node][LLAMA] = 6.916277557*1e-12;
+
   technology_node = -1;
 
-  // Average L2 access energy (in Joules)
+  // Average L3 access energy (in Joules)
   //  - measured at a Nominal SRAM Volt (VCS) of 1.05V
   //  - for the following L2 config: 64 KB size, 4 ways, 64 Byte lines
-  energy_per_L2_access[22] = 7.254915576*1e-12; 
-  energy_per_L2_access[14] = 5.276302237*1e-12;
-  energy_per_L2_access[5]  = 3.538420188*1e-12;
+  energy_per_L3_access[22] = 7.254915576*1e-12; 
+  energy_per_L3_access[14] = 5.276302237*1e-12;
+  energy_per_L3_access[5]  = 3.538420188*1e-12;
   
   // Average DRAM access energy (in Joules)
   //  - DDR3 PHY at 800 MHz, 1600 MT/s
@@ -416,6 +421,15 @@ void Config::getCfg(int id, int val) {
       l2_num_prefetched_lines = 0;
     }
     break;
+  case 62:
+   l2_cache_by_temperature = val;
+   break;
+  case 63:
+   l2_node_degree_threshold = val;
+   break;
+  case 64:
+   llama_node_id = val;
+   break;
   default:
     break;
   }

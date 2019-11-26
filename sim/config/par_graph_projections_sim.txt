@@ -20,16 +20,15 @@
 
 #Eviction
 0,eviction_policy
-4,llama_cache_linesize
 
 #Caching Strategies
 1,cache_by_signature
-15,partition_ratio
+3,partition_ratio
 0,perfect_llama
 0,cache_by_temperature
 0,node_degree_threshold
 
-1,record_evictions
+0,record_evictions
 
 #Memory
 #Simple DRAM Model

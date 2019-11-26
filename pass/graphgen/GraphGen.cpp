@@ -179,6 +179,11 @@ void GraphGen::detectFunctions(Function &func) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = CORE_INTERRUPT;
             }
+            else if (f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_FADD;
+              //n->itype = LD;
+            }
             else if (f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = ATOMIC_ADD;
@@ -192,11 +197,6 @@ void GraphGen::detectFunctions(Function &func) {
             else if (f->getName().str().find("DECADES_FETCH_MIN") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = ATOMIC_MIN;
-              //n->itype = LD;
-            }
-            else if (f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
-              //errs() << "[STVAL]"<< *i << "\n";
-              n->itype = ATOMIC_FADD;
               //n->itype = LD;
             }
             else if (f->getName().str().find("desc_supply_alu_rmw_cas") != std::string::npos) {
@@ -217,7 +217,9 @@ void GraphGen::detectFunctions(Function &func) {
               n->itype = TRM_ATOMIC_FADD;
               //n->itype = LD_PROD;
             }
-           
+            else if (f->getName().str().find("DECADES_LLAMA") != std::string::npos) {
+              n->itype = LLAMA;
+            } 
           }
         }
       }

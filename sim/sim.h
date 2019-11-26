@@ -102,7 +102,6 @@ public:
   vector<DESCQ*> descq_vec;
   Barrier* barrier = new Barrier();
   Cache* cache;
-  Cache* l2_cache;
   Cache* llama_cache;
   string pythia_home;
   //every tile has a transaction priority queue

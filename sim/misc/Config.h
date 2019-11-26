@@ -6,7 +6,7 @@
 #include <assert.h>
 using namespace std;
 
-#define NUM_INST_TYPES 35
+#define NUM_INST_TYPES 36
 #define word_size_bytes  4  // TODO: allow different sizes. Now, word_size is a constant
 
 class Config {
@@ -40,7 +40,7 @@ public:
   
   // Energy variables, all in Joules
   map <int, double [NUM_INST_TYPES]> energy_per_instr;
-  map <int, double> energy_per_L2_access;
+  map <int, double> energy_per_L3_access;
   map <int, double> energy_per_DRAM_access;
   double base_freq_for_EPI = 2000;  // in Mhz
   
@@ -70,7 +70,7 @@ public:
   bool llama_ideal_cache;
   int llama_cache_size = 0;
   int llama_cache_assoc = 8;
-  int llama_cache_linesize = 64;
+  int llama_cache_linesize = 4;
   int llama_cache_load_ports;
   int llama_cache_store_ports;
   int llama_prefetch_distance = 0;
@@ -101,10 +101,13 @@ public:
   int partition_L2 = 0;
   int cache_by_temperature = 0;
   int node_degree_threshold = 0;
+  int l2_cache_by_temperature = 0;
+  int l2_node_degree_threshold = 0;
 
   int cache_by_signature = 0;
   int partition_ratio = 2;
   int perfect_llama = 0;
+  int llama_node_id = -100;
 
   int record_evictions = 0;
 
@@ -120,7 +123,8 @@ public:
                 {"eviction_policy", 42}, {"llama_eviction_policy", 43}, {"partition_L1", 44}, {"partition_L2", 45}, {"cache_by_temperature", 46}, {"node_degree_threshold", 47},
                 {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51},
                 {"use_l2", 52}, {"l2_ideal_cache", 53}, {"l2_cache_latency", 54}, {"l2_cache_size", 55}, {"l2_cache_assoc", 56}, {"l2_cache_linesize", 57}, 
-                {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}}; 
+                {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}, 
+                {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}};
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -181,6 +185,8 @@ public:
   int partition_L2 = 0;
   int cache_by_temperature = 0;
   int node_degree_threshold = 0;
+  int l2_cache_by_temperature = 0;
+  int l2_node_degree_threshold = 0;
 
   int cache_by_signature = 0;
   int partition_ratio = 2;

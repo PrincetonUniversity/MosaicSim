@@ -7,6 +7,7 @@ using namespace std;
 string dram_access="dram_accesses";
 string dram_loads="dram_loads";
 string llama_dram_access="llama_dram_accesses";
+string dram_access_count="dram_access_count";
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
@@ -38,7 +39,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     if(evictedAddr!=-1) {
 
       int cacheline_size;
-      if (evictedGraphNodeDeg == -1) {
+      if (c->cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
         cacheline_size = c->size_of_cacheline;
       } else {
         cacheline_size = 4;
@@ -46,7 +47,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
 
       assert(evictedAddr >= 0);
       stat.update("cache_evicts");
-      c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, cacheline_size));
+      c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
 
       if (sim->recordEvictions) {    
         cacheStat cache_stat;
@@ -57,7 +58,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
         cache_stat.graphNodeId = evictedGraphNodeId;
         cache_stat.graphNodeDeg = evictedGraphNodeDeg;
         cache_stat.unusedSpace = unusedSpace;
-        cache_stat.cacheLevel = 2;
+        cache_stat.cacheLevel = 3;
         sim->evictStatsVec.push_back(cache_stat); 
       } 
     }
@@ -106,21 +107,8 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
 
   }
 
-  /*MemTransaction* mt = (MemTransaction*) t;
-  if (mt) {
-    if (mt->graphNodeDeg != -1) {  
-      stat.update(llama_dram_access);
-    } else {
-      stat.update(dram_access);   
-    }
-  } else {
-    if (cacheline_size == 4) {
-      stat.update(llama_dram_access);
-    } else {
-      stat.update(dram_access);
-    }
-  }*/
   stat.update(dram_access,cacheline_size);
+  stat.update(dram_access_count);
 }
 
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
