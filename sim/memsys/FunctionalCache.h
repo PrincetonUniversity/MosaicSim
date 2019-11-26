@@ -54,7 +54,7 @@ public:
   {
     associativity = size;
     num_addresses = cache_line_size/4;
-    llama_num_addresses = cache_line_size/llama_cache_line_size/4;
+    llama_num_addresses = llama_cache_line_size/4;
     cache_by_signature = cache_by_signature_input;
     eviction_policy = eviction_policy_input;
     cache_by_temperature = cache_by_temperature_input;
@@ -66,6 +66,7 @@ public:
     if (cache_by_signature == 1) {
       normal_size = size/(partition_ratio + 1);
       llama_size = (size - normal_size)*cache_line_size/llama_cache_line_size;
+      //cout << llama_size << " " << num_addresses << " " << llama_num_addresses << endl;
       llamaEntries = new CacheLine[llama_size];
       for(int i=0; i<llama_size; i++) {
         c = &llamaEntries[i];

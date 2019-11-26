@@ -14,12 +14,12 @@
 2097152,cache_size
 24,cache_latency
 16,cache_assoc
-16,cache_linesize
+64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
 
 #Eviction
-1,eviction_policy
+2,eviction_policy
 
 #Caching Strategies
 1,cache_by_signature
@@ -28,7 +28,8 @@
 0,cache_by_temperature
 0,node_degree_threshold
 
-0,record_evictions
+1,record_evictions
+64,llama_cache_linesize
 
 #Memory
 #Simple DRAM Model
