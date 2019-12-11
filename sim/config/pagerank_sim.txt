@@ -19,7 +19,7 @@
 8,cache_store_ports
 
 #Eviction
-2,eviction_policy
+4,eviction_policy
 
 #Caching Strategies
 1,cache_by_signature
@@ -29,7 +29,7 @@
 0,node_degree_threshold
 
 1,record_evictions
-64,llama_cache_linesize
+4,llama_cache_linesize
 
 #Memory
 #Simple DRAM Model

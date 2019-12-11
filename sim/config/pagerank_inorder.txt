@@ -37,9 +37,9 @@
 2,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
-2,eviction_policy
+4,eviction_policy
 0,llama_eviction_policy
-64,llama_cache_linesize
+4,llama_cache_linesize
 
 #Caching Strategies
 0,partition_L1

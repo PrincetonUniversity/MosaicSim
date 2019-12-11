@@ -18,7 +18,7 @@
 32768,cache_size
 3,cache_latency
 8,cache_assoc
-16,cache_linesize
+64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
@@ -30,14 +30,14 @@
 262144,l2_cache_size
 6,l2_cache_latency
 8,l2_cache_assoc
-16,l2_cache_linesize
+64,l2_cache_linesize
 8,l2_cache_load_ports
 8,l2_cache_store_ports
 1,l2_prefetch_distance #distance (in num cachelines) before first prefetch
 2,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
-0,eviction_policy
+4,eviction_policy
 0,llama_eviction_policy
 4,llama_cache_linesize
 

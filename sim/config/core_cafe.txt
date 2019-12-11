@@ -5,7 +5,7 @@
 #For in order mode, set window_size to 1
 72,lsq_size
 192,window_size   #effectively, ROB size
-8,issueWidth   #num of issuable instrs per cycle
+4,issueWidth   #num of issuable instrs per cycle
 0,cf_mode   #set 1 to create all contexts at once, perfect branch prediction
 1,mem_speculate #address alias speculation
 1,mem_forward #lsq store to load forwarding

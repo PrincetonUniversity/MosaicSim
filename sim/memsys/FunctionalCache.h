@@ -46,7 +46,9 @@ public:
   int cache_by_temperature;
   int node_degree_threshold;
   int perfect_llama;
-  
+  int log_linesize;
+  int log_llama_linesize;
+ 
   int TIME;
   std::unordered_map<int, int> access_map;
 
@@ -61,6 +63,8 @@ public:
     cache_by_temperature = cache_by_temperature_input;
     node_degree_threshold = node_degree_threshold_input;
     perfect_llama = perfect_llama_input;
+    log_linesize = log2(cache_line_size);
+    log_llama_linesize = log2(llama_cache_line_size);
 
     int normal_size; // number of entries in normal list
     CacheLine *c;
@@ -125,14 +129,14 @@ public:
       return false;
     }
 
+    int index = offset >> log_llama_linesize;
     CacheLine *c;
     if (cache_by_signature == 1 && graphNodeId != -1) { 
-      c = llama_addr_map[address];
+      c = llama_addr_map[(address << (log_linesize - log_llama_linesize)) + index];
     } else {
       c = addr_map[address];
     } 
 
-    int index = offset >> 2;
     if(c) { // Hit
       deleteNode(c);
 
@@ -205,15 +209,16 @@ public:
 
     CacheLine *c;
     int eviction = 0;
-    int index = offset >> 2;
+    int index = offset >> log_llama_linesize;
+    //cout << "index = " << index << ", size = " << llamaFreeEntries[index].size() << endl;
+
     if (cache_by_signature == 1 && graphNodeId != -1) { 
-      c = llama_addr_map[address];
+      c = llama_addr_map[(address << (log_linesize - log_llama_linesize)) + index];
       if (llamaFreeEntries[index].size() == 0) {   
         eviction = 1;
       } else {
         c = llamaFreeEntries[index].back();
         llamaFreeEntries[index].pop_back();
-        cout << index << " " << llamaFreeEntries[index].size() << endl;
       }
     } else {
       c = addr_map[address];
@@ -231,18 +236,19 @@ public:
         if (eviction_policy == 2) {
           c = RRIP(llamaHeads[index], llamaTails[index], 3);
         } else {
-          CacheLine *curr = llamaHeads[index]->next;
-          cout << llamaFreeEntries[index].size() << endl;
-          cout << index << ": ";
-          while (curr != llamaTails[index]) {
+          /*
+          cout << "EVICTION AT " << index << " " << llamaTails[index]->prev->graphNodeId << endl;
+          CacheLine *curr = llamaTails[index]->prev;
+          while (curr != llamaHeads[index]) {
             cout << curr->graphNodeId << " ";
-            curr = curr->next;
+            curr = curr->prev;
           }
           cout << endl;
+          */
           c = llamaTails[index]->prev;
         }
         assert(c!=llamaHeads[index]);
-        llama_addr_map.erase(c->addr);
+        llama_addr_map.erase((c->addr << (log_linesize - log_llama_linesize)) + index);
         size = llama_num_addresses;
       } else {
         c = tail->prev; // Evict the last of the list
@@ -292,7 +298,7 @@ public:
     c->rrpv = 2;
     c->dirty = false;
     if (cache_by_signature == 1 && graphNodeId != -1) {
-      llama_addr_map[address] = c;
+      llama_addr_map[(address << (log_linesize - log_llama_linesize)) + index] = c;
     } else {
       addr_map[address] = c;
     }
@@ -305,15 +311,15 @@ public:
     if (cache_by_signature == 1) { // use evict by degree for llamas, LRU for non-llamas
       if (graphNodeDeg != -1) { // llama access
         if (eviction_policy == 0 || eviction_policy == 2) {
-          cout << "INSERTING" << endl;
+          /*
+          cout << "INSERTING " << graphNodeDeg << " AT " << index << ": ";
           CacheLine *curr = llamaHeads[index]->next;
-          cout << "size = " << llamaFreeEntries[index].size() << endl;
-          cout << index << ": ";
           while (curr != llamaTails[index]) {
             cout << curr->graphNodeId << " ";
             curr = curr->next;
           }
           cout << endl;
+          */
           insertFront(c, llamaHeads[index]);
         } else if (eviction_policy == 1) {
           insertByNumAccesses(c, llamaHeads[index], llamaTails[index]);
@@ -493,8 +499,6 @@ public:
 
   bool access(uint64_t address, int nodeId, int graphNodeId, int graphNodeDeg, bool isLoad)
   {
-    //cout << "accessing" << endl;
-    //fflush(stdout);
     if (perfect_llama == 1 && graphNodeId != -1) {
       return true;
     }
@@ -505,8 +509,6 @@ public:
     CacheSet *c = sets.at(setid);
     bool res = c->access(tag, offset, nodeId, graphNodeId, graphNodeDeg, isLoad);
 
-    //cout << "done accessing" << endl;
-    //fflush(stdout);
     return res;
   }
 
@@ -518,15 +520,13 @@ public:
     CacheSet *c = sets.at(setid);
     int64_t evictedTag = -1;
 
-    if (graphNodeId!= -1) {
+    /*if (graphNodeId!= -1) {
       cout << "inserting into " << setid << " " << set_count << endl;
-    }
+    }*/
     c->insert(tag, offset, nodeId, graphNodeId, graphNodeDeg, dirtyEvict, &evictedTag, evictedOffset, evictedNodeId, evictedGraphNodeId, evictedGraphNodeDeg, unusedSpace);
 
     if(evictedAddr && evictedTag != -1)
       *evictedAddr = evictedTag * set_count + setid;
-    //cout << "done inserting" << endl;
-    //fflush(stdout);
   }
 
   // reserved for decoupling
