@@ -227,11 +227,7 @@ void Core::initialize(int id) {
     cout << "Number of instructions is larger than the " << sim->instruction_limit << "-instruction limit. Please run the application with a smaller dataset." << endl;
     assert(false);
   }
-  //assert(false);
 }
-
-
-//extern vector<string> InstrStr;
 
 vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
 
@@ -390,11 +386,6 @@ bool Core::process() {
 void Core::deleteErasableContexts() {   
   int erasedContexts=0;
   int erasedDynamicNodes=0;
-//  int count;
-//  cout << "-------trying to erase contexts:------------------------------\n";
-//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
-//  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
-//  cout << "--  live_context_list size=" << live_context.size() << endl;
 
   int safetyWindow=100000; 
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
@@ -414,16 +405,12 @@ void Core::deleteErasableContexts() {
       *it = NULL;
     }
   }
-//  cout << "-------erased contexts: " << erasedContexts << "   erased DNs: " << erasedDynamicNodes << "----------------------\n";
-//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
-//  cout << "--  new context_list size=" << count /*context_list.size()*/ << endl;
 }
 
 void Core::calculateEnergyPower() {
   total_energy = 0.0;
   int tech_node = cfg.technology_node;
 
-  // FIX THIS: for now we only calculate the energy for IN-ORDER cores
   if(/*in order*/ ( local_cfg.window_size == 1 && local_cfg.issueWidth == 1)  || /*ASIC models*/ ( local_cfg.window_size >= 1024 && local_cfg.issueWidth >= 1024) ||  ( local_cfg.window_size < 0 && local_cfg.issueWidth < 0)) {
     
     // add Energy Per Instruction (EPI) class
@@ -439,10 +426,10 @@ void Core::calculateEnergyPower() {
     // some debug stuff
     //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
+  // IMPROVE THIS: for OoO we better integrate McPAT models here - currently we do it "off-line"
   else { //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
     //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively
     //about .5 McPAT power, which is at 2x tech node
     total_energy = 6 * cycles / (clockspeed*1e6);
-    
   }
 }
