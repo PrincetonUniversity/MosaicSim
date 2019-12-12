@@ -9,14 +9,16 @@ using namespace std;
 
 Config::Config() {
 
-  instr_latency[I_ADDSUB] = 1;
-  instr_latency[I_MULT] = 3;
-  instr_latency[I_DIV] = 8;  
-  instr_latency[I_REM] = 8;
-  instr_latency[FP_ADDSUB] = 1;
-  instr_latency[FP_MULT] = 3;
-  instr_latency[FP_DIV] = 8; 
-  instr_latency[FP_REM] = 8;
+  // latencies for Haswell (our "cafe" machine: Xeon E5 v3) from https://uops.info/
+  instr_latency[I_ADDSUB] = 1;   // ADD (R64, I32)
+  instr_latency[I_MULT] = 3;     // IMUL (R64)
+  instr_latency[I_DIV] = 37;     // IDIV (R64) 
+  instr_latency[I_REM] = 37;
+  instr_latency[FP_ADDSUB] = 3;  // ADDSS (XMM, XMM)
+  instr_latency[FP_MULT] = 5;    // MULSS (XMM, XMM)
+  instr_latency[FP_DIV] = 10;    // DIVSS (XMM, XMM)
+  instr_latency[FP_REM] = 10;
+
   instr_latency[LOGICAL] = 1;
   instr_latency[CAST] = 0;
   instr_latency[GEP] = 1;
