@@ -42,8 +42,8 @@ public:
   uint64_t cycles=0;
   void insertDN(DynamicNode* d);
   bool canIssue(DynamicNode* d);
+  void issue(DynamicNode* d);
   void process();
-  void issue();
 };
 
 

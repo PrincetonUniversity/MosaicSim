@@ -120,9 +120,10 @@ void IssueWindow::process() {
   cycles++;
 }
 
-void IssueWindow::issue() {
-  assert(issueWidth==-1 || issueCount<=issueWidth);
-  issueCount++;
+void IssueWindow::issue(DynamicNode* d) {
+  assert(issueWidth==-1 || issueCount<issueWidth);
+  if(d->type != PHI) // PHIs are not real instructions and do not waste an issue slot
+    issueCount++;
 }
 
 //handle completed memory transactions
@@ -149,7 +150,6 @@ void Core::accessComplete(MemTransaction *t) {
   }
   */
 }
-
 
 //handle completed transactions
 bool Core::ReceiveTransaction(Transaction* t) {
@@ -229,7 +229,9 @@ void Core::initialize(int id) {
   }
 }
 
-vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
+vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", 
+                         "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", 
+                         "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
 
 string Core::getInstrName(TInstr instr) {  
   return InstrStr[instr];
@@ -384,9 +386,6 @@ bool Core::process() {
 }
 
 void Core::deleteErasableContexts() {   
-  int erasedContexts=0;
-  int erasedDynamicNodes=0;
-
   int safetyWindow=100000; 
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
     Context *c = *it;
@@ -397,11 +396,9 @@ void Core::deleteErasableContexts() {
         DynamicNode *d = n_it->second;
         d->core->lsq.remove(d); //delete from LSQ
         delete d;   // delete the dynamic node
-        erasedDynamicNodes++;
       }
       // now delete the context itself
       delete c;  
-      erasedContexts++;
       *it = NULL;
     }
   }

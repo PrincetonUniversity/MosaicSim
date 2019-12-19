@@ -310,7 +310,7 @@ void Context::process() {
     }
     else {
 
-      core->window.issue();
+      core->window.issue(d);
       d->issued=true;
       if(cfg.verbLevel >= 5) {
         cout << "Cycle: " << core->cycles << " \n"; 
@@ -375,6 +375,7 @@ void Context::complete() {
     core->local_stat.update(total_instructions, completed_nodes.size());
 
     // Update activity counters
+    uint64_t num_PHIs = 0;
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;      
       
@@ -386,9 +387,16 @@ void Context::complete() {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
+      if (d->type == PHI)
+        num_PHIs++;
+      // update per-instruction counters
       stat.update(core->getInstrName(d->type));
       core->local_stat.update(core->getInstrName(d->type));
     }
+
+    // Adjust total_instructions by removing PHIs completed within this context
+    stat.update(total_instructions, -num_PHIs);
+    core->local_stat.update(total_instructions, -num_PHIs);
   }
 }
 
