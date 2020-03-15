@@ -23,7 +23,7 @@
 4,llama_cache_linesize
 
 #Caching Strategies
-1,cache_by_signature
+0,cache_by_signature
 15,partition_ratio
 0,perfect_llama
 0,cache_by_temperature
