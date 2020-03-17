@@ -103,7 +103,7 @@ public:
   Barrier* barrier = new Barrier();
   Cache* cache;
   Cache* llama_cache;
-  string pythia_home;
+  string mosaic_home;
   //every tile has a transaction priority queue
   unordered_map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
   int transq_latency=3;

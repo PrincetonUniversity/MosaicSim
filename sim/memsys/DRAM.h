@@ -37,7 +37,7 @@ public:
 //    string ini_file="/sim/config/DDR3_micron_64M_8B_x8_sg15.ini";
 //    string ini_file="/sim/config/DDR3_micron_64M_8B_x8_sg3.ini";
     
-    mem = DRAMSim::getMemorySystemInstance(sim->pythia_home+ini_file, sim->pythia_home+"/sim/config/dramsys.ini", "..", "Pythia", 65536); 
+    mem = DRAMSim::getMemorySystemInstance(sim->mosaic_home+ini_file, sim->mosaic_home+"/sim/config/dramsys.ini", "..", "MosaicSim", 65536); 
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
 
     // create simple DRAM object

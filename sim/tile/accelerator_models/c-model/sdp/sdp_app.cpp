@@ -1,3 +1,8 @@
+/*
+ * sdp_app.cpp
+ * Author: Davide Giri
+ */
+
 //
 // Test app to invoke the sdp accelerator
 //

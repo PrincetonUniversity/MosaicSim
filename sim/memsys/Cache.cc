@@ -3,12 +3,20 @@
 #include "DRAM.h"
 #include "../tile/Core.h"
 
-string l1_hits = "l1_hits";
-string l1_hits_non_prefetch = "l1_hits_non_prefetch";
-string l1_load_hits = "l1_load_hits";
-string l1_misses="l1_misses";
-string l1_misses_non_prefetch = "l1_misses_non_prefetch";
-string l1_load_misses = "l1_load_misses";
+string l1_accesses="l1_accesses"; // loads + stores
+string l1_hits="l1_hits"; // load_hits + store_hits
+string l1_misses="l1_misses"; // load_misses + store_misses
+string l1_loads="l1_loads"; // load_hits + load_misses
+string l1_load_hits="l1_load_hits";
+string l1_load_misses="l1_load_misses";
+string l1_stores="l1_stores"; // store_hits + store_misses
+string l1_store_hits="l1_store_hits";
+string l1_store_misses="l1_store_misses";
+string l1_prefetches="l1_prefetches"; // prefetch_hits + prefetch_misses
+string l1_prefetch_hits="l1_prefetch_hits";
+string l1_prefetch_misses="l1_prefetch_misses";
+string l1_total_accesses="l1_total_accesses"; // l1_accesses + l1_prefetches
+
 string l2_hits="l2_hits";
 string l2_hits_non_prefetch= "l2_hits_non_prefetch";
 string l2_load_hits = "l2_load_hits";
@@ -208,7 +216,7 @@ void Cache::execute(MemTransaction* t) {
 
   if(!ideal) {
     if (!bypassCache) {
-      res = fc->access(dramaddr, nodeId, graphNodeId, graphNodeDeg, t->isLoad);    
+      res = fc->access(dramaddr, nodeId, graphNodeId, graphNodeDeg, t->isLoad);   
     } else {
       res = false;
     }
@@ -242,7 +250,6 @@ void Cache::execute(MemTransaction* t) {
         mshr[cacheline].hit=true;
         
         TransactionComplete(t);
-
       }
       //for l2 and l3 cache
       else {
@@ -477,23 +484,27 @@ void Cache::TransactionComplete(MemTransaction *t) {
     
     //update hit/miss stats, account for each individual access
 
+    stat.update(l1_total_accesses,batch_size);
+    
     if(mshr_entry.hit) {
-      stat.update(l1_hits,batch_size);
-      core->local_stat.update(l1_hits,batch_size);
-      stat.update(l1_hits_non_prefetch,non_prefetch_size);
-      core->local_stat.update(l1_hits_non_prefetch,non_prefetch_size);
-      if(t->isLoad) {
-        stat.update(l1_load_hits,batch_size);
-        core->local_stat.update(l1_load_hits,batch_size);
+      if(t->isPrefetch) {
+        stat.update(l1_prefetch_hits,batch_size-non_prefetch_size);
+        stat.update(l1_prefetches,batch_size-non_prefetch_size);  
+      } else {
+        stat.update(l1_hits,non_prefetch_size);
+        core->local_stat.update(l1_hits,non_prefetch_size);
+        stat.update(l1_accesses,non_prefetch_size);
+        core->local_stat.update(l1_accesses,non_prefetch_size);
       }
     } else {
-      stat.update(l1_misses,batch_size);
-      core->local_stat.update(l1_misses,batch_size);
-      stat.update(l1_misses_non_prefetch,non_prefetch_size);
-      core->local_stat.update(l1_misses_non_prefetch,non_prefetch_size);
-      if(t->isLoad) {
-        stat.update(l1_load_misses,batch_size);
-        core->local_stat.update(l1_load_misses,batch_size);
+      if(t->isPrefetch) {
+        stat.update(l1_prefetch_misses,batch_size-non_prefetch_size);
+        stat.update(l1_prefetches,batch_size-non_prefetch_size);  
+      } else {
+        stat.update(l1_misses,non_prefetch_size);
+        core->local_stat.update(l1_misses,non_prefetch_size);
+        stat.update(l1_accesses,non_prefetch_size);
+        core->local_stat.update(l1_accesses,non_prefetch_size);
       }
     }
     
@@ -501,17 +512,41 @@ void Cache::TransactionComplete(MemTransaction *t) {
     for (auto it=trans_set.begin(); it!=trans_set.end(); ++it) {
       MemTransaction* curr_t=*it;
       if(!curr_t->isPrefetch) {
-
         //record statistics on non-prefetch loads/stores
         if(core->sim->debug_mode || core->sim->mem_stats_mode) {
           DynamicNode* d=curr_t->d;
           assert(d!=NULL);
           assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
           get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
-          //get<2>(entry_tuple)=mshr_entry.hit;
-                    
+          //get<2>(entry_tuple)=mshr_entry.hit;           
         }
-                
+           
+        if(mshr_entry.hit) {     
+          if(curr_t->isLoad) {
+            stat.update(l1_load_hits);
+            core->local_stat.update(l1_load_hits);
+            stat.update(l1_loads);
+            core->local_stat.update(l1_loads);
+          } else {
+            stat.update(l1_store_hits);
+            core->local_stat.update(l1_store_hits);
+            stat.update(l1_stores);
+            core->local_stat.update(l1_stores);
+          }
+        } else {
+          if(curr_t->isLoad) {
+            stat.update(l1_load_misses);
+            core->local_stat.update(l1_load_misses);
+            stat.update(l1_loads);
+            core->local_stat.update(l1_loads);
+          } else {
+            stat.update(l1_store_misses);
+            core->local_stat.update(l1_store_misses);
+            stat.update(l1_stores);
+            core->local_stat.update(l1_stores);
+          }
+        }
+
         sim->accessComplete(curr_t);
       } else { //prefetches get no callback, tied to no dynamic node
         delete curr_t;

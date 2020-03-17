@@ -30,18 +30,31 @@ public:
     registerStat("total_instructions", 0);
     registerStat("contexts", 0);
     //registerStat("accelerator_energy",0);
-    registerStat("l1_hits", 1);
-    registerStat("l1_misses", 1);
-    registerStat("l1_hits_non_prefetch", 1);
-    registerStat("l1_misses_non_prefetch", 1);
+
+    // L1 Stats
+    registerStat("l1_accesses", 1); // loads + stores
+    registerStat("l1_hits", 1); // load_hits + store_hits
+    registerStat("l1_misses", 1); // load_misses + store_misses
+    registerStat("l1_loads", 1); // load_hits + load_misses
     registerStat("l1_load_hits", 1);
     registerStat("l1_load_misses", 1);
+    registerStat("l1_stores", 1); // store_hits + store_misses
+    registerStat("l1_store_hits", 1);
+    registerStat("l1_store_misses", 1);
+    registerStat("l1_prefetches", 1); // prefetch_hits + prefetch_misses
+    registerStat("l1_prefetch_hits", 1);
+    registerStat("l1_prefetch_misses", 1);
+    registerStat("l1_total_accesses", 1); // l1_accesses + l1_prefetches
+    
+    // L2 Stats
     registerStat("l2_hits", 0);
     registerStat("l2_misses", 0);
     registerStat("l2_hits_non_prefetch", 0);
     registerStat("l2_misses_non_prefetch", 0);
     registerStat("l2_load_hits", 1);
     registerStat("l2_load_misses", 1);
+
+    // L3 Stats
     registerStat("l3_hits", 0);
     registerStat("l3_misses", 0);
     registerStat("l3_hits_non_prefetch", 0);

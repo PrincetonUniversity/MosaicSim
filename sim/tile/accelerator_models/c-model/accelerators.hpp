@@ -1,3 +1,8 @@
+/*
+ * accelerators.hpp
+ * Author: Davide Giri
+ */
+
 #ifndef _ACCELERATORS_HPP_
 #define _ACCELERATORS_HPP_
 

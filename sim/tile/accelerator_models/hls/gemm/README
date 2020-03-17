@@ -1,6 +1,0 @@
-This implementation of the matrix multiplication accelerator assumes:
-
-- second matrix has been already transposed
-- each 64-bit dma word contains two 32-bits data words
-- 32-bit float operations
-- not meant to be efficient for small matrices

@@ -1,3 +1,8 @@
+/*
+ * gemm_app.cpp
+ * Author: Davide Giri
+ */
+
 //
 // Test app to invoke the gemm accelerator
 //

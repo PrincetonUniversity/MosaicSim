@@ -1,3 +1,8 @@
+/*
+ * gemm_model.cpp
+ * Author: Davide Giri
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
@@ -12,15 +17,12 @@ void calculate_chunks(unsigned &matrix_chk, unsigned &matrix_rem, unsigned colsA
 
      // calculating the number of chunks (ceil)
      matrix_chk = colsA / GEMM_DMA_CHUNK;
-     // printf("matrix_chk: %u\n", matrix_chk);
 
      // calculating the number of cols (covered the by the chunks)
      matrix_mul = matrix_chk * GEMM_DMA_CHUNK;
-     // printf("matrix_mul: %u\n", matrix_mul);
 
      // calculating the remaining cols (size of the last chunk)
      matrix_rem = colsA - matrix_mul;
-     // printf("matrix_rem: %u\n", matrix_rem);
 
      // adding the last chunk if it is necessary
      if (matrix_rem != 0) { ++matrix_chk; }
@@ -157,26 +159,16 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 	       GEMM_DMA_CHUNK / 2, config.has_IS_tile, config_sys.dram_latency);
     load_model(cycles_load_chunk_rem, bytes_load_chunk_rem,
 	       matrix_rem / 2, config.has_IS_tile, config_sys.dram_latency);
-    // printf("cycles_load_chunk %llu, bytes_load_chunk %llu\n",
-    // 	   cycles_load_chunk, bytes_load_chunk);
-    // printf("cycles_load_chunk_rem %llu, bytes_load_chunk_rem %llu\n",
-    // 	   cycles_load_chunk_rem, bytes_load_chunk_rem);
 
     // precompute performance of computing a chunk
     compute_model(cycles_compute_chunk, GEMM_DMA_CHUNK / 2);
     compute_model(cycles_compute_chunk_rem, matrix_rem / 2);
-    // printf("cycles_compute_chunk %llu\n", cycles_compute_chunk);
-    // printf("cycles_compute_chunk_rem %llu\n", cycles_compute_chunk_rem);
 
     // precompute performance of storing a chunk
     store_model(cycles_store_chunk, bytes_store_chunk,
 		GEMM_DMA_CHUNK / 2, config_sys.dram_latency);
     store_model(cycles_store_chunk_rem, bytes_store_chunk_rem,
 		matrix_rem_store / 2, config_sys.dram_latency);
-    // printf("cycles_store_chunk %llu, bytes_store_chunk %llu\n",
-    // 	   cycles_store_chunk, bytes_store_chunk);
-    // printf("cycles_store_chunk_rem %llu, bytes_store_chunk_rem %llu\n",
-    // 	   cycles_store_chunk_rem, bytes_store_chunk_rem);
 
     for (int rA = 0; rA < config.rowsA; ++rA) {
 	for (int cB = 0; cB < config.colsB; ++cB) {
@@ -224,11 +216,6 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 	    }
 	}
     }
-
-    // printf("cycles_load: %llu, cycles_compute: %llu\n",
-    // 	   cycles_load, cycles_compute);
-    // printf("bytes_load: %llu, bytes_store: %llu\n",
-    // 	   bytes_load, bytes_store);
 
     // Execution time
     // the slowest of the three processes determines the execution time

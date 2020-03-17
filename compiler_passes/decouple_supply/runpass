@@ -1,7 +1,0 @@
-opt -S -load build/libDecoupleSupplyPass.so -decouplesupply testbench2.ll -o testbench_supply.ll
-
-# to combine to object file
-llc -filetype=obj testbench_supply.ll
-
-# makes a.out for supply
-g++ ../stubs.o testbench_supply.o

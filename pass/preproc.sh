@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#Bash script to pass to the DEC++ compiler in order for Pythia to run LLVM passes
+#Bash script to pass to the DEC++ compiler in order for MosaicSim to run LLVM passes
 #generating static data dependency graphs and dynamic trace instrumentation
 
 # First arg: llvm file to be modified (and changed in place)
@@ -15,13 +15,13 @@ TILE_NAME=$1; shift
 LINK_FLAG=$1; shift
 TILE_IDS=( "$@" );
 
-#PYTHIA_HOME=$(dirname $(realpath -s ${0}../))/..
-PYTHIA_HOME=$(realpath -s $(dirname $(realpath -s ${0}))/..)
+#MOSAIC_HOME=$(dirname $(realpath -s ${0}../))/..
+MOSAIC_HOME=$(realpath -s $(dirname $(realpath -s ${0}))/..)
 DIR_NAME=$(dirname ${CURR_PASS})
 LLVM_OUT=$(basename ${CURR_PASS})
 
 
-echo "Pythia Home: "${PYTHIA_HOME}
+echo "MosaicSim Home: "${MOSAIC_HOME}
 
 echo ${DIR_NAME}
 
@@ -37,13 +37,13 @@ done
 echo "Executing: mkdir -p ${DIR_NAME}/output_${TILE_NAME}" &&
 mkdir -p ${DIR_NAME}/output
 
-echo "Executing: cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null"
-cd ${DIR_NAME}; opt -S -instnamer -load ${PYTHIA_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
+echo "Executing: cd ${DIR_NAME}; opt -S -instnamer -load ${MOSAIC_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null"
+cd ${DIR_NAME}; opt -S -instnamer -load ${MOSAIC_HOME}/lib/libGraphGen.so -graphgen ${LLVM_OUT} > /dev/null
 
 cd -;
 
-echo "Executing: opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}"
-opt -S -instnamer -load ${PYTHIA_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}
+echo "Executing: opt -S -instnamer -load ${MOSAIC_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}"
+opt -S -instnamer -load ${MOSAIC_HOME}/lib/libRecordDynamicInfo.so -recorddynamicinfo ${CURR_PASS} -o  ${CURR_PASS}
 
 
 
@@ -58,6 +58,6 @@ rm -r ${DIR_NAME}/output
 
 if [ "$LINK_FLAG" -eq 1 ];
 then
-    echo "Executing: llvm-link -S ${PYTHIA_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}"
-    llvm-link -S ${PYTHIA_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}
+    echo "Executing: llvm-link -S ${MOSAIC_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}"
+    llvm-link -S ${MOSAIC_HOME}/tools/tracer.llvm ${CURR_PASS} -o ${CURR_PASS}
 fi

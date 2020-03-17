@@ -310,7 +310,7 @@ void Context::process() {
     }
     else {
 
-      core->window.issue();
+      core->window.issue(d);
       d->issued=true;
       if(cfg.verbLevel >= 5) {
         cout << "Cycle: " << core->cycles << " \n"; 
@@ -375,6 +375,7 @@ void Context::complete() {
     core->local_stat.update(total_instructions, completed_nodes.size());
 
     // Update activity counters
+    uint64_t num_PHIs = 0;
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;      
       
@@ -386,9 +387,16 @@ void Context::complete() {
         stat.update(bytes_write, word_size_bytes);
         core->local_stat.update(bytes_write, word_size_bytes);
       }
+      if (d->type == PHI)
+        num_PHIs++;
+      // update per-instruction counters
       stat.update(core->getInstrName(d->type));
       core->local_stat.update(core->getInstrName(d->type));
     }
+
+    // Adjust total_instructions by removing PHIs completed within this context
+    stat.update(total_instructions, -num_PHIs);
+    core->local_stat.update(total_instructions, -num_PHIs);
   }
 }
 
@@ -627,7 +635,6 @@ void DynamicNode::tryActivate() {
 }
 
 bool DynamicNode::issueCompNode() {
-  
   // check for resource (FU) availability
   if (core->available_FUs.at(n->typeInstr) != -1) {
     if (core->available_FUs.at(n->typeInstr) == 0)
@@ -661,9 +668,6 @@ bool DynamicNode::issueAccNode() {
 
 bool DynamicNode::issueMemNode() {
   //atomic operations
-
-  
-  
   
   //if you successfully acquire the lock, proceed as normal
   
@@ -766,7 +770,6 @@ bool DynamicNode::issueMemNode() {
     print(Access_Memory_Hierarchy, 5);
     core->access(this); //send to mem hierarchy
   }
- 
   return true;
 }
 
@@ -831,7 +834,6 @@ bool DynamicNode::issueDESCNode() {
   }
   
   if(can_issue) {
-
     //collect stats on runahead distance
     if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
       if(type==LD_PROD || type==SEND || type == TRM_ATOMIC_FADD || type == TRM_ATOMIC_MIN || type == TRM_ATOMIC_CAS) {
@@ -843,7 +845,6 @@ bool DynamicNode::issueDESCNode() {
           localStat.nodeId=n->id;
           core->sim->runaheadVec.push_back(localStat);
           descq->send_runahead_map.erase(desc_id);
-          
         }
         else {
           descq->send_runahead_map[desc_id] = core->cycles;
@@ -929,7 +930,6 @@ bool DynamicNode::issueDESCNode() {
     if(atomic) {
       can_exit_rob=true; //allow rob to remove this if it's the head
     }
-
   }
   return can_issue;  
 }
@@ -955,14 +955,12 @@ void DynamicNode::finishNode() {
     assert(this==bVec[0]);
     bVec.erase(bVec.begin());//remove the barrier, freeing up other instructions to issue
   }
-  
   if(type==RECV) {
     unordered_map<DynamicNode*, uint64_t>& recvLatencyMap=core->sim->recvLatencyMap;
     if(recvLatencyMap.find(this)!=recvLatencyMap.end()) {
       core->sim->total_recv_latency += core->cycles - recvLatencyMap[this];
       recvLatencyMap.erase(this); 
     }
-    
   }
   if(core->sim->debug_mode) {
     //these assertions test to make sure decoupling dependencies are maintained
@@ -1014,10 +1012,10 @@ void DynamicNode::finishNode() {
   if (core->local_cfg.cf_mode == 0 && type == TERMINATOR) {
     core->context_to_create++;    
   }
-  
   if(isMem) {      
     speculated = false;
   }
+  
   // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
   set<Node*>::iterator it;
   for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {

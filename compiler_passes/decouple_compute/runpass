@@ -1,8 +1,0 @@
-opt -S -load build/libDecoupleComputePass.so -decouplecompute testbench2.ll -o testbench_compute.ll
-
-# get objectfile 
-llc -filetype=obj testbench_compute.ll
-
-# makes a.out for compute
-g++ ../stubs.o testbench_compute.o
-

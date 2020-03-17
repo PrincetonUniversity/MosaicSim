@@ -1,0 +1,82 @@
+#!/usr/bin/env python
+
+import os
+import sys
+import argparse
+
+
+MOSAIC_HOME=os.path.dirname(os.path.realpath(os.path.realpath(__file__)+"/.."))
+MOSAIC_BIN=MOSAIC_HOME+"/bin"
+
+
+def main():
+    parser = argparse.ArgumentParser()    
+    parser.add_argument('source_directory',  nargs=1, help="Source directory containing decades_base or decades_decoupled_inplicit folders")
+    parser.add_argument("-sc","--sim_config",type=str,help="Config mode for simulator, shared L2, and DRAM. \n Options: sim_default, sim_small, sim_big", default="sim_default")
+    parser.add_argument("-cc","--core_config",type=str,help="Config mode for cores and their private L1s. \n Options: core_inorder, core_ooo, core_inorder_perfcache, core_ooo_perfcache, core_accel", default="core_inorder")
+    parser.add_argument("-n", "--num_cores", type=int, help="Number of cores to run with",default=1)
+    parser.add_argument("-d", "--decoupled", help="Flag to run in decoupled Supply/Compute mode", action='store_true')
+    parser.add_argument("-v", "--verbose", help="Flag to run in verbose mode", action='store_true')
+    parser.add_argument("-db", "--debug", help="Flag to run in debug mode; collect load and decoupling stats", action='store_true')
+    parser.add_argument("-opt", "--optmode", help="Flag to run in optimized mode. No debugging, not stats collection.", action='store_true')
+    parser.add_argument("-o", "--output", type=str, help="Output directory for MosaicSim run statistics (default is stdout for general stats and run directory for decoupling and load stats)")
+    args=parser.parse_args()
+    numcores=args.num_cores
+    #print(args.source_directory)
+    cmd=""
+    mosaic_numcores=numcores
+
+    source_directory=os.path.realpath(args.source_directory[0])
+    core_config_path=MOSAIC_HOME+"/sim/config/"+args.core_config+".txt"
+    sim_config_path=MOSAIC_HOME+"/sim/config/"+args.sim_config+".txt"
+
+    decoupled_path=source_directory+"/decades_decoupled_implicit"
+    base_path=source_directory+"/decades_base"
+    home_path=base_path
+    if args.decoupled:
+        mosaic_numcores=2*numcores
+        home_path=decoupled_path
+        
+    cmd = MOSAIC_BIN+"/sim -n "+str(mosaic_numcores)+" "+sim_config_path
+    
+    #loop through number of threads collecting args
+    for i in range(numcores):
+        compute_path=home_path+"/output_compute_"+str(i)
+        supply_path=home_path+"/output_supply_"+str(i+numcores)
+        cmd=cmd+" "+compute_path +" "+core_config_path
+
+        #hack to fix weird file renaming
+        if os.path.isfile(compute_path+"/ctrl.tx@"):
+            os.system("mv "+compute_path+"/ctrl.tx@ "+compute_path+"/ctrl.txt")
+        if os.path.isfile(compute_path+"/mem.txt@"):
+            os.system("mv "+compute_path+"/mem.txt@ "+compute_path+"/mem.txt")
+
+        if args.decoupled:
+            cmd=cmd+" "+supply_path +" "+core_config_path
+            #hack to fix weird file renaming
+            if os.path.isfile(supply_path+"/ctrl.tx@"):
+                os.system("mv "+supply_path+"/ctrl.tx@ "+supply_path+"/ctrl.txt")
+            if os.path.isfile(supply_path+"/mem.txt@"):    
+                os.system("mv "+supply_path+"/mem.txt@ "+supply_path+"/mem.txt")
+    if args.verbose:
+        cmd=cmd+" -v"
+    if args.debug:
+        #simulator needs output in debug mode
+        debug_output=""
+        if args.output is None:
+            debug_output=" -o " + os.path.realpath(".")
+        cmd=cmd+" -debug" + debug_output
+    if args.decoupled:
+        cmd=cmd+" -d"
+    if args.optmode:
+        cmd=cmd+" -opt"
+    if args.output is not None:
+        simOutput=os.path.realpath(args.output)
+        os.system("mkdir -p "+simOutput)
+        cmd=cmd+" -o "+simOutput+" > "+simOutput+"/genStats.txt"
+
+    print(cmd)
+    os.system(cmd)
+    
+if __name__=="__main__":
+    main()
