@@ -110,7 +110,7 @@ bool Cache::process() {
 
     if (isL1 && t->src_id!=-1) {
       uint64_t cacheline = t->addr/size_of_cacheline;
-      if(mshr.find(cacheline)==mshr.end()) {
+      if(mshr.find(cacheline)==mshr.end()) { //&& num_mshr_entries < mshr_size) {
         if (size > 0 || ideal) {
           if (t->isLoad) {
             stat.update(l1_primary_load_misses);
@@ -124,8 +124,9 @@ bool Cache::process() {
           mshr[cacheline]=MSHR_entry();
           mshr[cacheline].insert(t);
           mshr[cacheline].hit=0; 
+          num_mshr_entries++;
         }
-      } else {
+      } else if (mshr.find(cacheline)!=mshr.end()) {
         if (t->isLoad) {
           stat.update(l1_secondary_load_misses);
           core->local_stat.update(l1_secondary_load_misses);
@@ -137,7 +138,11 @@ bool Cache::process() {
         core->local_stat.update(l1_secondary_misses);
         mshr[cacheline].insert(t);
         continue;
-      }
+      } 
+      /*else if (mshr_size == num_mshr_entries) {
+        next_to_send.push_back(t);   
+        continue;
+      }*/ 
     }
       
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
@@ -677,6 +682,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     }
     if (size > 0 || ideal) {
       mshr.erase(cacheline); //clear mshr for that cacheline
+      num_mshr_entries--;
     }
   } else {
     int nodeId = t->d->n->id;
