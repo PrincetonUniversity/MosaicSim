@@ -27,7 +27,7 @@ Simulator::Simulator(string home) {
   cache->memInterface = memInterface;
  
   // LLAMA Cache
-  llama_cache = new Cache(cfg.cache_latency, cfg.llama_cache_linesize, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, 0, cfg.use_l2, 2, 0, cfg.cache_by_temperature, cfg.node_degree_threshold);
+  llama_cache = new Cache(cfg.cache_latency, 0, cfg.llama_cache_linesize, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, 0, cfg.use_l2, 2, 0, cfg.cache_by_temperature, cfg.node_degree_threshold);
   llama_cache->sim = this;
   llama_cache->isLLC=true;
   llama_cache->memInterface = memInterface;  
@@ -474,8 +474,11 @@ void Simulator::run() {
           issue_cycle=load_stat.issueCycle;
           return_cycle=load_stat.completeCycle;
       
-          string isHit="Miss";
-          if (load_stat.hit) {
+          string isHit="N/A";
+          //string isHit="Miss";
+          if (load_stat.hit == 0) {
+            isHit="Miss";
+          } else if (load_stat.hit == 1) {
             isHit="Hit";
           }
           string MEMOP="";
@@ -620,8 +623,11 @@ void Simulator::run() {
       issue_cycle=load_stat.issueCycle;
       return_cycle=load_stat.completeCycle;
       
-      string isHit="Miss";
-      if (load_stat.hit) {
+      string isHit="N/A";
+      //string isHit="Miss";
+      if (load_stat.hit == 0) {
+        isHit="Miss";
+      } else if (load_stat.hit == 1) {
         isHit="Hit";
       }
       string MEMOP="";

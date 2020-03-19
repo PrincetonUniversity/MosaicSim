@@ -53,6 +53,7 @@ public:
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
   int prefetch_distance=0; // number of cachelines ahead to prefetch
+  int mshr_size = 10;
 
   // l2 cache
   bool use_l2=false;
@@ -124,7 +125,7 @@ public:
                 {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51},
                 {"use_l2", 52}, {"l2_ideal_cache", 53}, {"l2_cache_latency", 54}, {"l2_cache_size", 55}, {"l2_cache_assoc", 56}, {"l2_cache_linesize", 57}, 
                 {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}, 
-                {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}};
+                {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}, {"mshr_size", 65}};
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -161,6 +162,7 @@ public:
   int cache_size;     // KB
   int cache_assoc = 8; 
   int cache_linesize = 64; // bytes
+  int mshr_size = 10;
   // l2 cache
   bool use_l2 = 0;
   bool l2_ideal_cache;

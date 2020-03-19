@@ -6,29 +6,51 @@
 string l1_accesses="l1_accesses"; // loads + stores
 string l1_hits="l1_hits"; // load_hits + store_hits
 string l1_misses="l1_misses"; // load_misses + store_misses
+string l1_primary_misses="l1_primary_misses"; // primary_load_misses + primary_store_misses
+string l1_secondary_misses="l1_secondary_misses"; // secondary_load_misses + secondary_store_misses
 string l1_loads="l1_loads"; // load_hits + load_misses
 string l1_load_hits="l1_load_hits";
 string l1_load_misses="l1_load_misses";
+string l1_primary_load_misses="l1_primary_load_misses";
+string l1_secondary_load_misses="l1_secondary_load_misses";
 string l1_stores="l1_stores"; // store_hits + store_misses
 string l1_store_hits="l1_store_hits";
 string l1_store_misses="l1_store_misses";
+string l1_primary_store_misses="l1_primary_store_misses";
+string l1_secondary_store_misses="l1_secondary_store_misses";
 string l1_prefetches="l1_prefetches"; // prefetch_hits + prefetch_misses
 string l1_prefetch_hits="l1_prefetch_hits";
 string l1_prefetch_misses="l1_prefetch_misses";
 string l1_total_accesses="l1_total_accesses"; // l1_accesses + l1_prefetches
 
-string l2_hits="l2_hits";
-string l2_hits_non_prefetch= "l2_hits_non_prefetch";
-string l2_load_hits = "l2_load_hits";
-string l2_misses="l2_misses";
-string l2_misses_non_prefetch="l2_misses_non_prefetch"; 
+string l2_accesses="l2_accesses"; // loads + stores
+string l2_hits="l2_hits"; // load_hits + store_hits
+string l2_misses="l2_misses"; // load_misses + store_misses
+string l2_loads="l2_loads"; // load_hits + load_misses
+string l2_load_hits="l2_load_hits";
 string l2_load_misses="l2_load_misses";
-string l3_hits="l3_hits";
-string l3_hits_non_prefetch= "l3_hits_non_prefetch";
-string l3_load_hits = "l3_load_hits";
-string l3_misses="l3_misses";
-string l3_misses_non_prefetch="l3_misses_non_prefetch"; 
+string l2_stores="l2_stores"; // store_hits + store_misses
+string l2_store_hits="l2_store_hits";
+string l2_store_misses="l2_store_misses";
+string l2_prefetches="l2_prefetches"; // prefetch_hits + prefetch_misses
+string l2_prefetch_hits="l2_prefetch_hits";
+string l2_prefetch_misses="l2_prefetch_misses";
+string l2_total_accesses="l2_total_accesses"; // l2_accesses + l2_prefetches
+
+string l3_accesses="l3_accesses"; // loads + stores
+string l3_hits="l3_hits"; // load_hits + store_hits
+string l3_misses="l3_misses"; // load_misses + store_misses
+string l3_loads="l3_loads"; // load_hits + load_misses
+string l3_load_hits="l3_load_hits";
 string l3_load_misses="l3_load_misses";
+string l3_stores="l3_stores"; // store_hits + store_misses
+string l3_store_hits="l3_store_hits";
+string l3_store_misses="l3_store_misses";
+string l3_prefetches="l3_prefetches"; // prefetch_hits + prefetch_misses
+string l3_prefetch_hits="l3_prefetch_hits";
+string l3_prefetch_misses="l3_prefetch_misses";
+string l3_total_accesses="l3_total_accesses"; // l3_accesses + l3_prefetches
+
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
 
@@ -66,7 +88,6 @@ void Cache::evict(uint64_t addr) {
 }
 
 bool Cache::process() {
-
   next_to_execute.clear();
   for(auto t:to_execute) {
     execute(t);
@@ -84,8 +105,41 @@ bool Cache::process() {
   
   vector<MemTransaction*> next_to_send;
   
-  for(auto it = to_send.begin(); it!= to_send.end();++it) {
+  for(auto it = to_send.begin(); it!= to_send.end();++it) { 
     MemTransaction *t = *it;
+
+    if (isL1 && t->src_id!=-1) {
+      uint64_t cacheline = t->addr/size_of_cacheline;
+      if(mshr.find(cacheline)==mshr.end()) {
+        if (size > 0 || ideal) {
+          if (t->isLoad) {
+            stat.update(l1_primary_load_misses);
+            core->local_stat.update(l1_primary_load_misses);
+          } else {
+            stat.update(l1_primary_store_misses);
+            core->local_stat.update(l1_primary_store_misses);
+          }
+          stat.update(l1_primary_misses);
+          core->local_stat.update(l1_primary_misses);
+          mshr[cacheline]=MSHR_entry();
+          mshr[cacheline].insert(t);
+          mshr[cacheline].hit=0; 
+        }
+      } else {
+        if (t->isLoad) {
+          stat.update(l1_secondary_load_misses);
+          core->local_stat.update(l1_secondary_load_misses);
+        } else {
+          stat.update(l1_secondary_store_misses);
+          core->local_stat.update(l1_secondary_store_misses);
+        }
+        stat.update(l1_secondary_misses);
+        core->local_stat.update(l1_secondary_misses);
+        mshr[cacheline].insert(t);
+        continue;
+      }
+    }
+      
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
     int cacheline_size;
     if (cacheBySignature == 0 || t->graphNodeId == -1) {
@@ -107,15 +161,13 @@ bool Cache::process() {
         sim->curr_epoch_accesses++;
         
         //it = to_send.erase(it);        
-      }
-      else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
+      } else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false, cacheline_size);
         //collect mlp stats
         sim->curr_epoch_accesses++;
         //it = to_send.erase(it);
         delete t;           
-      }
-      else {
+      } else {
         next_to_send.push_back(t);
         //++it;
       }
@@ -125,8 +177,7 @@ bool Cache::process() {
         parent_cache->addTransaction(t);
 
         //it=to_send.erase(it);
-      }
-      else {
+      } else {
         next_to_send.push_back(t);
         //++it;
       }
@@ -168,8 +219,6 @@ bool Cache::process() {
   }
   
   to_evict=next_to_evict;
-
-  
   cycles++;
 
   //reset mlp stats collection
@@ -232,12 +281,10 @@ void Cache::execute(MemTransaction* t) {
     res=false;
   }
   */
-
+  
   if (res) {
-
     //d->print("Cache Hit", 1);
-    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache
-         
+    if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache         
       if(isL1) {
 
         //don't do anything with prefetch instructions
@@ -246,10 +293,37 @@ void Cache::execute(MemTransaction* t) {
           }*/
                 
         uint64_t cacheline=t->addr/size_of_cacheline;
-        assert(mshr.find(cacheline)!=mshr.end());
-        mshr[cacheline].hit=true;
+        //assert(mshr.find(cacheline)!=mshr.end());
+        mshr[cacheline]=MSHR_entry();
+        mshr[cacheline].insert(t);
+        mshr[cacheline].hit=1;
         
         TransactionComplete(t);
+      
+        stat.update(l1_total_accesses);
+        core->local_stat.update(l1_total_accesses);
+        if(t->isPrefetch) {
+          stat.update(l1_prefetch_hits);
+          core->local_stat.update(l1_prefetch_hits);
+          stat.update(l1_prefetches);
+          core->local_stat.update(l1_prefetches);  
+        } else {    
+          stat.update(l1_hits);
+          core->local_stat.update(l1_hits);
+          if(t->isLoad) {
+            stat.update(l1_load_hits);
+            core->local_stat.update(l1_load_hits);
+            stat.update(l1_loads);
+            core->local_stat.update(l1_loads);
+          } else {
+            stat.update(l1_store_hits);
+            core->local_stat.update(l1_store_hits);
+            stat.update(l1_stores);
+            core->local_stat.update(l1_stores);
+          }
+          stat.update(l1_accesses);
+          core->local_stat.update(l1_accesses);
+        }
       }
       //for l2 and l3 cache
       else {
@@ -304,81 +378,131 @@ void Cache::execute(MemTransaction* t) {
             sim->evictStatsVec.push_back(cache_stat);  
           }        
         }
+        
         child_cache->TransactionComplete(t);
 
         if (isLLC && useL2) {
-          stat.update(l3_hits);
-          if(!t->isPrefetch) {
-            stat.update(l3_hits_non_prefetch);
-          }
-          if(t->isLoad) {
-            stat.update(l3_load_hits);
+          stat.update(l3_total_accesses);
+          if(t->isPrefetch) {
+            stat.update(l3_prefetch_hits);
+            stat.update(l3_prefetches);
+          } else {
+            stat.update(l3_hits);
+            if(t->isLoad) {
+              stat.update(l3_load_hits);
+              stat.update(l3_loads);
+            } else {
+              stat.update(l3_store_hits);
+              stat.update(l3_stores);
+            }
+            stat.update(l3_accesses);
           }
         } else {
-          stat.update(l2_hits);
-          if(!t->isPrefetch) {
-            stat.update(l2_hits_non_prefetch);
-          }
-          if(t->isLoad) {
-            stat.update(l2_load_hits);
+          stat.update(l2_total_accesses);
+          if(t->isPrefetch) {
+            stat.update(l2_prefetch_hits);
+            stat.update(l2_prefetches);
+          } else {
+            stat.update(l2_hits);
+            if(t->isLoad) {
+              stat.update(l2_load_hits);
+              stat.update(l2_loads);
+            } else {
+              stat.update(l2_store_hits);
+              stat.update(l2_stores);
+            }
+            stat.update(l2_accesses);
           }
         }
-      }
-          
-      
-    }
-    else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
+      }       
+    } else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
       delete t; 
     }
-
   } //misses
   else {
     if(isL1) {
-      //do nothing, MSHR entry is set to miss by default   
-    } else if (isLLC && useL2) {
-      stat.update(l3_misses);
-      if(!t->isPrefetch) {
-        stat.update(l3_misses_non_prefetch);
+      stat.update(l1_total_accesses);
+      core->local_stat.update(l1_total_accesses);
+      if(t->isPrefetch) {
+        stat.update(l1_prefetch_misses);
+        core->local_stat.update(l1_prefetch_misses);
+        stat.update(l1_prefetches);
+        core->local_stat.update(l1_prefetches);  
+      } else {    
+        stat.update(l1_misses);
+        core->local_stat.update(l1_misses);
+        if(t->isLoad) {
+          stat.update(l1_load_misses);
+          core->local_stat.update(l1_load_misses);
+          stat.update(l1_loads);
+          core->local_stat.update(l1_loads);
+        } else {
+          stat.update(l1_store_misses);
+          core->local_stat.update(l1_store_misses);
+          stat.update(l1_stores);
+          core->local_stat.update(l1_stores);
+        }
+        stat.update(l1_accesses);
+        core->local_stat.update(l1_accesses);
       }
-      if(t->isLoad) {
-        stat.update(l3_load_misses);
+    } else if (isLLC && useL2) {
+      stat.update(l3_total_accesses);
+      if(t->isPrefetch) {
+        stat.update(l3_prefetch_misses);
+        stat.update(l3_prefetches);
+      } else {
+        stat.update(l3_misses);
+        if(t->isLoad) {
+          stat.update(l3_load_misses);
+          stat.update(l3_loads);
+        } else {
+          stat.update(l3_store_misses);
+          stat.update(l3_stores);
+        }
+        stat.update(l3_accesses);
       }
     } else {
-      stat.update(l2_misses);
-      if(!t->isPrefetch) {
-        stat.update(l2_misses_non_prefetch);
-      }
-      if(t->isLoad) {
-        stat.update(l2_load_misses);
+      stat.update(l2_total_accesses);
+      if(t->isPrefetch) {
+        stat.update(l2_prefetch_misses);
+        stat.update(l2_prefetches);
+      } else {
+        stat.update(l2_misses);
+        if(t->isLoad) {
+          stat.update(l2_load_misses);
+          stat.update(l2_loads);
+        } else {
+          stat.update(l2_store_misses);
+          stat.update(l2_stores);
+        }
+        stat.update(l2_accesses);
       }
     }
  
     to_send.push_back(t); //send higher up in hierarchy
     //d->print(Cache Miss, 1);
-    //if(!t->isPrefetch) {
-    
+    //if(!t->isPrefetch) {    
     //}
   }
-
 }
 
 void Cache::addTransaction(MemTransaction *t) {
-  if(isL1 && t->src_id!=-1) { //not eviction
+  /*if(isL1 && t->src_id!=-1) { //not eviction
     uint64_t cacheline = t->addr/size_of_cacheline;
     if(mshr.find(cacheline)==mshr.end()) {
       if (size > 0 || ideal) {
         mshr[cacheline]=MSHR_entry();
       }
-      pq.push(make_pair(t, cycles+latency));
-      //add transaction only if it's the 1st
+      pq.push(make_pair(t, cycles+latency)); //add transaction only if it's the 1st
     }
     if (size > 0 || ideal) {
       mshr[cacheline].insert(t); 
     }
-  }
-  else {
+  } else {
      pq.push(make_pair(t, cycles+latency));
-  }
+  }*/
+
+  pq.push(make_pair(t, cycles+latency));
   stat.update(cache_access);
   if(t->isLoad)
     free_load_ports--;
@@ -460,34 +584,33 @@ bool Cache::willAcceptTransaction(MemTransaction *t) {
 }
 
 void Cache::TransactionComplete(MemTransaction *t) { 
-  
   if(isL1) {
     
     uint64_t cacheline=t->addr/size_of_cacheline;
 
     //should be part of an mshr entry
-    if((size > 0 || ideal) && mshr.find(cacheline)==mshr.end()) {
+    // ANINDA COMMENT
+    /*if((size > 0 || ideal) && mshr.find(cacheline)==mshr.end()) {
       assert(false);
-    }
+    }*/
     
     MSHR_entry mshr_entry;
     if (size > 0 || ideal) {
       mshr_entry=mshr[cacheline];
     } else {
       mshr_entry=MSHR_entry();
-      mshr_entry.insert(t);
     }
 
     auto trans_set=mshr_entry.opset;
-    int batch_size=trans_set.size();
-    int non_prefetch_size=mshr_entry.non_prefetch_size;
+    //int batch_size=trans_set.size();
+    //int non_prefetch_size=mshr_entry.non_prefetch_size;
     
     //update hit/miss stats, account for each individual access
 
-    stat.update(l1_total_accesses,batch_size);
+    /*stat.update(l1_total_accesses,batch_size);
     
     if(mshr_entry.hit) {
-      if(t->isPrefetch) {
+      if(t->isprefetch) {
         stat.update(l1_prefetch_hits,batch_size-non_prefetch_size);
         stat.update(l1_prefetches,batch_size-non_prefetch_size);  
       } else {
@@ -497,7 +620,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
         core->local_stat.update(l1_accesses,non_prefetch_size);
       }
     } else {
-      if(t->isPrefetch) {
+      if(t->isprefetch) {
         stat.update(l1_prefetch_misses,batch_size-non_prefetch_size);
         stat.update(l1_prefetches,batch_size-non_prefetch_size);  
       } else {
@@ -506,7 +629,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
         stat.update(l1_accesses,non_prefetch_size);
         core->local_stat.update(l1_accesses,non_prefetch_size);
       }
-    }
+    }*/
     
     //process callback for each individual transaction in batch
     for (auto it=trans_set.begin(); it!=trans_set.end(); ++it) {
@@ -521,7 +644,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
           //get<2>(entry_tuple)=mshr_entry.hit;           
         }
            
-        if(mshr_entry.hit) {     
+        /*if(mshr_entry.hit) {     
           if(curr_t->isLoad) {
             stat.update(l1_load_hits);
             core->local_stat.update(l1_load_hits);
@@ -545,7 +668,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
             stat.update(l1_stores);
             core->local_stat.update(l1_stores);
           }
-        }
+        }*/
 
         sim->accessComplete(curr_t);
       } else { //prefetches get no callback, tied to no dynamic node

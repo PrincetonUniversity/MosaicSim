@@ -432,6 +432,9 @@ void Config::getCfg(int id, int val) {
   case 64:
    llama_node_id = val;
    break;
+  case 65:
+   mshr_size = val;
+   break;
   default:
     break;
   }

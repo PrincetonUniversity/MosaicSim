@@ -66,6 +66,7 @@ public:
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
   
   int size;
+  int mshr_size;
   int latency;
   int size_of_cacheline;
   int load_ports;
@@ -81,14 +82,14 @@ public:
   FunctionalCache *fc;
 
   Cache(Config cache_cfg):
-    size(cache_cfg.cache_size), latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), cacheBySignature(cache_cfg.cache_by_signature), useL2(cache_cfg.use_l2) {
+    size(cache_cfg.cache_size), mshr_size(cache_cfg.mshr_size), latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), cacheBySignature(cache_cfg.cache_by_signature), useL2(cache_cfg.use_l2) {
     fc = new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize, cache_cfg.llama_cache_linesize, cache_cfg.cache_by_signature, cache_cfg.partition_ratio, cache_cfg.perfect_llama, cache_cfg.eviction_policy, cache_cfg.cache_by_temperature, cache_cfg.node_degree_threshold);
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }
 
-  Cache(int latency, int linesize, int llama_linesize, int load_ports, int store_ports, bool ideal, int prefetch_distance, int num_prefetched_lines, int size, int assoc, int eviction_policy, int cache_by_signature, int use_l2, int partition_ratio, int perfect_llama, int cache_by_temperature, int node_degree_threshold):
-    size(size), latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal),  prefetch_distance(prefetch_distance), num_prefetched_lines(num_prefetched_lines), cacheBySignature(cache_by_signature), useL2(use_l2) {
+  Cache(int latency, int mshr_size, int linesize, int llama_linesize, int load_ports, int store_ports, bool ideal, int prefetch_distance, int num_prefetched_lines, int size, int assoc, int eviction_policy, int cache_by_signature, int use_l2, int partition_ratio, int perfect_llama, int cache_by_temperature, int node_degree_threshold):
+    size(size), mshr_size(mshr_size), latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal),  prefetch_distance(prefetch_distance), num_prefetched_lines(num_prefetched_lines), cacheBySignature(cache_by_signature), useL2(use_l2) {
     fc = new FunctionalCache(size, assoc, linesize, llama_linesize, cache_by_signature, partition_ratio, perfect_llama, eviction_policy, cache_by_temperature, node_degree_threshold);
     free_load_ports = load_ports;
     free_store_ports = store_ports;

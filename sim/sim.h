@@ -51,7 +51,7 @@ struct loadStat {
   TInstr type;
   long long issueCycle;
   long long completeCycle;
-  bool hit;
+  int hit;
   int nodeId;
   int graphNodeId;
   int graphNodeDeg;

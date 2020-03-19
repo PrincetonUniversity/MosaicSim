@@ -214,7 +214,7 @@ void Core::initialize(int id) {
   partition_L2 = local_cfg.partition_L2;
   
   // Set up caches
-  l2_cache = new Cache(local_cfg.l2_cache_latency, local_cfg.l2_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_size, local_cfg.l2_cache_assoc, local_cfg.eviction_policy, local_cfg.cache_by_signature, local_cfg.use_l2, local_cfg.partition_ratio, local_cfg.perfect_llama, local_cfg.l2_cache_by_temperature, local_cfg.l2_node_degree_threshold);
+  l2_cache = new Cache(local_cfg.l2_cache_latency, local_cfg.mshr_size, local_cfg.l2_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_size, local_cfg.l2_cache_assoc, local_cfg.eviction_policy, local_cfg.cache_by_signature, local_cfg.use_l2, local_cfg.partition_ratio, local_cfg.perfect_llama, local_cfg.l2_cache_by_temperature, local_cfg.l2_node_degree_threshold);
   l2_cache->sim = sim;
   l2_cache->parent_cache=sim->cache;
   l2_cache->memInterface = sim->memInterface;
@@ -232,7 +232,7 @@ void Core::initialize(int id) {
   lsq.mem_speculate=local_cfg.mem_speculate;
   
   // Set up LLAMA cache
-  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.llama_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, 0, local_cfg.use_l2, 2, 0, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
+  llama_cache = new Cache(local_cfg.cache_latency, local_cfg.mshr_size, local_cfg.llama_cache_linesize, local_cfg.llama_cache_linesize, local_cfg.llama_cache_load_ports, local_cfg.llama_cache_store_ports, local_cfg.llama_ideal_cache, local_cfg.llama_prefetch_distance, local_cfg.llama_num_prefetched_lines, local_cfg.llama_cache_size, local_cfg.llama_cache_assoc, local_cfg.llama_eviction_policy, 0, local_cfg.use_l2, 2, 0, local_cfg.cache_by_temperature, local_cfg.node_degree_threshold);
   llama_cache->core=this;
   llama_cache->sim = sim;
   if (partition_L2 == 1) {
@@ -288,7 +288,7 @@ void Core::initialize(int id) {
 //vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS", "LLAMA"};
 vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", 
                          "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", 
-                         "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
+                         "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS", "LLAMA"};
 
 string Core::getInstrName(TInstr instr) {  
   return InstrStr[instr];
