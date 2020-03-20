@@ -368,9 +368,9 @@ void Simulator::run() {
 
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   last_time = Clock::now();  
-  while(simulate > 0) {
+  while(simulate > 0 || load_stats_map.size() > 0) {
 
-    if(simulate==0) {
+    if(simulate==0 && load_stats_map.size() == 0) { // ANINDA: ADDED IN LOAD STATS MAP CHECK
       break;
     }
     for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
@@ -549,6 +549,7 @@ void Simulator::run() {
     }
     cycles++;
   }
+  
   cout << "[SIM] ------- End of Simulation!!! ------------------------" << endl << endl;
 
   // print stats for each mosaic tile
@@ -806,7 +807,7 @@ void Simulator::calculateGlobalEnergyPower() {
 
   // Add the DRAM energy
   //Note: dram_accesses is on a cache line granularity
-  double DRAM_energy = stat.get("dram_access_count") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
+  double DRAM_energy = stat.get("dram_accesses") * cfg.energy_per_DRAM_access.at(cfg.technology_node);
   stat.global_energy += DRAM_energy;
 
   // For Luwa: 

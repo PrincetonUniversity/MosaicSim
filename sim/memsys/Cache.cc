@@ -22,6 +22,7 @@ string l1_prefetches="l1_prefetches"; // prefetch_hits + prefetch_misses
 string l1_prefetch_hits="l1_prefetch_hits";
 string l1_prefetch_misses="l1_prefetch_misses";
 string l1_total_accesses="l1_total_accesses"; // l1_accesses + l1_prefetches
+string l1_evicts="l1_evicts";
 
 string l2_accesses="l2_accesses"; // loads + stores
 string l2_hits="l2_hits"; // load_hits + store_hits
@@ -36,6 +37,7 @@ string l2_prefetches="l2_prefetches"; // prefetch_hits + prefetch_misses
 string l2_prefetch_hits="l2_prefetch_hits";
 string l2_prefetch_misses="l2_prefetch_misses";
 string l2_total_accesses="l2_total_accesses"; // l2_accesses + l2_prefetches
+string l2_evicts="l2_evicts";
 
 string l3_accesses="l3_accesses"; // loads + stores
 string l3_hits="l3_hits"; // load_hits + store_hits
@@ -50,6 +52,7 @@ string l3_prefetches="l3_prefetches"; // prefetch_hits + prefetch_misses
 string l3_prefetch_hits="l3_prefetch_hits";
 string l3_prefetch_misses="l3_prefetch_misses";
 string l3_total_accesses="l3_total_accesses"; // l3_accesses + l3_prefetches
+string l3_evicts="l3_evicts";
 
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
@@ -354,6 +357,11 @@ void Cache::execute(MemTransaction* t) {
           
           assert(evictedAddr >= 0);
           stat.update(cache_evicts);
+          if (child_cache->isL1) {
+            stat.update(l1_evicts);
+          } else {
+            stat.update(l2_evicts);
+          }
           
           int cacheline_size;
           if (cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
@@ -708,6 +716,11 @@ void Cache::TransactionComplete(MemTransaction *t) {
     if(evictedAddr!=-1) {
       assert(evictedAddr >= 0);
       stat.update(cache_evicts);
+      if (c->isL1) {
+        stat.update(l1_evicts);
+      } else {
+        stat.update(l2_evicts);
+      }
 
       int cacheline_size;
       if (cacheBySignature == 0 || evictedGraphNodeDeg == -1) {

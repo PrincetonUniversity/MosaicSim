@@ -260,7 +260,11 @@ void Context::process() {
 
   for (auto it = issue_set.begin(); it!= issue_set.end();) {
    
+    //printf("before\n");
+    //fflush(stdout);
     DynamicNode *d = *it;
+    //printf("after\n");
+    //fflush(stdout);
     
     if(window_full) {     
       if (issue_stats_mode) {

@@ -247,7 +247,7 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
     return -1;
   }
-  bool speculative = false;    
+  bool speculative = false;   
   if(sm.find(in->addr) == sm.end())
     return -1;
   set<DynamicNode*, DynamicNodePointerCompare> &s = sm.at(in->addr);

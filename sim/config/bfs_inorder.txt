@@ -45,7 +45,7 @@
 0,partition_L1
 0,partition_L2
 
-1,cache_by_signature
+0,cache_by_signature
 7,partition_ratio
 0,perfect_llama
 0,cache_by_temperature

@@ -4,10 +4,10 @@
 using namespace std;
 #define UNUSED 0
 
-string dram_access="dram_accesses";
+string dram_accesses="dram_accesses";
 string dram_loads="dram_loads";
-string llama_dram_access="llama_dram_accesses";
-string dram_access_count="dram_access_count";
+string dram_stores="dram_stores";
+string dram_bytes_accessed="dram_bytes_accessed";
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
@@ -48,6 +48,11 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
       assert(evictedAddr >= 0);
       stat.update("cache_evicts");
       c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
+      if (c->useL2) {
+        stat.update("l3_evicts");
+      } else {
+        stat.update("l2_evicts");
+      }
 
       if (sim->recordEvictions) {    
         cacheStat cache_stat;
@@ -94,8 +99,8 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       }
      }
      outstanding_read_map.at(addr).push(t);
-  }
-  else { //write
+     stat.update(dram_loads);
+  } else { //write
     
     assert(isLoad == false);
     if(cfg.SimpleDRAM) {
@@ -105,10 +110,11 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       mem->addTransaction(true, addr);
     }
 
+    stat.update(dram_stores);
   }
 
-  stat.update(dram_access,cacheline_size);
-  stat.update(dram_access_count);
+  stat.update(dram_accesses);
+  stat.update(dram_bytes_accessed,cacheline_size);
 }
 
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
