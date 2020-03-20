@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream> 
+#include <limits>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -433,7 +434,11 @@ void Config::getCfg(int id, int val) {
    llama_node_id = val;
    break;
   case 65:
-   mshr_size = val;
+   if (val == -1) {
+     mshr_size = numeric_limits<int>::max();
+   } else {
+     mshr_size = val;
+   }
    break;
   default:
     break;
