@@ -8,17 +8,19 @@ string dram_accesses="dram_accesses";
 string dram_loads="dram_loads";
 string dram_stores="dram_stores";
 string dram_bytes_accessed="dram_bytes_accessed";
+
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
   assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
 
   if(UNUSED)
     cout << id << clock_cycle;
+
   queue<Transaction*> &q = outstanding_read_map.at(addr);
+
   while(q.size() > 0) {
     
     MemTransaction* t = static_cast<MemTransaction*>(q.front());
-
     int nodeId = t->d->n->id;
     int graphNodeId = t->graphNodeId;
     int graphNodeDeg = t->graphNodeDeg;
@@ -82,7 +84,6 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
 }
 
 void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size) {
-  
   if(isLoad) 
     free_load_ports--;
   else
@@ -90,8 +91,7 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
   if(t!= NULL) {
      if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
       outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));      
-      if(cfg.SimpleDRAM) {
-       
+      if(cfg.SimpleDRAM) {       
         simpleDRAM->addTransaction(false,addr);
       }
       else {
@@ -101,7 +101,6 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
      outstanding_read_map.at(addr).push(t);
      stat.update(dram_loads);
   } else { //write
-    
     assert(isLoad == false);
     if(cfg.SimpleDRAM) {
       simpleDRAM->addTransaction(true, addr);
@@ -109,10 +108,8 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
     else {
       mem->addTransaction(true, addr);
     }
-
     stat.update(dram_stores);
   }
-
   stat.update(dram_accesses);
   stat.update(dram_bytes_accessed,cacheline_size);
 }

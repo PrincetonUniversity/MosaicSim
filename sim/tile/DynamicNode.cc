@@ -519,7 +519,7 @@ void DynamicNode::print(string str, int level) {
     cout << (*this) << str << endl;
 }
 void DynamicNode::handleMemoryReturn() {
-      //update load latency stats
+  //update load latency stats
   if(core->sim->debug_mode || core->sim->mem_stats_mode) {
     
     assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
@@ -545,7 +545,6 @@ void DynamicNode::handleMemoryReturn() {
     }
 
     //copy into loads stats vector
-    
     loadStat load_stat;
     load_stat.addr=addr;
     load_stat.type=type;

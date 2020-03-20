@@ -86,7 +86,7 @@ int main(int argc, char const *argv[]) {
     while(argc > arg_index) {
       string curr_arg(argv[arg_index++]);
       if(curr_arg == "-v") {
-        cfg.verbLevel = 2;
+        cfg.verbLevel = 7;
         cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
       }
       else if(curr_arg == "-d") {

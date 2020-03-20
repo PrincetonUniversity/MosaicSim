@@ -368,11 +368,8 @@ void Simulator::run() {
 
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   last_time = Clock::now();  
-  while(simulate > 0 || load_stats_map.size() > 0) {
+  while(simulate > 0) {
 
-    if(simulate==0 && load_stats_map.size() == 0) { // ANINDA: ADDED IN LOAD STATS MAP CHECK
-      break;
-    }
     for (auto it=tiles.begin(); it!=tiles.end(); ++it) {
     
       Tile* tile = it->second;
@@ -413,14 +410,17 @@ void Simulator::run() {
         rejected_transactions.clear();
         
         //use same clockspeed as 1st tile (probably a core)
-        if(tile->id==0) {
-          cache->process();       
-          llama_cache->process(); 
-          memInterface->process();                  
-        }                
+        //if(tile->id==0) {        // JLA
+        //  cache->process();       
+        //  llama_cache->process(); 
+        //  memInterface->process();                  
+        //}                
       }
     }
-    simulate = accumulate(processVec.begin(), processVec.end(), 0);
+    // simulation will continue while there is work to do on tiles or the LLC 
+    simulate = accumulate(processVec.begin(), processVec.end(), 0) || 
+               cache->process() || llama_cache->process();
+    memInterface->process();                  
     
     // Print GLOBAL stats every "stat.printInterval" cycles
     if(tiles[0]->cycles % stat.printInterval == 0 && tiles[0]->cycles !=0) {
