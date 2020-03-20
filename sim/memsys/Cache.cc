@@ -113,7 +113,7 @@ bool Cache::process() {
 
     if (isL1 && t->src_id!=-1) {
       uint64_t cacheline = t->addr/size_of_cacheline;
-      if(mshr.find(cacheline)==mshr.end()) { // && num_mshr_entries < mshr_size) {
+      if(mshr.find(cacheline)==mshr.end() && num_mshr_entries < mshr_size) {
         if (size > 0 || ideal) {
           if (t->isLoad) {
             stat.update(l1_primary_load_misses);
@@ -142,10 +142,10 @@ bool Cache::process() {
         mshr[cacheline].insert(t);
         continue;
       } 
-      /*else if (mshr_size == num_mshr_entries) {
+      else if (mshr_size == num_mshr_entries) {
         next_to_send.push_back(t);   
         continue;
-      }*/ 
+      }
     }
       
     uint64_t dramaddr = t->addr/size_of_cacheline * size_of_cacheline;
