@@ -22,7 +22,7 @@
 8,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
 0,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
-16,mshr_size
+30,mshr_size
 
 #L2 Cache
 1,use_l2

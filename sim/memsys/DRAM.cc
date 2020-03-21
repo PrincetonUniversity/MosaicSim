@@ -99,7 +99,11 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       }
      }
      outstanding_read_map.at(addr).push(t);
-     stat.update(dram_loads);
+     if (isLoad) {
+       stat.update(dram_loads);
+     } else {
+       stat.update(dram_stores);
+     }
   } else { //write
     assert(isLoad == false);
     if(cfg.SimpleDRAM) {

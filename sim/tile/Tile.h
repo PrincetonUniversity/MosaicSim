@@ -79,6 +79,7 @@ public:
 
   uint64_t addr;
   bool isLoad;
+  bool checkMSHR = false;
   bool isPrefetch = false;
   bool issuedPrefetch = false;
   int graphNodeId;

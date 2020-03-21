@@ -411,16 +411,15 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {        // JLA
-          cache->process();       
-          llama_cache->process(); 
+          bool cache_process = cache->process();       
+          bool llama_cache_process = llama_cache->process(); 
+          simulate = cache_process || llama_cache_process;
           memInterface->process();                  
         }                
       }
     }
     // simulation will continue while there is work to do on tiles or the LLC 
-    simulate = accumulate(processVec.begin(), processVec.end(), 0); 
-//|| cache->process() || llama_cache->process();
-    //memInterface->process();                  
+    simulate = simulate || load_stats_map.size() > 0 || accumulate(processVec.begin(), processVec.end(), 0); 
     
     // Print GLOBAL stats every "stat.printInterval" cycles
     if(tiles[0]->cycles % stat.printInterval == 0 && tiles[0]->cycles !=0) {

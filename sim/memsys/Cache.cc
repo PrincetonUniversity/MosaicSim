@@ -111,7 +111,7 @@ bool Cache::process() {
   for(auto it = to_send.begin(); it!= to_send.end(); ++it) { 
     MemTransaction *t = *it;
 
-    if (isL1 && t->src_id!=-1) {
+    if (isL1 && t->src_id!=-1 && t->checkMSHR) {
       uint64_t cacheline = t->addr/size_of_cacheline;
       if(mshr.find(cacheline)==mshr.end() && num_mshr_entries < mshr_size) {
         if (size > 0 || ideal) {
@@ -128,6 +128,7 @@ bool Cache::process() {
           mshr[cacheline].insert(t);
           mshr[cacheline].hit=0; 
           num_mshr_entries++;
+          t->checkMSHR=false;
         }
       } else if (mshr.find(cacheline)!=mshr.end()) {
         if (t->isLoad) {
@@ -140,10 +141,12 @@ bool Cache::process() {
         stat.update(l1_secondary_misses);
         core->local_stat.update(l1_secondary_misses);
         mshr[cacheline].insert(t);
+        t->checkMSHR=false;
         continue;
       } 
       else if (mshr_size == num_mshr_entries) {
-        next_to_send.push_back(t);   
+        t->checkMSHR=true;   
+        next_to_send.push_back(t);
         continue;
       }
     }
@@ -289,7 +292,7 @@ void Cache::execute(MemTransaction* t) {
     res=false;
   }
   */
-  
+ 
   if (res) {
     //d->print("Cache Hit", 1);
     if(t->src_id!=-1) { //just normal hit, not an eviction from lower cache         
@@ -301,11 +304,11 @@ void Cache::execute(MemTransaction* t) {
           }*/
                 
         uint64_t cacheline=t->addr/size_of_cacheline;
-        //assert(mshr.find(cacheline)!=mshr.end());
         mshr[cacheline]=MSHR_entry();
         mshr[cacheline].insert(t);
         mshr[cacheline].hit=1;
         
+        //assert(mshr.find(cacheline)!=mshr.end());
         TransactionComplete(t);
       
         stat.update(l1_total_accesses);
@@ -458,6 +461,7 @@ void Cache::execute(MemTransaction* t) {
         stat.update(l1_accesses);
         core->local_stat.update(l1_accesses);
       }
+      t->checkMSHR=true;
     } else if (isLLC && useL2) {
       stat.update(l3_total_accesses);
       if(t->isPrefetch) {
@@ -607,17 +611,12 @@ void Cache::TransactionComplete(MemTransaction *t) {
       assert(false);
     }*/
     
-    MSHR_entry mshr_entry;
+    /*MSHR_entry mshr_entry;
     if (size > 0 || ideal) {
       mshr_entry=mshr[cacheline];
-    } else {
-      mshr_entry=MSHR_entry();
-    }
+    } 
+    }*/
 
-    auto trans_set=mshr_entry.opset;
-    //int batch_size=trans_set.size();
-    //int non_prefetch_size=mshr_entry.non_prefetch_size;
-    
     //update hit/miss stats, account for each individual access
 
     /*stat.update(l1_total_accesses,batch_size);
@@ -644,18 +643,31 @@ void Cache::TransactionComplete(MemTransaction *t) {
       }
     }*/
     
-    //process callback for each individual transaction in batch
-    for (auto it=trans_set.begin(); it!=trans_set.end(); ++it) {
-      MemTransaction* curr_t=*it;
-      if(!curr_t->isPrefetch) {
-        //record statistics on non-prefetch loads/stores
-        if(core->sim->debug_mode || core->sim->mem_stats_mode) {
-          DynamicNode* d=curr_t->d;
-          assert(d!=NULL);
-          assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
-          get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
-          //get<2>(entry_tuple)=mshr_entry.hit;           
-        }
+    if (mshr.find(cacheline) == mshr.end()) {
+      if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+        DynamicNode* d=t->d;
+        assert(d!=NULL);
+        assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+        get<2>(core->sim->load_stats_map[d])=1;
+      } 
+    } else if (size > 0 || ideal) {
+      MSHR_entry mshr_entry = mshr[cacheline];
+      auto trans_set=mshr_entry.opset;
+      //int batch_size=trans_set.size();
+      //int non_prefetch_size=mshr_entry.non_prefetch_size;
+    
+      //process callback for each individual transaction in batch
+      for (auto it=trans_set.begin(); it!=trans_set.end(); ++it) {
+        MemTransaction* curr_t=*it;
+        if(!curr_t->isPrefetch) {
+          //record statistics on non-prefetch loads/stores
+          if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+            DynamicNode* d=curr_t->d;
+            assert(d!=NULL);
+            assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+            get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
+            //get<2>(entry_tuple)=mshr_entry.hit;           
+          }
            
         /*if(mshr_entry.hit) {     
           if(curr_t->isLoad) {
@@ -683,15 +695,12 @@ void Cache::TransactionComplete(MemTransaction *t) {
           }
         }*/
 
-        sim->accessComplete(curr_t);
-      } else { //prefetches get no callback, tied to no dynamic node
-        delete curr_t;
-      }   
-    }
-    if (size > 0 || ideal) {
-      if (mshr_entry.hit == 0) {
-        num_mshr_entries--;
+          sim->accessComplete(curr_t);
+        } else { //prefetches get no callback, tied to no dynamic node
+          delete curr_t;
+        }   
       }
+      num_mshr_entries--;
       mshr.erase(cacheline); //clear mshr for that cacheline
     }
   } else {
