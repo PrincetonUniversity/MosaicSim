@@ -113,7 +113,8 @@ bool Cache::process() {
 
     if (isL1 && t->src_id!=-1 && t->checkMSHR) {
       uint64_t cacheline = t->addr/size_of_cacheline;
-      if(mshr.find(cacheline)==mshr.end() && num_mshr_entries < mshr_size) {
+      bool mshrMiss = mshr.find(cacheline)==mshr.end();
+      if(mshrMiss && num_mshr_entries < mshr_size) {  // not present in MSHRs and there is space for 1 more entry
         if (size > 0 || ideal) {
           if (t->isLoad) {
             stat.update(l1_primary_load_misses);
@@ -130,7 +131,7 @@ bool Cache::process() {
           num_mshr_entries++;
           t->checkMSHR=false;
         }
-      } else if (mshr.find(cacheline)!=mshr.end()) {
+      } else if (!mshrMiss) {   // it is already present in MSHRs
         if (t->isLoad) {
           stat.update(l1_secondary_load_misses);
           core->local_stat.update(l1_secondary_load_misses);
@@ -144,7 +145,7 @@ bool Cache::process() {
         t->checkMSHR=false;
         continue;
       } 
-      else if (mshr_size == num_mshr_entries) {
+      else if (mshr_size == num_mshr_entries) {  // not present in MSHRs but they are FULL
         t->checkMSHR=true;   
         next_to_send.push_back(t);
         continue;

@@ -36,7 +36,6 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     
     assert(c->isLLC);
     t->cache_q->pop_front();
-
     c->fc->insert(t->addr, nodeId, graphNodeId, graphNodeDeg, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
     if(evictedAddr!=-1) {
 
@@ -71,8 +70,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     }
     
     c->TransactionComplete(t);
-    q.pop();
-        
+    q.pop();      
   }
   if(q.size() == 0)
     outstanding_read_map.erase(addr);
@@ -84,12 +82,10 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
 }
 
 void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size) {
-  if(isLoad) 
+  if(isLoad) {
     free_load_ports--;
-  else
-    free_store_ports--;
-  if(t!= NULL) {
-     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
+
+    if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
       outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));      
       if(cfg.SimpleDRAM) {       
         simpleDRAM->addTransaction(false,addr);
@@ -97,15 +93,13 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       else {
         mem->addTransaction(false, addr);
       }
-     }
-     outstanding_read_map.at(addr).push(t);
-     if (isLoad) {
-       stat.update(dram_loads);
-     } else {
-       stat.update(dram_stores);
-     }
-  } else { //write
-    assert(isLoad == false);
+    }
+    outstanding_read_map.at(addr).push(t);
+    stat.update(dram_loads);
+  } 
+  else { //write
+    free_store_ports--;
+
     if(cfg.SimpleDRAM) {
       simpleDRAM->addTransaction(true, addr);
     }
@@ -121,8 +115,8 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
 bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
   if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))
     return false;
-  if(cfg.SimpleDRAM) {
+  else if(cfg.SimpleDRAM)
     return simpleDRAM->willAcceptTransaction(addr); 
-  }
-  return mem->willAcceptTransaction(addr);
+  else
+    return mem->willAcceptTransaction(addr);
 }

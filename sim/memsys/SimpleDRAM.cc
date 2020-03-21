@@ -13,7 +13,6 @@ void SimpleDRAM::initialize(int coreClockspeed) {
   long long num=(1000*Peak_BW*epoch_length);
   long long denom=(bytes_per_req*core_clockspeed);
   max_req_per_epoch=num/denom;
-  
 }
 
 bool SimpleDRAM::process() {
@@ -47,7 +46,6 @@ bool SimpleDRAM::willAcceptTransaction(uint64_t addr) {
 }
 
 void SimpleDRAM::addTransaction(bool isStore, uint64_t addr) {  
-
   MemOperator memop;
   memop.addr=addr; memop.isStore=isStore; memop.trans_id=trans_id++; memop.final_cycle=cycles+latency;
   pq.push(memop); //push to priority queue     
