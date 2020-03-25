@@ -17,15 +17,16 @@ public:
   //Cache *c;
   Simulator* sim;
   bool ideal;
-  int load_ports;
-  int store_ports;
-  int free_load_ports;
-  int free_store_ports;
+  int read_ports;
+  int write_ports;
+  int free_read_ports;
+  int free_write_ports;
   SimpleDRAM* simpleDRAM;
   unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
+  unordered_map<uint64_t, queue<Transaction*>> outstanding_write_map;
   DRAMSim::MultiChannelMemorySystem *mem;
 
-  DRAMSimInterface(Simulator* sim, bool ideal, int load_ports, int store_ports) : sim(sim),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
+  DRAMSimInterface(Simulator* sim, bool ideal, int read_ports, int write_ports) : sim(sim),ideal(ideal), read_ports(read_ports), write_ports(write_ports) {
 
     // create DRAMsim2 object
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
@@ -43,8 +44,8 @@ public:
     // create simple DRAM object
     simpleDRAM = new SimpleDRAM(sim, this, cfg);
     
-    free_load_ports = load_ports;
-    free_store_ports = store_ports;
+    free_read_ports = read_ports;
+    free_write_ports = write_ports;
   }
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
@@ -65,8 +66,8 @@ public:
     }
   }
   void process() {
-    free_load_ports = load_ports;
-    free_store_ports = store_ports;
+    free_read_ports = read_ports;
+    free_write_ports = write_ports;
     if(cfg.SimpleDRAM) {
       simpleDRAM->process();
     }

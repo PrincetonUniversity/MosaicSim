@@ -51,6 +51,7 @@ class SimpleDRAM {
   DRAMSimInterface* memInterface;
     
   unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
+  unordered_map<uint64_t, queue<Transaction*>> outstanding_write_map;
   SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config); 
   void initialize(int coreClockspeed);
   bool process();

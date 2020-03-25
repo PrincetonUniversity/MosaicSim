@@ -373,7 +373,10 @@ bool Core::process() {
   //process the instruction window and RoB
   window.process();
   //process the private cache
-  bool simulate = cache->process() || l2_cache->process() || llama_cache->process();
+  bool cache_process = cache->process();
+  bool l2_cache_process = l2_cache->process();
+  bool llama_cache_process = llama_cache->process();
+  bool simulate = cache_process || l2_cache_process || llama_cache_process;
 
   //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
   if(id % 2 == 0) {

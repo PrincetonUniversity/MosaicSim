@@ -1,6 +1,9 @@
 #include "SimpleDRAM.h"
 #include "DRAM.h"
 #include "Cache.h"
+#include "../tile/Core.h"
+
+string dram_total_latency="dram_total_latency";
 
 SimpleDRAM::SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config) {
   latency=dram_config.dram_latency; Peak_BW=dram_config.dram_bw; sim=simulator; memInterface=dramInterface; 
@@ -48,5 +51,6 @@ bool SimpleDRAM::willAcceptTransaction(uint64_t addr) {
 void SimpleDRAM::addTransaction(bool isStore, uint64_t addr) {  
   MemOperator memop;
   memop.addr=addr; memop.isStore=isStore; memop.trans_id=trans_id++; memop.final_cycle=cycles+latency;
+  stat.update(dram_total_latency, latency);
   pq.push(memop); //push to priority queue     
 }
