@@ -53,7 +53,7 @@ public:
   int window_size = 128; //instruction window size
   int issueWidth = 8; //total # issues per cycle
   int prefetch_distance=0; // number of cachelines ahead to prefetch
-  int mshr_size = 10;
+  int mshr_size = 32;
 
   // l2 cache
   bool use_l2=false;

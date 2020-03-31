@@ -22,8 +22,8 @@ public:
   int free_read_ports;
   int free_write_ports;
   SimpleDRAM* simpleDRAM;
-  unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
-  unordered_map<uint64_t, queue<Transaction*>> outstanding_write_map;
+  unordered_map<uint64_t, queue<pair<Transaction*, uint64_t>>> outstanding_read_map;
+  unordered_map<uint64_t, queue<pair<Transaction*, uint64_t>>> outstanding_write_map;
   DRAMSim::MultiChannelMemorySystem *mem;
 
   DRAMSimInterface(Simulator* sim, bool ideal, int read_ports, int write_ports) : sim(sim),ideal(ideal), read_ports(read_ports), write_ports(write_ports) {
@@ -49,7 +49,7 @@ public:
   }
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
-  void addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size);
+  void addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size, uint64_t issueCycle);
   bool willAcceptTransaction(uint64_t addr, bool isLoad);
   void initialize(int clockspeed) {
     mem->setCPUClockSpeed(clockspeed * 1000000);
