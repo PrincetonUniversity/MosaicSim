@@ -249,10 +249,10 @@ void Config::getCfg(int id, int val) {
     cache_store_ports = val;
     break;
   case 9:
-    mem_load_ports = val;
+    mem_read_ports = val;
     break;
   case 10:
-    mem_store_ports = val;
+    mem_write_ports = val;
     break;
   case 11:
     cache_latency = val;

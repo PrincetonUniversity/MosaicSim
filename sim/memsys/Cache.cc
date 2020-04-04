@@ -173,7 +173,7 @@ bool Cache::process() {
         sim->curr_epoch_accesses++;
         
         //it = to_send.erase(it);        
-      } else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded evict1ion, will be treated as just a write, nothing to do
+      } else if ((t->src_id==-1) && memInterface->willAcceptTransaction(dramaddr, false)) { //forwarded eviction, will be treated as just a write, nothing to do
         memInterface->addTransaction(NULL, dramaddr, false, cacheline_size);
         //collect mlp stats
         sim->curr_epoch_accesses++;

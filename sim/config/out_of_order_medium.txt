@@ -20,6 +20,3 @@
 8,cache_load_ports
 8,cache_store_ports
 
-#Memory
-4,mem_load_ports
-4,mem_store_ports

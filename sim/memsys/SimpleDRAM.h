@@ -14,7 +14,7 @@ struct MemOperator {
   uint64_t addr;
   uint64_t final_cycle;
   uint64_t trans_id;
-  uint64_t isStore;
+  uint64_t isWrite;
 };
 
 class MemOpCompare {
@@ -32,7 +32,7 @@ public:
 class SimpleDRAM {
  public:
   Simulator* sim;
-  int latency=300; //cycles
+  int latency=200; //cycles
  
   int core_clockspeed=2000; //MHz
   int Peak_BW=12; //GB/s
@@ -43,10 +43,10 @@ class SimpleDRAM {
   long max_req_per_epoch;
   long request_count=0;
   uint64_t cycles=0;
-  int load_ports;
-  int store_ports;
-  int free_load_ports;
-  int free_store_ports;
+  int read_ports;
+  int write_ports;
+  int free_read_ports;
+  int free_write_ports;
  
   DRAMSimInterface* memInterface;
     
@@ -54,7 +54,7 @@ class SimpleDRAM {
   SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config); 
   void initialize(int coreClockspeed);
   bool process();
-  void addTransaction(bool isStore, uint64_t addr);
+  void addTransaction(bool isWrite, uint64_t addr);
   bool willAcceptTransaction(uint64_t addr);
 };
 

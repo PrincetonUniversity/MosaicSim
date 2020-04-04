@@ -18,7 +18,7 @@ Simulator::Simulator(string home) {
   mosaic_home=home;
   clockspeed=cfg.chip_freq;
   recordEvictions=cfg.record_evictions;
-  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_load_ports, cfg.mem_store_ports);
+  memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_read_ports, cfg.mem_write_ports);
   mem_chunk_size=cfg.mem_chunk_size; 
 
   cache = new Cache(cfg);

@@ -5,8 +5,9 @@ using namespace std;
 #define UNUSED 0
 
 string dram_accesses="dram_accesses";
-string dram_loads="dram_loads";
-string dram_stores="dram_stores";
+string dram_reads_loads="dram_reads_loads";
+string dram_reads_stores="dram_reads_stores";
+string dram_writes_evictions="dram_writes_evictions";
 string dram_bytes_accessed="dram_bytes_accessed";
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
@@ -81,13 +82,13 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
     cout << id << addr << clock_cycle;
 }
 
-void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad, int cacheline_size) {
-  if(isLoad) {
-    free_load_ports--;
-
+void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isRead, int cacheline_size) {
+  if(t!=NULL) { // this is a LD or a ST (whereas a NULL transaction means it is really an eviction)
+                // Note that caches are write-back ones, so STs also "read" from dram 
+    free_read_ports--;
     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
-      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));      
-      if(cfg.SimpleDRAM) {       
+      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));
+      if(cfg.SimpleDRAM) {
         simpleDRAM->addTransaction(false,addr);
       }
       else {
@@ -95,25 +96,28 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isLoad
       }
     }
     outstanding_read_map.at(addr).push(t);
-    stat.update(dram_loads);
-  } 
-  else { //write
-    free_store_ports--;
-
+    if (isRead) {
+      stat.update(dram_reads_loads);
+    } else {
+      stat.update(dram_reads_stores);
+    }
+  }
+  else { // this is an eviction -> it writes into dram
+    free_write_ports--;
     if(cfg.SimpleDRAM) {
       simpleDRAM->addTransaction(true, addr);
     }
     else {
       mem->addTransaction(true, addr);
     }
-    stat.update(dram_stores);
+    stat.update(dram_writes_evictions);
   }
   stat.update(dram_accesses);
   stat.update(dram_bytes_accessed,cacheline_size);
 }
 
-bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isLoad) {
-  if((free_load_ports == 0 && isLoad && load_ports!=-1)  || (free_store_ports == 0 && !isLoad && store_ports!=-1))
+bool DRAMSimInterface::willAcceptTransaction(uint64_t addr, bool isRead) {
+  if((free_read_ports == 0 && isRead && read_ports!=-1)  || (free_write_ports == 0 && !isRead && write_ports!=-1))
     return false;
   else if(cfg.SimpleDRAM)
     return simpleDRAM->willAcceptTransaction(addr); 

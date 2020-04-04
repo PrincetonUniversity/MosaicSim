@@ -89,8 +89,9 @@ public:
     registerStat("cache_pending", 1);
     registerStat("cache_evicts", 1);
     registerStat("dram_accesses", 1);
-    registerStat("dram_loads", 1);
-    registerStat("dram_stores", 1);
+    registerStat("dram_reads_loads", 1);
+    registerStat("dram_reads_stores", 1);
+    registerStat("dram_writes_evictions", 1);
     registerStat("dram_bytes_accessed", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);

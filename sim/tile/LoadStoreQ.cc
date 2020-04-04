@@ -15,6 +15,7 @@ void LoadStoreQ::resolveAddress(DynamicNode *d) {
   else
     unresolved_st_set.erase(d);
 }
+
 void LoadStoreQ::insert(DynamicNode *d) {
   if(d->core->window.issueWidth==1 && d->core->window.window_size==1) {
     return;
@@ -65,8 +66,6 @@ void LoadStoreQ::remove(DynamicNode* d) {
       }
     }
   }
-  
-  
 }
 
 bool LoadStoreQ::checkSize(int num_ld, int num_st) {
@@ -153,7 +152,6 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
     return false;
   }
 
-    
   if(*d < *in || *d == *in) {    
     return true;
   }
@@ -164,7 +162,6 @@ bool LoadStoreQ::check_unresolved_store(DynamicNode *in) {
 
 //for perfect, loop through all unresolved stores, if no conflicting
 //address, return false for unresolved
-
 int LoadStoreQ::check_load_issue(DynamicNode *in, bool speculation_enabled) {
   if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
     return 1;
@@ -243,7 +240,7 @@ bool LoadStoreQ::check_store_issue(DynamicNode *in) {
   return true;
 }
 
-int LoadStoreQ::check_forwarding (DynamicNode* in) {
+int LoadStoreQ::check_forwarding(DynamicNode* in) {
   if(in->core->window.issueWidth==1 && in->core->window.window_size==1) {
     return -1;
   }
@@ -254,7 +251,6 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   
   auto it = s.rbegin();
   auto uit = unresolved_st_set.rbegin();
-
   
   /*cout << "before id check \n";
   (*uit)->print("possible failing", -10);
@@ -264,8 +260,6 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
     }
   cout << "after id check \n";
   */
-
-
 
   //luwa, below shoud be removed
   /* while(true) {
@@ -303,15 +297,15 @@ int LoadStoreQ::check_forwarding (DynamicNode* in) {
   
   DynamicNode *d = *it;
   if((d->stage==LEFT_ROB) && d->type!=STADDR && !speculative)
-    return 1;
-  else if((d->stage==LEFT_ROB) && d->type!=STADDR && speculative) //just get from most recent completed with addr anyway
-    return 0;
+    return -1; // Access Memory Hierarchy
+  else if(!(d->stage==LEFT_ROB) && d->type!=STADDR && speculative) //just get from most recent completed with addr anyway
+    return 0;  // Retrieves Speculatively Forwarded Data
   else if(!(d->stage==LEFT_ROB))
-    return -1;
-  return -1;
+    return 1;  // Retrieves Forwarded Data
+  return -1;   // Access Memory Hierarchy
 }
 
-std::vector<DynamicNode*> LoadStoreQ::check_speculation (DynamicNode* in) {
+std::vector<DynamicNode*> LoadStoreQ::check_speculation(DynamicNode* in) {
   std::vector<DynamicNode*> ret;
   if(lm.find(in->addr) == lm.end())
     return ret;

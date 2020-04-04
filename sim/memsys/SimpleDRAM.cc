@@ -23,7 +23,7 @@ bool SimpleDRAM::process() {
     if(memop.final_cycle > cycles || request_count>=max_req_per_epoch) {
       break;
     }
-    if(memop.isStore) {
+    if(memop.isWrite) {
       memInterface->write_complete(memop.trans_id,memop.addr,cycles);
     }
     else {
@@ -42,11 +42,14 @@ bool SimpleDRAM::process() {
 }
 
 bool SimpleDRAM::willAcceptTransaction(uint64_t addr) {
-  return addr==addr;
+  return addr==addr;  // always returs true
 }
 
-void SimpleDRAM::addTransaction(bool isStore, uint64_t addr) {  
+void SimpleDRAM::addTransaction(bool isWrite, uint64_t addr) {  
   MemOperator memop;
-  memop.addr=addr; memop.isStore=isStore; memop.trans_id=trans_id++; memop.final_cycle=cycles+latency;
+  memop.addr=addr; 
+  memop.isWrite=isWrite; 
+  memop.trans_id=trans_id++; 
+  memop.final_cycle=cycles+latency;
   pq.push(memop); //push to priority queue     
 }

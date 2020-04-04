@@ -24,6 +24,3 @@
 1,prefetch_distance #distance (in num cachelines) before first prefetch
 2,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
-#Memory
-4,mem_load_ports
-4,mem_store_ports

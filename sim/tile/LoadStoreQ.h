@@ -32,9 +32,9 @@ public:
   bool checkSize(int num_ld, int num_st);
   bool check_unresolved_load(DynamicNode *in);
   bool check_unresolved_store(DynamicNode *in);
-  int check_load_issue(DynamicNode *in, bool speculation_enabled);
+  int  check_load_issue(DynamicNode *in, bool speculation_enabled);
   bool check_store_issue(DynamicNode *in);
-  int check_forwarding (DynamicNode* in);
+  int  check_forwarding (DynamicNode* in);
   void remove(DynamicNode* d);
   std::vector<DynamicNode*> check_speculation (DynamicNode* in);
 };

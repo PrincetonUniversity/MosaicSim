@@ -56,5 +56,5 @@
 1,record_evictions
 
 #Memory
-4,mem_load_ports
-4,mem_store_ports
+4,mem_read_ports
+4,mem_write_ports
