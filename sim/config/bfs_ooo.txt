@@ -9,7 +9,7 @@
 1,mem_speculate #address alias speculation
 1,mem_forward #lsq store to load forwarding
 -1,max_active_contexts_BB 
-1,branch_prediction # no effect anyway, since it's single-stage, single-issue pipeline 
+1,branch_prediction 
 0,misprediction_penalty # enter penalty of 0 for perfect prediction
 
 #Cache
@@ -49,5 +49,5 @@
 0,cache_by_temperature
 0,node_degree_threshold
 0,l2_cache_by_temperature
-0,l2_node_degree_threshold
+9,l2_node_degree_threshold
 1,record_evictions
