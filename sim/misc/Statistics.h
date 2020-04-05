@@ -51,6 +51,8 @@ public:
     registerStat("l1_prefetch_hits", 0);
     registerStat("l1_prefetch_misses", 0);
     registerStat("l1_total_accesses", 0); // l1_accesses + l1_prefetches
+    registerStat("l1_dirty_evicts", 0);
+    registerStat("l1_clean_evicts", 0);
     registerStat("l1_evicts", 0);
     
     // L2 Stats
@@ -67,6 +69,8 @@ public:
     registerStat("l2_prefetch_hits", 0);
     registerStat("l2_prefetch_misses", 0);
     registerStat("l2_total_accesses", 0); // l2_accesses + l2_prefetches
+    registerStat("l2_dirty_evicts", 0);
+    registerStat("l2_clean_evicts", 0);
     registerStat("l2_evicts", 0);
 
     // L3 Stats
@@ -83,6 +87,8 @@ public:
     registerStat("l3_prefetch_hits", 0);
     registerStat("l3_prefetch_misses", 0);
     registerStat("l3_total_accesses", 0); // l3_accesses + l3_prefetches
+    registerStat("l3_dirty_evicts", 0);
+    registerStat("l3_clean_evicts", 0);
     registerStat("l3_evicts", 0);
  
     registerStat("cache_access", 1);
@@ -93,6 +99,8 @@ public:
     registerStat("dram_reads_stores", 1);
     registerStat("dram_writes_evictions", 1);
     registerStat("dram_bytes_accessed", 1);
+    registerStat("dram_total_read_latency", 1);
+    registerStat("dram_total_write_latency", 1);
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
     
@@ -144,12 +152,14 @@ public:
   }
   void print(ostream& ofile) {
     ofile << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    ofile << "Average BW : " << (double) get("dram_bytes_accessed") / (get ("cycles") / 2) << " GB/s \n";
+    ofile << "Average BW : " << (double) get("dram_bytes_accessed") / (get("cycles") / 2) << " GB/s \n";
     ofile << "Average Bandwidth (PBC) : "  << (double) get("dram_bytes_accessed") / (get("cycles")/2) << " GB/s \n";
-    
+    ofile << "Average DRAM Read Latency (cycles): " << (double) get("dram_total_read_latency") / (get("dram_reads_loads") + get("dram_reads_stores")) << "\n";
+    ofile << "Average DRAM Write Latency (cycles): " << (double) get("dram_total_write_latency") / get("dram_writes_evictions") << "\n";
+
     if(get("l1_misses")!=0)
       {
-        ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
+        ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_primary_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
       }
 
     if(get("l2_misses")!=0)
@@ -172,10 +182,12 @@ public:
     ofile << "IPC : " << (double) get_epoch("total_instructions") / get_epoch("cycles") << "\n";
     ofile << "Average BW : " << (double) get_epoch("dram_bytes_accessed") / (get_epoch ("cycles") / 2) << " GB/s \n";
     ofile << "Average Bandwidth (PBC) : "  << (double) get_epoch("dram_bytes_accessed") / (get_epoch("cycles")/2) << " GB/s \n";
+    ofile << "Average DRAM Read Latency (cycles): " << (double) get_epoch("dram_total_read_latency") / (get_epoch("dram_reads_loads") + get_epoch("dram_reads_stores")) << "\n";
+    ofile << "Average DRAM Write Latency (cycles): " << (double) get_epoch("dram_total_write_latency") / get_epoch("dram_writes_evictions") << "\n";
  
     if(get_epoch("l1_misses")!=0)
       {
-        ofile << "L1 Miss Rate: " <<  ((100.0 * get_epoch("l1_misses"))/ (get_epoch("l1_misses")+get_epoch("l1_hits"))) << "%"<< endl;
+        ofile << "L1 Miss Rate: " <<  ((100.0 * get_epoch("l1_primary_misses"))/ (get_epoch("l1_misses")+get_epoch("l1_hits"))) << "%"<< endl;
       }
 
     if(get_epoch("l2_misses")!=0)

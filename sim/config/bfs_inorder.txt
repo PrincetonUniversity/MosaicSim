@@ -22,7 +22,8 @@
 8,cache_load_ports
 8,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
-2,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+0,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+64,mshr_size
 
 #L2 Cache
 1,use_l2
@@ -34,10 +35,10 @@
 8,l2_cache_load_ports
 8,l2_cache_store_ports
 1,l2_prefetch_distance #distance (in num cachelines) before first prefetch
-2,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+0,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
 #Eviction
-1,eviction_policy
+0,eviction_policy
 0,llama_eviction_policy
 64,llama_cache_linesize
 

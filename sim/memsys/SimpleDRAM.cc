@@ -1,6 +1,7 @@
 #include "SimpleDRAM.h"
 #include "DRAM.h"
 #include "Cache.h"
+#include "../tile/Core.h"
 
 SimpleDRAM::SimpleDRAM(Simulator* simulator, DRAMSimInterface* dramInterface, Config dram_config) {
   latency=dram_config.dram_latency; Peak_BW=dram_config.dram_bw; sim=simulator; memInterface=dramInterface; 

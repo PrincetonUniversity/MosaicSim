@@ -9,6 +9,8 @@ string dram_reads_loads="dram_reads_loads";
 string dram_reads_stores="dram_reads_stores";
 string dram_writes_evictions="dram_writes_evictions";
 string dram_bytes_accessed="dram_bytes_accessed";
+string dram_total_read_latency="dram_total_read_latency";
+string dram_total_write_latency="dram_total_write_latency";
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
@@ -17,11 +19,15 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
   if(UNUSED)
     cout << id << clock_cycle;
 
-  queue<Transaction*> &q = outstanding_read_map.at(addr);
+  queue<pair<Transaction*, uint64_t>> &q = outstanding_read_map.at(addr);
 
   while(q.size() > 0) {
-    
-    MemTransaction* t = static_cast<MemTransaction*>(q.front());
+
+    pair<Transaction*, uint64_t> entry = q.front();
+
+    stat.update(dram_total_read_latency, clock_cycle-entry.second);
+
+    MemTransaction* t = static_cast<MemTransaction*>(entry.first);
     int nodeId = t->d->n->id;
     int graphNodeId = t->graphNodeId;
     int graphNodeDeg = t->graphNodeDeg;
@@ -37,9 +43,8 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
     
     assert(c->isLLC);
     t->cache_q->pop_front();
-    c->fc->insert(t->addr, nodeId, graphNodeId, graphNodeDeg, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
+    c->fc->insert(t->addr, nodeId, graphNodeId, graphNodeDeg, t->isLoad, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
     if(evictedAddr!=-1) {
-
       int cacheline_size;
       if (c->cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
         cacheline_size = c->size_of_cacheline;
@@ -49,11 +54,26 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
 
       assert(evictedAddr >= 0);
       stat.update("cache_evicts");
-      c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
       if (c->useL2) {
         stat.update("l3_evicts");
       } else {
         stat.update("l2_evicts");
+      }
+
+      if (dirtyEvict) {
+        c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
+      
+        if (c->useL2) {
+          stat.update("l3_dirty_evicts");
+        } else {
+          stat.update("l2_dirty_evicts");
+        }
+      } else {
+        if (c->useL2) {
+          stat.update("l3_clean_evicts");
+        } else {
+          stat.update("l2_clean_evicts");
+        }
       }
 
       if (sim->recordEvictions) {    
@@ -80,36 +100,54 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
 void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
   if(UNUSED)
     cout << id << addr << clock_cycle;
+
+  queue<pair<Transaction*, uint64_t>> &q = outstanding_write_map.at(addr);
+
+  while(q.size() > 0) {
+    pair<Transaction*, uint64_t> entry = q.front();
+    stat.update(dram_total_write_latency, clock_cycle-entry.second);
+    q.pop();
+  }
+
+  if(q.size() == 0)
+    outstanding_write_map.erase(addr);
 }
 
-void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isRead, int cacheline_size) {
+void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isRead, int cacheline_size, uint64_t issueCycle) {
   if(t!=NULL) { // this is a LD or a ST (whereas a NULL transaction means it is really an eviction)
                 // Note that caches are write-back ones, so STs also "read" from dram 
     free_read_ports--;
+
     if(outstanding_read_map.find(addr) == outstanding_read_map.end()) {
-      outstanding_read_map.insert(make_pair(addr, queue<Transaction*>()));
-      if(cfg.SimpleDRAM) {
-        simpleDRAM->addTransaction(false,addr);
-      }
-      else {
-        mem->addTransaction(false, addr);
-      }
+      outstanding_read_map.insert(make_pair(addr, queue<pair<Transaction*, uint64_t>>()));      
     }
-    outstanding_read_map.at(addr).push(t);
-    if (isRead) {
+
+    if(cfg.SimpleDRAM) {       
+      simpleDRAM->addTransaction(false,addr);
+    } else {
+      mem->addTransaction(false, addr);
+    }
+    
+    outstanding_read_map.at(addr).push(make_pair(t, issueCycle));
+      
+    if(isRead) {
       stat.update(dram_reads_loads);
     } else {
       stat.update(dram_reads_stores);
     }
-  }
-  else { // this is an eviction -> it writes into dram
+  } else { //eviction -> write iinto DRAM
     free_write_ports--;
-    if(cfg.SimpleDRAM) {
-      simpleDRAM->addTransaction(true, addr);
+
+    if(outstanding_write_map.find(addr) == outstanding_write_map.end()) {
+      outstanding_write_map.insert(make_pair(addr, queue<pair<Transaction*, uint64_t>>()));
     }
-    else {
+
+    if(cfg.SimpleDRAM) {
+      simpleDRAM->addTransaction(true,addr);
+    } else {
       mem->addTransaction(true, addr);
     }
+    outstanding_write_map.at(addr).push(make_pair(t, issueCycle));
     stat.update(dram_writes_evictions);
   }
   stat.update(dram_accesses);

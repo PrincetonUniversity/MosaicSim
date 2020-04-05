@@ -198,7 +198,7 @@ public:
     }
   }
 
-  void insert(uint64_t address, uint64_t offset, int nodeId, int graphNodeId, int graphNodeDeg, int *dirtyEvict, int64_t *evictedAddr, uint64_t *evictedOffset, int *evictedNodeId, int *evictedGraphNodeId, int *evictedGraphNodeDeg, int *unusedSpace)
+  void insert(uint64_t address, uint64_t offset, int nodeId, int graphNodeId, int graphNodeDeg, bool isLoad, int *dirtyEvict, int64_t *evictedAddr, uint64_t *evictedOffset, int *evictedNodeId, int *evictedGraphNodeId, int *evictedGraphNodeDeg, int *unusedSpace)
   {
     if (cache_by_temperature == 1 && graphNodeId != -1 && graphNodeDeg < node_degree_threshold) {
       return;
@@ -296,7 +296,11 @@ public:
     }
     c->count = TIME;
     c->rrpv = 2;
-    c->dirty = false;
+    if (!isLoad) {
+      c->dirty = true; 
+    } else {
+      c->dirty = false;
+    }
     if (cache_by_signature == 1 && graphNodeId != -1) {
       llama_addr_map[(address << (log_linesize - log_llama_linesize)) + index] = c;
     } else {
@@ -512,7 +516,7 @@ public:
     return res;
   }
 
-  void insert(uint64_t address, int nodeId, int graphNodeId, int graphNodeDeg, int *dirtyEvict, int64_t *evictedAddr, uint64_t *evictedOffset, int *evictedNodeId, int *evictedGraphNodeId, int *evictedGraphNodeDeg, int *unusedSpace)
+  void insert(uint64_t address, int nodeId, int graphNodeId, int graphNodeDeg, bool isLoad, int *dirtyEvict, int64_t *evictedAddr, uint64_t *evictedOffset, int *evictedNodeId, int *evictedGraphNodeId, int *evictedGraphNodeDeg, int *unusedSpace)
   {
     uint64_t offset = extract(log_line_size-1, 0, address);
     uint64_t setid = extract(log_set_count-1+log_line_size, log_line_size, address);
@@ -523,7 +527,7 @@ public:
     /*if (graphNodeId!= -1) {
       cout << "inserting into " << setid << " " << set_count << endl;
     }*/
-    c->insert(tag, offset, nodeId, graphNodeId, graphNodeDeg, dirtyEvict, &evictedTag, evictedOffset, evictedNodeId, evictedGraphNodeId, evictedGraphNodeDeg, unusedSpace);
+    c->insert(tag, offset, nodeId, graphNodeId, graphNodeDeg, isLoad, dirtyEvict, &evictedTag, evictedOffset, evictedNodeId, evictedGraphNodeId, evictedGraphNodeDeg, unusedSpace);
 
     if(evictedAddr && evictedTag != -1)
       *evictedAddr = evictedTag * set_count + setid;

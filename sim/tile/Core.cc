@@ -372,7 +372,8 @@ void Core::fastForward(uint64_t inc) {
 bool Core::process() {
   //process the instruction window and ROB
   window.process();
-  //process the all the private caches
+
+  //process all the private caches
   bool cache_process = cache->process();
   bool l2_cache_process = l2_cache->process();
   bool llama_cache_process = llama_cache->process();
