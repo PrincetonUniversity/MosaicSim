@@ -221,14 +221,14 @@ public:
   uint64_t last_stval_id=0;
   uint64_t last_recv_id=0;
   uint64_t last_staddr_id=0;
-  int latency=5;
+  int min_latency=5;
 
   Config config;
   DESCQ(Config cfg) {
     commBuff_size=cfg.commBuff_size;
     commQ_size=cfg.commQ_size;
     term_buffer_size=cfg.term_buffer_size;
-    latency=cfg.desc_latency;  
+    min_latency=cfg.desc_min_latency;  
     SVB_size=cfg.SVB_size;
     SAB_size=cfg.SAB_size;
     SAB_back=SAB_size-1;

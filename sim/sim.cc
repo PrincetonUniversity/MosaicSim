@@ -1126,7 +1126,7 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
     }
   }
   if(canInsert) {  
-    pq.push(make_pair(d,cycles+latency));
+    pq.push(make_pair(d,cycles+min_latency));
   }
   return canInsert;
 }

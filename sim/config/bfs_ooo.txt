@@ -43,7 +43,6 @@
 #Caching Strategies
 0,partition_L1
 0,partition_L2
-
 0,cache_by_signature
 2,partition_ratio
 0,perfect_llama
@@ -51,6 +50,4 @@
 0,node_degree_threshold
 0,l2_cache_by_temperature
 0,l2_node_degree_threshold
-
 1,record_evictions
-

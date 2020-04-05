@@ -282,7 +282,7 @@ void Config::getCfg(int id, int val) {
     SAB_size = val;
     break;
   case 20:
-    desc_latency = val;
+    desc_min_latency = val;
     break;
   case 21:
     SVB_size = val;  

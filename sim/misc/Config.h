@@ -82,7 +82,7 @@ public:
   int SAB_size=128; //store address buffer size
   int SVB_size=128; //store value buffer size
   int term_buffer_size=32; //max size of terminal load buffer
-  int desc_latency=5; //desc queue latency
+  int desc_min_latency=5; //desc queue latency
   int num_prefetched_lines=1;
   bool SimpleDRAM=0;
   int dram_bw=12; //GB/s
@@ -116,7 +116,7 @@ public:
                 {"ideal_cache",5},{"cache_size",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_read_ports",9},
                 {"mem_write_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, 
                 {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19}, 
-                {"desc_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}, 
+                {"desc_min_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}, 
                 {"prefetch_distance", 24}, {"num_prefetched_lines",25}, {"SimpleDRAM",26}, {"dram_bw",27}, {"dram_latency",28}, 
                 {"technology_node",29}, {"chip_freq",30}, {"num_accels",31}, {"num_IS",32}, {"mem_chunk_size",33},
                 {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
