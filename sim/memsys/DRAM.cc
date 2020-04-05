@@ -103,11 +103,11 @@ void DRAMSimInterface::write_complete(unsigned id, uint64_t addr, uint64_t clock
 
   queue<pair<Transaction*, uint64_t>> &q = outstanding_write_map.at(addr);
 
-  while(q.size() > 0) {
-    pair<Transaction*, uint64_t> entry = q.front();
-    stat.update(dram_total_write_latency, clock_cycle-entry.second);
-    q.pop();
-  }
+  //while(q.size() > 0) {
+  pair<Transaction*, uint64_t> entry = q.front();
+  stat.update(dram_total_write_latency, clock_cycle-entry.second);
+  q.pop();
+  //}
 
   if(q.size() == 0)
     outstanding_write_map.erase(addr);
