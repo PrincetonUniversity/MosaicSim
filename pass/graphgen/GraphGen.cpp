@@ -394,7 +394,7 @@ void GraphGen::addPhiEdges(Function &func) {
 
 void GraphGen::visualize() {
   std::ofstream fout;
-  errs() << "[GraphGen] Start Visuzliation \n";
+  errs() << "[GraphGen] Start Visualization \n";
   std::string gname = "int/graphDiagram";
   const char *file = (gname + ".dot").c_str();
   fout.open(file);
@@ -495,7 +495,7 @@ void GraphGen::visualize() {
   fout << "t3->t4 [style=invis];\n";
   fout << "}\n";
   fout << "}\n";
-  errs() << "[GraphGen] Finished Visuzliation \n";
+  errs() << "[GraphGen] Finished Visualization \n";
 }
 void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");

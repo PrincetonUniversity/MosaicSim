@@ -1,15 +1,10 @@
 #ifndef CORE_H
 #define CORE_H
-#include "../common.h"
+
 #include "../sim.h"
-#include "Tile.h"
-#include "../graph/Graph.h"
+#include "Bpred.h"
 #include "LoadStoreQ.h"
-#include <string>
-#include <chrono>
-#include <fstream>
-#include <iostream>
-#include <sstream>
+
 using namespace std;
 
 class DyanmicNode;
@@ -56,6 +51,7 @@ public:
   Cache* cache;
   Cache* l2_cache;
   Cache* llama_cache;
+  Bpred *bpred;
   int llamaNodeId;
   int partition_L1;
   int partition_L2;
@@ -78,6 +74,7 @@ public:
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
+  vector<bool> cf_cond; // indicates if the branch is a conditional one 
   ifstream memfile;
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   unordered_map<int, queue<string> > acc_map;  // List of memory accesses per instruction in a program order

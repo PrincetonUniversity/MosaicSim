@@ -271,12 +271,11 @@ public:
   // Read Dynamic Control Flow data from the profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
   // vector <cf> will be the sequential list of executed BBs
-  void readProfCF(std::string name, std::vector<int> &cf) {
+  void readProfCF(std::string name, std::vector<int> &cf, std::vector<bool> &cf_cond) {
     string line;
     string last_line;
     uint64_t filesizeKB = fileSizeKB(name);
     ifstream cfile(name);
-    bool init = false;
     int last_bbid = -1;
     if (cfile.is_open()) {
       cout <<"[SIM] Start reading the Control-Flow trace (" << name << ") | size = " << filesizeKB << " KBytes\n";
@@ -290,14 +289,13 @@ public:
           cout << last_bbid << " / " << s.at(1) << "\n";
           cout << last_line << " / " << line << "\n";
         }
-        if (!init) {
-          cf.push_back(stoi(s.at(1)));
-          init = true;
-        }
+        cf.push_back(stoi(s.at(1)));
+        cf_cond.push_back(s.at(0)=="B");   // in the trace "B" is for conditional branches while the "U" is for unconditional
         last_bbid = stoi(s.at(2));
-        cf.push_back(last_bbid);
-        last_line = line;
       }
+      // push the last BB from the last line of the file 
+      cf.push_back(last_bbid);
+      cf_cond.push_back(false); // the very last BB of the program (RET) is unconditional
     }
     else {
       cout << "[ERROR] Cannot open the CF Control-Flow trace file!\n";

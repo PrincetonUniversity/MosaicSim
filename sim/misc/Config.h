@@ -1,12 +1,22 @@
 #ifndef CONFIG_H
 #define CONFIG_H
+
 #include <string>
 #include <vector>
 #include <map>
 #include <assert.h>
+#include "../tile/Bpred.h"
+
 using namespace std;
 
 #define NUM_INST_TYPES 36
+typedef enum { 
+  I_ADDSUB, I_MULT, I_DIV, I_REM, FP_ADDSUB, FP_MULT, FP_DIV, FP_REM, LOGICAL, 
+  CAST, GEP, LD, ST, TERMINATOR, PHI, SEND, RECV, STADDR, STVAL, LD_PROD, 
+  INVALID, BS_DONE, CORE_INTERRUPT, CALL_BS, BS_WAKE, BS_VECTOR_INC, 
+  BARRIER, ACCELERATOR, ATOMIC_ADD, ATOMIC_FADD, ATOMIC_MIN, ATOMIC_CAS, 
+  TRM_ATOMIC_FADD, TRM_ATOMIC_MIN, TRM_ATOMIC_CAS, LLAMA
+} TInstr;
 #define word_size_bytes  4  // TODO: allow different sizes. Now, word_size is a constant
 
 class Config {
@@ -21,8 +31,12 @@ public:
   bool cf_mode;   // 0: one at a time / 1: all together+ prefect prediction
   bool mem_speculate;
   bool mem_forward;
-  bool branch_prediction=false; // one at a time + prediction
-  int  misprediction_penalty=1; //number of cycles to insert before creation of next context..model misprediction
+
+  // branch predictor
+  int branch_predictor; 
+  int misprediction_penalty=0; // number of cycles to insert before creation of next context to model misprediction
+  int bht_size=1024; 
+  int gshare_global_hist_bits=10; 
 
   // Resources
   int lsq_size;
@@ -116,7 +130,7 @@ public:
                 {"ideal_cache",5},{"cache_size",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_read_ports",9},
                 {"mem_write_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, 
                 {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19}, 
-                {"desc_min_latency",20}, {"SVB_size",21}, {"branch_prediction", 22}, {"misprediction_penalty", 23}, 
+                {"desc_min_latency",20}, {"SVB_size",21}, {"branch_predictor", 22}, {"misprediction_penalty", 23}, 
                 {"prefetch_distance", 24}, {"num_prefetched_lines",25}, {"SimpleDRAM",26}, {"dram_bw",27}, {"dram_latency",28}, 
                 {"technology_node",29}, {"chip_freq",30}, {"num_accels",31}, {"num_IS",32}, {"mem_chunk_size",33},
                 {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
@@ -125,7 +139,8 @@ public:
                 {"cache_by_signature", 48}, {"partition_ratio", 49}, {"perfect_llama", 50}, {"record_evictions", 51},
                 {"use_l2", 52}, {"l2_ideal_cache", 53}, {"l2_cache_latency", 54}, {"l2_cache_size", 55}, {"l2_cache_assoc", 56}, {"l2_cache_linesize", 57}, 
                 {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}, 
-                {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}, {"mshr_size", 65}};
+                {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}, {"mshr_size", 65},
+                {"bht_size", 66}, {"gshare_global_hist", 67}};
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();
@@ -148,8 +163,6 @@ public:
   int lsq_size;
   int cache_load_ports;
   int cache_store_ports;
-//  int mem_read_ports=65536;
-//  int mem_write_ports=65536;
   int outstanding_load_requests;
   int outstanding_store_requests;
   int max_active_contexts_BB;

@@ -1,7 +1,6 @@
 #ifndef STAT_H
 #define STAT_H
-#include <iostream>
-#include <map>
+
 #include "../common.h"
 
 using namespace std;
@@ -91,9 +90,12 @@ public:
     registerStat("l3_clean_evicts", 0);
     registerStat("l3_evicts", 0);
  
+    // other global cache Stats
     registerStat("cache_access", 1);
     registerStat("cache_pending", 1);
     registerStat("cache_evicts", 1);
+
+    // DRAM Stats
     registerStat("dram_accesses", 1);
     registerStat("dram_reads_loads", 1);
     registerStat("dram_reads_stores", 1);
@@ -104,11 +106,20 @@ public:
     registerStat("bytes_read",1);
     registerStat("bytes_write",1);
     
+    // LSQ: store-to-load forwarding Stats
     registerStat("speculated", 2);
     registerStat("misspeculated", 2);
     registerStat("forwarded", 2);
     registerStat("speculatively_forwarded", 2);
 
+    registerStat("lsq_insert_success", 4);
+    registerStat("lsq_insert_fail", 4);
+
+    // branch prediction Stats
+    registerStat("bpred_correct_preds", 0);
+    registerStat("bpred_mispredictions", 0);
+
+    // other DeSC-related Stats
     registerStat("load_issue_try", 3);
     registerStat("load_issue_success", 3);
     registerStat("store_issue_try", 3);
@@ -129,8 +140,6 @@ public:
     registerStat("ld_prod_issue_try", 3);
     registerStat("ld_prod_issue_success", 3);
     
-    registerStat("lsq_insert_success", 4);
-    registerStat("lsq_insert_fail", 4);
     checkpoint();
   }
   uint64_t get(string str) {
@@ -152,26 +161,20 @@ public:
   }
   void print(ostream& ofile) {
     ofile << "IPC : " << (double) get("total_instructions") / get("cycles") << "\n";
-    ofile << "Average BW : " << (double) get("dram_bytes_accessed") / (get("cycles") / 2) << " GB/s \n";
-    ofile << "Average Bandwidth (PBC) : "  << (double) get("dram_bytes_accessed") / (get("cycles")/2) << " GB/s \n";
+    ofile << "Average BW: " << (double) get("dram_bytes_accessed") / (get("cycles") / 2) << " GB/s \n";
+    ofile << "Average Bandwidth (PBC): "  << (double) get("dram_bytes_accessed") / (get("cycles")/2) << " GB/s \n";
     ofile << "Average DRAM Read Latency (cycles): " << (double) get("dram_total_read_latency") / (get("dram_reads_loads") + get("dram_reads_stores")) << "\n";
     ofile << "Average DRAM Write Latency (cycles): " << (double) get("dram_total_write_latency") / get("dram_writes_evictions") << "\n";
 
     if(get("l1_misses")!=0)
-      {
-        ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_primary_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
-      }
-
+      ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_primary_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
     if(get("l2_misses")!=0)
-      {
-        ofile << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
-      }
-    
+      ofile << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
     if(get("l3_misses")!=0)
-      {
-        ofile << "L3 Miss Rate: " << ( (100.0 * get("l3_misses"))/(get("l3_misses")+get("l3_hits"))) << "%"<< endl;
-      }
-    
+      ofile << "L3 Miss Rate: " << ( (100.0 * get("l3_misses"))/(get("l3_misses")+get("l3_hits"))) << "%"<< endl;
+
+    ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_mispredictions"))/ (get("bpred_mispredictions")+get("bpred_correct_preds"))) << "%"<< endl;
+
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       ofile << it->first << " : " << it->second.first << "\n";
     }

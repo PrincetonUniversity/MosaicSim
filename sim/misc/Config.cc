@@ -1,9 +1,5 @@
 #include "Config.h"
 #include "../graph/Graph.h"
-#include <iostream>
-#include <fstream>
-#include <sstream> 
-#include <limits>
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
@@ -288,7 +284,7 @@ void Config::getCfg(int id, int val) {
     SVB_size = val;  
     break;
   case 22:
-    branch_prediction = val;  
+    branch_predictor = val;  
     break;
   case 23:
     misprediction_penalty = val;  
@@ -425,21 +421,27 @@ void Config::getCfg(int id, int val) {
     }
     break;
   case 62:
-   l2_cache_by_temperature = val;
-   break;
+    l2_cache_by_temperature = val;
+    break;
   case 63:
-   l2_node_degree_threshold = val;
-   break;
+    l2_node_degree_threshold = val;
+    break;
   case 64:
-   llama_node_id = val;
-   break;
+    llama_node_id = val;
+    break;
   case 65:
-   if (val == -1) {
-     mshr_size = numeric_limits<int>::max();
-   } else {
-     mshr_size = val;
-   }
-   break;
+    if (val == -1) {
+      mshr_size = numeric_limits<int>::max();
+    } else {
+      mshr_size = val;
+    }
+    break;
+  case 66:
+    bht_size = val;
+    break;
+  case 67:
+    gshare_global_hist_bits = val;
+    break;
   default:
     break;
   }

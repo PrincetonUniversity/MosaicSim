@@ -1,8 +1,4 @@
-#include "DynamicNode.h"
 #include "Core.h"
-//#include "LoadStoreQ.h"
-#include "../memsys/Cache.h"
-#include <vector>
 
 #define ID_POOL 1000000
 using namespace std;
@@ -251,6 +247,11 @@ void Core::initialize(int id) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), local_cfg.num_units[i]));
   }
 
+  // Initialize branch predictor
+  bpred = new Bpred( (TypeBpred)local_cfg.branch_predictor, local_cfg.bht_size );
+  bpred->misprediction_penalty = local_cfg.misprediction_penalty;
+  bpred->gshare_global_hist_bits = local_cfg.gshare_global_hist_bits;
+
   // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
   if (local_cfg.cf_mode == 0)
     context_to_create = 1;
@@ -283,9 +284,6 @@ void Core::initialize(int id) {
   }
 }
 
-//extern vector<string> InstrStr;
-
-//vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS", "LLAMA"};
 vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", 
                          "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", 
                          "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS", "LLAMA"};
@@ -294,28 +292,37 @@ string Core::getInstrName(TInstr instr) {
   return InstrStr[instr];
 }
 
-// Return boolean indicating whether or not the branch was mispredicted
-// We can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
-// Simple Always-Taken predictor. We'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
+// Return boolean indicating whether or not the branch has been correctly predicted
 bool Core::predict_branch(DynamicNode* d) {
-  int context_id=d->c->id;
-  int next_context_id=context_id+1;
+  bool correct_pred = false;
+  bool actual_taken = false;
 
-  int current_bbid=cf.at(context_id);
-  
-  int cf_size = cf.size();
-  int next_bbid=-1;
-  if(next_context_id < cf_size) {
+  uint64_t current_context_id = d->c->id;
+  uint64_t current_bbid = cf.at(current_context_id);
+
+  if (!cf_cond.at(current_context_id))  // if this is not a Conditional TERMINATOR
+    return true;                        // there is nothing to predict and returns immediately 
+
+  uint64_t next_context_id = current_context_id+1;
+  uint64_t next_bbid;
+
+  if(next_context_id < cf.size()) {
     next_bbid=cf.at(next_context_id);
+    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> a taken branch // VERIFY THIS!
+    actual_taken = (next_bbid != current_bbid+1);
   }
-  if(current_bbid==next_bbid) { // guess we'll remain in same basic block
-    //cout << "CORRECT prediction \n";
-    return true;   
-  }
-  else {   
-    //cout << "WRONG prediction \n";
-    return false;
-  }
+  else if (bpred->type==bp_perfect) // this is the very last branch of the program (a RET) -> we assume is taken
+    actual_taken = true;
+
+  // check the prediction
+  correct_pred = bpred->predict(actual_taken,current_bbid);
+
+  // update bpred stats
+  if(correct_pred)
+    stat.update("bpred_correct_preds");
+  else  
+    stat.update("bpred_mispredictions");
+  return correct_pred;
 }
 
 bool Core::createContext() {

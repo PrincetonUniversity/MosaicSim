@@ -1,7 +1,6 @@
 #include "DynamicNode.h"
 #include "Core.h"
 #include "../misc/Reader.h"
-#include "../memsys/Cache.h"
 
 using namespace std;
 
@@ -52,9 +51,9 @@ void Context::print(string str, int level) {
     cout << (*this) << str << endl;
 }
 void Context::insertQ(DynamicNode *d) {
-  if(d->n->lat > 0) {
+  if(d->n->lat+d->extra_lat > 0) {
     //pq.push(make_pair(d, core->cycles+d->n->lat-1));
-    pq.push(make_pair(d, core->cycles+d->n->lat));
+    pq.push(make_pair(d, core->cycles + d->n->lat + d->extra_lat));
   }
   else {
     pq.push(make_pair(d, core->cycles));
@@ -161,20 +160,17 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
   for(auto it = nodes.begin(); it!= nodes.end(); ++it) {
     assert(!it->second->issued && !it->second->completed);
     DynamicNode* d=it->second;
-    //correctly predict all branches
+    //if Control-Flow mode is "all context at once" (cf_mode==1) then there are no pending parents
     if(core->local_cfg.cf_mode==1 && d->type==TERMINATOR) {
       d->pending_parents=0;
       d->pending_external_parents=0;
     }
-    //here, if branch prediction is enabled we're going to launch the terminator instruction, which will in turn launch the next contexts upon completion of finishNode()
-    //if there's a misprediction, we will add a penalty latency, which delays the completion of the terminator after issue, which in turn delays the launching of the next context 
-    if (d->type == TERMINATOR && core->local_cfg.branch_prediction) {
-      //if branch predictor mispredicts, add penalty 
-      if(!core->predict_branch(d)) {
-        d->n->lat+=core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context
-      }
+    // if TERMINATOR: predicts the outcome of the branch. Upon a misprediction we will add a penalty latency, 
+    //  which delays the completion of the terminator after issue, which in turn delays the launching of the next context 
+    if (d->type == TERMINATOR) {
+        if (core->predict_branch(d)==false)
+          d->extra_lat = core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context    
     }
-    //if it's a TERMINATOR with branch prediction mode, it'll just get activated
     d->tryActivate(); 
   }
   if(cfg.verbLevel >=5) {
@@ -434,7 +430,6 @@ DynamicNode::DynamicNode(Node *n, Context *c, Core *core, uint64_t addr) : n(n),
     isMem = true;
 
   if(n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS) {
-
     atomic=true;
   }
 }
@@ -587,8 +582,8 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  //if cf_mode==1 or branch prediction is on, we immidiately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
-  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_prediction));
+  //if cf_mode==1 or branch prediction is on, we immediately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
+  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 /*&& !core->local_cfg.branch_prediction*/));
 
   int branch_lookahead=50;
   
@@ -598,7 +593,6 @@ void DynamicNode::tryActivate() {
 
   //we don't want unneccessary contexts being spawned, when they have no chance of being issued
   //if a terminator was activated too early (branch prediction) but could still be re-activated by a parent, return and have a parent try again to activate
- 
   if(type==TERMINATOR && windowNumber+branch_lookahead > core->window.window_end && (pending_parents > 0 || pending_external_parents > 0)) {   
     return;
   }
@@ -937,11 +931,6 @@ bool DynamicNode::issueDESCNode() {
 }
 
 void DynamicNode::finishNode() {
-  /* test    
-  if(core->sim->hasLock(this)) {
-    core->sim->releaseLock(this);
-  }
-  */
   DESCQ* descq=core->sim->get_descq(this);
   
   if(completed) {
@@ -967,7 +956,6 @@ void DynamicNode::finishNode() {
   if(core->sim->debug_mode) {
     //these assertions test to make sure decoupling dependencies are maintained
     if(type==SEND || type==LD_PROD || type == TRM_ATOMIC_FADD || type == TRM_ATOMIC_MIN || type == TRM_ATOMIC_CAS) {
-      
       descq->debug_send_set.insert(desc_id);
     }
     if(type==STVAL) {
@@ -1041,13 +1029,6 @@ void DynamicNode::finishNode() {
       core->lsq.resolveAddress(dst);
     }
     dst->pending_external_parents--;
-    /*
-    if(!((core->local_cfg.branch_prediction && dst->type==TERMINATOR) || (!dst->issued && !dst->completed))) {
-      //dst->print("should not be issued or completed", -10); //luwahere
-      
-      //assert(false);      
-      } */
-    //apparently, this fails sometimes on branches due to branch prediction...gotta make sure this is a branch
     dst->tryActivate();    
   }
   external_dependents.clear();
@@ -1058,12 +1039,6 @@ void DynamicNode::finishNode() {
     if(c->next_bbid == dst->bbid) {
       if(Context *cc = c->getNextContext()) {
         cc->nodes.at(dst)->pending_parents--;
-        /*
-        if(!(!cc->nodes.at(dst)->issued && !cc->nodes.at(dst)->completed)) {
-          //cc->nodes.at(dst)->print("should not be issued or completed", -10);
-          //assert(false); this fails sometimes on phi nodes
-        }
-        */
         cc->nodes.at(dst)->tryActivate();
       }
     }

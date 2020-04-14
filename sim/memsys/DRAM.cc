@@ -14,7 +14,10 @@ string dram_total_write_latency="dram_total_write_latency";
 
 void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle) {
 
-  assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
+  //assert(outstanding_read_map.find(addr) != outstanding_read_map.end());
+  if (outstanding_read_map.find(addr) == outstanding_read_map.end()) {
+    return;
+  }
 
   if(UNUSED)
     cout << id << clock_cycle;

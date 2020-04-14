@@ -1,16 +1,6 @@
 #include "sim.h"
-#include "memsys/Cache.h"
 #include "memsys/DRAM.h"
-#include "tile/Core.h"
 #include "misc/Reader.h"
-#include "graph/GraphOpt.h"
-#include "tile/Core.h"
-#include <bits/stdc++.h>
-#include <numeric>
-#include <fstream>
-#include <iostream>
-#include <sstream>
-#include <cmath>
 
 using namespace std;
 
@@ -102,7 +92,7 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
     assert(false);
   }
 
-  r.readProfCF(cfName, core->cf);
+  r.readProfCF(cfName, core->cf, core->cf_cond);
   r.readAccTrace(accName, core->acc_map);
   
   //GraphOpt opt(core->g);
@@ -1037,7 +1027,7 @@ bool DESCQ::execute(DynamicNode* d) {
 }
 
 //checks if there are resource limitations
-//if not inserts respective instructions into their buffers
+//if not, inserts respective instructions into their buffers
 bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim) {
   bool canInsert=true;
   

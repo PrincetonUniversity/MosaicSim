@@ -1,11 +1,14 @@
 #ifndef SIM_H
 #define SIM_H
+
 #include <chrono>
 #include "common.h"
 #include "tile/DynamicNode.h"
 #include "tile/Tile.h"
+#include "tile/Core.h"
 #include "tile/LoadStoreQ.h"
 #include "memsys/SimpleDRAM.h"
+#include "memsys/Cache.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -80,6 +83,7 @@ public:
   chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time = chrono::high_resolution_clock::now();
+  
   //MLP stats
   int mlp_epoch=1024; //cycles in which to collect mlp stats
   int curr_epoch_accesses=0; 
@@ -92,7 +96,6 @@ public:
   map<int,Tile*> tiles;
   int tileCount=0;
   vector<uint64_t> clockspeedVec;
-  //DESCQ* descq;
   bool decoupling_mode=false;
   bool debug_mode=false;
   bool mem_stats_mode=true;
@@ -223,7 +226,6 @@ public:
   uint64_t last_staddr_id=0;
   int min_latency=5;
 
-  Config config;
   DESCQ(Config cfg) {
     commBuff_size=cfg.commBuff_size;
     commQ_size=cfg.commQ_size;

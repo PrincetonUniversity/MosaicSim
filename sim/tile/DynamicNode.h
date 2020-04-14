@@ -1,8 +1,6 @@
 #ifndef DYNAMICNODE_H
 #define DYNAMICNODE_H
-#include <map>
-#include <set>
-#include <queue>
+
 #include "../graph/Graph.h"
 #include <unordered_set>
 
@@ -40,6 +38,8 @@ public:
   uint64_t desc_id;
   bool acc_initiated=false;
   ExampleTransaction* t;
+  /* branches */
+  int extra_lat=0;
   /* Memory */
   uint64_t addr;
   int width;
@@ -64,9 +64,6 @@ public:
   void finishNode();
   void register_issue_try();
   void register_issue_success();
-
-
-
 };
 
 class OpCompare {
@@ -90,7 +87,7 @@ public:
 
 class Context {
 public:
-  unsigned int id;
+  uint64_t id;
   bool live;
   bool isErasable=false;
   uint64_t cycleMarkedAsErasable=0;
