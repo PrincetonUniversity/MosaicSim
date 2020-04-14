@@ -318,6 +318,7 @@ bool Core::predict_branch(DynamicNode* d) {
   correct_pred = bpred->predict(actual_taken,current_bbid);
 
   // update bpred stats
+  stat.update("bpred_cond_branches");
   if(correct_pred)
     stat.update("bpred_correct_preds");
   else  

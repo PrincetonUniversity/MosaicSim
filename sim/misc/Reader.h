@@ -303,5 +303,6 @@ public:
     }
     cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";
     cfile.close();
+    assert(cf.size()==cf_cond.size());
   }
 };
