@@ -308,10 +308,10 @@ bool Core::predict_branch(DynamicNode* d) {
 
   if(next_context_id < cf.size()) {
     next_bbid=cf.at(next_context_id);
-    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> a taken branch // VERIFY THIS!
+    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> taken branch
     actual_taken = (next_bbid != current_bbid+1);
   }
-  else if (bpred->type==bp_perfect) // this is the very last branch of the program (a RET) -> we assume is taken
+  else  // this is the very last branch of the program (a RET in llvm) -> taken branch
     actual_taken = true;
 
   // check the prediction
