@@ -90,8 +90,6 @@ public:
         //     getline(cfile,line2);
         //   }
         // }
-              
-        
         
         int id = stoi(s.at(0));
         TInstr type = static_cast<TInstr>(stoi(s.at(1)));   
@@ -304,5 +302,56 @@ public:
     cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";
     cfile.close();
     assert(cf.size()==cf_cond.size());
+
+
+    // JLA: make a sanity check over the CF trace
+    if (false) {
+      cout << "\n**----Sanity check of the CF**----------\n";    
+      // 1st: build a map of BB ids which are conditional branches and annotate their destinations: {dest1,dest2,...}
+      map<int, set<int> > cond_bb_destinations;   // stores for each conditional bbid a set of destinations
+      set<int> destinations;
+      int total_cond_branches = 0;
+      for (uint64_t i=0;i<cf.size();i++) {
+        if (cf_cond[i]) {  // verify is a cond branch
+          total_cond_branches++;
+          cond_bb_destinations.insert( make_pair(cf[i], destinations ));  // insert a new bbid in the map
+          cond_bb_destinations.at(cf[i]).insert(cf[i+1]); // insert its "next_bbid" as a destination
+        }
+      }
+      // 2nd: iterate over the "map" of conditional branches
+      map<int,set<int>>::iterator it;
+      int cond_bb_whose_both_destinations_are_non_consecutive = 0;
+      int dynamic_occurences_alwaysT_bb = 0;
+      for (it=cond_bb_destinations.begin(); it!=cond_bb_destinations.end(); ++it) {
+        int bbid = it->first;
+        set<int> destinations = it->second;
+        assert( destinations.size()<=2 );  // make sure a conditional BB has no more than 2 destinations
+        cout << "bbid: " << bbid << ";  # of dest: " << destinations.size() << "; ";
+     
+        // check if at least one of the destinations is consecutive wrt the base bbid
+        bool consecutive_bb_found = false;
+        for (set<int>::iterator it2=destinations.begin(); it2!=destinations.end(); ++it2) {
+          int dest_bbid = *it2;
+          cout << " dest: " << dest_bbid;
+          if (dest_bbid == bbid+1)
+            consecutive_bb_found = true;
+        }
+        cout << endl;
+        if (!consecutive_bb_found) {
+          cond_bb_whose_both_destinations_are_non_consecutive++;
+         
+          // count dynamic occurrences of this bbid in the CF
+          // JLA: these branches are currently assumed as ALWAYS-TAKEN
+          for (uint64_t i=0; i<cf.size(); i++) {
+            if (cf[i]==bbid) 
+              dynamic_occurences_alwaysT_bb++;
+          }
+        }
+      } 
+      cout << "cond_BBs_whose_both_destinations_are_non_consecutive: " << cond_bb_whose_both_destinations_are_non_consecutive << endl;
+      cout << "dynamic_occurences_alwaysT_BBs: " << dynamic_occurences_alwaysT_bb << endl;
+      cout << "total_cond_branches: " << total_cond_branches << endl;
+      cout << "**----END Sanity check of the CF**----------\n\n";
+    }
   }
 };
