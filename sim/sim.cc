@@ -961,7 +961,7 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     if(commQ[d->desc_id]->mem_status==FWD_COMPLETE || commQ[d->desc_id]->mem_status==NONE) { //data is ready in commQ from a forward or completed terminal load or regular produce
-      if(commQ[d->desc_id]->mem_status==FWD_COMPLETE) { //stl forwarding was used        
+      if(commQ[d->desc_id]->mem_status==FWD_COMPLETE) { //St-to-Ld forwarding was used        
         assert(STLMap.find(d->desc_id)!=STLMap.end());
         uint64_t stval_desc_id=STLMap[d->desc_id];
         
@@ -983,9 +983,8 @@ bool DESCQ::execute(DynamicNode* d) {
     //if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
     if(SVB.find(d->desc_id)!=SVB.end()) {
       //loop through all ld_prod and mark their mem_status as fwd_complete, so recv can get the value
-       for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
-       assert(commQ.find(*it)!=commQ.end());
-        
+      for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
+        assert(commQ.find(*it)!=commQ.end());
         commQ[*it]->mem_status=FWD_COMPLETE;       
       }
     }

@@ -319,10 +319,9 @@ public:
         }
       }
       // 2nd: iterate over the "map" of conditional branches
-      map<int,set<int>>::iterator it;
       int cond_bb_whose_both_destinations_are_non_consecutive = 0;
       int dynamic_occurences_alwaysT_bb = 0;
-      for (it=cond_bb_destinations.begin(); it!=cond_bb_destinations.end(); ++it) {
+      for (auto it=cond_bb_destinations.begin(); it!=cond_bb_destinations.end(); ++it) {
         int bbid = it->first;
         set<int> destinations = it->second;
         assert( destinations.size()<=2 );  // make sure a conditional BB has no more than 2 destinations
@@ -330,7 +329,7 @@ public:
      
         // check if at least one of the destinations is consecutive wrt the base bbid
         bool consecutive_bb_found = false;
-        for (set<int>::iterator it2=destinations.begin(); it2!=destinations.end(); ++it2) {
+        for (auto it2=destinations.begin(); it2!=destinations.end(); ++it2) {
           int dest_bbid = *it2;
           cout << " dest: " << dest_bbid;
           if (dest_bbid == bbid+1)

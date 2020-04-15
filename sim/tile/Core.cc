@@ -387,7 +387,7 @@ bool Core::process() {
   bool llama_cache_process = llama_cache->process();
   bool simulate = cache_process || l2_cache_process || llama_cache_process;
 
-  //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
+  //process descq if this is the 2nd tile. 2 tiles share 1 descq
   if(id % 2 == 0) {
     sim->get_descq(this)->process();    
   }
