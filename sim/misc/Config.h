@@ -96,7 +96,8 @@ public:
   int SAB_size=128; //store address buffer size
   int SVB_size=128; //store value buffer size
   int term_buffer_size=32; //max size of terminal load buffer
-  int desc_min_latency=5; //desc queue latency
+  int desc_latency=3; //desc queue latency
+  int openDCP_latency=0;
   int num_prefetched_lines=1;
   bool SimpleDRAM=0;
   int dram_bw=12; //GB/s
@@ -130,7 +131,7 @@ public:
                 {"ideal_cache",5},{"cache_size",6},{"cache_load_ports",7},{"cache_store_ports",8},{"mem_read_ports",9},
                 {"mem_write_ports",10}, {"cache_latency",11}, {"cache_assoc",12}, {"cache_linesize",13}, {"window_size",14}, 
                 {"issueWidth",15}, {"commBuff_size", 16}, {"commQ_size",17}, {"term_buffer_size",18}, {"SAB_size",19}, 
-                {"desc_min_latency",20}, {"SVB_size",21}, {"branch_predictor", 22}, {"misprediction_penalty", 23}, 
+                {"desc_latency",20}, {"SVB_size",21}, {"branch_predictor", 22}, {"misprediction_penalty", 23}, 
                 {"prefetch_distance", 24}, {"num_prefetched_lines",25}, {"SimpleDRAM",26}, {"dram_bw",27}, {"dram_latency",28}, 
                 {"technology_node",29}, {"chip_freq",30}, {"num_accels",31}, {"num_IS",32}, {"mem_chunk_size",33},
                 {"llama_ideal_cache", 34}, {"llama_cache_size", 35}, {"llama_cache_assoc", 36}, {"llama_cache_linesize", 37},
@@ -140,7 +141,7 @@ public:
                 {"use_l2", 52}, {"l2_ideal_cache", 53}, {"l2_cache_latency", 54}, {"l2_cache_size", 55}, {"l2_cache_assoc", 56}, {"l2_cache_linesize", 57}, 
                 {"l2_cache_load_ports", 58}, {"l2_cache_store_ports", 59}, {"l2_prefetch_distance", 60}, {"l2_num_prefetched_lines", 61}, 
                 {"l2_cache_by_temperature", 62}, {"l2_node_degree_threshold", 63}, {"llama_node_id", 64}, {"mshr_size", 65},
-                {"bht_size", 66}, {"gshare_global_hist", 67}};
+                {"bht_size", 66}, {"gshare_global_hist", 67}, {"openDCP_latency", 68}};
   //this converts the text in the config file to the variable using the getCfg function above
   
   Config();

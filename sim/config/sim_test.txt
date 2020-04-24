@@ -33,4 +33,4 @@
 64,commBuff_size
 512,commQ_size 
 128,term_buffer_size 
-3,desc_min_latency 
+3,desc_latency 

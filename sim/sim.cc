@@ -1029,7 +1029,7 @@ bool DESCQ::execute(DynamicNode* d) {
 //if not, inserts respective instructions into their buffers
 bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim) {
   bool canInsert=true;
-  
+  int extra_openDCP_lat = 0;
   if(d->n->typeInstr==LD_PROD || d->atomic) {
     sim->commQSizes.push_back(commQ_count);
     if (sim->commQMax < commQ_count) {
@@ -1086,6 +1086,8 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
   }
   else if(d->n->typeInstr==RECV) {    
     //no resource constraints here
+    extra_openDCP_lat = cfg.openDCP_latency;
+//    cout << "extra_openDCP_lat " << extra_openDCP_lat << endl; 
   }
   else if(d->n->typeInstr==STADDR) {
     sim->SABSizes.push_back(SAB_count);
@@ -1114,8 +1116,8 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
       SVB_issue_pointer++;
     }
   }
-  if(canInsert) {  
-    pq.push(make_pair(d,cycles+min_latency));
+  if(canInsert) {
+    pq.push(make_pair(d, cycles + latency + extra_openDCP_lat));
   }
   return canInsert;
 }

@@ -33,7 +33,7 @@
 64,commBuff_size
 512,commQ_size 
 128,term_buffer_size 
-3,desc_min_latency 
+3,desc_latency 
 
 #MosaicSim Configs
 50,mem_chunk_size # save sim memory consumption by reading from tracefile chunk by chunk, set to -1 to read everything at once
