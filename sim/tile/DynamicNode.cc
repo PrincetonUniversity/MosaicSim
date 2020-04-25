@@ -583,7 +583,7 @@ void DynamicNode::handleMemoryReturn() {
 
 void DynamicNode::tryActivate() {
   //if cf_mode==1 or branch prediction is on, we immediately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
-  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 /*&& !core->local_cfg.branch_prediction*/));
+  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_predictor));
 
   int branch_lookahead=50;
   
