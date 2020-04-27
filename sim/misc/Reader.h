@@ -269,7 +269,7 @@ public:
   // Read Dynamic Control Flow data from the profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
   // vector <cf> will be the sequential list of executed BBs
-  void readProfCF(std::string name, std::vector<int> &cf, std::vector<bool> &cf_cond) {
+  void readProfCF(std::string name, std::vector<int> &cf, std::vector<bool> &cf_conditional) {
     string line;
     string last_line;
     uint64_t filesizeKB = fileSizeKB(name);
@@ -288,12 +288,12 @@ public:
           cout << last_line << " / " << line << "\n";
         }
         cf.push_back(stoi(s.at(1)));
-        cf_cond.push_back(s.at(0)=="B");   // in the trace "B" is for conditional branches while the "U" is for unconditional
+        cf_conditional.push_back(s.at(0)=="B");  // in the trace "B" is for conditional branches while the "U" is for unconditional
         last_bbid = stoi(s.at(2));
       }
       // push the last BB from the last line of the file 
       cf.push_back(last_bbid);
-      cf_cond.push_back(false); // the very last BB of the program (RET) is unconditional
+      cf_conditional.push_back(false); // the very last BB of the program (RET) is unconditional
     }
     else {
       cout << "[ERROR] Cannot open the CF Control-Flow trace file!\n";
@@ -301,7 +301,7 @@ public:
     }
     cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";
     cfile.close();
-    assert(cf.size()==cf_cond.size());
+    assert(cf.size()==cf_conditional.size());
 
 
     // JLA: make a sanity check over the CF trace
@@ -312,7 +312,7 @@ public:
       set<int> destinations;
       int total_cond_branches = 0;
       for (uint64_t i=0;i<cf.size();i++) {
-        if (cf_cond[i]) {  // verify is a cond branch
+        if (cf_conditional[i]) {  // verify is a cond branch
           total_cond_branches++;
           cond_bb_destinations.insert( make_pair(cf[i], destinations ));  // insert a new bbid in the map
           cond_bb_destinations.at(cf[i]).insert(cf[i+1]); // insert its "next_bbid" as a destination

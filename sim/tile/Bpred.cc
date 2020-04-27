@@ -3,6 +3,7 @@
 using namespace std;
 
 Bpred::Bpred(TypeBpred type, int bht_size) : type(type), bht_size(bht_size) {
+
   // for testing purposes: models the behavior of a "probabilistic" branch predictor
   if(type==bp_probabilistic) {  
     srand(time(NULL)); // initialize a random seed
@@ -26,11 +27,18 @@ Bpred::Bpred(TypeBpred type, int bht_size) : type(type), bht_size(bht_size) {
     for(int i=0;i<bht_size;i++)
        bht[i]=1;  // init to weakly not-taken    
   }
+  else if (type!=bp_none && type!=bp_always_NT && type!=bp_always_T && type!=bp_perfect) {
+    cout << "Unknown branch predictor!!!\n";
+    assert(false);
+  }
 }
-
+  
 // predict a branch and return if the prediction was correct
-bool Bpred::predict(bool actual_taken, uint64_t pc) {
-  if(type==bp_perfect) {
+bool Bpred::predict_and_check(bool actual_taken, uint64_t pc) {
+  if(type==bp_none) {
+    return false;   
+  } 
+  else if(type==bp_perfect) {
     return true;
   }
   // models the behavior of an Always-NOT-Taken static branch predictor

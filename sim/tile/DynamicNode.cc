@@ -165,11 +165,12 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       d->pending_parents=0;
       d->pending_external_parents=0;
     }
-    // if TERMINATOR: predicts the outcome of the branch. Upon a misprediction we will add a penalty latency, 
-    //  which delays the completion of the terminator after issue, which in turn delays the launching of the next context 
-    if (d->type == TERMINATOR) {
-        if (core->predict_branch(d)==false)
-          d->extra_lat = core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context    
+    // if TERMINATOR && branch prediction is enabled: predicts the outcome of the branch. 
+    // Upon a misprediction we will add a penalty latency, which delays the completion of the terminator after issue, 
+    //    which in turn delays the launching of the next context 
+    if(d->type == TERMINATOR) {
+      if (core->predict_branch_and_check(d)==false)
+        d->extra_lat = core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context    
     }
     d->tryActivate(); 
   }
@@ -582,10 +583,11 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  //if cf_mode==1 or branch prediction is on, we immediately set dependents to 0 and call tryActivate() to issue terminator immediately; this means the parents of terminators will still call tryactivate on terminator, which we don't want to re-issue
-  bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_predictor));
+  //In case of a TERMINATOR we immediately set dependents to 0 and call tryActivate() to issue terminator immediately; 
+  //  this means the parents of terminators will still call tryActivate on terminator, which we don't want to re-issue
+  bool must_wait_for_parents = (type!=TERMINATOR);
 
-  int branch_lookahead=50;
+  int branch_lookahead=50; 
   
   if(must_wait_for_parents && (pending_parents > 0 || pending_external_parents > 0)) {  //not ready to activate
     return;

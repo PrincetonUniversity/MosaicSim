@@ -74,7 +74,7 @@ public:
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
-  vector<bool> cf_cond; // indicates if the branch is a conditional one 
+  vector<bool> cf_conditional; // indicates if the branch is a conditional one 
   ifstream memfile;
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   unordered_map<int, queue<string> > acc_map;  // List of memory accesses per instruction in a program order
@@ -99,7 +99,7 @@ public:
   void accessComplete(MemTransaction *t);
   void deleteErasableContexts();  
   void calculateEnergyPower();
-  bool predict_branch(DynamicNode* d);
+  bool predict_branch_and_check(DynamicNode* d);
   string getInstrName(TInstr instr);
   void fastForward(uint64_t inc);
 };

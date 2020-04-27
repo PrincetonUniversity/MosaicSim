@@ -92,7 +92,7 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
     assert(false);
   }
 
-  r.readProfCF(cfName, core->cf, core->cf_cond);
+  r.readProfCF(cfName, core->cf, core->cf_conditional);
   r.readAccTrace(accName, core->acc_map);
   
   //GraphOpt opt(core->g);

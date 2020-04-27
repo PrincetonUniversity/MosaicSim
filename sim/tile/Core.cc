@@ -293,15 +293,15 @@ string Core::getInstrName(TInstr instr) {
 }
 
 // Return boolean indicating whether or not the branch has been correctly predicted
-bool Core::predict_branch(DynamicNode* d) {
-  bool correct_pred = false;
+bool Core::predict_branch_and_check(DynamicNode* d) {
+  bool is_pred_ok = false;
   bool actual_taken = false;
 
   uint64_t current_context_id = d->c->id;
   uint64_t current_bbid = cf.at(current_context_id);
 
-  if (!cf_cond.at(current_context_id))  // if this is not a Conditional TERMINATOR
-    return true;                        // there is nothing to predict and returns immediately 
+  if(cf_conditional.at(current_context_id)==0)  // if the the branch is "unconditional" there is nothing to predict
+    return true;                                 // and returns TRUE immediately (correctly predicted)
 
   uint64_t next_context_id = current_context_id+1;
   uint64_t next_bbid;
@@ -315,15 +315,15 @@ bool Core::predict_branch(DynamicNode* d) {
     actual_taken = true;
 
   // check the prediction
-  correct_pred = bpred->predict(actual_taken,current_bbid);
+  is_pred_ok = bpred->predict_and_check(actual_taken,current_bbid);
 
   // update bpred stats
   stat.update("bpred_cond_branches");
-  if(correct_pred)
+  if(is_pred_ok)
     stat.update("bpred_correct_preds");
   else  
     stat.update("bpred_mispredictions");
-  return correct_pred;
+  return is_pred_ok;
 }
 
 bool Core::createContext() {
