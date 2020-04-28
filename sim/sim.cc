@@ -92,7 +92,7 @@ void Simulator::registerCore(string wlpath, string cfgpath, string cfgname, int 
     assert(false);
   }
 
-  r.readProfCF(cfName, core->cf, core->cf_cond);
+  r.readProfCF(cfName, core->cf, core->cf_conditional);
   r.readAccTrace(accName, core->acc_map);
   
   //GraphOpt opt(core->g);
@@ -961,7 +961,7 @@ bool DESCQ::execute(DynamicNode* d) {
       return false;
     }
     if(commQ[d->desc_id]->mem_status==FWD_COMPLETE || commQ[d->desc_id]->mem_status==NONE) { //data is ready in commQ from a forward or completed terminal load or regular produce
-      if(commQ[d->desc_id]->mem_status==FWD_COMPLETE) { //stl forwarding was used        
+      if(commQ[d->desc_id]->mem_status==FWD_COMPLETE) { //St-to-Ld forwarding was used        
         assert(STLMap.find(d->desc_id)!=STLMap.end());
         uint64_t stval_desc_id=STLMap[d->desc_id];
         
@@ -983,9 +983,8 @@ bool DESCQ::execute(DynamicNode* d) {
     //if(d->desc_id==sab_front->first && stval_map[d->desc_id]->mem_status==FWD_COMPLETE) {
     if(SVB.find(d->desc_id)!=SVB.end()) {
       //loop through all ld_prod and mark their mem_status as fwd_complete, so recv can get the value
-       for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
-       assert(commQ.find(*it)!=commQ.end());
-        
+      for(auto it = SVB[d->desc_id].begin(); it != SVB[d->desc_id].end(); ++it ) {
+        assert(commQ.find(*it)!=commQ.end());
         commQ[*it]->mem_status=FWD_COMPLETE;       
       }
     }
@@ -1030,7 +1029,7 @@ bool DESCQ::execute(DynamicNode* d) {
 //if not, inserts respective instructions into their buffers
 bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim) {
   bool canInsert=true;
-  
+  int extra_openDCP_lat = 0;
   if(d->n->typeInstr==LD_PROD || d->atomic) {
     sim->commQSizes.push_back(commQ_count);
     if (sim->commQMax < commQ_count) {
@@ -1087,6 +1086,8 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
   }
   else if(d->n->typeInstr==RECV) {    
     //no resource constraints here
+    extra_openDCP_lat = cfg.openDCP_latency;
+//    cout << "extra_openDCP_lat " << extra_openDCP_lat << endl; 
   }
   else if(d->n->typeInstr==STADDR) {
     sim->SABSizes.push_back(SAB_count);
@@ -1115,8 +1116,8 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
       SVB_issue_pointer++;
     }
   }
-  if(canInsert) {  
-    pq.push(make_pair(d,cycles+min_latency));
+  if(canInsert) {
+    pq.push(make_pair(d, cycles + latency + extra_openDCP_lat));
   }
   return canInsert;
 }

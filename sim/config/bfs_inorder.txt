@@ -3,15 +3,15 @@
 
 #Core
 #For in order mode, set window_size to 1
-1,lsq_size
+-1,lsq_size
 1,window_size   #effectively, ROB size
 1,issueWidth   #num of issuable instrs per cycle
 0,cf_mode   #set 1 to create all contexts at once, perfect branch prediction
 0,mem_speculate #address alias speculation
 0,mem_forward #lsq store to load forwarding
 -1,max_active_contexts_BB 
-0,branch_predictor  
-0,misprediction_penalty # enter penalty of 0 for perfect prediction
+6,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
+2,misprediction_penalty # enter penalty of 0 for perfect prediction
 
 #Cache
 0,ideal_cache
@@ -37,19 +37,3 @@
 1,l2_prefetch_distance #distance (in num cachelines) before first prefetch
 0,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
 
-#Eviction
-0,eviction_policy
-0,llama_eviction_policy
-64,llama_cache_linesize
-
-#Caching Strategies
-0,partition_L1
-0,partition_L2
-0,cache_by_signature
-7,partition_ratio
-0,perfect_llama
-0,cache_by_temperature
-0,node_degree_threshold
-0,l2_cache_by_temperature
-0,l2_node_degree_threshold
-1,record_evictions

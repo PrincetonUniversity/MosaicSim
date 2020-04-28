@@ -293,36 +293,37 @@ string Core::getInstrName(TInstr instr) {
 }
 
 // Return boolean indicating whether or not the branch has been correctly predicted
-bool Core::predict_branch(DynamicNode* d) {
-  bool correct_pred = false;
+bool Core::predict_branch_and_check(DynamicNode* d) {
+  bool is_pred_ok = false;
   bool actual_taken = false;
 
   uint64_t current_context_id = d->c->id;
   uint64_t current_bbid = cf.at(current_context_id);
 
-  if (!cf_cond.at(current_context_id))  // if this is not a Conditional TERMINATOR
-    return true;                        // there is nothing to predict and returns immediately 
+  if(cf_conditional.at(current_context_id)==0)  // if the the branch is "unconditional" there is nothing to predict
+    return true;                                 // and returns TRUE immediately (correctly predicted)
 
   uint64_t next_context_id = current_context_id+1;
   uint64_t next_bbid;
 
   if(next_context_id < cf.size()) {
     next_bbid=cf.at(next_context_id);
-    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> a taken branch // VERIFY THIS!
+    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> taken branch
     actual_taken = (next_bbid != current_bbid+1);
   }
-  else if (bpred->type==bp_perfect) // this is the very last branch of the program (a RET) -> we assume is taken
+  else  // this is the very last branch of the program (a RET in llvm) -> taken branch
     actual_taken = true;
 
   // check the prediction
-  correct_pred = bpred->predict(actual_taken,current_bbid);
+  is_pred_ok = bpred->predict_and_check(actual_taken,current_bbid);
 
   // update bpred stats
-  if(correct_pred)
+  stat.update("bpred_cond_branches");
+  if(is_pred_ok)
     stat.update("bpred_correct_preds");
   else  
     stat.update("bpred_mispredictions");
-  return correct_pred;
+  return is_pred_ok;
 }
 
 bool Core::createContext() {
@@ -386,7 +387,7 @@ bool Core::process() {
   bool llama_cache_process = llama_cache->process();
   bool simulate = cache_process || l2_cache_process || llama_cache_process;
 
-  //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
+  //process descq if this is the 2nd tile. 2 tiles share 1 descq
   if(id % 2 == 0) {
     sim->get_descq(this)->process();    
   }

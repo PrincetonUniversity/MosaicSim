@@ -4,7 +4,7 @@
 #include "../common.h"
 using namespace std;
 
-typedef enum {bp_perfect, bp_always_NT, bp_always_T, bp_onebit, bp_twobit, bp_gshare, bp_probabilistic} TypeBpred;
+typedef enum {bp_none, bp_always_NT, bp_always_T, bp_onebit, bp_twobit, bp_gshare, bp_perfect, bp_probabilistic} TypeBpred;
 
 class Bpred {
 public:
@@ -24,7 +24,7 @@ public:
   int prob_mispredict = 17;  // we can set here the prob we want the BP to achieve and check that we get it
 
   Bpred(TypeBpred, int);
-  bool predict(bool taken, uint64_t pc);
+  bool predict_and_check(bool taken, uint64_t pc);
 };
 
 #endif

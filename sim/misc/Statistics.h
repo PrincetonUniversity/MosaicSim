@@ -122,6 +122,7 @@ public:
     registerStat("lsq_insert_fail", 4);
 
     // branch prediction Stats
+    registerStat("bpred_cond_branches", 0);
     registerStat("bpred_correct_preds", 0);
     registerStat("bpred_mispredictions", 0);
 
@@ -181,7 +182,8 @@ public:
     if(get("l3_accesses")!=0)
       ofile << "L3 Miss Rate: " << (100.0 * get("l3_misses"))/(get("l3_accesses")) << "%"<< endl;
 
-    ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_mispredictions"))/ (get("bpred_mispredictions")+get("bpred_correct_preds"))) << "%"<< endl;
+    if(get("bpred_cond_branches")!=0)
+      ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_mispredictions")) / (get("bpred_cond_branches"))) << "%"<< endl;
 
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       ofile << it->first << " : " << it->second.first << "\n";

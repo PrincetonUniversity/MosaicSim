@@ -278,7 +278,7 @@ void Config::getCfg(int id, int val) {
     SAB_size = val;
     break;
   case 20:
-    desc_min_latency = val;
+    desc_latency = val;
     break;
   case 21:
     SVB_size = val;  
@@ -441,6 +441,9 @@ void Config::getCfg(int id, int val) {
     break;
   case 67:
     gshare_global_hist_bits = val;
+    break;
+  case 68:
+    openDCP_latency = val;
     break;
   default:
     break;
