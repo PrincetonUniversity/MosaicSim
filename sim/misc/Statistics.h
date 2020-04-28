@@ -53,7 +53,7 @@ public:
     registerStat("l1_dirty_evicts", 0);
     registerStat("l1_clean_evicts", 0);
     registerStat("l1_evicts", 0);
-    
+ 
     // L2 Stats
     registerStat("l2_accesses", 0); // loads + stores
     registerStat("l2_hits", 0); // load_hits + store_hits
@@ -71,6 +71,9 @@ public:
     registerStat("l2_dirty_evicts", 0);
     registerStat("l2_clean_evicts", 0);
     registerStat("l2_evicts", 0);
+    registerStat("l2_writebacks", 0); // l2_writeback_hits + l2_writeback_misses
+    registerStat("l2_writeback_hits", 0);
+    registerStat("l2_writeback_misses", 0);
 
     // L3 Stats
     registerStat("l3_accesses", 0); // loads + stores
@@ -89,6 +92,9 @@ public:
     registerStat("l3_dirty_evicts", 0);
     registerStat("l3_clean_evicts", 0);
     registerStat("l3_evicts", 0);
+    registerStat("l3_writebacks", 0); // l3_writeback_hits + l3_writeback_misses
+    registerStat("l3_writeback_hits", 0);
+    registerStat("l3_writeback_misses", 0);
  
     // other global cache Stats
     registerStat("cache_access", 1);
@@ -166,12 +172,14 @@ public:
     ofile << "Average DRAM Read Latency (cycles): " << (double) get("dram_total_read_latency") / (get("dram_reads_loads") + get("dram_reads_stores")) << "\n";
     ofile << "Average DRAM Write Latency (cycles): " << (double) get("dram_total_write_latency") / get("dram_writes_evictions") << "\n";
 
-    if(get("l1_misses")!=0)
-      ofile << "L1 Miss Rate: " <<  ((100.0 * get("l1_primary_misses"))/ (get("l1_misses")+get("l1_hits"))) << "%"<< endl;
-    if(get("l2_misses")!=0)
-      ofile << "L2 Miss Rate: " << ( (100.0 * get("l2_misses"))/(get("l2_misses")+get("l2_hits"))) << "%"<< endl;
-    if(get("l3_misses")!=0)
-      ofile << "L3 Miss Rate: " << ( (100.0 * get("l3_misses"))/(get("l3_misses")+get("l3_hits"))) << "%"<< endl;
+    if(get("l1_accesses")!=0)
+      ofile << "L1 Miss Rate: " <<  (100.0 * get("l1_primary_misses"))/ (get("l1_accesses")) << "%"<< endl;
+
+    if(get("l2_accesses")!=0)
+      ofile << "L2 Miss Rate: " << (100.0 * get("l2_misses"))/(get("l2_accesses")) << "%"<< endl;
+
+    if(get("l3_accesses")!=0)
+      ofile << "L3 Miss Rate: " << (100.0 * get("l3_misses"))/(get("l3_accesses")) << "%"<< endl;
 
     ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_mispredictions"))/ (get("bpred_mispredictions")+get("bpred_correct_preds"))) << "%"<< endl;
 
@@ -188,20 +196,14 @@ public:
     ofile << "Average DRAM Read Latency (cycles): " << (double) get_epoch("dram_total_read_latency") / (get_epoch("dram_reads_loads") + get_epoch("dram_reads_stores")) << "\n";
     ofile << "Average DRAM Write Latency (cycles): " << (double) get_epoch("dram_total_write_latency") / get_epoch("dram_writes_evictions") << "\n";
  
-    if(get_epoch("l1_misses")!=0)
-      {
-        ofile << "L1 Miss Rate: " <<  ((100.0 * get_epoch("l1_primary_misses"))/ (get_epoch("l1_misses")+get_epoch("l1_hits"))) << "%"<< endl;
-      }
+    if(get_epoch("l1_accesses")!=0)
+      ofile << "L1 Miss Rate: " <<  (100.0 * get_epoch("l1_primary_misses"))/(get_epoch("l1_accesses")) << "%"<< endl;
 
-    if(get_epoch("l2_misses")!=0)
-      {
-        ofile << "L2 Miss Rate: " << ( (100.0 * get_epoch("l2_misses"))/(get_epoch("l2_misses")+get_epoch("l2_hits"))) << "%"<< endl;
-      }
+    if(get_epoch("l2_accesses")!=0)
+      ofile << "L2 Miss Rate: " << (100.0 * get_epoch("l2_misses"))/(get_epoch("l2_accesses")) << "%"<< endl;
     
-    if(get_epoch("l3_misses")!=0)
-      {
-        ofile << "L3 Miss Rate: " << ( (100.0 * get_epoch("l3_misses"))/(get_epoch("l3_misses")+get_epoch("l3_hits"))) << "%"<< endl;
-      }
+    if(get_epoch("l3_accesses")!=0)
+      ofile << "L3 Miss Rate: " << (100.0 * get_epoch("l3_misses"))/(get_epoch("l3_accesses")) << "%"<< endl;
     
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       //cout << "failing stat" << it->first << endl;

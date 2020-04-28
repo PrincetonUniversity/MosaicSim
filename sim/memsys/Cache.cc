@@ -42,6 +42,9 @@ string l2_total_accesses="l2_total_accesses"; // l2_accesses + l2_prefetches
 string l2_dirty_evicts="l2_dirty_evicts";
 string l2_clean_evicts="l2_clean_evicts";
 string l2_evicts="l2_evicts";
+string l2_writebacks="l2_writebacks"; // l2_writeback_hits + l2_writeback_misses
+string l2_writeback_hits="l2_writeback_hits";
+string l2_writeback_misses="l2_writeback_misses";
 
 string l3_accesses="l3_accesses"; // loads + stores
 string l3_hits="l3_hits"; // load_hits + store_hits
@@ -59,6 +62,9 @@ string l3_total_accesses="l3_total_accesses"; // l3_accesses + l3_prefetches
 string l3_dirty_evicts="l3_dirty_evicts";
 string l3_clean_evicts="l3_clean_evicts";
 string l3_evicts="l3_evicts";
+string l3_writebacks="l3_writebacks"; // l3_writeback_hits + l3_writeback_misses
+string l3_writeback_hits="l3_writeback_hits";
+string l3_writeback_misses="l3_writeback_misses";
 
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
@@ -359,7 +365,7 @@ void Cache::execute(MemTransaction* t) {
         t->cache_q->pop_front();
         
         bool bypassCache = (child_cache->size == 0); // || (child_cache->cache_by_temperature == 1 && child_cache->isL1 && graphNodeDeg < child_cache->node_degree_threshold);
-        if (!bypassCache) {    
+        if (!bypassCache) { // hit in L2 or L3, so insert in L1 
           child_cache->fc->insert(dramaddr, nodeId, graphNodeId, graphNodeDeg, t->isLoad, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace); 
         }
         
@@ -451,70 +457,108 @@ void Cache::execute(MemTransaction* t) {
         }
       }       
     } else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
+      if(isL1) {
+        stat.update(l1_total_accesses);
+        core->local_stat.update(l1_total_accesses);
+        stat.update(l1_accesses);
+        core->local_stat.update(l1_accesses);
+      } else { //for l2 and l3 cache
+        if (isLLC && useL2) {
+          stat.update(l3_total_accesses);
+          stat.update(l3_accesses);
+          stat.update(l3_writebacks);
+          stat.update(l3_writeback_hits);
+        } else {
+          stat.update(l2_total_accesses);
+          stat.update(l2_accesses);
+          stat.update(l2_writebacks);
+          stat.update(l2_writeback_hits);
+        }
+      }       
       delete t; 
     }
   } //misses
   else {
-    if(isL1) {
-      stat.update(l1_total_accesses);
-      core->local_stat.update(l1_total_accesses);
-      if(t->isPrefetch) {
-        stat.update(l1_prefetch_misses);
-        core->local_stat.update(l1_prefetch_misses);
-        stat.update(l1_prefetches);
-        core->local_stat.update(l1_prefetches);  
-      } else {    
-        stat.update(l1_misses);
-        core->local_stat.update(l1_misses);
-        if(t->isLoad) {
-          stat.update(l1_load_misses);
-          core->local_stat.update(l1_load_misses);
-          stat.update(l1_loads);
-          core->local_stat.update(l1_loads);
-        } else {
-          stat.update(l1_store_misses);
-          core->local_stat.update(l1_store_misses);
-          stat.update(l1_stores);
-          core->local_stat.update(l1_stores);
+    if (t->src_id!=-1) { // not a dirty eviction
+      if(isL1) {
+        stat.update(l1_total_accesses);
+        core->local_stat.update(l1_total_accesses);
+        if(t->isPrefetch) {
+          stat.update(l1_prefetch_misses);
+          core->local_stat.update(l1_prefetch_misses);
+          stat.update(l1_prefetches);
+          core->local_stat.update(l1_prefetches);  
+        } else {    
+          stat.update(l1_misses);
+          core->local_stat.update(l1_misses);
+          if(t->isLoad) {
+            stat.update(l1_load_misses);
+            core->local_stat.update(l1_load_misses);
+            stat.update(l1_loads);
+            core->local_stat.update(l1_loads);
+          } else {
+            stat.update(l1_store_misses);
+            core->local_stat.update(l1_store_misses);
+            stat.update(l1_stores);
+            core->local_stat.update(l1_stores);
+          }
+          stat.update(l1_accesses);
+          core->local_stat.update(l1_accesses);
         }
-        stat.update(l1_accesses);
-        core->local_stat.update(l1_accesses);
-      }
-      t->checkMSHR=true;
-    } else if (isLLC && useL2) {
-      stat.update(l3_total_accesses);
-      if(t->isPrefetch) {
-        stat.update(l3_prefetch_misses);
-        stat.update(l3_prefetches);
+        t->checkMSHR=true;
+      } else if (isLLC && useL2) {
+        stat.update(l3_total_accesses);
+        if(t->isPrefetch) {
+          stat.update(l3_prefetch_misses);
+          stat.update(l3_prefetches);
+        } else {
+          stat.update(l3_misses);
+          if(t->isLoad) {
+            stat.update(l3_load_misses);
+            stat.update(l3_loads);
+          } else {
+            stat.update(l3_store_misses);
+            stat.update(l3_stores);
+          }
+          stat.update(l3_accesses);
+        }
       } else {
-        stat.update(l3_misses);
-        if(t->isLoad) {
-          stat.update(l3_load_misses);
-          stat.update(l3_loads);
+        stat.update(l2_total_accesses);
+        if(t->isPrefetch) {
+          stat.update(l2_prefetch_misses);
+          stat.update(l2_prefetches);
         } else {
-          stat.update(l3_store_misses);
-          stat.update(l3_stores);
+          stat.update(l2_misses);
+          if(t->isLoad) {
+            stat.update(l2_load_misses);
+            stat.update(l2_loads);
+          } else {
+            stat.update(l2_store_misses);
+            stat.update(l2_stores);
+          }
+          stat.update(l2_accesses);
         }
-        stat.update(l3_accesses);
       }
     } else {
-      stat.update(l2_total_accesses);
-      if(t->isPrefetch) {
-        stat.update(l2_prefetch_misses);
-        stat.update(l2_prefetches);
-      } else {
-        stat.update(l2_misses);
-        if(t->isLoad) {
-          stat.update(l2_load_misses);
-          stat.update(l2_loads);
+      if(isL1) {
+        stat.update(l1_total_accesses);
+        core->local_stat.update(l1_total_accesses);
+        stat.update(l1_accesses);
+        core->local_stat.update(l1_accesses);
+      } else { //for l2 and l3 cache
+        if (isLLC && useL2) {
+          stat.update(l3_total_accesses);
+          stat.update(l3_accesses);
+          stat.update(l3_writebacks);
+          stat.update(l3_writeback_misses);
         } else {
-          stat.update(l2_store_misses);
-          stat.update(l2_stores);
+          stat.update(l2_total_accesses);
+          stat.update(l2_accesses);
+          stat.update(l2_writebacks);
+          stat.update(l2_writeback_misses);
         }
-        stat.update(l2_accesses);
-      }
+      }       
     }
- 
     to_send.push_back(t); //send higher up in hierarchy
     //d->print(Cache Miss, 1);
     //if(!t->isPrefetch) {    
@@ -739,7 +783,7 @@ void Cache::TransactionComplete(MemTransaction *t) {
     t->cache_q->pop_front();
 
     bool bypassCache = (c->size == 0); // || (c->cache_by_temperature == 1 && c->isL1 && graphNodeDeg < c->node_degree_threshold);
-    if (!bypassCache) {    
+    if (!bypassCache) { // retrieved from DRAM, need to send up to L1 
       c->fc->insert(t->addr, nodeId, graphNodeId, graphNodeDeg, t->isLoad, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
     }
 
