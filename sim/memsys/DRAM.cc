@@ -67,15 +67,15 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
         c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
       
         if (c->useL2) {
-          stat.update("l3_dirty_evicts");
+          stat.update("l3_evicts_dirty");
         } else {
-          stat.update("l2_dirty_evicts");
+          stat.update("l2_evicts_dirty");
         }
       } else {
         if (c->useL2) {
-          stat.update("l3_clean_evicts");
+          stat.update("l3_evicts_clean");
         } else {
-          stat.update("l2_clean_evicts");
+          stat.update("l2_evicts_clean");
         }
       }
 

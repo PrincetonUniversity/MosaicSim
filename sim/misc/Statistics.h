@@ -34,24 +34,24 @@ public:
     registerStat("l1_accesses", 0); // loads + stores
     registerStat("l1_hits", 0); // load_hits + store_hits
     registerStat("l1_misses", 0); // load_misses + store_misses
-    registerStat("l1_primary_misses", 0); // primary_load_misses + primary_store_misses
-    registerStat("l1_secondary_misses", 0); // secondary_load_misses + secondary_store_misses
+    registerStat("l1_misses_primary", 0); // primary_load_misses + primary_store_misses
+    registerStat("l1_misses_secondary", 0); // secondary_load_misses + secondary_store_misses
     registerStat("l1_loads", 0); // load_hits + load_misses
     registerStat("l1_load_hits", 0);
     registerStat("l1_load_misses", 0);
-    registerStat("l1_primary_load_misses", 0);
-    registerStat("l1_secondary_load_misses", 0);
+    registerStat("l1_load_misses_primary", 0);
+    registerStat("l1_load_misses_secondary", 0);
     registerStat("l1_stores", 0); // store_hits + store_misses
     registerStat("l1_store_hits", 0);
     registerStat("l1_store_misses", 0);
-    registerStat("l1_primary_store_misses", 0);
-    registerStat("l1_secondary_store_misses", 0);
+    registerStat("l1_store_misses_primary", 0);
+    registerStat("l1_store_misses_secondary", 0);
     registerStat("l1_prefetches", 0); // prefetch_hits + prefetch_misses
     registerStat("l1_prefetch_hits", 0);
     registerStat("l1_prefetch_misses", 0);
     //registerStat("l1_total_accesses", 0); // l1_accesses + l1_prefetches
-    registerStat("l1_dirty_evicts", 0);
-    registerStat("l1_clean_evicts", 0);
+    registerStat("l1_evicts_dirty", 0);
+    registerStat("l1_evicts_clean", 0);
     registerStat("l1_evicts", 0);
  
     // L2 Stats
@@ -68,8 +68,8 @@ public:
     registerStat("l2_prefetch_hits", 0);
     registerStat("l2_prefetch_misses", 0);
     //registerStat("l2_total_accesses", 0); // l2_accesses + l2_prefetches
-    registerStat("l2_dirty_evicts", 0);
-    registerStat("l2_clean_evicts", 0);
+    registerStat("l2_evicts_dirty", 0);
+    registerStat("l2_evicts_clean", 0);
     registerStat("l2_evicts", 0);
     registerStat("l2_writebacks", 0); 
 
@@ -87,8 +87,8 @@ public:
     registerStat("l3_prefetch_hits", 0);
     registerStat("l3_prefetch_misses", 0);
     //registerStat("l3_total_accesses", 0); // l3_accesses + l3_prefetches
-    registerStat("l3_dirty_evicts", 0);
-    registerStat("l3_clean_evicts", 0);
+    registerStat("l3_evicts_dirty", 0);
+    registerStat("l3_evicts_clean", 0);
     registerStat("l3_evicts", 0);
     registerStat("l3_writebacks", 0); 
  
