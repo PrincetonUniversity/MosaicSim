@@ -20,6 +20,7 @@
 
 #Eviction
 0,eviction_policy
+64,llama_cache_linesize
 
 #Caching Strategies
 0,cache_by_signature
@@ -27,17 +28,13 @@
 0,perfect_llama
 0,cache_by_temperature
 0,node_degree_threshold
-
-1,record_evictions
-4,llama_cache_linesize
+0,record_evictions
 
 #Memory
 #Simple DRAM Model
-
 1,SimpleDRAM #set 1 for simple dram model, 0 for DRAMSim
 24,dram_bw #peak simple DRAM Bandwidth (GB/s)
 200,dram_latency #minimum simple DRAM latency in cycles
-
 4,mem_read_ports
 4,mem_write_ports
 
@@ -47,7 +44,8 @@
 64,commBuff_size
 512,commQ_size 
 128,term_buffer_size 
-3,desc_min_latency 
+3,desc_latency
+30,openDCP_latency
 
 #Pythia Configs
 50,mem_chunk_size # save sim memory consumption by reading from tracefile chunk by chunk, set to -1 to read everything at once

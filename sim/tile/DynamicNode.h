@@ -40,6 +40,7 @@ public:
   ExampleTransaction* t;
   /* branches */
   int extra_lat=0;
+  bool mispredicted=true;
   /* Memory */
   uint64_t addr;
   int width;

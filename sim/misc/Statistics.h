@@ -118,9 +118,10 @@ public:
     registerStat("lsq_insert_fail", 4);
 
     // branch prediction Stats
+    registerStat("bpred_uncond_branches", 0);
     registerStat("bpred_cond_branches", 0);
-    registerStat("bpred_correct_preds", 0);
-    registerStat("bpred_mispredictions", 0);
+    registerStat("bpred_cond_correct_preds", 0);
+    registerStat("bpred_cond_wrong_preds", 0);
 
     // other DeSC-related Stats
     registerStat("load_issue_try", 3);
@@ -179,7 +180,7 @@ public:
       ofile << "L3 Miss Rate: " << (100.0 * get("l3_misses"))/(get("l3_accesses")) << "%"<< endl;
 
     if(get("bpred_cond_branches")!=0)
-      ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_mispredictions")) / (get("bpred_cond_branches"))) << "%"<< endl;
+      ofile << "Branch misprediction rate: " <<  ((100.0 * get("bpred_cond_wrong_preds")) / (get("bpred_cond_branches"))) << "%"<< endl;
 
     for (auto it = stats.begin(); it != stats.end(); ++it) {
       ofile << it->first << " : " << it->second.first << "\n";
