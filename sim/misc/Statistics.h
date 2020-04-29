@@ -49,7 +49,7 @@ public:
     registerStat("l1_prefetches", 0); // prefetch_hits + prefetch_misses
     registerStat("l1_prefetch_hits", 0);
     registerStat("l1_prefetch_misses", 0);
-    registerStat("l1_total_accesses", 0); // l1_accesses + l1_prefetches
+    //registerStat("l1_total_accesses", 0); // l1_accesses + l1_prefetches
     registerStat("l1_dirty_evicts", 0);
     registerStat("l1_clean_evicts", 0);
     registerStat("l1_evicts", 0);
@@ -67,13 +67,11 @@ public:
     registerStat("l2_prefetches", 0); // prefetch_hits + prefetch_misses
     registerStat("l2_prefetch_hits", 0);
     registerStat("l2_prefetch_misses", 0);
-    registerStat("l2_total_accesses", 0); // l2_accesses + l2_prefetches
+    //registerStat("l2_total_accesses", 0); // l2_accesses + l2_prefetches
     registerStat("l2_dirty_evicts", 0);
     registerStat("l2_clean_evicts", 0);
     registerStat("l2_evicts", 0);
-    registerStat("l2_writebacks", 0); // l2_writeback_hits + l2_writeback_misses
-    registerStat("l2_writeback_hits", 0);
-    registerStat("l2_writeback_misses", 0);
+    registerStat("l2_writebacks", 0); 
 
     // L3 Stats
     registerStat("l3_accesses", 0); // loads + stores
@@ -88,13 +86,11 @@ public:
     registerStat("l3_prefetches", 0); // prefetch_hits + prefetch_misses
     registerStat("l3_prefetch_hits", 0);
     registerStat("l3_prefetch_misses", 0);
-    registerStat("l3_total_accesses", 0); // l3_accesses + l3_prefetches
+    //registerStat("l3_total_accesses", 0); // l3_accesses + l3_prefetches
     registerStat("l3_dirty_evicts", 0);
     registerStat("l3_clean_evicts", 0);
     registerStat("l3_evicts", 0);
-    registerStat("l3_writebacks", 0); // l3_writeback_hits + l3_writeback_misses
-    registerStat("l3_writeback_hits", 0);
-    registerStat("l3_writeback_misses", 0);
+    registerStat("l3_writebacks", 0); 
  
     // other global cache Stats
     registerStat("cache_access", 1);

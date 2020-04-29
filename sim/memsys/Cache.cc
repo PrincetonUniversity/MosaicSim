@@ -42,9 +42,7 @@ string l2_total_accesses="l2_total_accesses"; // l2_accesses + l2_prefetches
 string l2_dirty_evicts="l2_dirty_evicts";
 string l2_clean_evicts="l2_clean_evicts";
 string l2_evicts="l2_evicts";
-string l2_writebacks="l2_writebacks"; // l2_writeback_hits + l2_writeback_misses
-string l2_writeback_hits="l2_writeback_hits";
-string l2_writeback_misses="l2_writeback_misses";
+string l2_writebacks="l2_writebacks"; 
 
 string l3_accesses="l3_accesses"; // loads + stores
 string l3_hits="l3_hits"; // load_hits + store_hits
@@ -62,9 +60,7 @@ string l3_total_accesses="l3_total_accesses"; // l3_accesses + l3_prefetches
 string l3_dirty_evicts="l3_dirty_evicts";
 string l3_clean_evicts="l3_clean_evicts";
 string l3_evicts="l3_evicts";
-string l3_writebacks="l3_writebacks"; // l3_writeback_hits + l3_writeback_misses
-string l3_writeback_hits="l3_writeback_hits";
-string l3_writeback_misses="l3_writeback_misses";
+string l3_writebacks="l3_writebacks"; 
 
 string cache_evicts="cache_evicts";
 string cache_access="cache_access";
@@ -324,8 +320,8 @@ void Cache::execute(MemTransaction* t) {
         //assert(mshr.find(cacheline)!=mshr.end());
         TransactionComplete(t);
       
-        stat.update(l1_total_accesses);
-        core->local_stat.update(l1_total_accesses);
+        //stat.update(l1_total_accesses);
+        //core->local_stat.update(l1_total_accesses);
         if(t->isPrefetch) {
           stat.update(l1_prefetch_hits);
           core->local_stat.update(l1_prefetch_hits);
@@ -423,7 +419,7 @@ void Cache::execute(MemTransaction* t) {
         child_cache->TransactionComplete(t);
 
         if (isLLC && useL2) {
-          stat.update(l3_total_accesses);
+          //stat.update(l3_total_accesses);
           if(t->isPrefetch) {
             stat.update(l3_prefetch_hits);
             stat.update(l3_prefetches);
@@ -439,7 +435,7 @@ void Cache::execute(MemTransaction* t) {
             stat.update(l3_accesses);
           }
         } else {
-          stat.update(l2_total_accesses);
+          //stat.update(l2_total_accesses);
           if(t->isPrefetch) {
             stat.update(l2_prefetch_hits);
             stat.update(l2_prefetches);
@@ -458,21 +454,19 @@ void Cache::execute(MemTransaction* t) {
       }       
     } else { // eviction from lower cache, no need to do anything, since it's a hit, involves no DN
       if(isL1) {
-        stat.update(l1_total_accesses);
-        core->local_stat.update(l1_total_accesses);
+        //stat.update(l1_total_accesses);
+        //core->local_stat.update(l1_total_accesses);
         stat.update(l1_accesses);
         core->local_stat.update(l1_accesses);
       } else { //for l2 and l3 cache
         if (isLLC && useL2) {
-          stat.update(l3_total_accesses);
+          //stat.update(l3_total_accesses);
           stat.update(l3_accesses);
           stat.update(l3_writebacks);
-          stat.update(l3_writeback_hits);
         } else {
-          stat.update(l2_total_accesses);
+          //stat.update(l2_total_accesses);
           stat.update(l2_accesses);
           stat.update(l2_writebacks);
-          stat.update(l2_writeback_hits);
         }
       }       
       delete t; 
@@ -481,8 +475,8 @@ void Cache::execute(MemTransaction* t) {
   else {
     if (t->src_id!=-1) { // not a dirty eviction
       if(isL1) {
-        stat.update(l1_total_accesses);
-        core->local_stat.update(l1_total_accesses);
+        //stat.update(l1_total_accesses);
+        //core->local_stat.update(l1_total_accesses);
         if(t->isPrefetch) {
           stat.update(l1_prefetch_misses);
           core->local_stat.update(l1_prefetch_misses);
@@ -507,7 +501,7 @@ void Cache::execute(MemTransaction* t) {
         }
         t->checkMSHR=true;
       } else if (isLLC && useL2) {
-        stat.update(l3_total_accesses);
+        //stat.update(l3_total_accesses);
         if(t->isPrefetch) {
           stat.update(l3_prefetch_misses);
           stat.update(l3_prefetches);
@@ -523,7 +517,7 @@ void Cache::execute(MemTransaction* t) {
           stat.update(l3_accesses);
         }
       } else {
-        stat.update(l2_total_accesses);
+        //stat.update(l2_total_accesses);
         if(t->isPrefetch) {
           stat.update(l2_prefetch_misses);
           stat.update(l2_prefetches);
@@ -541,21 +535,19 @@ void Cache::execute(MemTransaction* t) {
       }
     } else {
       if(isL1) {
-        stat.update(l1_total_accesses);
-        core->local_stat.update(l1_total_accesses);
+        //stat.update(l1_total_accesses);
+        //core->local_stat.update(l1_total_accesses);
         stat.update(l1_accesses);
         core->local_stat.update(l1_accesses);
       } else { //for l2 and l3 cache
         if (isLLC && useL2) {
-          stat.update(l3_total_accesses);
+          //stat.update(l3_total_accesses);
           stat.update(l3_accesses);
           stat.update(l3_writebacks);
-          stat.update(l3_writeback_misses);
         } else {
-          stat.update(l2_total_accesses);
+          //stat.update(l2_total_accesses);
           stat.update(l2_accesses);
           stat.update(l2_writebacks);
-          stat.update(l2_writeback_misses);
         }
       }       
     }
