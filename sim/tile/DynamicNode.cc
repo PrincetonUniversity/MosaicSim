@@ -167,7 +167,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     //if TERMINATOR predict the outcome of the branch 
     if(d->type == TERMINATOR) {
       d->mispredicted = (core->predict_branch_and_check(d)==false);
-      if(d->mispredicted)  //misprediction!
+      if(d->mispredicted && core->bpred->type != bp_none)  //misprediction!
         d->extra_lat = core->local_cfg.misprediction_penalty; //add penalty, which delays launch of next context    
     }
     d->tryActivate(); 

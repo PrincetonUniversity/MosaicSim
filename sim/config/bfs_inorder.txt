@@ -10,7 +10,7 @@
 0,mem_speculate #address alias speculation
 0,mem_forward #lsq store to load forwarding
 -1,max_active_contexts_BB 
-6,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
+0,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
 2,misprediction_penalty # enter penalty of 0 for perfect prediction
 
 #Cache
