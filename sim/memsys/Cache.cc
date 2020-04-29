@@ -456,16 +456,12 @@ void Cache::execute(MemTransaction* t) {
       if(isL1) {
         //stat.update(l1_total_accesses);
         //core->local_stat.update(l1_total_accesses);
-        stat.update(l1_accesses);
-        core->local_stat.update(l1_accesses);
       } else { //for l2 and l3 cache
         if (isLLC && useL2) {
           //stat.update(l3_total_accesses);
-          stat.update(l3_accesses);
           stat.update(l3_writebacks);
         } else {
           //stat.update(l2_total_accesses);
-          stat.update(l2_accesses);
           stat.update(l2_writebacks);
         }
       }       
@@ -537,16 +533,12 @@ void Cache::execute(MemTransaction* t) {
       if(isL1) {
         //stat.update(l1_total_accesses);
         //core->local_stat.update(l1_total_accesses);
-        stat.update(l1_accesses);
-        core->local_stat.update(l1_accesses);
       } else { //for l2 and l3 cache
         if (isLLC && useL2) {
           //stat.update(l3_total_accesses);
-          stat.update(l3_accesses);
           stat.update(l3_writebacks);
         } else {
           //stat.update(l2_total_accesses);
-          stat.update(l2_accesses);
           stat.update(l2_writebacks);
         }
       }       
