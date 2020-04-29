@@ -171,7 +171,7 @@ public:
     ofile << "Average DRAM Write Latency (cycles): " << (double) get("dram_total_write_latency") / get("dram_writes_evictions") << "\n";
 
     if(get("l1_accesses")!=0)
-      ofile << "L1 Miss Rate: " <<  (100.0 * get("l1_primary_misses"))/ (get("l1_accesses")) << "%"<< endl;
+      ofile << "L1 Miss Rate: " <<  (100.0 * get("l1_misses_primary"))/ (get("l1_accesses")) << "%"<< endl;
 
     if(get("l2_accesses")!=0)
       ofile << "L2 Miss Rate: " << (100.0 * get("l2_misses"))/(get("l2_accesses")) << "%"<< endl;
@@ -196,7 +196,7 @@ public:
     ofile << "Average DRAM Write Latency (cycles): " << (double) get_epoch("dram_total_write_latency") / get_epoch("dram_writes_evictions") << "\n";
  
     if(get_epoch("l1_accesses")!=0)
-      ofile << "L1 Miss Rate: " <<  (100.0 * get_epoch("l1_primary_misses"))/(get_epoch("l1_accesses")) << "%"<< endl;
+      ofile << "L1 Miss Rate: " <<  (100.0 * get_epoch("l1_misses_primary"))/(get_epoch("l1_accesses")) << "%"<< endl;
 
     if(get_epoch("l2_accesses")!=0)
       ofile << "L2 Miss Rate: " << (100.0 * get_epoch("l2_misses"))/(get_epoch("l2_accesses")) << "%"<< endl;
