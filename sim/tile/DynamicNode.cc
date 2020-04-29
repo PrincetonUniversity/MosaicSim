@@ -98,7 +98,6 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     //pull in accelerator string for command and args
     //exception for just matmul 
     else if(n->typeInstr==ACCELERATOR) {
-      
       d = new DynamicNode(n, this, core);
       if (core->acc_map.find(n->id)==core->acc_map.end()) {
         d->print("assertion to fail",-10);
@@ -165,12 +164,11 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       d->pending_parents=0;
       d->pending_external_parents=0;
     }
-    // if TERMINATOR && branch prediction is enabled: predicts the outcome of the branch. 
-    // Upon a misprediction we will add a penalty latency, which delays the completion of the terminator after issue, 
-    //    which in turn delays the launching of the next context 
+    //if TERMINATOR predict the outcome of the branch 
     if(d->type == TERMINATOR) {
-      if (core->predict_branch_and_check(d)==false)
-        d->extra_lat = core->local_cfg.misprediction_penalty; //delay completion, which delays launch of next context    
+      d->mispredicted = (core->predict_branch_and_check(d)==false);
+      if(d->mispredicted)  //misprediction!
+        d->extra_lat = core->local_cfg.misprediction_penalty; //add penalty, which delays launch of next context    
     }
     d->tryActivate(); 
   }
@@ -178,6 +176,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     print("Created (BB:" + to_string(bb->id) + ") " , 5);
   }
 }
+
 //update atomic instructions
 void DynamicNode::register_issue_try() {
   if(type == SEND) {
@@ -204,7 +203,7 @@ void DynamicNode::register_issue_try() {
     stat.update(load_issue_try);
     core->local_stat.update(load_issue_try);
   }
-  else if (type == ST) {
+  else if(type == ST) {
     stat.update(store_issue_try);
     core->local_stat.update(store_issue_try);
   }
@@ -255,7 +254,7 @@ void Context::process() {
   bool& window_full=core->windowFull;
   bool issue_stats_mode=false; 
 
-  for (auto it = issue_set.begin(); it!= issue_set.end();) {
+  for(auto it = issue_set.begin(); it!= issue_set.end();) {
    
     //printf("before\n");
     //fflush(stdout);
@@ -264,7 +263,7 @@ void Context::process() {
     //fflush(stdout);
     
     if(window_full) {     
-      if (issue_stats_mode) {
+      if(issue_stats_mode) {
         d->register_issue_try();
         d->print(Issue_Failed, 5);
         next_issue_set.insert(d);
@@ -296,11 +295,9 @@ void Context::process() {
       //depends on lazy eval, as descq will insert if *its* resources are available
     } 
     else if(d->type==ACCELERATOR) {
-      
       res = res && d->issueAccNode();
     }
     else {
-      
       res = res && d->issueCompNode(); //depends on lazy eval
     }
     if(!res) {
@@ -310,7 +307,6 @@ void Context::process() {
       ++it;
     }
     else {
-
       core->window.issue(d);
       d->issued=true;
       if(cfg.verbLevel >= 5) {
@@ -583,48 +579,23 @@ void DynamicNode::handleMemoryReturn() {
 }
 
 void DynamicNode::tryActivate() {
-  //In case of a TERMINATOR we immediately set dependents to 0 and call tryActivate() to issue terminator immediately; 
-  //  this means the parents of terminators will still call tryActivate on terminator, which we don't want to re-issue
-  bool must_wait_for_parents = (type!=TERMINATOR);
+  //if TERMINATOR and branch prediction OK, we immediately issue it: don't wait for parents (ie no data dependences enforced) 
+  //bool must_wait_for_parents = (type!=TERMINATOR || (core->local_cfg.cf_mode==0 && !core->local_cfg.branch_prediction));
+  bool must_wait_for_parents = (type!=TERMINATOR || (type==TERMINATOR && mispredicted));
 
-  int branch_lookahead=50; 
-  
   if(must_wait_for_parents && (pending_parents > 0 || pending_external_parents > 0)) {  //not ready to activate
     return;
   }
 
   //we don't want unneccessary contexts being spawned, when they have no chance of being issued
   //if a terminator was activated too early (branch prediction) but could still be re-activated by a parent, return and have a parent try again to activate
+  int branch_lookahead=50; 
   if(type==TERMINATOR && windowNumber+branch_lookahead > core->window.window_end && (pending_parents > 0 || pending_external_parents > 0)) {   
     return;
   }
-  
-  //don't activate multiple times when branch prediction is on
-  if(!must_wait_for_parents && issued) {
-    return;
-  }
-
   if(issued || completed) {
-    //this->print("trying to activate issued or completed instruction",5);
     return;
-    //assert(false);
   }
-  /*  if(type == TERMINATOR) {    
-      c->completed_nodes.insert(this);
-      issued = true;
-      completed = true;
-      if (core->local_cfg.cf_mode == 0 && type == TERMINATOR)
-      core->context_to_create++;       
-      }*/
-  //else {
-  
-  //if you don't need to wait for parents, 2 parents can tryActivate() in same cycle, which 
-  /*if(must_wait_for_parents && c->issue_set.find(this) != c->issue_set.end()) {
-    print("should not already be issued" , 5);
-    assert(false);
-    
-  }
-  */
   if(isMem || type==STADDR) { //ismem also catches atomic 
     addr_resolved = true;
     core->lsq.resolveAddress(this);
@@ -888,7 +859,7 @@ bool DynamicNode::issueDESCNode() {
       stat.update(stval_issue_success);
       core->local_stat.update(stval_issue_success);
     }
-    if (type == STADDR) {
+    if(type == STADDR) {
       can_exit_rob=true;
       stat.update(staddr_issue_success);
       core->local_stat.update(staddr_issue_success);
@@ -983,11 +954,11 @@ void DynamicNode::finishNode() {
   completed = true;
 
   // Handle Resource limits
-  if ( core->available_FUs.at(n->typeInstr) != -1 )
+  if(core->available_FUs.at(n->typeInstr) != -1 )
     core->available_FUs.at(n->typeInstr)++; 
 
-  // Speculation
-  if (core->local_cfg.mem_speculate && n->typeInstr == ST &&  core->window.issueWidth>1 && core->window.window_size>1) {
+  // Handle Memory Speculation (ie, execution of LDs upon unknown older STs)
+  if(core->local_cfg.mem_speculate && n->typeInstr == ST &&  core->window.issueWidth>1 && core->window.window_size>1) {
     auto misspeculated = core->lsq.check_speculation(this);
     for(unsigned int i=0; i<misspeculated.size(); i++) {
       // Handle Misspeculation
@@ -1000,19 +971,17 @@ void DynamicNode::finishNode() {
   }
 
   //Handle Terminator Node, Launch Context
-  //if cf_mode was 1, then all the contexts would already have been launched
-  if (core->local_cfg.cf_mode == 0 && type == TERMINATOR) {
+  //if cf_mode was 1, then all the contexts would already have been launched and nothing to do
+  if(type == TERMINATOR && core->local_cfg.cf_mode == 0) {
     core->context_to_create++;    
   }
   if(isMem) {      
     speculated = false;
   }
   
-  // Since node <n> ended, update dependents: decrease each dependent's parent count & try to launch each dependent
-  set<Node*>::iterator it;
-  for (it = n->dependents.begin(); it != n->dependents.end(); ++it) {
+  //Update dependents: decrease each dependent's parent count & try to launch each dependent
+  for(auto it=n->dependents.begin(); it!=n->dependents.end(); ++it) {
     DynamicNode *dst = c->nodes.at(*it);
-
     //if the dependent is a store addr dependent
     if(n->store_addr_dependents.find(*it) != n->store_addr_dependents.end()) {      
       dst->addr_resolved = true;
@@ -1022,10 +991,10 @@ void DynamicNode::finishNode() {
     dst->tryActivate();    
   }
 
-  // The same for external dependents: decrease parent's count & try to launch them
+  //Same for external dependents: decrease parent's count & try to launch them
   for(unsigned int i=0; i<external_dependents.size(); i++) {
     DynamicNode *dst = external_dependents.at(i);
-   
+    //if the dependent is a store addr dependent
     if(n->store_addr_dependents.find(n) != n->store_addr_dependents.end()) {
       dst->addr_resolved = true;
       core->lsq.resolveAddress(dst);
@@ -1035,8 +1004,8 @@ void DynamicNode::finishNode() {
   }
   external_dependents.clear();
 
-  // Same for Phi dependents
-  for (it = n->phi_dependents.begin(); it != n->phi_dependents.end(); ++it) {
+  //Same for PHI dependents
+  for(auto it=n->phi_dependents.begin(); it!=n->phi_dependents.end(); ++it) {
     Node *dst = *it;
     if(c->next_bbid == dst->bbid) {
       if(Context *cc = c->getNextContext()) {

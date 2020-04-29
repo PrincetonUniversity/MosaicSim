@@ -71,8 +71,6 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   //assert(issueMap.find(d)!=issueMap.end());
   
   uint64_t position=d->windowNumber;//issueMap.at(d);
- 
-
   bool can_issue=true;
    
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
@@ -300,7 +298,7 @@ bool Core::predict_branch_and_check(DynamicNode* d) {
   uint64_t current_context_id = d->c->id;
   uint64_t current_bbid = cf.at(current_context_id);
 
-  if(cf_conditional.at(current_context_id)==0)  // if the the branch is "unconditional" there is nothing to predict
+  if( !cf_conditional.at(current_context_id) )  // if the the branch is "unconditional" there is nothing to predict
     return true;                                 // and returns TRUE immediately (correctly predicted)
 
   uint64_t next_context_id = current_context_id+1;
@@ -432,7 +430,7 @@ bool Core::process() {
   // Print current stats every "stat.printInterval" cycles
   if(cfg.verbLevel >= 5)
     cout << "[Cycle: " << cycles << "]\n";
-  if(cycles % stat.printInterval == 0 && cycles != 0) {
+  if(cycles > 0 && cycles % stat.printInterval == 0) {
     curr = Clock::now();
     uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
     
@@ -494,9 +492,11 @@ void Core::calculateEnergyPower() {
     //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
   // IMPROVE THIS: for OoO we better integrate McPAT models here - currently we do it "off-line"
-  else { //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
-    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively
+  else { 
+    //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
+    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get ~6.875W
     //about .5 McPAT power, which is at 2x tech node
-    total_energy = 6 * cycles / (clockspeed*1e6);
+    avg_power = 6.875;
+    total_energy = avg_power * cycles / (clockspeed*1e6);
   }
 }

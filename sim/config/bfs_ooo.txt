@@ -9,8 +9,8 @@
 1,mem_speculate #address alias speculation
 1,mem_forward #lsq store to load forwarding
 -1,max_active_contexts_BB 
-3,branch_predictor # 0:perfect, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare
-6,misprediction_penalty
+0,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
+2,misprediction_penalty
 1024,bht_size # branch history table size (used for onebit, twobit, gshare)
 10,gshare_global_hist # number of bits for the global history register 
 
@@ -46,10 +46,10 @@
 0,partition_L1
 0,partition_L2
 0,cache_by_signature
-2,partition_ratio
+0,partition_ratio
 0,perfect_llama
 0,cache_by_temperature
 0,node_degree_threshold
 0,l2_cache_by_temperature
-9,l2_node_degree_threshold
-1,record_evictions
+0,l2_node_degree_threshold
+0,record_evictions
