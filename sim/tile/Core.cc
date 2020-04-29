@@ -298,8 +298,10 @@ bool Core::predict_branch_and_check(DynamicNode* d) {
   uint64_t current_context_id = d->c->id;
   uint64_t current_bbid = cf.at(current_context_id);
 
-  if( !cf_conditional.at(current_context_id) )  // if the the branch is "unconditional" there is nothing to predict
-    return true;                                 // and returns TRUE immediately (correctly predicted)
+  if( !cf_conditional.at(current_context_id) ) { //if the the branch is "unconditional" there is nothing to predict
+    stat.update("bpred_uncond_branches");        //and returns TRUE immediately (correctly predicted)
+    return true;                                
+  }
 
   uint64_t next_context_id = current_context_id+1;
   uint64_t next_bbid;
@@ -318,9 +320,9 @@ bool Core::predict_branch_and_check(DynamicNode* d) {
   // update bpred stats
   stat.update("bpred_cond_branches");
   if(is_pred_ok)
-    stat.update("bpred_correct_preds");
+    stat.update("bpred_cond_correct_preds");
   else  
-    stat.update("bpred_mispredictions");
+    stat.update("bpred_cond_wrong_preds");
   return is_pred_ok;
 }
 
