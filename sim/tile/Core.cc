@@ -307,14 +307,16 @@ bool Core::predict_branch_and_check(DynamicNode* d) {
     int next_bbid = cf.at(next_context_id);    
     set<int> &dest = bb_cond_destinations.at(current_bbid).second;
     //assert(dest.size()==1 || dest.size()==2);
-    if(dest.size()==1)
-      actual_taken = (next_bbid != current_bbid+1); // if the "next" BB is not consecutive, we assume a jump (taken br)
-    else { //this LLVM branch has 2 destinations (note this is very common in LLVM !!)
-      int dest2 = *dest.rbegin();
-      actual_taken = (next_bbid == dest2);  // we assume the branh is TAKEN if jumping to dest2
+    if(dest.size()==2) { //this LLVM branch has 2 destinations (note this is very common in LLVM !!)
+      //int dest1 = *dest.begin();   // dest1 is assumed as the NOT-TAKEN path
+      int dest2 = *dest.rbegin();  // dest2 is assumed as the TAKEN path
+      actual_taken = (next_bbid == dest2);  // if going to dest2 -> TAKEN branch
+    }
+    else { 
+      actual_taken = true; // if there is only ONE destination -> TAKEN branch
     }
   }
-  else  // this is the very last branch of the program (a RET in llvm) -> taken branch
+  else  // this is the very last branch of the program (a RET in llvm) -> TAKEN branch
     actual_taken = true;
 
   // check the prediction
