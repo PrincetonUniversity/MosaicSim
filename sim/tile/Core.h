@@ -74,7 +74,7 @@ public:
 
   /* Dynamic Traces */
   vector<int> cf; // List of basic blocks in "sequential" program order 
-  vector<bool> cf_conditional; // indicates if the branch is a conditional one 
+  map<int, pair<bool,set<int>>> bb_cond_destinations; // map of basic blocks indicating if "conditional" and "destinations"
   ifstream memfile;
   unordered_map<int, queue<uint64_t> > memory; // List of memory accesses per instruction in a program order
   unordered_map<int, queue<string> > acc_map;  // List of memory accesses per instruction in a program order

@@ -269,7 +269,7 @@ public:
   // Read Dynamic Control Flow data from the profiling file. 
   // Format:   <string_bb_name>,<current_bb_id>,<next_bb_id>
   // vector <cf> will be the sequential list of executed BBs
-  void readProfCF(std::string name, std::vector<int> &cf, std::vector<bool> &cf_conditional) {
+  void readProfCF(string name, vector<int> &cf, map<int, pair<bool,set<int>>> &bb_cond_destinations) {
     string line;
     string last_line;
     uint64_t filesizeKB = fileSizeKB(name);
@@ -282,18 +282,24 @@ public:
       while (getline (cfile,line)) { //could be cuz kernel gets called multiple times in a loop for example
         vector<string> s = split(line, ',');
         assert(s.size() == 3);
-        if (stoi(s.at(1)) != last_bbid && last_bbid != -1) {
+        int new_bbid = stoi(s.at(1)); 
+        if(new_bbid != last_bbid && last_bbid != -1) {
           cout << "[WARNING] non-continuous control flow path \n";
           cout << last_bbid << " / " << s.at(1) << "\n";
           cout << last_line << " / " << line << "\n";
         }
-        cf.push_back(stoi(s.at(1)));
-        cf_conditional.push_back(s.at(0)=="B");  // in the trace "B" is for conditional branches while the "U" is for unconditional
+        cf.push_back(new_bbid);
+        set<int> destinations;
+        bb_cond_destinations.insert( make_pair(new_bbid, make_pair(false, destinations)) );
+        if(s.at(0)=="B") {
+          bb_cond_destinations.at(new_bbid).first=true;   // mark it is a conditional branch
+        }
         last_bbid = stoi(s.at(2));
       }
       // push the last BB from the last line of the file 
       cf.push_back(last_bbid);
-      cf_conditional.push_back(false); // the very last BB of the program (RET) is unconditional
+      set<int> dest;
+      bb_cond_destinations.insert( make_pair(last_bbid, make_pair(false, dest)) ); // last branch (RET) is unconditional 
     }
     else {
       cout << "[ERROR] Cannot open the CF Control-Flow trace file!\n";
@@ -301,56 +307,33 @@ public:
     }
     cout <<"[SIM] ...Finished reading the Control-Flow trace! - Total contexts: " << cf.size() << "\n\n";
     cfile.close();
-    assert(cf.size()==cf_conditional.size());
 
-
-    // JLA: make a sanity check over the CF trace
-    if (false) {
-      cout << "\n**----Sanity check of the CF**----------\n";    
-      // 1st: build a map of BB ids which are conditional branches and annotate their destinations: {dest1,dest2,...}
-      map<int, set<int> > cond_bb_destinations;   // stores for each conditional bbid a set of destinations
-      set<int> destinations;
-      int total_cond_branches = 0;
-      for (uint64_t i=0;i<cf.size();i++) {
-        if (cf_conditional[i]) {  // verify is a cond branch
-          total_cond_branches++;
-          cond_bb_destinations.insert( make_pair(cf[i], destinations ));  // insert a new bbid in the map
-          cond_bb_destinations.at(cf[i]).insert(cf[i+1]); // insert its "next_bbid" as a destination
-        }
+    // for each conditional branch, annotate its destinations: {dest1,dest2,...}
+    for(uint64_t i=0; i<cf.size(); i++) {
+      if(bb_cond_destinations.at(cf[i]).first==true) {  // check if it is a cond branch
+        bb_cond_destinations.at(cf[i]).second.insert(cf[i+1]); // insert its "next_bbid" as a destination
       }
-      // 2nd: iterate over the "map" of conditional branches
-      int cond_bb_whose_both_destinations_are_non_consecutive = 0;
-      int dynamic_occurences_alwaysT_bb = 0;
-      for (auto it=cond_bb_destinations.begin(); it!=cond_bb_destinations.end(); ++it) {
+    }
+    if(false) {
+      // print the "map" of conditional branches
+      cout << "\n**----Sanity check**----------\n";    
+      for(auto it=bb_cond_destinations.begin(); it!=bb_cond_destinations.end(); ++it) {
         int bbid = it->first;
-        set<int> destinations = it->second;
-        assert( destinations.size()<=2 );  // make sure a conditional BB has no more than 2 destinations
-        cout << "bbid: " << bbid << ";  # of dest: " << destinations.size() << "; ";
+        bool is_cond = it->second.first;
+        if(is_cond) {
+          set<int> destinations = it->second.second;
+          assert( destinations.size()<=2 );  // make sure a conditional BB has no more than 2 destinations
+          cout << "bbid: " << bbid << ";  # of dest: " << destinations.size() << "; ";
      
-        // check if at least one of the destinations is consecutive wrt the base bbid
-        bool consecutive_bb_found = false;
-        for (auto it2=destinations.begin(); it2!=destinations.end(); ++it2) {
-          int dest_bbid = *it2;
-          cout << " dest: " << dest_bbid;
-          if (dest_bbid == bbid+1)
-            consecutive_bb_found = true;
-        }
-        cout << endl;
-        if (!consecutive_bb_found) {
-          cond_bb_whose_both_destinations_are_non_consecutive++;
-         
-          // count dynamic occurrences of this bbid in the CF
-          // JLA: these branches are currently assumed as ALWAYS-TAKEN
-          for (uint64_t i=0; i<cf.size(); i++) {
-            if (cf[i]==bbid) 
-              dynamic_occurences_alwaysT_bb++;
+          // echo destinations
+          for(auto it2=destinations.begin(); it2!=destinations.end(); ++it2) {
+            int dest_bbid = *it2;
+            cout << " dest: " << dest_bbid;
           }
-        }
-      } 
-      cout << "cond_BBs_whose_both_destinations_are_non_consecutive: " << cond_bb_whose_both_destinations_are_non_consecutive << endl;
-      cout << "dynamic_occurences_alwaysT_BBs: " << dynamic_occurences_alwaysT_bb << endl;
-      cout << "total_cond_branches: " << total_cond_branches << endl;
-      cout << "**----END Sanity check of the CF**----------\n\n";
+          cout << endl;
+        } 
+      }
+      cout << "**----END Sanity check**----------\n\n";
     }
   }
 };

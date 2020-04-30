@@ -34,7 +34,7 @@ Bpred::Bpred(TypeBpred type, int bht_size) : type(type), bht_size(bht_size) {
 }
   
 // predict a branch and return if the prediction was correct
-bool Bpred::predict_and_check(bool actual_taken, uint64_t pc) {
+bool Bpred::predict_and_check(uint64_t pc, bool actual_taken) {
   if(type==bp_none) {
     return false;   
   } 

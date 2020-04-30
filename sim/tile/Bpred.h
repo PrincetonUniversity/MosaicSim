@@ -24,7 +24,7 @@ public:
   int prob_mispredict = 17;  // we can set here the prob we want the BP to achieve and check that we get it
 
   Bpred(TypeBpred, int);
-  bool predict_and_check(bool taken, uint64_t pc);
+  bool predict_and_check(uint64_t pc, bool actual_taken);
 };
 
 #endif

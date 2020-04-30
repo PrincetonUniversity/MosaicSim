@@ -290,32 +290,35 @@ string Core::getInstrName(TInstr instr) {
   return InstrStr[instr];
 }
 
-// Return boolean indicating whether or not the branch has been correctly predicted
+// Return boolean indicating whether the branch has been correctly predicted
 bool Core::predict_branch_and_check(DynamicNode* d) {
-  bool is_pred_ok = false;
-  bool actual_taken = false;
-
   uint64_t current_context_id = d->c->id;
-  uint64_t current_bbid = cf.at(current_context_id);
+  uint64_t next_context_id = current_context_id+1;
+  int current_bbid = cf.at(current_context_id);
 
-  if( !cf_conditional.at(current_context_id) ) { //if the the branch is "unconditional" there is nothing to predict
-    stat.update("bpred_uncond_branches");        //and returns TRUE immediately (correctly predicted)
+  bool is_cond = bb_cond_destinations.at(current_bbid).first;
+  if( !is_cond ) {                            //if the the branch is "unconditional" there is nothing to predict
+    stat.update("bpred_uncond_branches");     //and returns TRUE immediately (correctly predicted)
     return true;                                
   }
 
-  uint64_t next_context_id = current_context_id+1;
-  uint64_t next_bbid;
-
+  bool actual_taken = false;
   if(next_context_id < cf.size()) {
-    next_bbid=cf.at(next_context_id);
-    // if the "next" BB is not consecutive, we assume the "current" branch has jumped -> taken branch
-    actual_taken = (next_bbid != current_bbid+1);
+    int next_bbid = cf.at(next_context_id);    
+    set<int> &dest = bb_cond_destinations.at(current_bbid).second;
+    //assert(dest.size()==1 || dest.size()==2);
+    if(dest.size()==1)
+      actual_taken = (next_bbid != current_bbid+1); // if the "next" BB is not consecutive, we assume a jump (taken br)
+    else { //this LLVM branch has 2 destinations (note this is very common in LLVM !!)
+      int dest2 = *dest.rbegin();
+      actual_taken = (next_bbid == dest2);  // we assume the branh is TAKEN if jumping to dest2
+    }
   }
   else  // this is the very last branch of the program (a RET in llvm) -> taken branch
     actual_taken = true;
 
   // check the prediction
-  is_pred_ok = bpred->predict_and_check(actual_taken,current_bbid);
+  bool is_pred_ok = bpred->predict_and_check(/*PC*/current_bbid, actual_taken);
 
   // update bpred stats
   stat.update("bpred_cond_branches");
