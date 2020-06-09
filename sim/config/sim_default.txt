@@ -1,29 +1,28 @@
-#Config file for L2 and memory and Decoupled Supply/Compute Queues
+#Config file for LLC, memory, and Decoupled Supply/Compute Queues
 
 #Tile Configs
 8,num_accels #num accelerators
 8,num_IS #num intelligent storage tiles
 
 #Technology
-14,technology_node #tech node in nm, enter 5 or 14
+22,technology_node #tech node in nm, enter 5 or 14
 2000,chip_freq #freq in MHz
 
-#L2 Cache
-0,ideal_cache   #set 1 for always cache hit
+#LLC
+1,use_l2
+0,ideal_cache
 2097152,cache_size
-20,cache_latency
-8,cache_assoc
+24,cache_latency
+16,cache_assoc
 64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
 
 #Memory
 #Simple DRAM Model
-
 1,SimpleDRAM #set 1 for simple dram model, 0 for DRAMSim
-68,dram_bw #peak simple DRAM Bandwidth (GB/s)
+24,dram_bw #peak simple DRAM Bandwidth (GB/s)
 200,dram_latency #minimum simple DRAM latency in cycles
-
 4,mem_read_ports
 4,mem_write_ports
 
@@ -33,7 +32,8 @@
 64,commBuff_size
 512,commQ_size 
 128,term_buffer_size 
-3,desc_latency 
+3,desc_latency
+30,openDCP_latency
 
 #MosaicSim Configs
 50,mem_chunk_size # save sim memory consumption by reading from tracefile chunk by chunk, set to -1 to read everything at once

@@ -1,26 +1,38 @@
-#Config file, goal is to match DECADES Ariane In Order processor
-#For infinite size, set value to -1
+## Config file for DECADES Ariane In Order processor
+# For infinite size, set value to -1
 
-#Core
-#For in order mode, set window_size to 1
+## Core
+# For in order mode, set window_size to 1
 -1,lsq_size
-1,window_size   #effectively, ROB size
-1,issueWidth   #num of issuable instrs per cycle
-0,cf_mode   #set 1 to create all contexts at once, perfect branch prediction
-0,mem_speculate #address alias speculation
-0,mem_forward #lsq store to load forwarding
+1,window_size # effectively, ROB size
+1,issueWidth # num of issuable instrs per cycle
+0,cf_mode # set 1 to create all contexts at once, perfect branch prediction
+0,mem_speculate # address alias speculation
+0,mem_forward # lsq store to load forwarding
 -1,max_active_contexts_BB 
-0,branch_predictor  
-0,misprediction_penalty # enter penalty of 0 for perfect prediction
+0,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
+2,misprediction_penalty # enter penalty of 0 for perfect prediction
 
-#Cache
-0,ideal_cache   #set 1 for always cache hit
+## L1 Cache
+0,ideal_cache
 32768,cache_size
-4,cache_latency
+3,cache_latency
 8,cache_assoc
 64,cache_linesize
 8,cache_load_ports
 8,cache_store_ports
-1,prefetch_distance #distance (in num cachelines) before first prefetch
-2,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
+1,prefetch_distance # distance (num cachelines) before first prefetch
+0,num_prefetched_lines # number of cachelines to prefetch (set to 0 for no prefetching, default 2)
+64,mshr_size
 
+## L2 Cache
+1,use_l2
+0,l2_ideal_cache
+262144,l2_cache_size
+6,l2_cache_latency
+8,l2_cache_assoc
+64,l2_cache_linesize
+8,l2_cache_load_ports
+8,l2_cache_store_ports
+1,l2_prefetch_distance # distance (num cachelines) before first prefetch
+0,l2_num_prefetched_lines # number of cachelines to prefetch (set to 0 for no prefetching, default 2)
