@@ -202,24 +202,6 @@ public:
         if(memory.find(id) == memory.end()) 
           memory.insert(make_pair(id, queue<uint64_t>()));
         memory.at(id).push(address);  // insert the <address> into the memory instructions's <queue>
-        if (s.size() >= 6) {
-          int graphNodeId = stoi(s.at(4));
-          int graphNodeDeg = stoi(s.at(5));
-          if(core->sim->graphNodeIdMap.find(address) == core->sim->graphNodeIdMap.end()) {
-            core->sim->graphNodeIdMap[address] = graphNodeId;
-
-            //assert(core->sim->graphNodeDegMap.find(graphNodeId) == core->sim->graphNodeDegMap.end());
-            core->sim->graphNodeDegMap[graphNodeId] = graphNodeDeg;
-          } else { // address already in map
-            if (core->sim->graphNodeIdMap[address] != graphNodeId) {
-              cout << address << " " << core->sim->graphNodeIdMap[address] << " " << graphNodeId << endl;
-              assert(false);
-            }
-            if (core->sim->graphNodeDegMap[graphNodeId] != graphNodeDeg) {
-              assert(false);
-            }
-          }
-        }
         numLines++;
       }
       if ( memfile.eof() ) {

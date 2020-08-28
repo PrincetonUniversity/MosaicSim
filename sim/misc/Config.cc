@@ -53,7 +53,6 @@ Config::Config() {
   instr_latency[TRM_ATOMIC_FADD] = 1;
   instr_latency[TRM_ATOMIC_MIN] = 1;
   instr_latency[TRM_ATOMIC_CAS] = 1;
-  instr_latency[LLAMA] = -1;
   
   // # of FUs setting
   num_units[BS_DONE] = -1;
@@ -91,7 +90,6 @@ Config::Config() {
   num_units[TRM_ATOMIC_FADD] = -1;
   num_units[TRM_ATOMIC_MIN] = -1;
   num_units[TRM_ATOMIC_CAS] = -1;
-  num_units[LLAMA] = -1;
  
   // EPI: energy_per_instr (in Joules)
   //  - measured at a Nominal Core Volt (VDD) of 1.0V - 2GHz frequency
@@ -124,7 +122,6 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
-  energy_per_instr[technology_node][LLAMA] = 14.180625*1e-12;
 
   technology_node = 14;
   energy_per_instr[technology_node][I_ADDSUB] = 8.828181818*1e-12;
@@ -155,7 +152,6 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
-  energy_per_instr[technology_node][LLAMA] = 10.31318182*1e-12;
 
   technology_node = 5;
   energy_per_instr[technology_node][I_ADDSUB] = 5.920399432*1e-12;
@@ -186,7 +182,6 @@ Config::Config() {
   energy_per_instr[technology_node][BS_VECTOR_INC] = 0;
   energy_per_instr[technology_node][BARRIER] = 0;
   energy_per_instr[technology_node][ACCELERATOR] = 0;
-  energy_per_instr[technology_node][LLAMA] = 6.916277557*1e-12;
 
   technology_node = -1;
 
@@ -339,121 +334,51 @@ void Config::getCfg(int id, int val) {
     mem_chunk_size = val; 
     break;
   case 34:
-    llama_ideal_cache = val;
-    break;
-  case 35:
-    llama_cache_size = val;
-    break;
-  case 36:
-    llama_cache_assoc = val;
-    break;
-  case 37:
-    llama_cache_linesize = val;
-    break;
-  case 38:
-    llama_cache_load_ports = val;
-    break;
-  case 39:
-    llama_cache_store_ports = val;
-    break;
-  case 40:
-    llama_prefetch_distance = val;
-    break;
-  case 41:
-    if (llama_cache_size > 0) {
-      llama_num_prefetched_lines = val;
-    } else {
-      llama_num_prefetched_lines = 0;
-    }
-    break;
-  case 42:
-    eviction_policy = val;
-    break;
-  case 43:
-    llama_eviction_policy = val;
-    break;
-  case 44:
-    partition_L1 = val;
-    break;
-  case 45:
-    partition_L2 = val;
-    break;
-  case 46:
-    cache_by_temperature = val;
-    break;
-  case 47:
-    node_degree_threshold = val;
-    break;
-  case 48:
-    cache_by_signature = val;
-    break;
-  case 49:
-    partition_ratio = val;
-    break;
-  case 50:
-    perfect_llama = val;
-    break;
-  case 51:
-    record_evictions = val;
-    break;
-  case 52:
     use_l2 = val;
     break;
-  case 53:
+  case 35:
     l2_ideal_cache = val;
     break;
-  case 54:
+  case 36:
     l2_cache_latency = val;
     break;
-  case 55:
+  case 37:
     l2_cache_size = val;
     break;
-  case 56:
+  case 38:
     l2_cache_assoc = val;
     break;
-  case 57:
+  case 39:
     l2_cache_linesize = val;
     break;
-  case 58:
+  case 40:
     l2_cache_load_ports = val;
     break;
-  case 59:
+  case 41:
     l2_cache_store_ports = val;
     break;
-  case 60:
+  case 42:
     l2_prefetch_distance = val;
     break;
-  case 61:
+  case 43:
     if (l2_cache_size > 0) {
       l2_num_prefetched_lines = val;
     } else {
       l2_num_prefetched_lines = 0;
     }
     break;
-  case 62:
-    l2_cache_by_temperature = val;
-    break;
-  case 63:
-    l2_node_degree_threshold = val;
-    break;
-  case 64:
-    llama_node_id = val;
-    break;
-  case 65:
+  case 44:
     if (val == -1) {
       mshr_size = numeric_limits<int>::max();
     } else {
       mshr_size = val;
     }
     break;
-  case 66:
+  case 45:
     bht_size = val;
     break;
-  case 67:
+  case 46:
     gshare_global_hist_bits = val;
-    break;
-  case 68:
-    openDCP_latency = val;
     break;
   default:
     break;

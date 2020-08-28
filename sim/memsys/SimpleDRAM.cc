@@ -43,7 +43,7 @@ bool SimpleDRAM::process() {
 }
 
 bool SimpleDRAM::willAcceptTransaction(uint64_t addr) {
-  return addr==addr;  // always returs true
+  return addr==addr;  // always returns true
 }
 
 void SimpleDRAM::addTransaction(bool isWrite, uint64_t addr) {  

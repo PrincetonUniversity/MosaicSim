@@ -32,28 +32,17 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
 
     MemTransaction* t = static_cast<MemTransaction*>(entry.first);
     int nodeId = t->d->n->id;
-    int graphNodeId = t->graphNodeId;
-    int graphNodeDeg = t->graphNodeDeg;
     int dirtyEvict = -1;
     int64_t evictedAddr = -1;
     uint64_t evictedOffset = 0;
     int evictedNodeId = -1;
-    int evictedGraphNodeId = -1;
-    int evictedGraphNodeDeg = -1;
-    int unusedSpace = 0;
 
     Cache* c = t->cache_q->front();
     
     assert(c->isLLC);
     t->cache_q->pop_front();
-    c->fc->insert(t->addr, nodeId, graphNodeId, graphNodeDeg, t->isLoad, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId, &evictedGraphNodeId, &evictedGraphNodeDeg, &unusedSpace);
+    c->fc->insert(t->addr, nodeId, t->isLoad, &dirtyEvict, &evictedAddr, &evictedOffset, &evictedNodeId);
     if(evictedAddr!=-1) {
-      int cacheline_size;
-      if (c->cacheBySignature == 0 || evictedGraphNodeDeg == -1) {
-        cacheline_size = c->size_of_cacheline;
-      } else {
-        cacheline_size = 4;
-      }
 
       assert(evictedAddr >= 0);
       stat.update("cache_evicts");
@@ -64,7 +53,7 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
       }
 
       if (dirtyEvict) {
-        c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline, evictedGraphNodeId, evictedGraphNodeDeg, cacheline_size));
+        c->to_evict.push_back(make_tuple(evictedAddr*c->size_of_cacheline + evictedOffset));
       
         if (c->useL2) {
           stat.update("l3_evicts_dirty");
@@ -78,19 +67,6 @@ void DRAMSimInterface::read_complete(unsigned id, uint64_t addr, uint64_t clock_
           stat.update("l2_evicts_clean");
         }
       }
-
-      if (sim->recordEvictions) {    
-        cacheStat cache_stat;
-        cache_stat.cacheline = t->addr/c->size_of_cacheline*c->size_of_cacheline;
-        cache_stat.cycle = c->cycles;
-        cache_stat.offset = evictedOffset;
-        cache_stat.nodeId = evictedNodeId;
-        cache_stat.graphNodeId = evictedGraphNodeId;
-        cache_stat.graphNodeDeg = evictedGraphNodeDeg;
-        cache_stat.unusedSpace = unusedSpace;
-        cache_stat.cacheLevel = 3;
-        sim->evictStatsVec.push_back(cache_stat); 
-      } 
     }
     
     c->TransactionComplete(t);
@@ -144,7 +120,7 @@ void DRAMSimInterface::addTransaction(Transaction* t, uint64_t addr, bool isRead
     }
 
     if(cfg.SimpleDRAM) {
-      simpleDRAM->addTransaction(true,addr);
+      simpleDRAM->addTransaction(true, addr);
     } else {
       mem->addTransaction(true, addr);
     }

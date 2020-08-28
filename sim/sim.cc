@@ -7,7 +7,6 @@ using namespace std;
 Simulator::Simulator(string home) {
   mosaic_home=home;
   clockspeed=cfg.chip_freq;
-  recordEvictions=cfg.record_evictions;
   memInterface = new DRAMSimInterface(this, cfg.ideal_cache, cfg.mem_read_ports, cfg.mem_write_ports);
   mem_chunk_size=cfg.mem_chunk_size; 
 
@@ -16,12 +15,6 @@ Simulator::Simulator(string home) {
   cache->isLLC=true;
   cache->memInterface = memInterface;
  
-  // LLAMA Cache
-  llama_cache = new Cache(cfg.cache_latency, 0, cfg.llama_cache_linesize, cfg.llama_cache_linesize, cfg.llama_cache_load_ports, cfg.llama_cache_store_ports, cfg.llama_ideal_cache, cfg.llama_prefetch_distance, cfg.llama_num_prefetched_lines, cfg.llama_cache_size, cfg.llama_cache_assoc, cfg.llama_eviction_policy, 0, cfg.use_l2, 2, 0, cfg.cache_by_temperature, cfg.node_degree_threshold);
-  llama_cache->sim = this;
-  llama_cache->isLLC=true;
-  llama_cache->memInterface = memInterface;  
-
   epoch_stats_out.open(outputDir+"epochStats");
   //descq = new DESCQ(cfg);
 }
@@ -163,7 +156,6 @@ void Simulator::fastForward(int src_tid, uint64_t inc) {
     //increment L2 and DRAM..assumed to be on the same clockspeed as core 0
     if(tile->id==0) {
       cache->cycles+=dst_inc;
-      llama_cache->cycles+=dst_inc;
       memInterface->fastForward(dst_inc);
     }
   }
@@ -353,9 +345,6 @@ void Simulator::run() {
   string memOutstring;
   int load_stats_vector_size = 0;
   
-  ofstream evictStats;
-  string evictOutstring;
-
   cout << "[SIM] ------- Starting Simulation!!! ------------------------" << endl;
   last_time = Clock::now();  
   while(simulate > 0) {
@@ -401,10 +390,8 @@ void Simulator::run() {
         
         //use same clockspeed as 1st tile (probably a core)
         if(tile->id==0) {        
-          bool cache_process = cache->process(); 
-          bool llama_cache_process = llama_cache->process();
+          simulate = cache->process(); 
           memInterface->process();                  
-          simulate = cache_process || llama_cache_process;
         }                
       }
     }
@@ -453,11 +440,11 @@ void Simulator::run() {
         ifstream memStatsIn(outputDir+"memStats");
         if (!memStatsIn) {
           memStats.open(outputDir+"memStats");      
-          memStats << "Memop Address Node_ID Graph_Node_ID Graph_Node_Deg Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+          memStats << "Memop Address Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
         }
 
         long long issue_cycle, return_cycle, diff;
-        int node_id, graph_node_id, graph_node_deg;
+        int node_id;
         memOutstring = "";
         for(auto load_stat:load_stats_vector) {
           issue_cycle=load_stat.issueCycle;
@@ -471,7 +458,7 @@ void Simulator::run() {
             isHit="Hit";
           }
           string MEMOP="";
-          if (load_stat.type==LD || load_stat.type==LLAMA) {
+          if (load_stat.type==LD) {
             MEMOP="LD";
           } else if (load_stat.type==LD_PROD) {
             MEMOP="LD_PROD";
@@ -498,35 +485,15 @@ void Simulator::run() {
           }
 
           node_id=load_stat.nodeId;
-          graph_node_id=load_stat.graphNodeId;
-          graph_node_deg=load_stat.graphNodeDeg;
           diff=(return_cycle-issue_cycle);
           totalLatency=totalLatency + diff;
       
-          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(graph_node_deg)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+          memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
         }
     
         load_stats_vector_size += load_stats_vector.size();
         load_stats_vector.clear();
         memStats << memOutstring;
-      }
-
-      // evictStats chunking
-      if(evictStatsVec.size() > 0) { 
-        ifstream evictStatsIn(outputDir+"evictStats");
-        if (!evictStatsIn) {
-          evictStats.open(outputDir+"evictStats");
-          evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space\tCache Level" << endl;
-        }
-
-        evictOutstring = "";
-        for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
-          auto entry = *it;
-          evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\t\t" + to_string(entry.cacheLevel) + "\n";
-        }
-          
-        evictStatsVec.clear();
-        evictStats << evictOutstring;
       }
     } else if(tiles[0]->cycles == 0) {
       last_time = Clock::now();
@@ -603,11 +570,11 @@ void Simulator::run() {
     ifstream memStatsIn(outputDir+"memStats");
     if (!memStatsIn) {
       memStats.open(outputDir+"memStats");      
-      memStats << "Memop Adress Node_ID Graph_Node_ID Graph_Node_Deg Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
+      memStats << "Memop Adress Node_ID Issue_Cycle Return_Cycle Latency L1_Hit/Miss" << endl;
     }
 
     long long issue_cycle, return_cycle, diff;
-    int node_id, graph_node_id, graph_node_deg;
+    int node_id;
     memOutstring = "";
     for(auto load_stat:load_stats_vector) {
       issue_cycle=load_stat.issueCycle;
@@ -621,7 +588,7 @@ void Simulator::run() {
         isHit="Hit";
       }
       string MEMOP="";
-      if (load_stat.type==LD || load_stat.type==LLAMA) {
+      if (load_stat.type==LD) {
         MEMOP="LD";
       } else if (load_stat.type==LD_PROD) {
         MEMOP="LD_PROD";
@@ -648,36 +615,15 @@ void Simulator::run() {
       }
 
       node_id=load_stat.nodeId;
-      graph_node_id=load_stat.graphNodeId;
-      graph_node_deg=load_stat.graphNodeDeg;
       diff=(return_cycle-issue_cycle);
       totalLatency=totalLatency + diff;
       
-      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(graph_node_id)+" "+to_string(graph_node_deg)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
+      memOutstring+=MEMOP+" "+to_string(load_stat.addr)+" "+to_string(node_id)+" "+to_string(issue_cycle)+" "+to_string(return_cycle)+" "+to_string(diff)+" "+isHit+"\n";
     }
     
     load_stats_vector_size += load_stats_vector.size();
     load_stats_vector.clear();
     memStats << memOutstring;
-  }
-
-  // evictStats chunking
-  if(evictStatsVec.size() > 0) { 
-    ifstream evictStatsIn(outputDir+"evictStats");
-    if (!evictStatsIn) {
-      evictStats.open(outputDir+"evictStats");
-      evictStats << "Cacheline\tOffset\tEviction Cycle\tNode ID\tGraph Node ID\tGraph Node Deg\tUnused Space\tCache Level" << endl;
-    }
-
-    evictOutstring = "";
-    for(auto it = evictStatsVec.begin(); it != evictStatsVec.end(); it++) {
-      auto entry = *it;
-      evictOutstring += to_string(entry.cacheline) + "\t" + to_string(entry.offset) + "\t" + to_string(entry.cycle) + "\t\t" + to_string(entry.nodeId) + "\t" + to_string(entry.graphNodeId) + "\t\t" + to_string(entry.graphNodeDeg) + "\t\t" + to_string(entry.unusedSpace) + "\t\t" + to_string(entry.cacheLevel) + "\n";
-    }
-          
-    evictStatsVec.clear();
-    evictStats << evictOutstring;
-    evictStats.close();
   }
 
   // DESCQ* descq=descq_vec.at(0);
@@ -814,23 +760,20 @@ void Simulator::calculateGlobalEnergyPower() {
   cout << "Total GFLOPs : " << total_gflops << endl;
   
   cout << "-------All (" << n_cores << ") cores energy (J) : " << e << endl;
-  cout << "-------L3_energy (J) : " << L3_energy << endl;
+  cout << "-------LLC_energy (J) : " << L3_energy << endl;
   cout << "-------DRAM_energy (J) : " << DRAM_energy << endl;
   cout << "-------Acc_energy (J) : " << Acc_energy << endl;
 }
 
 bool Simulator::canAccess(Core* core, bool isLoad) {
   Cache* cache = core->cache;
-  Cache* llama_cache = core->llama_cache;
 
   if(isLoad) {
     bool normal_load = cache->free_load_ports > 0 || cache->load_ports==-1;
-    bool llama_load = llama_cache->free_load_ports > 0 || llama_cache->load_ports==-1;
-    return normal_load || llama_load;
+    return normal_load;
   } else {
     bool normal_store = cache->free_store_ports > 0 || cache->store_ports==-1;
-    bool llama_store = llama_cache->free_store_ports > 0 || llama_cache->store_ports==-1;
-    return normal_store || llama_store;
+    return normal_store;
   }
 }
 
@@ -1029,7 +972,6 @@ bool DESCQ::execute(DynamicNode* d) {
 //if not, inserts respective instructions into their buffers
 bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim) {
   bool canInsert=true;
-  int extra_openDCP_lat = 0;
   if(d->n->typeInstr==LD_PROD || d->atomic) {
     sim->commQSizes.push_back(commQ_count);
     if (sim->commQMax < commQ_count) {
@@ -1086,8 +1028,6 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
   }
   else if(d->n->typeInstr==RECV) {    
     //no resource constraints here
-    extra_openDCP_lat = cfg.openDCP_latency;
-//    cout << "extra_openDCP_lat " << extra_openDCP_lat << endl; 
   }
   else if(d->n->typeInstr==STADDR) {
     sim->SABSizes.push_back(SAB_count);
@@ -1117,7 +1057,7 @@ bool DESCQ::insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* si
     }
   }
   if(canInsert) {
-    pq.push(make_pair(d, cycles + latency + extra_openDCP_lat));
+    pq.push(make_pair(d, cycles + latency));
   }
   return canInsert;
 }

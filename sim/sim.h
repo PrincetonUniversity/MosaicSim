@@ -56,25 +56,12 @@ struct loadStat {
   long long completeCycle;
   int hit;
   int nodeId;
-  int graphNodeId;
-  int graphNodeDeg;
 };
 
 struct runaheadStat {
   int runahead; 
   int coreId;
   int nodeId;
-};
-
-struct cacheStat {
-  uint64_t cacheline;
-  long long cycle;
-  uint64_t offset;
-  int nodeId;
-  int graphNodeId;
-  int graphNodeDeg;
-  int unusedSpace;
-  int cacheLevel;
 };
 
 class Simulator {
@@ -105,7 +92,6 @@ public:
   vector<DESCQ*> descq_vec;
   Barrier* barrier = new Barrier();
   Cache* cache;
-  Cache* llama_cache;
   string mosaic_home;
   //every tile has a transaction priority queue
   unordered_map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
@@ -118,12 +104,8 @@ public:
   uint64_t runahead_sum=0;
   vector<runaheadStat> runaheadVec;
   unordered_map<DynamicNode*, tuple<long long, long long, bool>> load_stats_map;
-  unordered_map<uint64_t, int> graphNodeIdMap; //List of graph node IDs per address;
-  unordered_map<int, int> graphNodeDegMap; //List of graph node degrees per ID
   vector<loadStat> load_stats_vector;
   unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
-  vector<cacheStat> evictStatsVec;
-  int recordEvictions;
   uint64_t total_recv_latency=0;
 
   vector<int> commQSizes;

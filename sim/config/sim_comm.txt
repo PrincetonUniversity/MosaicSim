@@ -9,7 +9,7 @@
 4000,chip_freq #freq in MHz
 
 #LLC
-1,use_l2
+0,use_l2
 0,ideal_cache
 209715200,cache_size
 6,cache_latency
@@ -33,7 +33,6 @@
 512,commQ_size
 128,term_buffer_size
 3,desc_latency
-30,openDCP_latency
 
 #MosaicSim Configs
 50,mem_chunk_size # save sim memory consumption by reading from tracefile chunk by chunk, set to -1 to read everything at once

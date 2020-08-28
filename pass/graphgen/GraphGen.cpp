@@ -217,9 +217,6 @@ void GraphGen::detectFunctions(Function &func) {
               n->itype = TRM_ATOMIC_FADD;
               //n->itype = LD_PROD;
             }
-            else if (f->getName().str().find("DECADES_LLAMA") != std::string::npos) {
-              n->itype = LLAMA;
-            } 
           }
         }
       }

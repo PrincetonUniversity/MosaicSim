@@ -72,7 +72,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
     Node *n = bb->inst.at(i);
     DynamicNode* d;
 
-    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS || n->typeInstr == LLAMA) {
+    if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR ||  n->typeInstr == LD_PROD || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == TRM_ATOMIC_FADD || n->typeInstr == TRM_ATOMIC_MIN || n->typeInstr == TRM_ATOMIC_CAS) {
       //if(core->memory.find(n->id)==core->memory.end()) {
       //  cout << "Assertion about to fail for: " << n->name << endl;         }
       //assert(core->memory.find(n->id)!=core->memory.end());
@@ -91,7 +91,7 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
         core->memory.erase(n->id);
       }
       
-      if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS || n->typeInstr == LLAMA) {
+      if(n->typeInstr == ST || n->typeInstr == LD || n->typeInstr == STADDR || n->typeInstr == ATOMIC_ADD || n->typeInstr == ATOMIC_FADD || n->typeInstr == ATOMIC_MIN || n->typeInstr == ATOMIC_CAS) {
         core->lsq.insert(d);
       }
     }
@@ -199,7 +199,7 @@ void DynamicNode::register_issue_try() {
     stat.update(ld_prod_issue_try);
     core->local_stat.update(ld_prod_issue_try);
   }
-  else if(type == LD || type == LLAMA) {
+  else if(type == LD) {
     stat.update(load_issue_try);
     core->local_stat.update(load_issue_try);
   }
@@ -234,7 +234,7 @@ void DynamicNode::register_issue_success() {
     stat.update(ld_prod_issue_success);
     core->local_stat.update(ld_prod_issue_success);
   }
-  else if(type == LD || type == LLAMA) {
+  else if(type == LD) {
     stat.update(load_issue_success);
     core->local_stat.update(load_issue_success);
   }
@@ -329,7 +329,7 @@ void Context::process() {
   }
   for(auto it = speculated_set.begin(); it!= speculated_set.end();) {
     DynamicNode *d = *it;
-    if(core->local_cfg.mem_speculate && (d->type == LD || d->type == LD_PROD || d->type == LLAMA) && d->speculated && core->lsq.check_unresolved_store(d)) { //added ld_prod here even though we don't currently speculate with it 
+    if(core->local_cfg.mem_speculate && (d->type == LD || d->type == LD_PROD) && d->speculated && core->lsq.check_unresolved_store(d)) { //added ld_prod here even though we don't currently speculate with it 
       ++it;
     }
     else {
@@ -375,7 +375,7 @@ void Context::complete() {
     for(auto it = completed_nodes.begin(); it != completed_nodes.end(); ++it) {
       DynamicNode *d =*it;      
       
-      if (d->type == LD || d->type == LD_PROD || d->type == LLAMA || d->atomic) {
+      if (d->type == LD || d->type == LD_PROD || d->atomic) {
         stat.update(bytes_read, word_size_bytes);
         core->local_stat.update(bytes_read, word_size_bytes);
       }
@@ -517,23 +517,6 @@ void DynamicNode::handleMemoryReturn() {
     long long current_cycle = core->cycles;
     auto& entry_tuple=core->sim->load_stats_map[this];
     get<1>(entry_tuple)=current_cycle;
-    int graphNodeId = -1;
-    int graphNodeDeg = -1;
-    if (core->sim->graphNodeIdMap.find(addr) != core->sim->graphNodeIdMap.end()) {
-      graphNodeId = core->sim->graphNodeIdMap[addr];
-
-      //assert(core->sim->graphNodeDegMap.find(graphNodeId) != core->sim->graphNodeDegMap.end());
-      graphNodeDeg = core->sim->graphNodeDegMap[graphNodeId];
-    }
-
-    TInstr i_type = type;
-    if (i_type == ATOMIC_CAS || i_type == ATOMIC_MIN || i_type == ATOMIC_FADD || i_type == LLAMA || n->id == core->llamaNodeId) {
-      graphNodeId = 0;
-      graphNodeDeg = 0;
-      if (core->sim->graphNodeIdMap.find(addr) == core->sim->graphNodeIdMap.end()) {
-        core->sim->graphNodeIdMap[addr] = graphNodeId;
-      }
-    }
 
     //copy into loads stats vector
     loadStat load_stat;
@@ -543,8 +526,6 @@ void DynamicNode::handleMemoryReturn() {
     load_stat.completeCycle=get<1>(entry_tuple);
     load_stat.hit=get<2>(entry_tuple);
     load_stat.nodeId=n->id;
-    load_stat.graphNodeId=graphNodeId;
-    load_stat.graphNodeDeg=graphNodeDeg;
     core->sim->load_stats_vector.push_back(load_stat);
 
     //clean up
@@ -552,7 +533,7 @@ void DynamicNode::handleMemoryReturn() {
   }
   print(Memory_Data_Ready, 5);
   print(to_string(outstanding_accesses), 5);
-  if(type == LD || type == LD_PROD || type == LLAMA || atomic) {
+  if(type == LD || type == LD_PROD || atomic) {
     if(core->local_cfg.mem_speculate) {
       if(outstanding_accesses > 0)
         outstanding_accesses--;
@@ -566,7 +547,7 @@ void DynamicNode::handleMemoryReturn() {
       core->sim->releaseLock(this);
     }
     
-    if(type == LD || type == ATOMIC_ADD || type == ATOMIC_FADD || type == ATOMIC_MIN || type == ATOMIC_CAS || type == LLAMA) {
+    if(type == LD || type == ATOMIC_ADD || type == ATOMIC_FADD || type == ATOMIC_MIN || type == ATOMIC_CAS) {
       c->insertQ(this);
     }
     //luwa desc modification
@@ -649,17 +630,17 @@ bool DynamicNode::issueMemNode() {
   int forwardRes = -1; 
   // FIXME
   
-  if(!core->canAccess(type == LD || type == LLAMA)) { 
+  if(!core->canAccess(type == LD)) { 
     return false;
   }
   //core->sim->evictAllCaches(addr); this was just used to test
   DESCQ* descq=core->sim->get_descq(this);
   
   //check DESCQ's Store Address Buffer for conflicts
-  if((type==LD || type==LLAMA) && (descq->sab_has_dependency(this)!=NULL)) { //sab_has_dependency() returns null if nothing found
+  if((type==LD) && (descq->sab_has_dependency(this)!=NULL)) { //sab_has_dependency() returns null if nothing found
     return false; 
   }
-  if((type == LD || type == LLAMA) && core->local_cfg.mem_forward) {
+  if((type == LD) && core->local_cfg.mem_forward) {
     forwardRes = core->lsq.check_forwarding(this);
     if(forwardRes == 0 && core->local_cfg.mem_speculate) {
       stat.update("speculatively_forwarded");
@@ -672,7 +653,7 @@ bool DynamicNode::issueMemNode() {
     }
   }
   
-  if((type == LD || type == LLAMA) && forwardRes == -1) {
+  if((type == LD) && forwardRes == -1) {
     int res = core->lsq.check_load_issue(this, core->local_cfg.mem_speculate);
   
     if(res == 0) {
@@ -709,7 +690,7 @@ bool DynamicNode::issueMemNode() {
  
   // at this point the memory request will be issued for sure
   //issued = true;
-  if(type == LD || type == LLAMA) {
+  if(type == LD) {
     stat.update(load_issue_success);
     core->local_stat.update(load_issue_success);
   }
@@ -718,7 +699,7 @@ bool DynamicNode::issueMemNode() {
     core->local_stat.update(store_issue_success);
   }
   speculated = speculate;
-  if (type == LD || type == LLAMA) {
+  if (type == LD) {
     if(forwardRes == 1) { 
       print("Retrieves Forwarded Data", 5);
       c->insertQ(this);
