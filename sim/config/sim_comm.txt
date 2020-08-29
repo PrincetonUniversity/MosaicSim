@@ -9,7 +9,6 @@
 4000,chip_freq #freq in MHz
 
 #LLC
-0,use_l2
 0,ideal_cache
 209715200,cache_size
 6,cache_latency
