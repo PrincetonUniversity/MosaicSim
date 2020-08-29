@@ -177,7 +177,7 @@ void Core::initialize(int id) {
   this->id = id;
     
   // Set up caches
-  l2_cache = new Cache(local_cfg.l2_cache_linesize, local_cfg.mshr_size, local_cfg.l2_cache_latency, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_size, local_cfg.l2_cache_assoc, local_cfg.use_l2);
+  l2_cache = new Cache(local_cfg.l2_cache_size, local_cfg.mshr_size, local_cfg.l2_cache_latency, local_cfg.l2_cache_linesize, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_assoc, local_cfg.use_l2);
   l2_cache->sim = sim;
   l2_cache->parent_cache=sim->cache;
   l2_cache->memInterface = sim->memInterface;

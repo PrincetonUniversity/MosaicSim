@@ -203,9 +203,9 @@ public:
   FunctionalCache(int size, int assoc, int line_size)
   {
     cache_line_size = line_size;
+    line_count = size / cache_line_size;
     set_count = line_count / assoc;
     log_set_count = log2(set_count);
-    line_count = size / cache_line_size;
     log_line_size = log2(cache_line_size);
     for(int i=0; i<set_count; i++)
     {

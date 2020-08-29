@@ -215,7 +215,6 @@ bool Cache::process() {
     sim->curr_epoch_accesses=0;
   }
     
-  
   free_load_ports = load_ports;
   free_store_ports = store_ports;
   return (pq.size() > 0);  
