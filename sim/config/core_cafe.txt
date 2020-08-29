@@ -10,7 +10,7 @@
 1,mem_speculate #address alias speculation
 1,mem_forward #lsq store to load forwarding
 -1,max_active_contexts_BB
-5,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
+0,branch_predictor # 0:none, 1:always_NT, 2:always_T, 3: onebit, 4:twobit, 5:gshare, 6:perfect
 6,misprediction_penalty
 1024,bht_size # branch history table size (used for onebit, twobit, gshare)
 10,gshare_global_hist # number of bits for the global history register
@@ -21,10 +21,11 @@
 4,cache_latency
 8,cache_assoc
 64,cache_linesize
-2,cache_load_ports
-1,cache_store_ports
+8,cache_load_ports
+8,cache_store_ports
 1,prefetch_distance #distance (in num cachelines) before first prefetch
 8,num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching
+64,mshr_size
 
 #L2 Cache
 0,use_l2
