@@ -11,13 +11,13 @@
 #LLC
 0,ideal_cache
 7077888,cache_size #tiles(108)*64KB(65536)
-25,cache_latency #plus number of hops to diff tile, chip is 12x9, average hops?
+30,cache_latency #25 plus average_number_of_hops=5 (chip is 12x9)
 4,cache_assoc
 64,cache_linesize
 # There are 2 ports per slice of the L2 (one slice per tile)
-# The #port depends on the collisions {min=2,max=108*2}
-216,cache_load_ports
-216,cache_store_ports
+# The #port depends on the collisions {min=1,max=108}
+32,cache_load_ports
+32,cache_store_ports
 
 #Memory
 #Simple DRAM Model
