@@ -35,6 +35,3 @@
 8,l2_cache_store_ports
 1,l2_prefetch_distance #distance (in num cachelines) before first prefetch
 4,l2_num_prefetched_lines #number of cachelines to prefetch, set to 0 for no prefetching, default 2
-#Memory
-4,mem_load_ports
-4,mem_store_ports
