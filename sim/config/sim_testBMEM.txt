@@ -6,7 +6,7 @@
 
 #Technology
 14,technology_node #tech node in nm, enter 5, 14, or 22
-1500,chip_freq #freq in MHz
+1250,chip_freq #freq in MHz
 
 #LLC
 0,ideal_cache
@@ -22,7 +22,7 @@
 #Memory
 #Simple DRAM Model
 1,SimpleDRAM #set 1 for simple dram model, 0 for DRAMSim
-24,dram_bw #peak simple DRAM Bandwidth (GB/s) #1.5Ghz*16B/s
+48,dram_bw #peak simple DRAM Bandwidth (GB/s) #3Ghz*8B/s*2channels
 200,dram_latency #minimum simple DRAM latency in cycles
 4,mem_read_ports
 4,mem_write_ports
