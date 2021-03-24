@@ -2,7 +2,7 @@
 
 #Tile Configs
 24,num_accels #num accelerators
-24,num_IS #num intelligent storage tiles
+23,num_IS #num intelligent storage tiles
 
 #Technology
 14,technology_node #tech node in nm, enter 5, 14, or 22
