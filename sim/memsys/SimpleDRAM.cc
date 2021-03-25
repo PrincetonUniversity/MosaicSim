@@ -13,7 +13,11 @@ void SimpleDRAM::initialize(int coreClockspeed) {
   bytes_per_req=sim->cache->size_of_cacheline;
   long long num=(1000*Peak_BW*epoch_length);
   long long denom=(bytes_per_req*core_clockspeed);
-  max_req_per_epoch=num/denom;
+  if (num/denom < 1 ){
+    max_req_per_epoch=1;
+  }else {
+    max_req_per_epoch = num/denom;
+  }
 }
 
 bool SimpleDRAM::process() {
