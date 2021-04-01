@@ -1,0 +1,192 @@
+Binary file .git/objects/pack/pack-e1b07d5c025dd933c91aac54c3ecd21d0f2cdd9c.pack matches
+Binary file .git/index matches
+Binary file build/sim/CMakeFiles/sim.dir/tile/Core.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/tile/DynamicNode.cc.o matches
+Binary file build/sim/CMakeFiles/sim.dir/memsys/Cache.cc.o matches
+Binary file bin/sim matches
+sim/memsys/SimpleDRAM.cc:  bytes_per_req=sim->cache->size_of_cacheline;
+sim/memsys/DRAM.h:    mem = DRAMSim::getMemorySystemInstance(sim->pythia_home+ini_file, sim->pythia_home+"/sim/config/dramsys.ini", "..", "Pythia", 65536); 
+sim/memsys/Cache.cc:  if (sim->recordEvictions) {         
+sim/memsys/Cache.cc:    sim->evictStatsVec.push_back(cache_stat);  
+sim/memsys/Cache.cc:        sim->curr_epoch_accesses++;
+sim/memsys/Cache.cc:        sim->curr_epoch_accesses++;
+sim/memsys/Cache.cc:  if(cycles % sim->mlp_epoch==0 && cycles!=0) {
+sim/memsys/Cache.cc:    sim->accesses_per_epoch.push_back(sim->curr_epoch_accesses);
+sim/memsys/Cache.cc:    sim->curr_epoch_accesses=0;
+sim/memsys/Cache.cc:      if(!sim->lockCacheline(d)) {
+sim/memsys/Cache.cc:    else if(sim->isLocked(d)) {
+sim/memsys/Cache.cc:          sim->accessComplete(t);         
+sim/memsys/Cache.cc:          if (sim->recordEvictions) {
+sim/memsys/Cache.cc:            sim->evictStatsVec.push_back(cache_stat);  
+sim/memsys/Cache.cc:        if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+sim/memsys/Cache.cc:          assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+sim/memsys/Cache.cc:          get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
+sim/memsys/Cache.cc:        sim->accessComplete(curr_t);
+sim/memsys/Cache.cc:      if (sim->recordEvictions) {
+sim/memsys/Cache.cc:        sim->evictStatsVec.push_back(cache_stat);         
+sim/memsys/DRAM.cc:      if (sim->recordEvictions) {    
+sim/memsys/DRAM.cc:        sim->evictStatsVec.push_back(cache_stat); 
+sim/misc/Reader.h:    long long chunk_size=core->sim->mem_chunk_size;
+sim/misc/Reader.h:          if(core->sim->graphNodeIdMap.find(address) == core->sim->graphNodeIdMap.end()) {
+sim/misc/Reader.h:            core->sim->graphNodeIdMap[address] = graphNodeId;
+sim/misc/Reader.h:            assert(core->sim->graphNodeDegMap.find(graphNodeId) == core->sim->graphNodeDegMap.end());
+sim/misc/Reader.h:            core->sim->graphNodeDegMap[graphNodeId] = graphNodeDeg;
+sim/misc/Reader.h:            if (core->sim->graphNodeIdMap[address] != graphNodeId) {
+sim/misc/Reader.h:              cout << address << " " << core->sim->graphNodeIdMap[address] << " " << graphNodeId << endl;
+sim/misc/Reader.h:            if (core->sim->graphNodeDegMap[graphNodeId] != graphNodeDeg) {
+sim/tile/Accelerator.cc:    sim->InsertTransaction(currentTransaction, final_cycle);    
+sim/tile/Accelerator.cc:    sim->fastForward(id,currentTransaction->perf.cycles);
+sim/tile/accelerator_models/c-model/nvdla/Release/subdir.mk:../sim-nvdla.cpp 
+sim/tile/accelerator_models/c-model/nvdla/Release/subdir.mk:./sim-nvdla.o 
+sim/tile/accelerator_models/c-model/nvdla/Release/subdir.mk:./sim-nvdla.d 
+sim/tile/accelerator_models/c-model/nvdla/sim-nvdla.cpp: * sim-nvdla.cpp
+sim/tile/tile_example/Core.cc:  return sim->canAccess(this, isLoad);
+sim/tile/tile_example/Core.cc:  return sim->communicate(d);
+sim/tile/tile_example/Core.cc:  //sim->access(t);
+sim/tile/tile_example/Core.cc:  cache->parent_cache=sim->cache;
+sim/tile/tile_example/Core.cc:  cache->memInterface = sim->memInterface;
+sim/tile/tile_example/Core.cc:    sim->total_instructions+=bb->inst_count;
+sim/tile/tile_example/Core.cc:  //cout << "Total Instructions is: " << sim->total_instructions << endl;
+sim/tile/tile_example/Core.cc:    sim->InsertTransaction(newt1, cycles);
+sim/tile/tile_example/Core.cc:    sim->InsertTransaction(newt2, cycles);
+sim/tile/tile_example/DynamicNode.cc:      core->sim->load_count+=d->width;
+sim/tile/tile_example/DynamicNode.cc:      core->sim->orderDESC(d);    
+sim/tile/tile_example/DynamicNode.cc:          core->sim->InsertTransaction(newt, core->cycles);
+sim/tile/tile_example/DynamicNode.cc:      //if(d->type == RECV && d->c->core->sim->descq->consume_count<d->c->core->sim->descq->consume_size) {        
+sim/tile/tile_example/DynamicNode.cc:    lpd_can_forward=can_issue && core->sim->descq->updateSAB(this);
+sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==RECV) || core->sim->descq->debug_send_set.find(desc_id)!=core->sim->descq->debug_send_set.end());         
+sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==STADDR) || core->sim->descq->debug_stval_set.find(desc_id)!=core->sim->descq->debug_send_set.end());
+sim/tile/tile_example/DynamicNode.cc:    assert( core->sim->descq->send_runahead_map.find(desc_id)==core->sim->descq->send_runahead_map.end());
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id]=core->cycles;    
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
+sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id] = core->cycles - core->sim->descq->stval_runahead_map[desc_id];
+sim/tile/tile_example/ExampleTile.cc:      sim->InsertTransaction(currentTransaction, final_cycle);      
+sim/tile/DynamicNode.cc:      core->sim->load_count+=d->width;
+sim/tile/DynamicNode.cc:      core->sim->orderDESC(d);
+sim/tile/DynamicNode.cc:  if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+sim/tile/DynamicNode.cc:    assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
+sim/tile/DynamicNode.cc:    auto& entry_tuple=core->sim->load_stats_map[this];
+sim/tile/DynamicNode.cc:    if (core->sim->graphNodeIdMap.find(addr) != core->sim->graphNodeIdMap.end()) {
+sim/tile/DynamicNode.cc:      graphNodeId = core->sim->graphNodeIdMap[addr];
+sim/tile/DynamicNode.cc:      assert(core->sim->graphNodeDegMap.find(graphNodeId) != core->sim->graphNodeDegMap.end());
+sim/tile/DynamicNode.cc:      graphNodeDeg = core->sim->graphNodeDegMap[graphNodeId];
+sim/tile/DynamicNode.cc:    core->sim->load_stats_vector.push_back(load_stat);
+sim/tile/DynamicNode.cc:    core->sim->load_stats_map.erase(this);
+sim/tile/DynamicNode.cc:    if(atomic && core->sim->hasLock(this)) {
+sim/tile/DynamicNode.cc:      core->sim->releaseLock(this);
+sim/tile/DynamicNode.cc:    can_issue=core->sim->barrier->register_barrier(this);
+sim/tile/DynamicNode.cc:  int acc_tid=core->sim->getAccelerator();
+sim/tile/DynamicNode.cc:  core->sim->InsertTransaction(t, core->cycles);
+sim/tile/DynamicNode.cc:  /*if(core->sim->isLocked(this)) {
+sim/tile/DynamicNode.cc:  //core->sim->evictAllCaches(addr); this was just used to test
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
+sim/tile/DynamicNode.cc:  bool hadLock=core->sim->hasLock(this);
+sim/tile/DynamicNode.cc:  if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
+sim/tile/DynamicNode.cc:  for(auto id_tile: core->sim->tiles) {
+sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:    if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
+sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+sim/tile/DynamicNode.cc:        core->sim->recvLatencyMap[this]=core->cycles;
+sim/tile/DynamicNode.cc:    else if(core->sim->debug_mode) {
+sim/tile/DynamicNode.cc:      if(core->sim->debug_mode) {
+sim/tile/DynamicNode.cc:  if(core->sim->hasLock(this)) {
+sim/tile/DynamicNode.cc:    core->sim->releaseLock(this);
+sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+sim/tile/DynamicNode.cc:    unordered_map<DynamicNode*, uint64_t>& recvLatencyMap=core->sim->recvLatencyMap;
+sim/tile/DynamicNode.cc:      core->sim->total_recv_latency += core->cycles - recvLatencyMap[this];
+sim/tile/DynamicNode.cc:  if(core->sim->debug_mode) {
+sim/tile/Core.cc:  return sim->canAccess(this, isLoad);
+sim/tile/Core.cc:  return sim->communicate(d);
+sim/tile/Core.cc:  if(sim->debug_mode || sim->mem_stats_mode) {
+sim/tile/Core.cc:    if(sim->load_stats_map.find(d)!=sim->load_stats_map.end()) {
+sim/tile/Core.cc:    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false); //(issue cycle, return cycle)
+sim/tile/Core.cc:  if (sim->graphNodeIdMap.find(d->addr) != sim->graphNodeIdMap.end()) {
+sim/tile/Core.cc:    graphNodeId = sim->graphNodeIdMap[d->addr];
+sim/tile/Core.cc:    assert(sim->graphNodeDegMap.find(graphNodeId) != sim->graphNodeDegMap.end());
+sim/tile/Core.cc:    graphNodeDeg = sim->graphNodeDegMap[graphNodeId];
+sim/tile/Core.cc:  cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
+sim/tile/Core.cc:    stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
+sim/tile/Core.cc:  cache->parent_cache=sim->l2_cache;
+sim/tile/Core.cc:  cache->memInterface = sim->memInterface;
+sim/tile/Core.cc:    llama_cache->parent_cache=sim->llama_cache;
+sim/tile/Core.cc:    llama_cache->parent_cache=sim->cache;
+sim/tile/Core.cc:  llama_cache->memInterface = sim->memInterface;
+sim/tile/Core.cc:    sim->total_instructions+=bb->inst_count;
+sim/tile/Core.cc:  cout << "Total Num Instructions: " << sim->total_instructions << endl;
+sim/tile/Core.cc:  if(sim->instruction_limit>0 && sim->total_instructions>=sim->instruction_limit) {
+sim/tile/Core.cc:    cout << "Number of instructions is larger than the " << sim->instruction_limit << "-instruction limit. Please run the application with a smaller dataset." << endl;
+sim/tile/Core.cc:    sim->get_descq(this)->cycles+=inc;    
+sim/tile/Core.cc:    sim->get_descq(this)->process();    
+sim/tile/Core.cc:    if(!sim->debug_mode) {
+sim/sim.cc:    sim->commQSizes.push_back(commQ_count);
+sim/sim.cc:    if (sim->commQMax < commQ_count) {
+sim/sim.cc:      sim->commQMax = commQ_count;
+sim/sim.cc:      sim->termBuffSizes.push_back(term_ld_count);
+sim/sim.cc:      if (sim->termBuffMax < term_ld_count) {
+sim/sim.cc:        sim->termBuffMax = term_ld_count;
+sim/sim.cc:    sim->commQSizes.push_back(commQ_count);    
+sim/sim.cc:    if (sim->commQMax < commQ_count) {
+sim/sim.cc:      sim->commQMax = commQ_count;
+sim/sim.cc:    sim->SABSizes.push_back(SAB_count);
+sim/sim.cc:    if (sim->SABMax < SAB_count) {
+sim/sim.cc:      sim->SABMax = SAB_count;
+sim/sim.cc:    sim->SVBSizes.push_back(SVB_count);
+sim/sim.cc:    if (sim->SVBMax < SVB_count) {
+sim/sim.cc:      sim->SVBMax = SVB_count;
+insert:sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+memory:sim/memsys/Cache.cc:        if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+memory:sim/memsys/Cache.cc:          assert(core->sim->load_stats_map.find(d)!=core->sim->load_stats_map.end());
+memory:sim/memsys/Cache.cc:          get<2>(core->sim->load_stats_map[d])=mshr_entry.hit;
+memory:sim/misc/Reader.h:    long long chunk_size=core->sim->mem_chunk_size;
+memory:sim/tile/tile_example/DynamicNode.cc:      core->sim->load_count+=d->width;
+memory:sim/tile/tile_example/DynamicNode.cc:      core->sim->orderDESC(d);    
+memory:sim/tile/tile_example/DynamicNode.cc:          core->sim->InsertTransaction(newt, core->cycles);
+memory:sim/tile/tile_example/DynamicNode.cc:      //if(d->type == RECV && d->c->core->sim->descq->consume_count<d->c->core->sim->descq->consume_size) {        
+memory:sim/tile/tile_example/DynamicNode.cc:    lpd_can_forward=can_issue && core->sim->descq->updateSAB(this);
+memory:sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==RECV) || core->sim->descq->debug_send_set.find(desc_id)!=core->sim->descq->debug_send_set.end());         
+memory:sim/tile/tile_example/DynamicNode.cc:  assert(!(n->typeInstr==STADDR) || core->sim->descq->debug_stval_set.find(desc_id)!=core->sim->descq->debug_send_set.end());
+memory:sim/tile/tile_example/DynamicNode.cc:    assert( core->sim->descq->send_runahead_map.find(desc_id)==core->sim->descq->send_runahead_map.end());
+memory:sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id]=core->cycles;    
+memory:sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->send_runahead_map[desc_id] = core->cycles - core->sim->descq->send_runahead_map[desc_id];
+memory:sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id]=core->cycles;    
+memory:sim/tile/tile_example/DynamicNode.cc:    core->sim->descq->stval_runahead_map[desc_id] = core->cycles - core->sim->descq->stval_runahead_map[desc_id];
+memory:sim/tile/DynamicNode.cc:      core->sim->load_count+=d->width;
+memory:sim/tile/DynamicNode.cc:      core->sim->orderDESC(d);
+memory:sim/tile/DynamicNode.cc:  if(core->sim->debug_mode || core->sim->mem_stats_mode) {
+memory:sim/tile/DynamicNode.cc:    assert(core->sim->load_stats_map.find(this)!=core->sim->load_stats_map.end());
+memory:sim/tile/DynamicNode.cc:    auto& entry_tuple=core->sim->load_stats_map[this];
+memory:sim/tile/DynamicNode.cc:    core->sim->load_stats_vector.push_back(load_stat);
+memory:sim/tile/DynamicNode.cc:    core->sim->load_stats_map.erase(this);
+memory:sim/tile/DynamicNode.cc:    if(atomic && core->sim->hasLock(this)) {
+memory:sim/tile/DynamicNode.cc:      core->sim->releaseLock(this);
+memory:sim/tile/DynamicNode.cc:    can_issue=core->sim->barrier->register_barrier(this);
+memory:sim/tile/DynamicNode.cc:  int acc_tid=core->sim->getAccelerator();
+memory:sim/tile/DynamicNode.cc:  core->sim->InsertTransaction(t, core->cycles);
+memory:sim/tile/DynamicNode.cc:  /*if(core->sim->isLocked(this)) {
+memory:sim/tile/DynamicNode.cc:  //core->sim->evictAllCaches(addr); this was just used to test
+memory:sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+memory:sim/tile/DynamicNode.cc:  if(atomic && !core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible
+memory:sim/tile/DynamicNode.cc:  bool hadLock=core->sim->hasLock(this);
+memory:sim/tile/DynamicNode.cc:  if(!core->sim->lockCacheline(this)) { //attempts to acquire the cacheline lock and evicts all caches or enqueues request if that's not possible  
+memory:sim/tile/DynamicNode.cc:  for(auto id_tile: core->sim->tiles) {
+memory:sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+memory:sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+memory:sim/tile/DynamicNode.cc:    if(core->sim->mem_stats_mode || core->sim->debug_mode)  {
+memory:sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+memory:sim/tile/DynamicNode.cc:          core->sim->runaheadVec.push_back(localStat);
+memory:sim/tile/DynamicNode.cc:        core->sim->recvLatencyMap[this]=core->cycles;
+memory:sim/tile/DynamicNode.cc:    else if(core->sim->debug_mode) {
+memory:sim/tile/DynamicNode.cc:      if(core->sim->debug_mode) {
+memory:sim/tile/DynamicNode.cc:  if(core->sim->hasLock(this)) {
+memory:sim/tile/DynamicNode.cc:    core->sim->releaseLock(this);
+memory:sim/tile/DynamicNode.cc:  DESCQ* descq=core->sim->get_descq(this);
+memory:sim/tile/DynamicNode.cc:    unordered_map<DynamicNode*, uint64_t>& recvLatencyMap=core->sim->recvLatencyMap;
+memory:sim/tile/DynamicNode.cc:      core->sim->total_recv_latency += core->cycles - recvLatencyMap[this];
+memory:sim/tile/DynamicNode.cc:  if(core->sim->debug_mode) {
+memory:insert:sim/tile/DynamicNode.cc:      assert(!(!hadLock && core->sim->hasLock(this)) || !ncore->cache->fc->access(addr/core->cache->size_of_cacheline, true));
+src_id:sim/tile/Core.cc:  cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
+src_id:sim/tile/Core.cc:  stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline

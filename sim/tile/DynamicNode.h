@@ -1,8 +1,6 @@
 #ifndef DYNAMICNODE_H
 #define DYNAMICNODE_H
-#include <map>
-#include <set>
-#include <queue>
+
 #include "../graph/Graph.h"
 #include <unordered_set>
 
@@ -18,7 +16,7 @@ class Context;
 class ExampleTransaction;
 typedef pair<DynamicNode*, uint64_t> Operator;
 typedef enum {NONE, DESC_FWD, LSQ_FWD, PENDING, RETURNED, FWD_COMPLETE} MemStatus; //pending: sent to mem system, returned: was sent and has returned back, none: no mem access required, desc_fwd:can be handled by decoupled stl fwding, lsq_fwd: can be handled by lsq forwarding
-typedef enum {DISPATCH, LEFT_ROB} Stage; //stage of "pipeline" of dynamic node 
+typedef enum {DISPATCH, LEFT_ROB} Stage; //stage of "pipeline" of dynamic node
 
 class DynamicNode {
 public:
@@ -30,7 +28,7 @@ public:
   bool issued = false;
   bool completed = false;
   bool can_exit_rob = false;
-  Stage stage=DISPATCH; 
+  Stage stage=DISPATCH;
   MemStatus mem_status = NONE;
   string acc_args;
   bool isMem;
@@ -40,6 +38,9 @@ public:
   uint64_t desc_id;
   bool acc_initiated=false;
   ExampleTransaction* t;
+  /* branches */
+  int extra_lat=0;
+  bool mispredicted=true;
   /* Memory */
   uint64_t addr;
   int width;
@@ -50,13 +51,13 @@ public:
   int pending_parents;
   int pending_external_parents;
   vector<DynamicNode*> external_dependents;
-  
+
   DynamicNode(Node *n, Context *c, Core *core, uint64_t addr = 0);
   bool operator== (const DynamicNode &in);
   bool operator< (const DynamicNode &in) const;
   void print(string str, int level = 0);
   void handleMemoryReturn();
-  void tryActivate(); 
+  void tryActivate();
   bool issueMemNode();
   bool issueCompNode();
   bool issueDESCNode();
@@ -64,15 +65,12 @@ public:
   void finishNode();
   void register_issue_try();
   void register_issue_success();
-
-
-
 };
 
 class OpCompare {
 public:
   bool operator() (const Operator &l, const Operator &r) const {
-    if(r.second < l.second) 
+    if(r.second < l.second)
       return true;
     else if (l.second == r.second)
       return (*(r.first) < *(l.first));
@@ -90,7 +88,7 @@ public:
 
 class Context {
 public:
-  unsigned int id;
+  uint64_t id;
   bool live;
   bool isErasable=false;
   uint64_t cycleMarkedAsErasable=0;

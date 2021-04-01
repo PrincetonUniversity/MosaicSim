@@ -15,13 +15,13 @@ class Core;
 
 struct TransPointerLT {
     bool operator()(const MemTransaction* a, const MemTransaction* b) const {
-     
+
       if(a->id >= 0 && b->id >= 0) { //not eviction or prefetch
         return *(a->d) < *(b->d); //compare their dynamic nodes
       }
       else {
         return a < b; //just use their pointers, so they're unique in the set
-      }        
+      }
     }
 };
 
@@ -33,11 +33,11 @@ public:
   void insert(MemTransaction* t) {
     opset.insert(t);
     //inc num of real mem ops
-   
+
     if(!t->isPrefetch) {
-      non_prefetch_size++; 
+      non_prefetch_size++;
     }
-    
+
   }
 };
 
@@ -58,14 +58,16 @@ public:
   int min_stride=4; //bytes of strided access
 
   unordered_map<uint64_t,MSHR_entry> mshr; //map of cacheline to set to mshr_entry
+  int num_mshr_entries=0;
   vector<MemTransaction*> to_execute;
   vector<MemTransaction*> next_to_execute;
   //unordered_map<uint64_t,set<MemTransaction*>> memop_map; //map of cacheline to set of dynamic nodes
   vector<MemTransaction*> to_send;
-  vector<uint64_t> to_evict;
+  vector<tuple<uint64_t>> to_evict;
   priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare> pq;
-  
-  
+
+  int size;
+  int mshr_size;
   int latency;
   int size_of_cacheline;
   int load_ports;
@@ -76,13 +78,23 @@ public:
   bool ideal;
   int prefetch_distance=0;
   int num_prefetched_lines=1;
+  bool useL2;
   FunctionalCache *fc;
 
   Cache(Config cache_cfg):
-    latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache),  prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), fc(new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize)) {
+    size(cache_cfg.cache_size), mshr_size(cache_cfg.mshr_size), latency(cache_cfg.cache_latency), size_of_cacheline(cache_cfg.cache_linesize), load_ports(cache_cfg.cache_load_ports), store_ports(cache_cfg.cache_store_ports), ideal(cache_cfg.ideal_cache), prefetch_distance(cache_cfg.prefetch_distance), num_prefetched_lines(cache_cfg.num_prefetched_lines), useL2(cache_cfg.use_l2) {
+    fc = new FunctionalCache(cache_cfg.cache_size, cache_cfg.cache_assoc, cache_cfg.cache_linesize);
     free_load_ports = load_ports;
     free_store_ports = store_ports;
   }
+
+  Cache(int size, int mshr_size, int latency, int linesize, int load_ports, int store_ports, bool ideal, int prefetch_distance, int num_prefetched_lines, int assoc, int use_l2):
+    size(size), mshr_size(mshr_size), latency(latency), size_of_cacheline(linesize), load_ports(load_ports), store_ports(store_ports), ideal(ideal), prefetch_distance(prefetch_distance), num_prefetched_lines(num_prefetched_lines), useL2(use_l2) {
+    fc = new FunctionalCache(size, assoc, linesize);
+    free_load_ports = load_ports;
+    free_store_ports = store_ports;
+  }
+
   void evict(uint64_t addr);
   bool process();
   void execute(MemTransaction* t);

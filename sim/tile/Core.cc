@@ -1,8 +1,4 @@
-#include "DynamicNode.h"
 #include "Core.h"
-//#include "LoadStoreQ.h"
-#include "../memsys/Cache.h"
-#include <vector>
 
 #define ID_POOL 1000000
 using namespace std;
@@ -29,7 +25,7 @@ void Core::access(DynamicNode* d) {
     /*if(d->type==ST) {
       return_cycle=current_cycle;
     } */
-    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,false); //(issue cycle, return cycle)
+    sim->load_stats_map[d]=make_tuple(current_cycle,return_cycle,2); //(issue cycle, return cycle)
   }
   /*
   int tid = tracker_id.front();
@@ -44,7 +40,7 @@ void Core::access(DynamicNode* d) {
 void IssueWindow::insertDN(DynamicNode* d) {
   issueMap.insert(make_pair(d,curr_index));
   d->windowNumber=curr_index;
- 
+
   if(d->type==BARRIER)
     barrierVec.push_back(d);
   curr_index++;
@@ -52,12 +48,10 @@ void IssueWindow::insertDN(DynamicNode* d) {
 
 bool IssueWindow::canIssue(DynamicNode* d) {
   //assert(issueMap.find(d)!=issueMap.end());
-  
-  uint64_t position=d->windowNumber;//issueMap.at(d);
- 
 
+  uint64_t position=d->windowNumber;//issueMap.at(d);
   bool can_issue=true;
-   
+
   if(window_size==-1 && issueWidth==-1) { //infinite sizes
     can_issue=can_issue && true;
   }
@@ -66,7 +60,7 @@ bool IssueWindow::canIssue(DynamicNode* d) {
   }
   else if(issueWidth==-1) { //only instruction window availability matters
     can_issue = can_issue && position>=window_start && position<=window_end;
-  }  
+  }
   else {
     can_issue = can_issue && issueCount<issueWidth && position>=window_start && position<=window_end;
   }
@@ -76,7 +70,7 @@ bool IssueWindow::canIssue(DynamicNode* d) {
       if(*d<*b) { //break once you find 1st younger barrier b
         break; //won't be a problem
       }
-      if(*b < *d) { //if barrier is older, no younger instruction can issue 
+      if(*b < *d) { //if barrier is older, no younger instruction can issue
         can_issue=false;
         break;
       }
@@ -95,7 +89,7 @@ bool IssueWindow::canIssue(DynamicNode* d) {
       }
     }
   }
-  return can_issue;  
+  return can_issue;
 }
 
 void IssueWindow::process() {
@@ -120,9 +114,10 @@ void IssueWindow::process() {
   cycles++;
 }
 
-void IssueWindow::issue() {
-  assert(issueWidth==-1 || issueCount<=issueWidth);
-  issueCount++;
+void IssueWindow::issue(DynamicNode* d) {
+  assert(issueWidth==-1 || issueCount<issueWidth);
+  if(d->type != PHI) // PHIs are not real instructions and do not waste an issue slot
+    issueCount++;
 }
 
 //handle completed memory transactions
@@ -137,7 +132,7 @@ void Core::accessComplete(MemTransaction *t) {
 
   if(access_tracker.find(tid)!=access_tracker.end()) {
     DynamicNode *d = access_tracker.at(tid);
-    
+
     access_tracker.erase(tid);
     tracker_id.push(tid);
     delete t;
@@ -150,10 +145,9 @@ void Core::accessComplete(MemTransaction *t) {
   */
 }
 
-
 //handle completed transactions
 bool Core::ReceiveTransaction(Transaction* t) {
-  
+
   t->complete=true;
   DynamicNode* d=t->d;
   /*
@@ -165,30 +159,41 @@ bool Core::ReceiveTransaction(Transaction* t) {
   cout << "Acc DRAM Accesses: " << t->perf.bytes/sim->cache->size_of_cacheline  << endl;
   */
   cout << "Acc_Completed; Cycle: " << cycles <<"; Power: " << t->perf.power << "; Args: " << d->acc_args << endl;
-  
+
   //register energy and dram access stats
   stat.update("dram_accesses",t->perf.bytes/sim->cache->size_of_cacheline); //each DRAM access is 1 cacheline
+
   //power is mW, freq in MHz --> 1e-3*1e-6
   double energy=(t->perf.power * t->perf.cycles * 1e-9)/cfg.chip_freq;
   stat.acc_energy+=energy;
-  
+
   d->c->insertQ(d); //complete the dynamic node involved
   delete t;
-  
+
   return true;
 }
 
 void Core::initialize(int id) {
   this->id = id;
-    
-  // Set up cache
+
+  // Set up caches
+  l2_cache = new Cache(local_cfg.l2_cache_size, local_cfg.mshr_size, local_cfg.l2_cache_latency, local_cfg.l2_cache_linesize, local_cfg.l2_cache_load_ports, local_cfg.l2_cache_store_ports, local_cfg.l2_ideal_cache, local_cfg.l2_prefetch_distance, local_cfg.l2_num_prefetched_lines, local_cfg.l2_cache_assoc, local_cfg.use_l2);
+  l2_cache->sim = sim;
+  l2_cache->parent_cache=sim->cache;
+  l2_cache->memInterface = sim->memInterface;
+
   cache = new Cache(local_cfg);
   cache->core=this;
   cache->sim = sim;
-  cache->parent_cache=sim->cache;
+  if (local_cfg.use_l2) {
+    cache->parent_cache=l2_cache;
+  } else {
+    cache->parent_cache=sim->cache;
+  }
   cache->isL1=true;
   cache->memInterface = sim->memInterface;
   lsq.mem_speculate=local_cfg.mem_speculate;
+
   // Initialize Resources / Limits
   lsq.size = local_cfg.lsq_size;
   window.window_size=local_cfg.window_size;
@@ -196,6 +201,11 @@ void Core::initialize(int id) {
   for(int i=0; i<NUM_INST_TYPES; i++) {
     available_FUs.insert(make_pair(static_cast<TInstr>(i), local_cfg.num_units[i]));
   }
+
+  // Initialize branch predictor
+  bpred = new Bpred( (TypeBpred)local_cfg.branch_predictor, local_cfg.bht_size );
+  bpred->misprediction_penalty = local_cfg.misprediction_penalty;
+  bpred->gshare_global_hist_bits = local_cfg.gshare_global_hist_bits;
 
   // Initialize Control Flow mode: 0 = one_context_at_once  / 1 = all_contexts_simultaneously
   if (local_cfg.cf_mode == 0)
@@ -209,7 +219,7 @@ void Core::initialize(int id) {
   for(int i=0; i<NUM_INST_TYPES; i++) {
     local_stat.registerStat(getInstrName((TInstr)i),1);
     stat.registerStat(getInstrName((TInstr)i),1);
-  }   
+  }
   for(int i=0; i<ID_POOL; i++) {
     tracker_id.push(i);
   }
@@ -220,47 +230,62 @@ void Core::initialize(int id) {
     sim->total_instructions+=bb->inst_count;
     //exit gracefully instead of getting killed by OS
   }
-  
+
   cout << "Total Num Instructions: " << sim->total_instructions << endl;
   if(sim->instruction_limit>0 && sim->total_instructions>=sim->instruction_limit) {
     cout << "\n----SIMULATION TERMINATING----" << endl;
     cout << "Number of instructions is larger than the " << sim->instruction_limit << "-instruction limit. Please run the application with a smaller dataset." << endl;
     assert(false);
   }
-  //assert(false);
 }
 
+vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR",
+                         "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC",
+                         "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
 
-//extern vector<string> InstrStr;
-
-vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST", "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT", "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN", "ATOMIC_CAS", "TRM_ATOMIC_FADD", "TRM_ATOMIC_MIN", "TRM_ATOMIC_CAS"};
-
-string Core::getInstrName(TInstr instr) {  
+string Core::getInstrName(TInstr instr) {
   return InstrStr[instr];
 }
 
-// Return boolean indicating whether or not the branch was mispredicted
-// We can do this by looking at the context, core, etc from the DynamicNode and seeing if the next context has the same bbid as the current one
-// Simple Always-Taken predictor. We'll guess that we remain in the same basic block (or loop). Hence, it's a misprediction when we change basic blocks
-bool Core::predict_branch(DynamicNode* d) {
-  int context_id=d->c->id;
-  int next_context_id=context_id+1;
+// Return boolean indicating whether the branch has been correctly predicted
+bool Core::predict_branch_and_check(DynamicNode* d) {
+  uint64_t current_context_id = d->c->id;
+  uint64_t next_context_id = current_context_id+1;
+  int current_bbid = cf.at(current_context_id);
 
-  int current_bbid=cf.at(context_id);
-  
-  int cf_size = cf.size();
-  int next_bbid=-1;
-  if(next_context_id < cf_size) {
-    next_bbid=cf.at(next_context_id);
+  bool is_cond = bb_cond_destinations.at(current_bbid).first;
+  if( !is_cond ) {                            //if the the branch is "unconditional" there is nothing to predict
+    stat.update("bpred_uncond_branches");     //and returns TRUE immediately (correctly predicted)
+    return true;
   }
-  if(current_bbid==next_bbid) { // guess we'll remain in same basic block
-    //cout << "CORRECT prediction \n";
-    return true;   
+
+  bool actual_taken = false;
+  if(next_context_id < cf.size()) {
+    int next_bbid = cf.at(next_context_id);
+    set<int> &dest = bb_cond_destinations.at(current_bbid).second;
+    //assert(dest.size()==1 || dest.size()==2);
+    if(dest.size()==2) { //this LLVM branch has 2 destinations (note this is very common in LLVM !!)
+      //int dest1 = *dest.begin();   // dest1 is assumed as the NOT-TAKEN path
+      int dest2 = *dest.rbegin();  // dest2 is assumed as the TAKEN path
+      actual_taken = (next_bbid == dest2);  // if going to dest2 -> TAKEN branch
+    }
+    else {
+      actual_taken = true; // if there is only ONE destination -> TAKEN branch
+    }
   }
-  else {   
-    //cout << "WRONG prediction \n";
-    return false;
-  }
+  else  // this is the very last branch of the program (a RET in llvm) -> TAKEN branch
+    actual_taken = true;
+
+  // check the prediction
+  bool is_pred_ok = bpred->predict_and_check(/*PC*/current_bbid, actual_taken);
+
+  // update bpred stats
+  stat.update("bpred_cond_branches");
+  if(is_pred_ok)
+    stat.update("bpred_cond_correct_preds");
+  else
+    stat.update("bpred_cond_wrong_preds");
+  return is_pred_ok;
 }
 
 bool Core::createContext() {
@@ -278,13 +303,13 @@ bool Core::createContext() {
     prev_bbid = cf.at(cid-1);
   else
     prev_bbid = -1;
-  
+
   BasicBlock *bb = g.bbs.at(bbid);
   // Check LSQ Availability
   if(!lsq.checkSize(bb->ld_count, bb->st_count)) {
     return false;
   }
-    
+
   // check the limit of contexts per BB
   if (local_cfg.max_active_contexts_BB > 0) {
     if(outstanding_contexts.find(bb) == outstanding_contexts.end()) {
@@ -306,21 +331,25 @@ bool Core::createContext() {
 void Core::fastForward(uint64_t inc) {
   cycles+=inc;
   cache->cycles+=inc;
+  l2_cache->cycles+=inc;
   window.cycles+=inc;
   if(id % 2 == 0) {
-    sim->get_descq(this)->cycles+=inc;    
+    sim->get_descq(this)->cycles+=inc;
   }
 }
 
 bool Core::process() {
-  //process the instruction window and RoB
+  //process the instruction window and ROB
   window.process();
-  //process the private cache
-  bool simulate = cache->process();
 
-  //process descq if this is the 2nd tile. 2 tiles share 1 descq//  
+  //process all the private caches
+  bool cache_process = cache->process();
+  bool l2_cache_process = l2_cache->process();
+  bool simulate = cache_process || l2_cache_process;
+
+  //process descq if this is the 2nd tile. 2 tiles share 1 descq
   if(id % 2 == 0) {
-    sim->get_descq(this)->process();    
+    sim->get_descq(this)->process();
   }
 
   windowFull=false;
@@ -328,16 +357,15 @@ bool Core::process() {
     Context *c = *it;
     c->process();
   }
- 
+
   for(auto it = live_context.begin(); it!=live_context.end();) {
-    
     Context *c = *it;
     c->complete();
-      
-    if(it!=live_context.begin()) {   
-      assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered      
+
+    if(it!=live_context.begin()) {
+      assert((*it)->id > (*(it-1))->id); //making sure contexts are ordered
     }
-    
+
     if(c->live)
       it++;
     else {
@@ -347,7 +375,7 @@ bool Core::process() {
 
   if(live_context.size() > 0)
     simulate = true;
-  
+
   // create all the needed new contexts (eg, whenever a terminator node is reached a new context must be created)
   int context_created = 0;
   for (int i=0; i<context_to_create; i++) {
@@ -364,10 +392,10 @@ bool Core::process() {
   // Print current stats every "stat.printInterval" cycles
   if(cfg.verbLevel >= 5)
     cout << "[Cycle: " << cycles << "]\n";
-  if(cycles % stat.printInterval == 0 && cycles != 0) {
+  if(cycles > 0 && cycles % stat.printInterval == 0) {
     curr = Clock::now();
     uint64_t tdiff = chrono::duration_cast<std::chrono::milliseconds>(curr - last).count();
-    
+
     cout << endl << "--- " << name << " Simulation Speed: " << ((double)(local_stat.get("contexts") - last_processed_contexts)) / tdiff << " contexts per ms \n";
     last_processed_contexts = local_stat.get("contexts");
     last = curr;
@@ -387,45 +415,31 @@ bool Core::process() {
   return simulate;
 }
 
-void Core::deleteErasableContexts() {   
-  int erasedContexts=0;
-  int erasedDynamicNodes=0;
-//  int count;
-//  cout << "-------trying to erase contexts:------------------------------\n";
-//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
-//  cout << "--  context_list size=" << count /*context_list.size()*/ << endl;
-//  cout << "--  live_context_list size=" << live_context.size() << endl;
-
-  int safetyWindow=100000; 
+void Core::deleteErasableContexts() {
+  int safetyWindow=100000;
   for(auto it=context_list.begin(); it != context_list.end(); ++it) {
     Context *c = *it;
     // safety measure: only erase contexts marked as erasable 1mill cycles apart
-    if(c && c->isErasable && c->cycleMarkedAsErasable < cycles-safetyWindow ) {  
+    if(c && c->isErasable && c->cycleMarkedAsErasable < cycles-safetyWindow ) {
       // first, delete dynamic nodes associated to this context
       for(auto n_it=c->nodes.begin(); n_it != c->nodes.end(); ++n_it) {
         DynamicNode *d = n_it->second;
         d->core->lsq.remove(d); //delete from LSQ
         delete d;   // delete the dynamic node
-        erasedDynamicNodes++;
       }
       // now delete the context itself
-      delete c;  
-      erasedContexts++;
+      delete c;
       *it = NULL;
     }
   }
-//  cout << "-------erased contexts: " << erasedContexts << "   erased DNs: " << erasedDynamicNodes << "----------------------\n";
-//  count=0; for(auto it=context_list.begin(); it != context_list.end(); ++it) if(*it) count++;
-//  cout << "--  new context_list size=" << count /*context_list.size()*/ << endl;
 }
 
 void Core::calculateEnergyPower() {
   total_energy = 0.0;
   int tech_node = cfg.technology_node;
 
-  // FIX THIS: for now we only calculate the energy for IN-ORDER cores
   if(/*in order*/ ( local_cfg.window_size == 1 && local_cfg.issueWidth == 1)  || /*ASIC models*/ ( local_cfg.window_size >= 1024 && local_cfg.issueWidth >= 1024) ||  ( local_cfg.window_size < 0 && local_cfg.issueWidth < 0)) {
-    
+
     // add Energy Per Instruction (EPI) class
     for(int i=0; i<NUM_INST_TYPES; i++) {
       total_energy += local_cfg.energy_per_instr.at(tech_node)[i] * local_stat.get(getInstrName((TInstr)i));
@@ -439,10 +453,12 @@ void Core::calculateEnergyPower() {
     // some debug stuff
     //cout << "-------Total core energy (w/ L1): " << total_energy << endl;
   }
-  else { //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
-    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get 6.875W..round down to 6W, conservatively
+  // IMPROVE THIS: for OoO we better integrate McPAT models here - currently we do it "off-line"
+  else {
+    //for Xeon E7-8894V4 from McPAT on 22nm, peak power is 11.8 W per core
+    //intel TDP is 165W for all cores running. Divide by number of cores (24), we get ~6.875W
     //about .5 McPAT power, which is at 2x tech node
-    total_energy = 6 * cycles / (clockspeed*1e6);
-    
+    avg_power = 6.875;
+    total_energy = avg_power * cycles / (clockspeed*1e6);
   }
 }

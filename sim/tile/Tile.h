@@ -15,18 +15,18 @@ class Simulator;
 class Tile {
  public:
   int id;
-  Simulator* sim; 
+  Simulator* sim;
   uint64_t clockspeed; //clockspeed in MHertz
-  uint64_t cycles; 
+  uint64_t cycles;
   string name="";
   Tile(Simulator* sim, int clockspeed): sim(sim),clockspeed(clockspeed) {
     cycles=0;
   }
   //increment tile's cycle count, return true only if tile still has work; eventually return false;
-  virtual bool process()=0;  
+  virtual bool process()=0;
   //call back function to process a completed transaction
   virtual bool ReceiveTransaction(Transaction* t)=0;
-  virtual void fastForward(uint64_t inc)=0;  
+  virtual void fastForward(uint64_t inc)=0;
 };
 
 typedef enum {DEFAULT, EXAMPLE1, TILE_COMPLETE, MEMORY, INTERRUPT} TransType;
@@ -46,7 +46,7 @@ public:
 
 class Transaction {
 public:
-  Transaction(int id, int src_id, int dst_id) : id(id), src_id(src_id), dst_id(dst_id) {}; //constructor for inter-tile communication  
+  Transaction(int id, int src_id, int dst_id) : id(id), src_id(src_id), dst_id(dst_id) {}; //constructor for inter-tile communication
   int id;
   int src_id;
   int dst_id;
@@ -54,7 +54,7 @@ public:
   TransType type=DEFAULT;
   acc_perf_t perf;
   DynamicNode* d; //originating dynamic node, useful for core and cache model
-  //void (*callBackFunc)(Transaction* t); 
+  //void (*callBackFunc)(Transaction* t);
 };
 
 class ExampleTransaction : public Transaction {
@@ -70,18 +70,19 @@ public:
   DynamicNode* d; //dynamic node tied to transaction
   GemmTransaction(int id, int src_id, int dst_id, string payLoad) : Transaction(id,src_id,dst_id) {
     payload=payLoad;
-  }  
+  }
 };
 
 class MemTransaction : public Transaction {
-public: 
-  MemTransaction(int id, int src_id, int dst_id, uint64_t addr, bool isLoad) : Transaction(id,src_id,dst_id), addr(addr), isLoad(isLoad) {}; 
+public:
+  MemTransaction(int id, int src_id, int dst_id, uint64_t addr, bool isLoad) : Transaction(id,src_id,dst_id), addr(addr), isLoad(isLoad) {};
 
   uint64_t addr;
   bool isLoad;
+  bool checkMSHR = false;
   bool isPrefetch = false;
   bool issuedPrefetch = false;
-  
+
   deque<Cache*>* cache_q = new deque<Cache*>(); //trail of originating caches
   ~MemTransaction(){
     delete cache_q;

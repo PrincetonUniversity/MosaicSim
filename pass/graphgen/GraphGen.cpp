@@ -48,7 +48,7 @@ bool GraphGen::isKernelFunction(Function &func) {
   else {
     return (func.getName().str().find(KERNEL_STR) != std::string::npos) &&
       (func.getName().str().find("cpython") == std::string::npos) ;
-  }    
+  }
 }
 
 void GraphGen::getAnalysisUsage(AnalysisUsage &au) const {
@@ -66,11 +66,11 @@ bool GraphGen::runOnFunction(Function &func) {
     if (atoi(decades_from_numba) == 1)
       FROM_NUMBA = true;
   }
- 
+
   LI = &getAnalysis<LoopInfoWrapperPass>().getLoopInfo();
   SE = &getAnalysis<ScalarEvolutionWrapperPass>().getSE();
 
-  
+
   if (isKernelFunction(func)) {
     assert(!found_kernel);
     found_kernel = true;
@@ -84,14 +84,14 @@ bool GraphGen::runOnFunction(Function &func) {
     visualize();
     exportGraph();
     errs() << "[Unknown instructions begin]\n";
-    
+
     for ( const auto &myPair : unknown_instructions) {
       errs() << myPair.first << " : " << myPair.second << "\n";
     }
     errs() << "[Unknown instructions end]\n";
 
   }
-  
+
   return false;
 }
 
@@ -106,12 +106,12 @@ void GraphGen::detectFunctions(Function &func) {
     for (auto &inst : bb) {
       Instruction *i = &(inst);
       Node *n = nodeMap[i];
-    
+
       if (CallInst *cinst = dyn_cast<CallInst>(&inst)) {
         for (Use &use : inst.operands()) {
           Value *v = use.get();
           if(Function *f = dyn_cast<Function>(v)) {
-            if(f->getName().str().find("desc_supply_produce") != std::string::npos || f->getName().str().find("desc_supply_special_produce") != std::string::npos || f->getName().str().find("desc_special_supply_produce") != std::string::npos) {              
+            if(f->getName().str().find("desc_supply_produce") != std::string::npos || f->getName().str().find("desc_supply_special_produce") != std::string::npos || f->getName().str().find("desc_special_supply_produce") != std::string::npos) {
               send_count++;
               //errs() << "[SEND]"<< *i << "\n";
               n->itype = SEND;
@@ -148,24 +148,24 @@ void GraphGen::detectFunctions(Function &func) {
               n->itype = ACCELERATOR;
               //assert(false);
             }
-            
+
             else if(f->getName().str().find("dec_bs_vector_inc") != std::string::npos) {
               Value* pv=(cinst->getArgOperand(0));
               if(ConstantInt *ipv = dyn_cast<llvm::ConstantInt>(pv)) {
                 n->itype=BS_VECTOR_INC;
-                n->width=ipv->getSExtValue();                                    
+                n->width=ipv->getSExtValue();
               }
               else {
                 errs() << "couldn't convert to int \n";
-                
+
                 assert(false);
               }
               //add extra edge for width
             }
-            
+
             else if (f->getName().str().find("dec_bs_wait") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
-              n->itype = BS_WAKE;              
+              n->itype = BS_WAKE;
             }
             else if (f->getName().str().find("dec_bs_supply") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
@@ -178,6 +178,11 @@ void GraphGen::detectFunctions(Function &func) {
             else if (f->getName().str().find("dec_bs_flush") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
               n->itype = CORE_INTERRUPT;
+            }
+            else if (f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
+              //errs() << "[STVAL]"<< *i << "\n";
+              n->itype = ATOMIC_FADD;
+              //n->itype = LD;
             }
             else if (f->getName().str().find("DECADES_FETCH_ADD") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
@@ -194,30 +199,24 @@ void GraphGen::detectFunctions(Function &func) {
               n->itype = ATOMIC_MIN;
               //n->itype = LD;
             }
-            else if (f->getName().str().find("DECADES_FETCH_ADD_FLOAT") != std::string::npos) {
-              //errs() << "[STVAL]"<< *i << "\n";
-              n->itype = ATOMIC_FADD;
-              //n->itype = LD;
-            }
             else if (f->getName().str().find("desc_supply_alu_rmw_cas") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
-              
+
               n->itype = TRM_ATOMIC_CAS;
               //n->itype = LD_PROD;
             }
             else if (f->getName().str().find("desc_supply_alu_rmw_fetchmin") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
-              
+
               n->itype = TRM_ATOMIC_MIN;
               //n->itype = LD_PROD;
             }
             else if (f->getName().str().find("desc_supply_alu_rmw_fetchadd_float") != std::string::npos) {
               //errs() << "[STVAL]"<< *i << "\n";
-              
+
               n->itype = TRM_ATOMIC_FADD;
               //n->itype = LD_PROD;
             }
-           
           }
         }
       }
@@ -264,7 +263,7 @@ void GraphGen::analyzeLoop() {
           depGraph.removeEdge(phisrc, n, Edge_Phi);
         }
       }
-    }    
+    }
   }
 }
 
@@ -286,7 +285,7 @@ void GraphGen::constructGraph(Function &func) {
       if (StoreInst *stinst = dyn_cast<StoreInst>(&inst)) {
         Value *pv = stinst->getPointerOperand();
         if(Instruction *ipv = dyn_cast<Instruction>(pv)) {
-          store_to_addr.insert(std::make_pair(stinst, ipv));          
+          store_to_addr.insert(std::make_pair(stinst, ipv));
         }
         else {
           //errs() << "[WARNING] Store operand not from instruction: " << *pv << "\n";
@@ -307,12 +306,12 @@ void GraphGen::constructGraph(Function &func) {
                 else {
                   errs() << "[WARNING] STADDR operand not from instruction: " << *pv << "\n";
                 }
-                
+
               }
             }
           }
         }
-       
+
        if(CallInst *cinst = dyn_cast<CallInst>(i)) {
          for (Use &use : i->operands()) {
            Value *v = use.get();
@@ -324,22 +323,22 @@ void GraphGen::constructGraph(Function &func) {
                }
                else {
                  errs() << "[WARNING] LD_PROD operand not from instruction: " << *pv << "\n";
-                 
+
                }
-               
+
              }
            }
          }
        }
-       
+
        Node *n = new Node(Node_Instruction, i, uid, id, nodeMap[i->getParent()]->bb_id);
-       
+
        depGraph.addNode(n);
        nodeMap[i] = n;
        id++;
        uid++;
     }
-  }  
+  }
 }
 
 void GraphGen::addDataEdges(Function &func) {
@@ -392,7 +391,7 @@ void GraphGen::addPhiEdges(Function &func) {
 
 void GraphGen::visualize() {
   std::ofstream fout;
-  errs() << "[GraphGen] Start Visuzliation \n";
+  errs() << "[GraphGen] Start Visualization \n";
   std::string gname = "int/graphDiagram";
   const char *file = (gname + ".dot").c_str();
   fout.open(file);
@@ -475,7 +474,7 @@ void GraphGen::visualize() {
           Instruction *dstinst = cast<Instruction>(dst->val);
           if(srcinst->getParent() == dstinst->getParent())
             rev = true;
-        }  
+        }
         if(!rev)
           fout << n->uid << " -> " << dst->uid << "[color=navyblue];\n";
         else
@@ -493,13 +492,13 @@ void GraphGen::visualize() {
   fout << "t3->t4 [style=invis];\n";
   fout << "}\n";
   fout << "}\n";
-  errs() << "[GraphGen] Finished Visuzliation \n";
+  errs() << "[GraphGen] Finished Visualization \n";
 }
 void GraphGen::exportGraph() {
   std::ofstream cfile ("output/graphOutput.txt");
   if (cfile.is_open()) {
     int numEdge = depGraph.num_export_edges  + store_to_addr.size();
-    
+
     cfile << depGraph.bb_nodes.size() << "\n";
     cfile << depGraph.i_nodes.size() << "\n";
     cfile << numEdge << "\n";
@@ -529,8 +528,8 @@ void GraphGen::exportGraph() {
         }
       }
     }
-    
-    
+
+
     /* Store to Addr Edges */
     for(std::map<Instruction*, Instruction*>::iterator it = store_to_addr.begin(); it != store_to_addr.end(); ++it) {
       Node *src = nodeMap.at(it->first);
@@ -540,7 +539,7 @@ void GraphGen::exportGraph() {
     }
     if(ect != numEdge) {
       errs() << "[WARNING] Num edges don't match: Ect : " << ect << " / NumEdge: " << numEdge <<"\n";
-      //assert(false); 
+      //assert(false);
     }
   }
 }

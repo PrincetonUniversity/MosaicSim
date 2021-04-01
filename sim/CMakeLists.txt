@@ -14,6 +14,7 @@ if(FALSE)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-ADD_EXECUTABLE(sim main.cc sim.cc tile/Core.cc memsys/Cache.cc memsys/SimpleDRAM.cc memsys/DRAM.cc tile/LoadStoreQ.cc graph/Graph.cc tile/DynamicNode.cc tile/Accelerator.cc tile/accelerator_models/c-model/gemm/gemm_model.cpp tile/accelerator_models/c-model/sdp/sdp_model.cpp tile/accelerator_models/c-model/nvdla/nvdla.cpp  misc/Config.cc)
+ADD_EXECUTABLE(sim main.cc sim.cc tile/Core.cc memsys/Cache.cc memsys/SimpleDRAM.cc memsys/DRAM.cc tile/LoadStoreQ.cc graph/Graph.cc tile/DynamicNode.cc
+tile/Bpred.cc tile/Accelerator.cc tile/accelerator_models/c-model/gemm/gemm_model.cpp tile/accelerator_models/c-model/sdp/sdp_model.cpp tile/accelerator_models/c-model/nvdla/nvdla.cpp  misc/Config.cc)
 
 target_link_libraries(sim dramsim pthread)

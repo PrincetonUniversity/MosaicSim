@@ -7,7 +7,7 @@
 #include <limits>
 
 using namespace std;
-  
+
 Statistics stat;
 Config cfg;
 
@@ -26,13 +26,6 @@ int main(int argc, char const *argv[]) {
   if(const char *p = std::getenv("MOSAIC_HOME"))
     mosaic_home = p;
   else {   // infer the home from the simulator binary's path
-
-   //Luwa: I don't know if this is what causes the temporary crash for not finding the DRAMSim ini file, but I'm going to try using argv[0] for binary path all the time to see if it fixes this problem.
-   /* char f[1024]; string f2;
-     readlink("/proc/self/exe", f, 1024);
-     f2 = f;
-     mosaic_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";  
-   */
     string f2(argv[0]);
     mosaic_home = f2.substr(0, f2.find_last_of( "\\/" )) + "/../";
   }
@@ -67,7 +60,7 @@ int main(int argc, char const *argv[]) {
   if(test)
     simulator->registerCore(mosaic_home+"/workloads/test/output", cfgpath, "core_inorder.txt", 0);
   else {
-    // check the workload path and the local config is provided 
+    // check the workload path and the local config is provided
     if(argc < 4) {
        cout << "[ERROR] workload path or core's configuration not provided.\n";
        assert(false);
@@ -86,21 +79,21 @@ int main(int argc, char const *argv[]) {
     while(argc > arg_index) {
       string curr_arg(argv[arg_index++]);
       if(curr_arg == "-v") {
-        cfg.verbLevel = 2;
+        cfg.verbLevel = 7;
         cout << "[SIM] Verbose Output level: " << cfg.verbLevel << "\n";
       }
       else if(curr_arg == "-d") {
-        simulator->decoupling_mode=true;        
+        simulator->decoupling_mode=true;
       }
       else if(curr_arg == "-o") {
          simulator->outputDir=argv[arg_index++];
          simulator->outputDir+="/";
       }
       else if(curr_arg == "-debug") {
-        simulator->debug_mode=true;        
+        simulator->debug_mode=true;
       }
       else if(curr_arg == "-opt") { //we need a full efficiency option
-        simulator->mem_stats_mode=false;        
+        simulator->mem_stats_mode=false;
       }
     }
 
@@ -108,25 +101,25 @@ int main(int argc, char const *argv[]) {
     Tile* tile = new Accelerator(simulator,cfg.chip_freq);
     tile->name="accelerator";
     simulator->registerTile(tile);
-    
+
     /********
     register the other tiles here
     e.g.
     Tile* tile = new ExampleTile(simulator,2000);
-    
+
     simulator->registerTile(tile,1);
 
     Tile* tile = new Core(simulator,2000); //"cast" as a tile
-    
+
     simulator->registerTile(tile); //get assigned tile id
     or
     simulator->registerTile(tile, tid); //pick tile id, but unique from other already assigned ones, starting from num_cores
-    *********/        
+    *********/
   }
-  
+
   //set the DRAMSim clockspeed based on Tile0's clockspeed, assume tile 0 is a core
-  simulator->initDRAM(simulator->tiles[0]->clockspeed); 
+  simulator->initDRAM(simulator->tiles[0]->clockspeed);
 
   simulator->run();
   return 0;
-} 
+}

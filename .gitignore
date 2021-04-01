@@ -16,7 +16,34 @@ Testing/
 # Workloads Internal
 workloads/*/int/*
 workloads/*/output/*
-
+workloads/send_test/int/
+workloads/send_test/output/
+workloads/recv_test/int/
+workloads/recv_test/output/
+workloads/test/int/
+workloads/test/output/
+workloads/parboil/spmv/int
+workloads/parboil/spmv/output
+workloads/shoc/gemm/int
+workloads/shoc/gemm/output
+workloads/shoc/scan/int
+workloads/shoc/scan/output
+workloads/shoc/sort/int
+workloads/shoc/sort/output
+workloads/shoc/stencil/int
+workloads/shoc/stencil/output
+workloads/shoc/triad/int
+workloads/shoc/triad/output
+workloads/bfs/output
+workloads/microbench/output
+workloads/bfs/int
+workloads/microbench/int
+workloads/dec_test/compute/int
+workloads/dec_test/supply/int
+workloads/dec_test/supply/output
+workloads/dec_test/compute/output
+workloads/inline_test/int/
+workloads/inline_test/output/
 # Pre-compiler generated files.
 CMakeCache.txt
 *.cmake

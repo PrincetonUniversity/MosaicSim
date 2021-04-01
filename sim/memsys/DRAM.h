@@ -17,15 +17,16 @@ public:
   //Cache *c;
   Simulator* sim;
   bool ideal;
-  int load_ports;
-  int store_ports;
-  int free_load_ports;
-  int free_store_ports;
+  int read_ports;
+  int write_ports;
+  int free_read_ports;
+  int free_write_ports;
   SimpleDRAM* simpleDRAM;
-  unordered_map<uint64_t, queue<Transaction*>> outstanding_read_map;
+  unordered_map<uint64_t, queue<pair<Transaction*, uint64_t>>> outstanding_read_map;
+  unordered_map<uint64_t, queue<pair<Transaction*, uint64_t>>> outstanding_write_map;
   DRAMSim::MultiChannelMemorySystem *mem;
 
-  DRAMSimInterface(Simulator* sim, bool ideal, int load_ports, int store_ports) : sim(sim),ideal(ideal), load_ports(load_ports), store_ports(store_ports) {
+  DRAMSimInterface(Simulator* sim, bool ideal, int read_ports, int write_ports) : sim(sim),ideal(ideal), read_ports(read_ports), write_ports(write_ports) {
 
     // create DRAMsim2 object
     DRAMSim::TransactionCompleteCB *read_cb = new DRAMSim::Callback<DRAMSimInterface, void, unsigned, uint64_t, uint64_t>(this, &DRAMSimInterface::read_complete);
@@ -36,20 +37,20 @@ public:
 //    string ini_file="/sim/config/DDR3_micron_64M_8B_x4_sg15.ini";
 //    string ini_file="/sim/config/DDR3_micron_64M_8B_x8_sg15.ini";
 //    string ini_file="/sim/config/DDR3_micron_64M_8B_x8_sg3.ini";
-    
-    mem = DRAMSim::getMemorySystemInstance(sim->mosaic_home+ini_file, sim->mosaic_home+"/sim/config/dramsys.ini", "..", "MosaicSim", 65536); 
+
+    mem = DRAMSim::getMemorySystemInstance(sim->mosaic_home+ini_file, sim->mosaic_home+"/sim/config/dramsys.ini", "..", "MosaicSim", 65536);
     mem->RegisterCallbacks(read_cb, write_cb, NULL);
 
     // create simple DRAM object
     simpleDRAM = new SimpleDRAM(sim, this, cfg);
-    
-    free_load_ports = load_ports;
-    free_store_ports = store_ports;
+
+    free_read_ports = read_ports;
+    free_write_ports = write_ports;
   }
   void read_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
   void write_complete(unsigned id, uint64_t addr, uint64_t clock_cycle);
-  void addTransaction(Transaction* t, uint64_t addr, bool isLoad);
-  bool willAcceptTransaction(uint64_t addr, bool isLoad);
+  void addTransaction(Transaction* t, uint64_t addr, bool isRead, int cacheline_size, uint64_t issueCycle);
+  bool willAcceptTransaction(uint64_t addr, bool isRead);
   void initialize(int clockspeed) {
     mem->setCPUClockSpeed(clockspeed * 1000000);
     simpleDRAM->initialize(clockspeed);
@@ -65,8 +66,8 @@ public:
     }
   }
   void process() {
-    free_load_ports = load_ports;
-    free_store_ports = store_ports;
+    free_read_ports = read_ports;
+    free_write_ports = write_ports;
     if(cfg.SimpleDRAM) {
       simpleDRAM->process();
     }

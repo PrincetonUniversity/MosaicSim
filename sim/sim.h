@@ -1,11 +1,14 @@
 #ifndef SIM_H
 #define SIM_H
+
 #include <chrono>
 #include "common.h"
 #include "tile/DynamicNode.h"
 #include "tile/Tile.h"
+#include "tile/Core.h"
 #include "tile/LoadStoreQ.h"
 #include "memsys/SimpleDRAM.h"
+#include "memsys/Cache.h"
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -26,11 +29,11 @@ public:
   bool operator() (const DynamicNode* l, const DynamicNode* r) const {
     //always order producing messages before consuming ones
     return l->desc_id < r->desc_id || (l->type==SEND || l->type==LD_PROD || l->type==STVAL) || l<r;
-    /*    
+    /*
     if (l->desc_id < r->desc_id)
       return true;
     else if(l->desc_id == r->desc_id) {
-      return l->type==SEND || l->type==LD_PROD || l->type==STVAL; 
+      return l->type==SEND || l->type==LD_PROD || l->type==STVAL;
     }
     else {
       return l<r; //yes, the pointers, just to make sure no 2 entries are equal
@@ -42,7 +45,7 @@ class Barrier {
 public:
   int num_threads=0;
   int count=0;
-  map<int, DynamicNode*> barrier_map; //map from tile_id to DN 
+  map<int, DynamicNode*> barrier_map; //map from tile_id to DN
   bool register_barrier(DynamicNode* d); //return true if barrier successfully registered, free all barriers once thread count is reached
 };
 
@@ -51,12 +54,12 @@ struct loadStat {
   TInstr type;
   long long issueCycle;
   long long completeCycle;
-  bool hit;
+  int hit;
   int nodeId;
 };
 
 struct runaheadStat {
-  int runahead; 
+  int runahead;
   int coreId;
   int nodeId;
 };
@@ -67,11 +70,12 @@ public:
   chrono::high_resolution_clock::time_point init_time;
   chrono::high_resolution_clock::time_point curr_time;
   chrono::high_resolution_clock::time_point last_time = chrono::high_resolution_clock::now();
+
   //MLP stats
   int mlp_epoch=1024; //cycles in which to collect mlp stats
-  int curr_epoch_accesses=0; 
+  int curr_epoch_accesses=0;
   vector<int> accesses_per_epoch; //outgoing dram accesses per epoch
-  long long mem_chunk_size=1024; //granularity of reading from trace file 
+  long long mem_chunk_size=1024; //granularity of reading from trace file
   uint64_t last_instr_count = 0;
   uint64_t cycles=0;
   uint64_t total_instructions=0;
@@ -79,7 +83,6 @@ public:
   map<int,Tile*> tiles;
   int tileCount=0;
   vector<uint64_t> clockspeedVec;
-  //DESCQ* descq;
   bool decoupling_mode=false;
   bool debug_mode=false;
   bool mem_stats_mode=true;
@@ -104,7 +107,16 @@ public:
   vector<loadStat> load_stats_vector;
   unordered_map<DynamicNode*, uint64_t> recvLatencyMap;
   uint64_t total_recv_latency=0;
-  Simulator(string home);
+
+  vector<int> commQSizes;
+  vector<int> SABSizes;
+  vector<int> SVBSizes;
+  vector<int> termBuffSizes;
+  int commQMax = 0;
+  int SABMax = 0;
+  int SVBMax = 0;
+  int termBuffMax = 0;
+
   void fastForward(int tid, uint64_t inc);
   bool communicate(DynamicNode* d);
   void orderDESC(DynamicNode* d);
@@ -122,7 +134,7 @@ public:
   DESCQ* get_descq(Tile* tile);
   int getAccelerator();
   void calculateGlobalEnergyPower();
-  
+
   /*atomic operations implementation*/
   bool lockCacheline(DynamicNode* d);
   void evictAllCaches(uint64_t addr);
@@ -134,8 +146,8 @@ public:
 
   //loop through all requestors. if lock not held, add to map
   //loop thru map. execute all instructions in map
-  
-  
+
+  Simulator(string home);
 };
 
 class DESCQ {
@@ -149,11 +161,11 @@ public:
   set<DynamicNode*> execution_set; //sorted by desc_id
 
   map<uint64_t, DynamicNode*> SAB; //for stores (stval)
-  unordered_map<uint64_t, DynamicNode*>commQ; //for holding SEND and LD_PROD instructions 
+  unordered_map<uint64_t, DynamicNode*>commQ; //for holding SEND and LD_PROD instructions
 
   map<uint64_t, DynamicNode*> commBuff; //for OoO data consumption by compute
   unordered_map<uint64_t, uint64_t> STLMap; //map from recv desc_id to desc_id of send doing stl fwd
-  
+
   map<uint64_t, set<uint64_t>> SVB; //mapping from desc id of STVAL to STVAL instrn and desc id of RECVs awaiting forwards
   map<uint64_t, DynamicNode*> TLBuffer; //terminal load buffer, just to hold DNs waiting for mem response
 
@@ -165,30 +177,30 @@ public:
   int term_buffer_size=32; //max size of terminal load buffer
   int commBuff_count=0;
   int SAB_count=0;
-  uint64_t SAB_issue_pointer=0; //DESC_ID of instruction next to issue 
+  uint64_t SAB_issue_pointer=0; //DESC_ID of instruction next to issue
   uint64_t SAB_back=127; //DESC ID of youngest STADDR instruction allowed to issue
   int commQ_count=0;
   int SVB_count=0;
   int SVB_size=128;
   uint64_t SVB_back=127;
   uint64_t SVB_issue_pointer=0;
-  
+
   unordered_map<uint64_t, int64_t> send_runahead_map;
 
   //map of runahead distance in cycles between when a send (or ld_produce) completes and a receive completes
   map<uint64_t, int64_t> stval_runahead_map;
-  map<uint64_t, int64_t> recv_delay_map; 
+  map<uint64_t, int64_t> recv_delay_map;
 
   //map of address to ordered set of staddr dynamic nodes storing to that address
   map<uint64_t, set<DynamicNode*, DynamicNodePointerCompare>> staddr_map; //store address buffer (SAB)
-  
+
   //map of desc id (of stval, also staddr) to #forwards to be expected
   map<uint64_t, int> stval_svb_map; //store value buffer (SVB)
 
-  
+
   //map<uint64_t, uint64_t> recv_map;
   //map of desc id (same for ld_prod and recv) to desc id (stval)
-  map<DynamicNode*, uint64_t> final_cycle; 
+  map<DynamicNode*, uint64_t> final_cycle;
   uint64_t cycles=0;
   uint64_t last_send_id=0;
   uint64_t last_stval_id=0;
@@ -196,24 +208,23 @@ public:
   uint64_t last_staddr_id=0;
   int latency=5;
 
-  Config config;
   DESCQ(Config cfg) {
     commBuff_size=cfg.commBuff_size;
     commQ_size=cfg.commQ_size;
     term_buffer_size=cfg.term_buffer_size;
-    latency=cfg.desc_latency;  
+    latency=cfg.desc_latency;
     SVB_size=cfg.SVB_size;
     SAB_size=cfg.SAB_size;
     SAB_back=SAB_size-1;
     SVB_back=SVB_size-1;
   }
-  
+
   void process();
   bool execute(DynamicNode* d);
-  bool insert(DynamicNode* d, DynamicNode* forwarding_staddr);
+  bool insert(DynamicNode* d, DynamicNode* forwarding_staddr, Simulator* sim);
 
   DynamicNode* sab_has_dependency(DynamicNode* d);
-  
+
   set<uint64_t> debug_send_set;
   set<uint64_t> debug_stval_set;
 };
