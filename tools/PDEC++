@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #wrapper around DEC++ and -spp preproc.sh
 #intended to be used just like a DEC++ call, without having to use additional flags
