@@ -215,7 +215,7 @@ public:
 
   uint64_t extract(int max, int min, uint64_t address) // inclusive
   {
-      uint64_t maxmask = ((uint64_t)1 << (max+1))-1;
+      uint64_t maxmask = (max < 63) ? ((uint64_t)1 << (max+1))-1 : -1;
       uint64_t minmask = ((uint64_t)1 << (min))-1;
       uint64_t mask = maxmask - minmask;
       uint64_t val = address & mask;
