@@ -12,7 +12,7 @@ This project was built with the following tools:
  + `clang`/LLVM toolchain, 9.0.0+ (with C++14 support)
  + `libomp` 4.5 (e.g., to install it in CentOS type: sudo yum install llvm-toolset-7-libomp)
  
-DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADES_compiler
+DECADES Compiler (DEC++): https://github.com/PrincetonUniversity/DECADEScompiler
 
 To fetch submodules within MosaicSim repo (like DRAMSim2) do a submodule update:
 
