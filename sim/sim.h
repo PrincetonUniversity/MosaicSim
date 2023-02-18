@@ -2,6 +2,7 @@
 #define SIM_H
 
 #include <chrono>
+#include <numeric>
 #include "common.h"
 #include "tile/DynamicNode.h"
 #include "tile/Tile.h"
