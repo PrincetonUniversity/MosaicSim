@@ -172,9 +172,10 @@ acc_perf_t dec_sdp_invoke(config_sys_t config_sys, config_sdp_t config, unsigned
 
     // Execution time
     // the slowest of the three processes determines the execution time
-    perf.cycles = std::max(cycles_load, cycles_compute);
-    perf.cycles = std::max(perf.cycles, cycles_store);
-
+    /* perf.cycles = std::max(cycles_load, cycles_compute); */
+    /* perf.cycles = std::max(perf.cycles, cycles_store); */
+    perf.cycles = cycles_compute;
+    
     // Bandwidth requirement
     // sum load and store bytes accessed
     perf.bytes = bytes_load + bytes_store;

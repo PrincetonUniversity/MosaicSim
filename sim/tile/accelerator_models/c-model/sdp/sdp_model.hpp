@@ -18,7 +18,7 @@
 #define SDP_AREA 84485.0
 
 // average power consumption estimate in mW
-#define SDP_AVG_POWER 5.96
+#define SDP_AVG_POWER 26.19
 
 // configuration parameters of Sdp accelerator
 typedef struct config_sdp {

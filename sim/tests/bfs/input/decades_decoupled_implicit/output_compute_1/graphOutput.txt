@@ -1,0 +1,94 @@
+9
+43
+48
+0,2,0,  %i = sdiv i32 %arg2, %arg10
+1,8,0,  %i11 = icmp slt i32 %arg9, %arg1
+2,13,0,  br i1 %i11, label %bb12, label %bb50
+3,9,1,  %i13 = sext i32 %arg9 to i64
+4,9,1,  %i14 = sext i32 %arg10 to i64
+5,9,1,  %i15 = sext i32 %arg1 to i64
+6,13,1,  br label %bb16
+7,14,2,  %i17 = phi i64 [ %i34, %bb32 ], [ %i13, %bb12 ]
+8,14,2,  %i18 = phi i32 [ %i28, %bb32 ], [ 0, %bb12 ]
+9,16,2,  %i19 = call i32 (...) @desc_compute_consume_i32(i32 3)
+10,16,2,  %i20 = call i32 (...) @desc_compute_consume_i32(i32 4)
+11,0,2,  %i21 = sub i32 %i18, %i19
+12,0,2,  %i22 = add i32 %i21, %i20
+13,8,2,  %i23 = icmp sgt i32 %i22, %i
+14,0,2,  %i24 = sub i32 %i, %i18
+15,0,2,  %i25 = add nsw i32 %i24, %i19
+16,20,2,  %i26 = select i1 %i23, i32 %i25, i32 %i20
+17,0,2,  %i27 = sub nsw i32 %i26, %i19
+18,0,2,  %i28 = add nsw i32 %i27, %i18
+19,8,2,  %i29 = icmp sgt i32 %i26, %i19
+20,13,2,  br i1 %i29, label %bb30, label %bb32
+21,9,3,  %i31 = sext i32 %i19 to i64
+22,13,3,  br label %bb37
+23,8,4,  %i33 = icmp ne i32 %i28, %i
+24,0,4,  %i34 = add i64 %i17, %i14
+25,8,4,  %i35 = icmp slt i64 %i34, %i15
+26,8,4,  %i36 = and i1 %i33, %i35
+27,13,4,  br i1 %i36, label %bb16, label %bb50, !llvm.loop !2
+28,14,5,  %i38 = phi i64 [ %i31, %bb30 ], [ %i47, %bb46 ]
+29,16,5,  %i39 = call i32 (...) @desc_compute_consume_i32(i32 5)
+30,16,5,  %i40 = call i32 (...) @desc_compute_consume_i32(i32 6)
+31,8,5,  %i41 = icmp eq i32 %i40, -1
+32,13,5,  br i1 %i41, label %bb42, label %bb46
+33,20,6,  %i43 = call i32 (i32*, ...) @compute_exclusive_fetch_add(i32* %arg8, i32 1)
+34,9,6,  %i44 = sext i32 %i43 to i64
+35,10,6,  %i45 = getelementptr inbounds i32, i32* %arg7, i64 %i44
+36,12,6,  store i32 %i39, i32* %i45, align 4
+37,13,6,  br label %bb46
+38,0,7,  %i47 = add nsw i64 %i38, 1
+39,9,7,  %i48 = trunc i64 %i47 to i32
+40,8,7,  %i49 = icmp eq i32 %i26, %i48
+41,13,7,  br i1 %i49, label %bb32, label %bb37, !llvm.loop !4
+42,13,8,  ret void
+0,13,0
+0,14,0
+0,23,0
+1,2,0
+3,7,1
+4,24,0
+5,25,0
+7,24,0
+8,11,0
+8,14,0
+8,18,0
+9,11,0
+9,15,0
+9,17,0
+9,19,0
+9,21,0
+10,12,0
+10,16,0
+11,12,0
+12,13,0
+13,16,0
+14,15,0
+15,16,0
+16,17,0
+16,19,0
+16,40,0
+17,18,0
+18,23,0
+18,8,1
+19,20,0
+21,28,1
+23,26,0
+24,25,0
+24,7,1
+25,26,0
+26,27,0
+28,38,0
+29,36,0
+30,31,0
+31,32,0
+33,34,0
+34,35,0
+35,36,0
+38,39,0
+38,28,1
+39,40,0
+40,41,0
+36,35,-1

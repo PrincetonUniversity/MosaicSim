@@ -412,13 +412,12 @@ acc_perf_t sim_nvdla(config_sys_t config_sys, config_nvdla_t config)
 	//Insert the layer into the
 	accelerator.add_layer(first_layer);
 
-
 	//Calculate all performance attributes of the current accelerator
 	accelerator.commit();
 
 	acc_perf_t nvdla_perf;
 
-	nvdla_perf.cycles = accelerator.get_total_max_cycles();
+	nvdla_perf.cycles = accelerator.get_total_mac_cycles();
 	nvdla_perf.bytes = accelerator.get_total_dram_traffic() * 1024;
 	nvdla_perf.power = NVDLA_POWER;
 

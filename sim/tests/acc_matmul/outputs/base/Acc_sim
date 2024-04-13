@@ -1,0 +1,3 @@
+BYTES: decadesTF_matmul,12288=3072
+CYCLES: decadesTF_matmul,12288=39076
+ENERGY: decadesTF_matmul,12288=4.68314e-08

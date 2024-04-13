@@ -1,0 +1,267 @@
+22
+125
+139
+0,16,0,  %i = call i32 (...) @desc_compute_consume_i32(i32 0)
+1,16,0,  %i6 = call i32 (...) @desc_compute_consume_i32(i32 1)
+2,8,0,  %i7 = icmp ugt i32 %i6, %arg4
+3,13,0,  br i1 %i7, label %bb8, label %bb80
+4,8,1,  %i9 = icmp eq i32 %i, 0
+5,16,1,  %i10 = call i8* (...) @desc_compute_consume_ptr(i32 8)
+6,9,1,  %i11 = bitcast i8* %i10 to i32*
+7,16,1,  %i12 = call i8* (...) @desc_compute_consume_ptr(i32 9)
+8,9,1,  %i13 = bitcast i8* %i12 to i32*
+9,16,1,  %i14 = call i8* (...) @desc_compute_consume_ptr(i32 10)
+10,9,1,  %i15 = bitcast i8* %i14 to float*
+11,13,1,  br i1 %i9, label %bb83, label %bb16
+12,9,2,  %i17 = zext i32 %i to i64
+13,13,2,  br label %bb18
+14,14,3,  %i19 = phi i32 [ %i75, %bb77 ], [ 0, %bb16 ]
+15,14,3,  %i20 = phi i32 [ %i78, %bb77 ], [ %arg4, %bb16 ]
+16,16,3,  %i21 = call i32 (...) @desc_compute_consume_i32(i32 11)
+17,0,3,  %i22 = add nuw i32 %i20, 1
+18,9,3,  %i23 = zext i32 %i22 to i64
+19,16,3,  %i24 = call i32 (...) @desc_compute_consume_i32(i32 12)
+20,8,3,  %i25 = icmp ult i32 %i21, %i24
+21,1,3,  %i26 = mul i32 %i20, %i
+22,13,3,  br i1 %i25, label %bb71, label %bb74
+23,14,4,  %i28 = phi i64 [ 0, %bb74 ], [ %i41, %bb40 ]
+24,9,4,  %i29 = trunc i64 %i28 to i32
+25,0,4,  %i30 = add i32 %i26, %i29
+26,9,4,  %i31 = zext i32 %i30 to i64
+27,10,4,  %i32 = getelementptr inbounds float, float* %arg3, i64 %i31
+28,16,4,  %i33 = call float (...) @desc_compute_consume_float(i32 13)
+29,8,4,  %i34 = fcmp une float %i33, 0.000000e+00
+30,13,4,  br i1 %i34, label %bb35, label %bb40
+31,16,5,  %i36 = call i32 (...) @desc_compute_consume_i32(i32 14)
+32,0,5,  %i37 = add i32 %i36, 1
+33,12,5,  store i32 %i37, i32* %i76, align 4
+34,10,5,  %i38 = getelementptr inbounds i32, i32* %i13, i64 %i31
+35,12,5,  store i32 %i29, i32* %i38, align 4
+36,10,5,  %i39 = getelementptr inbounds float, float* %i15, i64 %i31
+37,12,5,  store float %i33, float* %i39, align 4
+38,12,5,  store float 0.000000e+00, float* %i32, align 4
+39,13,5,  br label %bb40
+40,0,6,  %i41 = add nuw nsw i64 %i28, 1
+41,8,6,  %i42 = icmp eq i64 %i41, %i17
+42,13,6,  br i1 %i42, label %bb77, label %bb27, !llvm.loop !2
+43,14,7,  %i44 = phi i64 [ %i72, %bb71 ], [ %i52, %bb50 ]
+44,14,7,  %i45 = phi i32 [ %i19, %bb71 ], [ %i51, %bb50 ]
+45,16,7,  %i46 = call float (...) @desc_compute_consume_float(i32 16)
+46,16,7,  %i47 = call i32 (...) @desc_compute_consume_i32(i32 17)
+47,16,7,  %i48 = call i32 (...) @desc_compute_consume_i32(i32 18)
+48,8,7,  %i49 = icmp ult i32 %i47, %i48
+49,13,7,  br i1 %i49, label %bb68, label %bb50
+50,14,8,  %i51 = phi i32 [ %i45, %bb43 ], [ %i65, %bb54 ]
+51,0,8,  %i52 = add nuw nsw i64 %i44, 1
+52,8,8,  %i53 = icmp ult i64 %i52, %i73
+53,13,8,  br i1 %i53, label %bb43, label %bb74, !llvm.loop !4
+54,14,9,  %i55 = phi i64 [ %i69, %bb68 ], [ %i66, %bb54 ]
+55,14,9,  %i56 = phi i32 [ %i45, %bb68 ], [ %i65, %bb54 ]
+56,16,9,  %i57 = call i32 (...) @desc_compute_consume_i32(i32 19)
+57,16,9,  %i58 = call float (...) @desc_compute_consume_float(i32 20)
+58,5,9,  %i59 = fmul float %i46, %i58
+59,0,9,  %i60 = add i32 %i57, %i26
+60,9,9,  %i61 = zext i32 %i60 to i64
+61,10,9,  %i62 = getelementptr inbounds float, float* %arg3, i64 %i61
+62,16,9,  %i63 = call float (...) @desc_compute_consume_float(i32 21)
+63,4,9,  %i64 = fadd float %i63, %i59
+64,12,9,  store float %i64, float* %i62, align 4
+65,0,9,  %i65 = add nsw i32 %i56, 2
+66,0,9,  %i66 = add nuw nsw i64 %i55, 1
+67,8,9,  %i67 = icmp ult i64 %i66, %i70
+68,13,9,  br i1 %i67, label %bb54, label %bb50, !llvm.loop !5
+69,9,10,  %i69 = zext i32 %i47 to i64
+70,9,10,  %i70 = zext i32 %i48 to i64
+71,13,10,  br label %bb54
+72,9,11,  %i72 = zext i32 %i21 to i64
+73,9,11,  %i73 = zext i32 %i24 to i64
+74,13,11,  br label %bb43
+75,14,12,  %i75 = phi i32 [ %i19, %bb18 ], [ %i51, %bb50 ]
+76,10,12,  %i76 = getelementptr inbounds i32, i32* %i11, i64 %i23
+77,13,12,  br label %bb27
+78,0,13,  %i78 = add i32 %i20, %arg5
+79,8,13,  %i79 = icmp ult i32 %i78, %i6
+80,13,13,  br i1 %i79, label %bb18, label %bb80, !llvm.loop !6
+81,14,14,  %i81 = phi i32 [ 0, %bb ], [ %i120, %bb119 ], [ %i75, %bb77 ]
+82,20,14,  %i82 = tail call i32 (i8*, ...) @printf(i8* nonnull dereferenceable(1) getelementptr inbounds ([14 x i8], [14 x i8]* @.str.36, i64 0, i64 0), i32 %i81)
+83,13,14,  ret void
+84,14,15,  %i84 = phi i32 [ %i120, %bb119 ], [ 0, %bb8 ]
+85,14,15,  %i85 = phi i32 [ %i121, %bb119 ], [ %arg4, %bb8 ]
+86,16,15,  %i86 = call i32 (...) @desc_compute_consume_i32(i32 22)
+87,16,15,  %i87 = call i32 (...) @desc_compute_consume_i32(i32 23)
+88,8,15,  %i88 = icmp ult i32 %i86, %i87
+89,13,15,  br i1 %i88, label %bb89, label %bb119
+90,9,16,  %i90 = zext i32 %i86 to i64
+91,9,16,  %i91 = zext i32 %i87 to i64
+92,13,16,  br label %bb92
+93,14,17,  %i93 = phi i64 [ %i90, %bb89 ], [ %i104, %bb102 ]
+94,14,17,  %i94 = phi i32 [ %i84, %bb89 ], [ %i103, %bb102 ]
+95,16,17,  %i95 = call float (...) @desc_compute_consume_float(i32 25)
+96,16,17,  %i96 = call i32 (...) @desc_compute_consume_i32(i32 26)
+97,16,17,  %i97 = call i32 (...) @desc_compute_consume_i32(i32 27)
+98,8,17,  %i98 = icmp ult i32 %i96, %i97
+99,13,17,  br i1 %i98, label %bb99, label %bb102
+100,9,18,  %i100 = zext i32 %i96 to i64
+101,9,18,  %i101 = zext i32 %i97 to i64
+102,13,18,  br label %bb106
+103,14,19,  %i103 = phi i32 [ %i94, %bb92 ], [ %i116, %bb106 ]
+104,0,19,  %i104 = add nuw nsw i64 %i93, 1
+105,8,19,  %i105 = icmp ult i64 %i104, %i91
+106,13,19,  br i1 %i105, label %bb92, label %bb119, !llvm.loop !4
+107,14,20,  %i107 = phi i64 [ %i100, %bb99 ], [ %i117, %bb106 ]
+108,14,20,  %i108 = phi i32 [ %i94, %bb99 ], [ %i116, %bb106 ]
+109,16,20,  %i109 = call i32 (...) @desc_compute_consume_i32(i32 28)
+110,16,20,  %i110 = call float (...) @desc_compute_consume_float(i32 29)
+111,5,20,  %i111 = fmul float %i95, %i110
+112,9,20,  %i112 = zext i32 %i109 to i64
+113,10,20,  %i113 = getelementptr inbounds float, float* %arg3, i64 %i112
+114,16,20,  %i114 = call float (...) @desc_compute_consume_float(i32 30)
+115,4,20,  %i115 = fadd float %i114, %i111
+116,12,20,  store float %i115, float* %i113, align 4
+117,0,20,  %i116 = add nsw i32 %i108, 2
+118,0,20,  %i117 = add nuw nsw i64 %i107, 1
+119,8,20,  %i118 = icmp ult i64 %i117, %i101
+120,13,20,  br i1 %i118, label %bb106, label %bb102, !llvm.loop !5
+121,14,21,  %i120 = phi i32 [ %i84, %bb83 ], [ %i103, %bb102 ]
+122,0,21,  %i121 = add i32 %i85, %arg5
+123,8,21,  %i122 = icmp ult i32 %i121, %i6
+124,13,21,  br i1 %i122, label %bb83, label %bb80, !llvm.loop !6
+0,4,0
+0,12,0
+0,21,0
+1,2,0
+1,79,0
+1,123,0
+2,3,0
+4,11,0
+5,6,0
+6,76,0
+7,8,0
+8,34,0
+9,10,0
+10,36,0
+12,41,0
+14,44,1
+14,75,1
+15,17,0
+15,21,0
+15,78,0
+16,20,0
+16,72,0
+17,18,0
+18,76,0
+19,20,0
+19,73,0
+20,22,0
+21,25,0
+21,59,0
+23,24,0
+23,40,0
+24,25,0
+24,35,0
+25,26,0
+26,27,0
+26,34,0
+26,36,0
+27,38,0
+28,29,0
+28,37,0
+29,30,0
+31,32,0
+32,33,0
+34,35,0
+36,37,0
+40,41,0
+40,23,1
+41,42,0
+43,51,0
+44,50,1
+44,55,1
+45,58,0
+46,48,0
+46,69,0
+47,48,0
+47,70,0
+48,49,0
+50,44,1
+50,75,1
+51,52,0
+51,43,1
+52,53,0
+54,66,0
+55,65,0
+56,59,0
+57,58,0
+58,63,0
+59,60,0
+60,61,0
+61,64,0
+62,63,0
+63,64,0
+65,50,1
+65,55,1
+66,67,0
+66,54,1
+67,68,0
+69,54,1
+70,67,0
+72,43,1
+73,52,0
+75,14,1
+75,81,1
+76,33,0
+78,79,0
+78,15,1
+79,80,0
+81,82,0
+84,94,1
+84,121,1
+85,122,0
+86,88,0
+86,90,0
+87,88,0
+87,91,0
+88,89,0
+90,93,1
+91,105,0
+93,104,0
+94,103,1
+94,108,1
+95,111,0
+96,98,0
+96,100,0
+97,98,0
+97,101,0
+98,99,0
+100,107,1
+101,119,0
+103,94,1
+103,121,1
+104,105,0
+104,93,1
+105,106,0
+107,118,0
+108,117,0
+109,112,0
+110,111,0
+111,115,0
+112,113,0
+113,116,0
+114,115,0
+115,116,0
+117,103,1
+117,108,1
+118,119,0
+118,107,1
+119,120,0
+121,81,1
+121,84,1
+122,123,0
+122,85,1
+123,124,0
+33,76,-1
+35,34,-1
+37,36,-1
+38,27,-1
+64,61,-1
+116,113,-1

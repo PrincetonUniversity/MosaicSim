@@ -1,0 +1,5 @@
+#cmakedefine MOSAIC_CONFIG_DIR string("@MOSAIC_CONFIG_DIR@")
+#cmakedefine EXPERIMENTAL_FILESYSTEM @EXPERIMENTAL_FILESYSTEM@
+#cmakedefine DEC string("@DEC@")
+#cmakedefine PREPROC_PIPES string("@PREPROC_PIPES@")
+#cmakedefine PREPROC_FILES string("@PREPROC_FILES@")

@@ -17,15 +17,15 @@
 #define GEMM_AREA 63295.0
 
 // average power consumption estimate in mW: IBM 32nm
-#define GEMM_AVG_POWER 4.69
+#define GEMM_AVG_POWER 26.34
 
 // configuration parameters of GeMM accelerator
 typedef struct config_gemm {
-    int rowsA;
-    int colsA;
-    int colsB;
-    int batch_size;
-    int has_IS_tile;
+  long rowsA;
+  long colsA;
+  long colsB;
+  long batch_size;
+  long has_IS_tile;
 } config_gemm_t; 
 
 // model API prototype

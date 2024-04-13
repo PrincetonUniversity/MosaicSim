@@ -1,0 +1,107 @@
+10
+51
+53
+0,16,0,  %i = call i32 (...) @desc_compute_consume_i32(i32 0)
+1,8,0,  %i4 = icmp eq i32 %i, 0
+2,13,0,  br i1 %i4, label %bb10, label %bb5
+3,16,1,  %i6 = call i32 (...) @desc_compute_consume_i32(i32 3)
+4,9,1,  %i7 = zext i32 %i6 to i64
+5,16,1,  %i8 = call i64 (...) @desc_compute_consume_i64(i32 4)
+6,9,1,  %i9 = zext i32 %i to i64
+7,13,1,  br label %bb11
+8,13,2,  ret void
+9,14,3,  %i12 = phi i64 [ 0, %bb5 ], [ %i15, %bb19 ]
+10,16,3,  %i13 = call i32 (...) @desc_compute_consume_i32(i32 5)
+11,0,3,  %i14 = add i32 %i13, %arg2
+12,0,3,  %i15 = add nuw nsw i64 %i12, 1
+13,16,3,  %i16 = call i32 (...) @desc_compute_consume_i32(i32 6)
+14,8,3,  %i17 = icmp ult i32 %i14, %i16
+15,13,3,  br i1 %i17, label %bb18, label %bb19
+16,13,4,  br label %bb21
+17,26,5,  tail call void @DECADES_BARRIER()
+18,8,5,  %i20 = icmp eq i64 %i15, %i9
+19,13,5,  br i1 %i20, label %bb10, label %bb11, !llvm.loop !2
+20,14,6,  %i22 = phi i32 [ %i16, %bb18 ], [ %i36, %bb35 ]
+21,14,6,  %i23 = phi i32 [ %i14, %bb18 ], [ %i37, %bb35 ]
+22,16,6,  %i24 = call i32 (...) @desc_compute_consume_i32(i32 7)
+23,9,6,  %i25 = sext i32 %i24 to i64
+24,0,6,  %i26 = sub nsw i64 %i7, %i25
+25,0,6,  %i27 = add nuw i32 %i23, 1
+26,8,6,  %i28 = icmp ult i32 %i27, %i22
+27,13,6,  br i1 %i28, label %bb29, label %bb35
+28,0,7,  %i30 = add nsw i64 %i26, -1
+29,1,7,  %i31 = mul i64 %i30, %i26
+30,8,7,  %i32 = lshr i64 %i31, 1
+31,0,7,  %i33 = add i64 %i32, %i25
+32,8,7,  %i34 = xor i64 %i33, -1
+33,13,7,  br label %bb39
+34,14,8,  %i36 = phi i32 [ %i22, %bb21 ], [ %i49, %bb39 ]
+35,0,8,  %i37 = add i32 %i23, %arg3
+36,8,8,  %i38 = icmp ult i32 %i37, %i36
+37,13,8,  br i1 %i38, label %bb21, label %bb19, !llvm.loop !4
+38,14,9,  %i40 = phi i32 [ %i27, %bb29 ], [ %i48, %bb39 ]
+39,16,9,  %i41 = call i32 (...) @desc_compute_consume_i32(i32 8)
+40,9,9,  %i42 = sext i32 %i41 to i64
+41,0,9,  %i43 = add i64 %i42, %i34
+42,0,9,  %i44 = add i64 %i43, %i8
+43,10,9,  %i45 = getelementptr inbounds i32, i32* %arg1, i64 %i44
+44,16,9,  %i46 = call i32 (...) @desc_compute_consume_i32(i32 9)
+45,0,9,  %i47 = add i32 %i46, 1
+46,12,9,  store i32 %i47, i32* %i45, align 4
+47,0,9,  %i48 = add nuw i32 %i40, 1
+48,16,9,  %i49 = call i32 (...) @desc_compute_consume_i32(i32 10)
+49,8,9,  %i50 = icmp ult i32 %i48, %i49
+50,13,9,  br i1 %i50, label %bb39, label %bb35, !llvm.loop !5
+0,1,0
+0,6,0
+1,2,0
+3,4,0
+4,24,0
+5,42,0
+6,18,0
+9,12,0
+10,11,0
+11,14,0
+11,21,1
+12,18,0
+12,9,1
+13,14,0
+13,20,1
+14,15,0
+18,19,0
+20,26,0
+20,34,1
+21,25,0
+21,35,0
+22,23,0
+23,24,0
+23,31,0
+24,28,0
+24,29,0
+25,26,0
+25,38,1
+26,27,0
+28,29,0
+29,30,0
+30,31,0
+31,32,0
+32,41,0
+34,36,0
+34,20,1
+35,36,0
+35,21,1
+36,37,0
+38,47,0
+39,40,0
+40,41,0
+41,42,0
+42,43,0
+43,46,0
+44,45,0
+45,46,0
+47,49,0
+47,38,1
+48,49,0
+48,34,1
+49,50,0
+46,43,-1

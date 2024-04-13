@@ -7,13 +7,13 @@
 #include <stdlib.h>
 #include <algorithm>
 #include <math.h>
-
+#include <iostream>
 #include "../accelerators.hpp"
 #include "gemm_model.hpp"
 
 void calculate_chunks(unsigned &matrix_chk, unsigned &matrix_rem, unsigned colsA)
 {
-     unsigned int matrix_mul;
+     unsigned long matrix_mul;
 
      // calculating the number of chunks (ceil)
      matrix_chk = colsA / GEMM_DMA_CHUNK;
@@ -171,17 +171,18 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 		matrix_rem_store / 2, config_sys.dram_latency);
 
     for (int rA = 0; rA < config.rowsA; ++rA) {
-	for (int cB = 0; cB < config.colsB; ++cB) {
+      for (int cB = 0; cB < config.colsB; ++cB) {
+	    bytes_load += bytes_load_chunk/2;
 	    for (unsigned chk = 0; chk < matrix_chk; ++chk) {
 
 		// LOAD PHASE
 		if (chk == matrix_chk - 1 && matrix_rem != 0) {
 		    // this is the last (smaller) chunk
 		    cycles_load += cycles_load_chunk_rem;
-		    bytes_load += bytes_load_chunk_rem;
+		    bytes_load += bytes_load_chunk_rem/2;
 		} else {
 		    cycles_load += cycles_load_chunk;
-		    bytes_load += bytes_load_chunk;
+		    bytes_load += bytes_load_chunk/2;
 		}
 
 		// COMPUTE PHASE
@@ -219,7 +220,8 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 
     // Execution time
     // the slowest of the three processes determines the execution time
-    perf.cycles = std::max(cycles_load, cycles_compute);
+    /* perf.cycles = std::max(cycles_load, cycles_compute); */
+    perf.cycles = cycles_compute;
 
     // Bandwidth requirement
     // sum load and store bytes accessed
@@ -247,7 +249,6 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 
 	    is_readA_once = true;
 	    is_readB_once = true;
-
 	} else if (config.colsA + IS_MIN_CHUNK < IS_MEM_SIZE) {
 	    is_readB_once = true;
 
@@ -276,7 +277,7 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 				       config_sys.dram_latency);
 	    perf_IS.bytes += sizeB * config.rowsA * 4;
 	}
-
+	
 	perf.bytes = perf_IS.bytes + bytes_store;
 	perf.power += IS_AVG_POWER;
 
@@ -294,17 +295,9 @@ acc_perf_t dec_gemm_invoke(config_sys_t config_sys, config_gemm_t config)
 acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
 {
     // max # accelerator parallelism based on system specs
-    unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 8 + 1; // 8 bytes = 1 word
-    unsigned int n_acc_max;
+    unsigned int n_acc_bandwidth_bound = config_sys.mem_bandwidth / 4 + 1; // 4 bytes = 1 word
+    unsigned int n_acc_max = config_sys.n_acc_tiles;;
     unsigned int n_IS_tiles_actual =  config_sys.n_IS_tiles / 4; 
-
-    if (n_acc_bandwidth_bound < config_sys.n_acc_tiles &&
-	n_acc_bandwidth_bound < n_IS_tiles_actual)
-	n_acc_max = n_acc_bandwidth_bound;
-    else if (config_sys.n_acc_tiles < n_IS_tiles_actual)
-	n_acc_max = config_sys.n_acc_tiles;
-    else
-	n_acc_max = n_IS_tiles_actual;
 
     // invoke accelerator
     acc_perf_t perf = dec_gemm_invoke(config_sys, config_gemm);
@@ -315,7 +308,7 @@ acc_perf_t sim_gemm(config_sys_t config_sys, config_gemm_t config_gemm)
     float utilization = n_invoke / n_invoke_ceil;
 
     perf.cycles = perf.cycles * n_invoke_ceil;
-    perf.bytes = perf.bytes * config_gemm.batch_size;
+    perf.bytes = config_gemm.rowsA * config_gemm.colsA + config_gemm.rowsA * config_gemm.colsB +  config_gemm.colsA * config_gemm.colsB  *config_gemm.batch_size;
     perf.power = perf.power * config_sys.n_acc_tiles * utilization;
 
     // project to required technology

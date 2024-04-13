@@ -1,0 +1,243 @@
+digraph G {
+node [nodesep=0.75, ranksep=0.75];
+edge [weight=1.2];
+subgraph cluster_0 {
+color=black;
+0[label="bb",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+10[label="  %i = getelementptr inbounds %class.bgraph, %class.bgraph* %arg, i64 0, i32 0",fontsize=10,shape=ellipse];
+11[label="  %i4 = load i32, i32* %i, align 8, !tbaa !2",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+12[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i4, i32 0)",fontsize=10,shape=ellipse];
+13[label="  %i5 = icmp eq i32 %i4, 0",fontsize=10,shape=ellipse];
+14[label="  br i1 %i5, label %bb18, label %bb6",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_1 {
+color=black;
+1[label="bb6",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+15[label="  %i7 = getelementptr inbounds %class.bgraph, %class.bgraph* %arg, i64 0, i32 3",fontsize=10,shape=ellipse];
+16[label="  %i8 = load i32*, i32** %i7, align 8, !tbaa !9",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+17[label="  call void (...) @count_load_removed(i32 1)",fontsize=10,shape=ellipse];
+18[label="  %i9 = getelementptr inbounds %class.bgraph, %class.bgraph* %arg, i64 0, i32 4",fontsize=10,shape=ellipse];
+19[label="  %i10 = load i32*, i32** %i9, align 8",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+20[label="  call void (...) @count_load_removed(i32 2)",fontsize=10,shape=ellipse];
+21[label="  %i11 = getelementptr inbounds %class.bgraph, %class.bgraph* %arg, i64 0, i32 1",fontsize=10,shape=ellipse];
+22[label="  %i12 = load i32, i32* %i11, align 4",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+23[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i12, i32 3)",fontsize=10,shape=ellipse];
+24[label="  %i13 = zext i32 %i12 to i64",fontsize=10,shape=ellipse];
+25[label="  %i14 = getelementptr inbounds %class.bgraph, %class.bgraph* %arg, i64 0, i32 6",fontsize=10,shape=ellipse];
+26[label="  %i15 = load i64, i64* %i14, align 8",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+27[label="  call void (i64, ...) @desc_supply_produce_i64(i64 %i15, i32 4)",fontsize=10,shape=ellipse];
+28[label="  %i16 = add i32 %arg2, 1",fontsize=10,shape=ellipse];
+29[label="  %i17 = zext i32 %i4 to i64",fontsize=10,shape=ellipse];
+30[label="  br label %bb19",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_2 {
+color=black;
+2[label="bb18",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+31[label="  ret void",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_3 {
+color=black;
+3[label="bb19",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+32[label="  %i20 = phi i64 [ 0, %bb6 ], [ %i24, %bb30 ]",fontsize=10,shape=ellipse];
+33[label="  %i21 = getelementptr inbounds i32, i32* %i8, i64 %i20",fontsize=10,shape=ellipse];
+34[label="  %i22 = load i32, i32* %i21, align 4, !tbaa !10",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+35[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i22, i32 5)",fontsize=10,shape=ellipse];
+36[label="  %i23 = add i32 %i22, %arg2",fontsize=10,shape=ellipse];
+37[label="  %i24 = add nuw nsw i64 %i20, 1",fontsize=10,shape=ellipse];
+38[label="  %i25 = getelementptr inbounds i32, i32* %i8, i64 %i24",fontsize=10,shape=ellipse];
+39[label="  %i26 = load i32, i32* %i25, align 4, !tbaa !10",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+40[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i26, i32 6)",fontsize=10,shape=ellipse];
+41[label="  %i27 = icmp ult i32 %i23, %i26",fontsize=10,shape=ellipse];
+42[label="  br i1 %i27, label %bb28, label %bb30",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_4 {
+color=black;
+4[label="bb28",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+43[label="  %i29 = add i32 %i16, %i22",fontsize=10,shape=ellipse];
+44[label="  br label %bb32",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_5 {
+color=black;
+5[label="bb30",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+45[label="  tail call void @DECADES_BARRIER()",fontsize=10,shape=ellipse];
+46[label="  %i31 = icmp eq i64 %i24, %i17",fontsize=10,shape=ellipse];
+47[label="  br i1 %i31, label %bb18, label %bb19, !llvm.loop !11",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_6 {
+color=black;
+6[label="bb32",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+48[label="  %i33 = phi i32 [ %i26, %bb28 ], [ %i51, %bb50 ]",fontsize=10,shape=ellipse];
+49[label="  %i34 = phi i32 [ %i29, %bb28 ], [ %i54, %bb50 ]",fontsize=10,shape=ellipse];
+50[label="  %i35 = phi i32 [ %i23, %bb28 ], [ %i52, %bb50 ]",fontsize=10,shape=ellipse];
+51[label="  %i36 = zext i32 %i35 to i64",fontsize=10,shape=ellipse];
+52[label="  %i37 = getelementptr inbounds i32, i32* %i10, i64 %i36",fontsize=10,shape=ellipse];
+53[label="  %i38 = load i32, i32* %i37, align 4, !tbaa !10",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+54[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i38, i32 7)",fontsize=10,shape=ellipse];
+55[label="  %i39 = sext i32 %i38 to i64",fontsize=10,shape=ellipse];
+56[label="  %i40 = sub nsw i64 %i13, %i39",fontsize=10,shape=ellipse];
+57[label="  %i41 = add nuw i32 %i35, 1",fontsize=10,shape=ellipse];
+58[label="  %i42 = icmp ult i32 %i41, %i33",fontsize=10,shape=ellipse];
+59[label="  br i1 %i42, label %bb43, label %bb50",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_7 {
+color=black;
+7[label="bb43",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+60[label="  %i44 = zext i32 %i34 to i64",fontsize=10,shape=ellipse];
+61[label="  %i45 = add nsw i64 %i40, -1",fontsize=10,shape=ellipse];
+62[label="  %i46 = mul i64 %i45, %i40",fontsize=10,shape=ellipse];
+63[label="  %i47 = lshr i64 %i46, 1",fontsize=10,shape=ellipse];
+64[label="  %i48 = add i64 %i47, %i39",fontsize=10,shape=ellipse];
+65[label="  %i49 = xor i64 %i48, -1",fontsize=10,shape=ellipse];
+66[label="  br label %bb55",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_8 {
+color=black;
+8[label="bb50",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+67[label="  %i51 = phi i32 [ %i33, %bb32 ], [ %i65, %bb55 ]",fontsize=10,shape=ellipse];
+68[label="  %i52 = add i32 %i35, %arg3",fontsize=10,shape=ellipse];
+69[label="  %i53 = icmp ult i32 %i52, %i51",fontsize=10,shape=ellipse];
+70[label="  %i54 = add i32 %i34, %arg3",fontsize=10,shape=ellipse];
+71[label="  br i1 %i53, label %bb32, label %bb30, !llvm.loop !13",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_9 {
+color=black;
+9[label="bb55",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+72[label="  %i56 = phi i64 [ %i44, %bb43 ], [ %i67, %bb55 ]",fontsize=10,shape=ellipse];
+73[label="  %i57 = phi i32 [ %i41, %bb43 ], [ %i64, %bb55 ]",fontsize=10,shape=ellipse];
+74[label="  %i58 = getelementptr inbounds i32, i32* %i10, i64 %i56",fontsize=10,shape=ellipse];
+75[label="  %i59 = load i32, i32* %i58, align 4, !tbaa !10",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+76[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i59, i32 8)",fontsize=10,shape=ellipse];
+77[label="  %i60 = sext i32 %i59 to i64",fontsize=10,shape=ellipse];
+78[label="  %i61 = add i64 %i60, %i49",fontsize=10,shape=ellipse];
+79[label="  %i62 = add i64 %i61, %i15",fontsize=10,shape=ellipse];
+80[label="  %i63 = getelementptr inbounds i32, i32* %arg1, i64 %i62",fontsize=10,shape=ellipse];
+81[label="  call void (i32*, ...) @desc_supply_load_produce_i32(i32* %i63, i32 9)",fontsize=10,shape=ellipse];
+82[label="  %i64 = add nuw i32 %i57, 1",fontsize=10,shape=ellipse];
+83[label="  %i65 = load i32, i32* %i25, align 4, !tbaa !10",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+84[label="  call void (i32, ...) @desc_supply_produce_i32(i32 %i65, i32 10)",fontsize=10,shape=ellipse];
+85[label="  %i66 = icmp ult i32 %i64, %i65",fontsize=10,shape=ellipse];
+86[label="  %i67 = add nuw nsw i64 %i56, 1",fontsize=10,shape=ellipse];
+87[label="  br i1 %i66, label %bb55, label %bb50, !llvm.loop !14",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+3 -> 32[color=blue];
+6 -> 48[color=blue];
+6 -> 49[color=blue];
+6 -> 50[color=blue];
+8 -> 67[color=blue];
+9 -> 72[color=blue];
+9 -> 73[color=blue];
+10 -> 11[color=black];
+11 -> 29[color=black];
+11 -> 12[color=black];
+11 -> 13[color=black];
+13 -> 14[color=black];
+14 -> 1[color=blue];
+14 -> 2[color=blue];
+15 -> 16[color=black];
+16 -> 33[color=black];
+16 -> 38[color=black];
+18 -> 19[color=black];
+19 -> 52[color=black];
+19 -> 74[color=black];
+21 -> 22[color=black];
+22 -> 24[color=black];
+22 -> 23[color=black];
+24 -> 56[color=black];
+25 -> 26[color=black];
+26 -> 27[color=black];
+26 -> 79[color=black];
+28 -> 43[color=black];
+29 -> 46[color=black];
+30 -> 3[color=blue];
+32 -> 37[color=black];
+32 -> 33[color=black];
+33 -> 34[color=black];
+34 -> 36[color=black];
+34 -> 35[color=black];
+34 -> 43[color=black];
+36 -> 41[color=black];
+36 -> 50[color=navyblue];
+37 -> 38[color=black];
+37 -> 46[color=black];
+32 -> 37[color=navyblue,dir=back];
+38 -> 39[color=black];
+38 -> 83[color=black];
+39 -> 40[color=black];
+39 -> 41[color=black];
+39 -> 48[color=navyblue];
+41 -> 42[color=black];
+42 -> 5[color=blue];
+42 -> 4[color=blue];
+43 -> 49[color=navyblue];
+44 -> 6[color=blue];
+46 -> 47[color=black];
+47 -> 2[color=blue];
+47 -> 3[color=blue];
+48 -> 58[color=black];
+48 -> 67[color=navyblue];
+49 -> 60[color=black];
+49 -> 70[color=black];
+50 -> 51[color=black];
+50 -> 57[color=black];
+50 -> 68[color=black];
+51 -> 52[color=black];
+52 -> 53[color=black];
+53 -> 54[color=black];
+53 -> 55[color=black];
+55 -> 56[color=black];
+55 -> 64[color=black];
+56 -> 61[color=black];
+56 -> 62[color=black];
+57 -> 58[color=black];
+57 -> 73[color=navyblue];
+58 -> 59[color=black];
+59 -> 8[color=blue];
+59 -> 7[color=blue];
+60 -> 72[color=navyblue];
+61 -> 62[color=black];
+62 -> 63[color=black];
+63 -> 64[color=black];
+64 -> 65[color=black];
+65 -> 78[color=black];
+66 -> 9[color=blue];
+67 -> 69[color=black];
+67 -> 48[color=navyblue];
+68 -> 69[color=black];
+68 -> 50[color=navyblue];
+69 -> 71[color=black];
+70 -> 49[color=navyblue];
+71 -> 6[color=blue];
+71 -> 5[color=blue];
+72 -> 74[color=black];
+72 -> 86[color=black];
+73 -> 82[color=black];
+74 -> 75[color=black];
+75 -> 76[color=black];
+75 -> 77[color=black];
+77 -> 78[color=black];
+78 -> 79[color=black];
+79 -> 80[color=black];
+80 -> 81[color=black];
+82 -> 85[color=black];
+73 -> 82[color=navyblue,dir=back];
+83 -> 84[color=black];
+83 -> 85[color=black];
+83 -> 67[color=navyblue];
+85 -> 87[color=black];
+72 -> 86[color=navyblue,dir=back];
+87 -> 8[color=blue];
+9 -> 87[color=blue,dir=back];
+subgraph cluster_help {
+color=black;
+t1[label="Red Ellipse = LD/ST",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+t2[label="Blue Rectangle = BasicBlock",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+t3[label="Blue Ellipse = Terminator Instruction",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+t4[label="Black Edge = Data Dependence
+ Red Edge = Memory Dependence
+ Blue Edge = Control
+ Navy Edge = Phi Data Dependence",fontsize=10,shape=rectangle,fontcolor=black];
+t1->t2 [style=invis];
+t2->t3 [style=invis];
+t3->t4 [style=invis];
+}
+}

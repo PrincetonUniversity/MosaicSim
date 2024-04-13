@@ -1,0 +1,159 @@
+digraph G {
+node [nodesep=0.75, ranksep=0.75];
+edge [weight=1.2];
+subgraph cluster_0 {
+color=black;
+0[label="bb",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+9[label="  %i = sdiv i32 %arg2, %arg10",fontsize=10,shape=ellipse];
+10[label="  %i11 = icmp slt i32 %arg9, %arg1",fontsize=10,shape=ellipse];
+11[label="  br i1 %i11, label %bb12, label %bb50",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_1 {
+color=black;
+1[label="bb12",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+12[label="  %i13 = sext i32 %arg9 to i64",fontsize=10,shape=ellipse];
+13[label="  %i14 = sext i32 %arg10 to i64",fontsize=10,shape=ellipse];
+14[label="  %i15 = sext i32 %arg1 to i64",fontsize=10,shape=ellipse];
+15[label="  br label %bb16",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_2 {
+color=black;
+2[label="bb16",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+16[label="  %i17 = phi i64 [ %i34, %bb32 ], [ %i13, %bb12 ]",fontsize=10,shape=ellipse];
+17[label="  %i18 = phi i32 [ %i28, %bb32 ], [ 0, %bb12 ]",fontsize=10,shape=ellipse];
+18[label="  %i19 = call i32 (...) @desc_compute_consume_i32(i32 3)",fontsize=10,shape=ellipse];
+19[label="  %i20 = call i32 (...) @desc_compute_consume_i32(i32 4)",fontsize=10,shape=ellipse];
+20[label="  %i21 = sub i32 %i18, %i19",fontsize=10,shape=ellipse];
+21[label="  %i22 = add i32 %i21, %i20",fontsize=10,shape=ellipse];
+22[label="  %i23 = icmp sgt i32 %i22, %i",fontsize=10,shape=ellipse];
+23[label="  %i24 = sub i32 %i, %i18",fontsize=10,shape=ellipse];
+24[label="  %i25 = add nsw i32 %i24, %i19",fontsize=10,shape=ellipse];
+25[label="  %i26 = select i1 %i23, i32 %i25, i32 %i20",fontsize=10,shape=ellipse];
+26[label="  %i27 = sub nsw i32 %i26, %i19",fontsize=10,shape=ellipse];
+27[label="  %i28 = add nsw i32 %i27, %i18",fontsize=10,shape=ellipse];
+28[label="  %i29 = icmp sgt i32 %i26, %i19",fontsize=10,shape=ellipse];
+29[label="  br i1 %i29, label %bb30, label %bb32",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_3 {
+color=black;
+3[label="bb30",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+30[label="  %i31 = sext i32 %i19 to i64",fontsize=10,shape=ellipse];
+31[label="  br label %bb37",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_4 {
+color=black;
+4[label="bb32",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+32[label="  %i33 = icmp ne i32 %i28, %i",fontsize=10,shape=ellipse];
+33[label="  %i34 = add i64 %i17, %i14",fontsize=10,shape=ellipse];
+34[label="  %i35 = icmp slt i64 %i34, %i15",fontsize=10,shape=ellipse];
+35[label="  %i36 = and i1 %i33, %i35",fontsize=10,shape=ellipse];
+36[label="  br i1 %i36, label %bb16, label %bb50, !llvm.loop !2",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_5 {
+color=black;
+5[label="bb37",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+37[label="  %i38 = phi i64 [ %i31, %bb30 ], [ %i47, %bb46 ]",fontsize=10,shape=ellipse];
+38[label="  %i39 = call i32 (...) @desc_compute_consume_i32(i32 5)",fontsize=10,shape=ellipse];
+39[label="  %i40 = call i32 (...) @desc_compute_consume_i32(i32 6)",fontsize=10,shape=ellipse];
+40[label="  %i41 = icmp eq i32 %i40, -1",fontsize=10,shape=ellipse];
+41[label="  br i1 %i41, label %bb42, label %bb46",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_6 {
+color=black;
+6[label="bb42",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+42[label="  %i43 = call i32 (i32*, ...) @compute_exclusive_fetch_add(i32* %arg8, i32 1)",fontsize=10,shape=ellipse];
+43[label="  %i44 = sext i32 %i43 to i64",fontsize=10,shape=ellipse];
+44[label="  %i45 = getelementptr inbounds i32, i32* %arg7, i64 %i44",fontsize=10,shape=ellipse];
+45[label="  store i32 %i39, i32* %i45, align 4",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+46[label="  br label %bb46",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_7 {
+color=black;
+7[label="bb46",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+47[label="  %i47 = add nsw i64 %i38, 1",fontsize=10,shape=ellipse];
+48[label="  %i48 = trunc i64 %i47 to i32",fontsize=10,shape=ellipse];
+49[label="  %i49 = icmp eq i32 %i26, %i48",fontsize=10,shape=ellipse];
+50[label="  br i1 %i49, label %bb32, label %bb37, !llvm.loop !4",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+subgraph cluster_8 {
+color=black;
+8[label="bb50",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+51[label="  ret void",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+}
+2 -> 16[color=blue];
+2 -> 17[color=blue];
+5 -> 37[color=blue];
+9 -> 22[color=black];
+9 -> 23[color=black];
+9 -> 32[color=black];
+10 -> 11[color=black];
+11 -> 1[color=blue];
+11 -> 8[color=blue];
+12 -> 16[color=navyblue];
+13 -> 33[color=black];
+14 -> 34[color=black];
+15 -> 2[color=blue];
+16 -> 33[color=black];
+17 -> 20[color=black];
+17 -> 23[color=black];
+17 -> 27[color=black];
+18 -> 20[color=black];
+18 -> 24[color=black];
+18 -> 26[color=black];
+18 -> 28[color=black];
+18 -> 30[color=black];
+19 -> 21[color=black];
+19 -> 25[color=black];
+20 -> 21[color=black];
+21 -> 22[color=black];
+22 -> 25[color=black];
+23 -> 24[color=black];
+24 -> 25[color=black];
+25 -> 26[color=black];
+25 -> 28[color=black];
+25 -> 49[color=black];
+26 -> 27[color=black];
+27 -> 32[color=black];
+17 -> 27[color=navyblue,dir=back];
+28 -> 29[color=black];
+29 -> 3[color=blue];
+29 -> 4[color=blue];
+30 -> 37[color=navyblue];
+31 -> 5[color=blue];
+32 -> 35[color=black];
+33 -> 34[color=black];
+33 -> 16[color=navyblue];
+34 -> 35[color=black];
+35 -> 36[color=black];
+36 -> 2[color=blue];
+36 -> 8[color=blue];
+37 -> 47[color=black];
+38 -> 45[color=black];
+39 -> 40[color=black];
+40 -> 41[color=black];
+41 -> 6[color=blue];
+41 -> 7[color=blue];
+42 -> 43[color=black];
+43 -> 44[color=black];
+44 -> 45[color=black];
+46 -> 7[color=blue];
+47 -> 48[color=black];
+47 -> 37[color=navyblue];
+48 -> 49[color=black];
+49 -> 50[color=black];
+50 -> 4[color=blue];
+50 -> 5[color=blue];
+subgraph cluster_help {
+color=black;
+t1[label="Red Ellipse = LD/ST",fontsize=10,shape=ellipse,fontcolor=red,pencolor=red];
+t2[label="Blue Rectangle = BasicBlock",fontsize=10,shape=rectangle,fontcolor=blue,pencolor=blue];
+t3[label="Blue Ellipse = Terminator Instruction",fontsize=10,shape=ellipse,fontcolor=blue,pencolor=blue];
+t4[label="Black Edge = Data Dependence
+ Red Edge = Memory Dependence
+ Blue Edge = Control
+ Navy Edge = Phi Data Dependence",fontsize=10,shape=rectangle,fontcolor=black];
+t1->t2 [style=invis];
+t2->t3 [style=invis];
+t3->t4 [style=invis];
+}
+}

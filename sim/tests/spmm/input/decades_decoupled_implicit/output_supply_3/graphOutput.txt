@@ -1,0 +1,387 @@
+22
+179
+205
+0,10,0,  %i = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg, i64 0, i32 0
+1,11,0,  %i6 = load i32, i32* %i, align 8, !tbaa !2
+2,15,0,  call void (i32, ...) @desc_supply_produce_i32(i32 %i6, i32 0)
+3,10,0,  %i7 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg1, i64 0, i32 0
+4,11,0,  %i8 = load i32, i32* %i7, align 8, !tbaa !2
+5,15,0,  call void (i32, ...) @desc_supply_produce_i32(i32 %i8, i32 1)
+6,8,0,  %i9 = icmp ugt i32 %i8, %arg4
+7,13,0,  br i1 %i9, label %bb10, label %bb99
+8,10,1,  %i11 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg1, i64 0, i32 2
+9,11,1,  %i12 = load i32*, i32** %i11, align 8, !tbaa !8
+10,20,1,  call void (...) @count_load_removed(i32 2)
+11,10,1,  %i13 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg1, i64 0, i32 3
+12,11,1,  %i14 = load i32*, i32** %i13, align 8
+13,20,1,  call void (...) @count_load_removed(i32 3)
+14,10,1,  %i15 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg1, i64 0, i32 4
+15,11,1,  %i16 = load float*, float** %i15, align 8
+16,20,1,  call void (...) @count_load_removed(i32 4)
+17,10,1,  %i17 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg, i64 0, i32 2
+18,11,1,  %i18 = load i32*, i32** %i17, align 8
+19,20,1,  call void (...) @count_load_removed(i32 5)
+20,10,1,  %i19 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg, i64 0, i32 3
+21,11,1,  %i20 = load i32*, i32** %i19, align 8
+22,20,1,  call void (...) @count_load_removed(i32 6)
+23,10,1,  %i21 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg, i64 0, i32 4
+24,11,1,  %i22 = load float*, float** %i21, align 8
+25,20,1,  call void (...) @count_load_removed(i32 7)
+26,8,1,  %i23 = icmp eq i32 %i6, 0
+27,10,1,  %i24 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg2, i64 0, i32 2
+28,11,1,  %i25 = load i32*, i32** %i24, align 8
+29,9,1,  %i26 = bitcast i32* %i25 to i8*
+30,15,1,  call void (i8*, ...) @desc_supply_produce_ptr(i8* %i26, i32 8)
+31,10,1,  %i27 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg2, i64 0, i32 3
+32,9,1,  %i28 = bitcast i32** %i27 to i8**
+33,19,1,  call void (i8**, ...) @desc_supply_load_produce_ptr(i8** %i28, i32 9)
+34,10,1,  %i29 = getelementptr inbounds %class.csc_graph, %class.csc_graph* %arg2, i64 0, i32 4
+35,9,1,  %i30 = bitcast float** %i29 to i8**
+36,19,1,  call void (i8**, ...) @desc_supply_load_produce_ptr(i8** %i30, i32 10)
+37,13,1,  br i1 %i23, label %bb102, label %bb31
+38,9,2,  %i32 = zext i32 %i6 to i64
+39,13,2,  br label %bb33
+40,14,3,  %i34 = phi i32 [ %i94, %bb96 ], [ 0, %bb31 ]
+41,14,3,  %i35 = phi i32 [ %i97, %bb96 ], [ %arg4, %bb31 ]
+42,9,3,  %i36 = zext i32 %i35 to i64
+43,10,3,  %i37 = getelementptr inbounds i32, i32* %i12, i64 %i36
+44,11,3,  %i38 = load i32, i32* %i37, align 4, !tbaa !9
+45,15,3,  call void (i32, ...) @desc_supply_produce_i32(i32 %i38, i32 11)
+46,0,3,  %i39 = add nuw i32 %i35, 1
+47,9,3,  %i40 = zext i32 %i39 to i64
+48,10,3,  %i41 = getelementptr inbounds i32, i32* %i12, i64 %i40
+49,11,3,  %i42 = load i32, i32* %i41, align 4, !tbaa !9
+50,15,3,  call void (i32, ...) @desc_supply_produce_i32(i32 %i42, i32 12)
+51,8,3,  %i43 = icmp ult i32 %i38, %i42
+52,1,3,  %i44 = mul i32 %i35, %i6
+53,13,3,  br i1 %i43, label %bb90, label %bb93
+54,14,4,  %i46 = phi i64 [ 0, %bb93 ], [ %i55, %bb54 ]
+55,9,4,  %i47 = trunc i64 %i46 to i32
+56,0,4,  %i48 = add i32 %i44, %i47
+57,9,4,  %i49 = zext i32 %i48 to i64
+58,10,4,  %i50 = getelementptr inbounds float, float* %arg3, i64 %i49
+59,11,4,  %i51 = load float, float* %i50, align 4, !tbaa !10
+60,15,4,  call void (float, ...) @desc_supply_produce_float(float %i51, i32 13)
+61,8,4,  %i52 = fcmp une float %i51, 0.000000e+00
+62,13,4,  br i1 %i52, label %bb53, label %bb54
+63,19,5,  call void (i32*, ...) @desc_supply_load_produce_i32(i32* %i95, i32 14)
+64,13,5,  br label %bb54
+65,0,6,  %i55 = add nuw nsw i64 %i46, 1
+66,8,6,  %i56 = icmp eq i64 %i55, %i32
+67,13,6,  br i1 %i56, label %bb96, label %bb45, !llvm.loop !12
+68,14,7,  %i58 = phi i64 [ %i91, %bb90 ], [ %i73, %bb71 ]
+69,14,7,  %i59 = phi i32 [ %i34, %bb90 ], [ %i72, %bb71 ]
+70,10,7,  %i60 = getelementptr inbounds i32, i32* %i14, i64 %i58
+71,11,7,  %i61 = load i32, i32* %i60, align 4, !tbaa !9
+72,20,7,  call void (...) @count_load_removed(i32 15)
+73,10,7,  %i62 = getelementptr inbounds float, float* %i16, i64 %i58
+74,19,7,  call void (float*, ...) @desc_supply_load_produce_float(float* %i62, i32 16)
+75,9,7,  %i63 = zext i32 %i61 to i64
+76,10,7,  %i64 = getelementptr inbounds i32, i32* %i18, i64 %i63
+77,11,7,  %i65 = load i32, i32* %i64, align 4, !tbaa !9
+78,15,7,  call void (i32, ...) @desc_supply_produce_i32(i32 %i65, i32 17)
+79,0,7,  %i66 = add i32 %i61, 1
+80,9,7,  %i67 = zext i32 %i66 to i64
+81,10,7,  %i68 = getelementptr inbounds i32, i32* %i18, i64 %i67
+82,11,7,  %i69 = load i32, i32* %i68, align 4, !tbaa !9
+83,15,7,  call void (i32, ...) @desc_supply_produce_i32(i32 %i69, i32 18)
+84,8,7,  %i70 = icmp ult i32 %i65, %i69
+85,13,7,  br i1 %i70, label %bb87, label %bb71
+86,14,8,  %i72 = phi i32 [ %i59, %bb57 ], [ %i84, %bb75 ]
+87,0,8,  %i73 = add nuw nsw i64 %i58, 1
+88,8,8,  %i74 = icmp ult i64 %i73, %i92
+89,13,8,  br i1 %i74, label %bb57, label %bb93, !llvm.loop !14
+90,14,9,  %i76 = phi i64 [ %i88, %bb87 ], [ %i85, %bb75 ]
+91,14,9,  %i77 = phi i32 [ %i59, %bb87 ], [ %i84, %bb75 ]
+92,10,9,  %i78 = getelementptr inbounds i32, i32* %i20, i64 %i76
+93,11,9,  %i79 = load i32, i32* %i78, align 4, !tbaa !9
+94,15,9,  call void (i32, ...) @desc_supply_produce_i32(i32 %i79, i32 19)
+95,10,9,  %i80 = getelementptr inbounds float, float* %i22, i64 %i76
+96,19,9,  call void (float*, ...) @desc_supply_load_produce_float(float* %i80, i32 20)
+97,0,9,  %i81 = add i32 %i79, %i44
+98,9,9,  %i82 = zext i32 %i81 to i64
+99,10,9,  %i83 = getelementptr inbounds float, float* %arg3, i64 %i82
+100,19,9,  call void (float*, ...) @desc_supply_load_produce_float(float* %i83, i32 21)
+101,0,9,  %i84 = add nsw i32 %i77, 2
+102,0,9,  %i85 = add nuw nsw i64 %i76, 1
+103,8,9,  %i86 = icmp ult i64 %i85, %i89
+104,13,9,  br i1 %i86, label %bb75, label %bb71, !llvm.loop !15
+105,9,10,  %i88 = zext i32 %i65 to i64
+106,9,10,  %i89 = zext i32 %i69 to i64
+107,13,10,  br label %bb75
+108,9,11,  %i91 = zext i32 %i38 to i64
+109,9,11,  %i92 = zext i32 %i42 to i64
+110,13,11,  br label %bb57
+111,14,12,  %i94 = phi i32 [ %i34, %bb33 ], [ %i72, %bb71 ]
+112,10,12,  %i95 = getelementptr inbounds i32, i32* %i25, i64 %i40
+113,13,12,  br label %bb45
+114,0,13,  %i97 = add i32 %i35, %arg5
+115,8,13,  %i98 = icmp ult i32 %i97, %i8
+116,13,13,  br i1 %i98, label %bb33, label %bb99, !llvm.loop !16
+117,14,14,  %i100 = phi i32 [ 0, %bb ], [ %i149, %bb148 ], [ %i94, %bb96 ]
+118,20,14,  %i101 = tail call i32 (i8*, ...) @printf(i8* nonnull dereferenceable(1) getelementptr inbounds ([14 x i8], [14 x i8]* @.str.36, i64 0, i64 0), i32 %i100)
+119,13,14,  ret void
+120,14,15,  %i103 = phi i32 [ %i149, %bb148 ], [ 0, %bb10 ]
+121,14,15,  %i104 = phi i32 [ %i150, %bb148 ], [ %arg4, %bb10 ]
+122,9,15,  %i105 = zext i32 %i104 to i64
+123,10,15,  %i106 = getelementptr inbounds i32, i32* %i12, i64 %i105
+124,11,15,  %i107 = load i32, i32* %i106, align 4, !tbaa !9
+125,15,15,  call void (i32, ...) @desc_supply_produce_i32(i32 %i107, i32 22)
+126,0,15,  %i108 = add nuw i32 %i104, 1
+127,9,15,  %i109 = zext i32 %i108 to i64
+128,10,15,  %i110 = getelementptr inbounds i32, i32* %i12, i64 %i109
+129,11,15,  %i111 = load i32, i32* %i110, align 4, !tbaa !9
+130,15,15,  call void (i32, ...) @desc_supply_produce_i32(i32 %i111, i32 23)
+131,8,15,  %i112 = icmp ult i32 %i107, %i111
+132,13,15,  br i1 %i112, label %bb113, label %bb148
+133,9,16,  %i114 = zext i32 %i107 to i64
+134,9,16,  %i115 = zext i32 %i111 to i64
+135,13,16,  br label %bb116
+136,14,17,  %i117 = phi i64 [ %i114, %bb113 ], [ %i135, %bb133 ]
+137,14,17,  %i118 = phi i32 [ %i103, %bb113 ], [ %i134, %bb133 ]
+138,10,17,  %i119 = getelementptr inbounds i32, i32* %i14, i64 %i117
+139,11,17,  %i120 = load i32, i32* %i119, align 4, !tbaa !9
+140,20,17,  call void (...) @count_load_removed(i32 24)
+141,10,17,  %i121 = getelementptr inbounds float, float* %i16, i64 %i117
+142,19,17,  call void (float*, ...) @desc_supply_load_produce_float(float* %i121, i32 25)
+143,9,17,  %i122 = zext i32 %i120 to i64
+144,10,17,  %i123 = getelementptr inbounds i32, i32* %i18, i64 %i122
+145,11,17,  %i124 = load i32, i32* %i123, align 4, !tbaa !9
+146,15,17,  call void (i32, ...) @desc_supply_produce_i32(i32 %i124, i32 26)
+147,0,17,  %i125 = add i32 %i120, 1
+148,9,17,  %i126 = zext i32 %i125 to i64
+149,10,17,  %i127 = getelementptr inbounds i32, i32* %i18, i64 %i126
+150,11,17,  %i128 = load i32, i32* %i127, align 4, !tbaa !9
+151,15,17,  call void (i32, ...) @desc_supply_produce_i32(i32 %i128, i32 27)
+152,8,17,  %i129 = icmp ult i32 %i124, %i128
+153,13,17,  br i1 %i129, label %bb130, label %bb133
+154,9,18,  %i131 = zext i32 %i124 to i64
+155,9,18,  %i132 = zext i32 %i128 to i64
+156,13,18,  br label %bb137
+157,14,19,  %i134 = phi i32 [ %i118, %bb116 ], [ %i145, %bb137 ]
+158,0,19,  %i135 = add nuw nsw i64 %i117, 1
+159,8,19,  %i136 = icmp ult i64 %i135, %i115
+160,13,19,  br i1 %i136, label %bb116, label %bb148, !llvm.loop !14
+161,14,20,  %i138 = phi i64 [ %i131, %bb130 ], [ %i146, %bb137 ]
+162,14,20,  %i139 = phi i32 [ %i118, %bb130 ], [ %i145, %bb137 ]
+163,10,20,  %i140 = getelementptr inbounds i32, i32* %i20, i64 %i138
+164,11,20,  %i141 = load i32, i32* %i140, align 4, !tbaa !9
+165,15,20,  call void (i32, ...) @desc_supply_produce_i32(i32 %i141, i32 28)
+166,10,20,  %i142 = getelementptr inbounds float, float* %i22, i64 %i138
+167,19,20,  call void (float*, ...) @desc_supply_load_produce_float(float* %i142, i32 29)
+168,9,20,  %i143 = zext i32 %i141 to i64
+169,10,20,  %i144 = getelementptr inbounds float, float* %arg3, i64 %i143
+170,19,20,  call void (float*, ...) @desc_supply_load_produce_float(float* %i144, i32 30)
+171,0,20,  %i145 = add nsw i32 %i139, 2
+172,0,20,  %i146 = add nuw nsw i64 %i138, 1
+173,8,20,  %i147 = icmp ult i64 %i146, %i132
+174,13,20,  br i1 %i147, label %bb137, label %bb133, !llvm.loop !15
+175,14,21,  %i149 = phi i32 [ %i103, %bb102 ], [ %i134, %bb133 ]
+176,0,21,  %i150 = add i32 %i104, %arg5
+177,8,21,  %i151 = icmp ult i32 %i150, %i8
+178,13,21,  br i1 %i151, label %bb102, label %bb99, !llvm.loop !16
+0,1,0
+1,2,0
+1,26,0
+1,38,0
+1,52,0
+3,4,0
+4,6,0
+4,5,0
+4,115,0
+4,177,0
+6,7,0
+8,9,0
+9,48,0
+9,43,0
+9,123,0
+9,128,0
+11,12,0
+12,70,0
+12,138,0
+14,15,0
+15,73,0
+15,141,0
+17,18,0
+18,76,0
+18,81,0
+18,144,0
+18,149,0
+20,21,0
+21,92,0
+21,163,0
+23,24,0
+24,95,0
+24,166,0
+26,37,0
+27,28,0
+28,29,0
+28,112,0
+29,30,0
+31,32,0
+32,33,0
+34,35,0
+35,36,0
+38,66,0
+40,69,1
+40,111,1
+41,42,0
+41,52,0
+41,46,0
+41,114,0
+42,43,0
+43,44,0
+44,51,0
+44,45,0
+44,108,0
+46,47,0
+47,48,0
+47,112,0
+48,49,0
+49,51,0
+49,50,0
+49,109,0
+51,53,0
+52,56,0
+52,97,0
+54,55,0
+54,65,0
+55,56,0
+56,57,0
+57,58,0
+58,59,0
+59,61,0
+59,60,0
+61,62,0
+65,66,0
+65,54,1
+66,67,0
+68,70,0
+68,73,0
+68,87,0
+69,91,1
+69,86,1
+70,71,0
+71,79,0
+71,75,0
+73,74,0
+75,76,0
+76,77,0
+77,105,0
+77,78,0
+77,84,0
+79,80,0
+80,81,0
+81,82,0
+82,83,0
+82,106,0
+82,84,0
+84,85,0
+86,69,1
+86,111,1
+87,88,0
+87,68,1
+88,89,0
+90,102,0
+90,95,0
+90,92,0
+91,101,0
+92,93,0
+93,94,0
+93,97,0
+95,96,0
+97,98,0
+98,99,0
+99,100,0
+101,91,1
+101,86,1
+102,103,0
+102,90,1
+103,104,0
+105,90,1
+106,103,0
+108,68,1
+109,88,0
+111,40,1
+111,117,1
+112,63,0
+114,115,0
+114,41,1
+115,116,0
+117,118,0
+120,137,1
+120,175,1
+121,122,0
+121,126,0
+121,176,0
+122,123,0
+123,124,0
+124,125,0
+124,131,0
+124,133,0
+126,127,0
+127,128,0
+128,129,0
+129,130,0
+129,131,0
+129,134,0
+131,132,0
+133,136,1
+134,159,0
+136,138,0
+136,141,0
+136,158,0
+137,157,1
+137,162,1
+138,139,0
+139,143,0
+139,147,0
+141,142,0
+143,144,0
+144,145,0
+145,146,0
+145,152,0
+145,154,0
+147,148,0
+148,149,0
+149,150,0
+150,151,0
+150,152,0
+150,155,0
+152,153,0
+154,161,1
+155,173,0
+157,137,1
+157,175,1
+158,159,0
+158,136,1
+159,160,0
+161,163,0
+161,166,0
+161,172,0
+162,171,0
+163,164,0
+164,165,0
+164,168,0
+166,167,0
+168,169,0
+169,170,0
+171,157,1
+171,162,1
+172,173,0
+172,161,1
+173,174,0
+175,117,1
+175,120,1
+176,177,0
+176,121,1
+177,178,0
+167,166,-1
+170,169,-1
+33,32,-1
+36,35,-1
+63,112,-1
+74,73,-1
+96,95,-1
+100,99,-1
+142,141,-1

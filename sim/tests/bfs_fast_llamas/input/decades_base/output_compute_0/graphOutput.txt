@@ -1,0 +1,126 @@
+9
+57
+66
+0,2,0,  %i = sdiv i32 %arg2, %arg10
+1,10,0,  %i11 = getelementptr inbounds %class.csr_graph, %class.csr_graph* %arg3, i64 0, i32 2
+2,11,0,  %i12 = load i32*, i32** %i11, align 8, !tbaa !2
+3,8,0,  %i13 = icmp slt i32 %arg9, %arg1
+4,13,0,  br i1 %i13, label %bb14, label %bb64
+5,10,1,  %i15 = getelementptr inbounds %class.csr_graph, %class.csr_graph* %arg3, i64 0, i32 3
+6,11,1,  %i16 = load i32*, i32** %i15, align 8
+7,9,1,  %i17 = sext i32 %arg9 to i64
+8,9,1,  %i18 = sext i32 %arg10 to i64
+9,9,1,  %i19 = sext i32 %arg1 to i64
+10,13,1,  br label %bb20
+11,14,2,  %i21 = phi i64 [ %i45, %bb43 ], [ %i17, %bb14 ]
+12,14,2,  %i22 = phi i32 [ %i39, %bb43 ], [ 0, %bb14 ]
+13,10,2,  %i23 = getelementptr inbounds i32, i32* %arg5, i64 %i21
+14,11,2,  %i24 = load i32, i32* %i23, align 4, !tbaa !8
+15,9,2,  %i25 = sext i32 %i24 to i64
+16,10,2,  %i26 = getelementptr inbounds i32, i32* %i12, i64 %i25
+17,11,2,  %i27 = load i32, i32* %i26, align 4, !tbaa !8
+18,0,2,  %i28 = add nsw i32 %i24, 1
+19,9,2,  %i29 = sext i32 %i28 to i64
+20,10,2,  %i30 = getelementptr inbounds i32, i32* %i12, i64 %i29
+21,11,2,  %i31 = load i32, i32* %i30, align 4, !tbaa !8
+22,0,2,  %i32 = sub i32 %i22, %i27
+23,0,2,  %i33 = add i32 %i32, %i31
+24,8,2,  %i34 = icmp sgt i32 %i33, %i
+25,0,2,  %i35 = sub i32 %i, %i22
+26,0,2,  %i36 = add nsw i32 %i35, %i27
+27,20,2,  %i37 = select i1 %i34, i32 %i36, i32 %i31
+28,0,2,  %i38 = sub nsw i32 %i37, %i27
+29,0,2,  %i39 = add nsw i32 %i38, %i22
+30,8,2,  %i40 = icmp sgt i32 %i37, %i27
+31,13,2,  br i1 %i40, label %bb41, label %bb43
+32,9,3,  %i42 = sext i32 %i27 to i64
+33,13,3,  br label %bb48
+34,8,4,  %i44 = icmp ne i32 %i39, %i
+35,0,4,  %i45 = add i64 %i21, %i18
+36,8,4,  %i46 = icmp slt i64 %i45, %i19
+37,8,4,  %i47 = and i1 %i44, %i46
+38,13,4,  br i1 %i47, label %bb20, label %bb64, !llvm.loop !9
+39,14,5,  %i49 = phi i64 [ %i42, %bb41 ], [ %i61, %bb60 ]
+40,10,5,  %i50 = getelementptr inbounds i32, i32* %i16, i64 %i49
+41,11,5,  %i51 = load i32, i32* %i50, align 4, !tbaa !8
+42,9,5,  %i52 = sext i32 %i51 to i64
+43,10,5,  %i53 = getelementptr inbounds i32, i32* %arg4, i64 %i52
+44,31,5,  %i54 = tail call i32 @dec_atomic_compare_exchange(i32* %i53, i32 -1, i32 %arg)
+45,8,5,  %i55 = icmp eq i32 %i54, -1
+46,13,5,  br i1 %i55, label %bb56, label %bb60
+47,20,6,  %i57 = tail call i32 @compute_exclusive_fetch_add(i32* %arg8, i32 1)
+48,9,6,  %i58 = sext i32 %i57 to i64
+49,10,6,  %i59 = getelementptr inbounds i32, i32* %arg7, i64 %i58
+50,20,6,  tail call void @compute_exclusive_store(i32* %i59, i32 %i51)
+51,13,6,  br label %bb60
+52,0,7,  %i61 = add nsw i64 %i49, 1
+53,9,7,  %i62 = trunc i64 %i61 to i32
+54,8,7,  %i63 = icmp eq i32 %i37, %i62
+55,13,7,  br i1 %i63, label %bb43, label %bb48, !llvm.loop !11
+56,13,8,  ret void
+0,24,0
+0,25,0
+0,34,0
+1,2,0
+2,16,0
+2,20,0
+3,4,0
+5,6,0
+6,40,0
+7,11,1
+8,35,0
+9,36,0
+11,13,0
+11,35,0
+12,22,0
+12,25,0
+12,29,0
+13,14,0
+14,15,0
+14,18,0
+15,16,0
+16,17,0
+17,22,0
+17,26,0
+17,28,0
+17,30,0
+17,32,0
+18,19,0
+19,20,0
+20,21,0
+21,23,0
+21,27,0
+22,23,0
+23,24,0
+24,27,0
+25,26,0
+26,27,0
+27,28,0
+27,30,0
+27,54,0
+28,29,0
+29,34,0
+29,12,1
+30,31,0
+32,39,1
+34,37,0
+35,36,0
+35,11,1
+36,37,0
+37,38,0
+39,40,0
+39,52,0
+40,41,0
+41,42,0
+41,50,0
+42,43,0
+43,44,0
+44,45,0
+45,46,0
+47,48,0
+48,49,0
+49,50,0
+52,53,0
+52,39,1
+53,54,0
+54,55,0
