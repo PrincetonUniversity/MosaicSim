@@ -1,8 +1,8 @@
 # MosaicSim
 
-MosaicSim is LLVM based lightweight modular simulator for heterogeneous systems, offering accuracy and agility designed specifically for hardware-software co-design explorations. 
+MosaicSim is an LLVM-based lightweight modular simulator for heterogeneous systems. It offers accuracy and agility and is designed specifically for hardware-software co-design explorations. 
 
-## Quickstart
+## Dependecies
 
 This project depends on the following packages:
 
@@ -19,7 +19,7 @@ sudo apt install cmake clang-11
 
 will install all the needed packages.
 
-The DECADES Compiler can be  installed either manually or thought the compilation process of the MosaicSim. If you have already installed the DECADES compiler, from the MosaicSim source directory execute the following lines:
+The DECADES Compiler can be  installed either manually or thought the compilation process of the MosaicSim. If you have already installed the DECADES compiler, from the MosaicSim source directory execute the following commands:
 
 ```console
 mkdir build
@@ -28,25 +28,20 @@ cmake  ..
 make
 ```
 
-In order to fetch and compile the DECADES compiler in the same time as this package, just pass the "-DLOCAL_DEC=1" parameter  to the CMake command:
+If you wish to fetch and compile the DECADES compiler at the same time as this package, pass the "-DLOCAL_DEC=1" parameter  to the CMake command:
 
 ```console
     cmake -DLOCAL_DEC=1 ..
 ```
 
-Additionally, the DECADES compiler creates shared libraries. In order for MosaicSim to be able to use these libraries, the LD_LIBRARY_PATH environment variable should be updated to contain the libraries directory:
+Additionally, the DECADES compiler creates shared libraries. For MosaicSim to be able to use these libraries, the LD_LIBRARY_PATH environment variable should be updated to contain the libraries directory:
 
 ```console
     export LD_LIBRARY_PATH+=:/path/to/MosaicSim/build/compiler/DEC/src/DEC++-build/lib/
 ```
 
-Once everything is setup, in order to make sure that  the software is running properly, invoke "ctest" from the build directory.
+Once everything is set up, in order to make sure that the software is running properly, invoke "ctest" from the build directory. This will automatically launch a set of tests.
 
-Alternatively, we provide a docker image for this package. It can be obtained by running:
-
-```console
-docker pull sn3332/decades:V0
-```
 
 ## Using MosaicSim executables
 
