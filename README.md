@@ -1,11 +1,14 @@
-# MosaicSim_private
-MosaicSim is a lightweight, modular simulator for heterogeneous and hardware-software co-design systems. MosaicSim: 
+# MosaicSim
+MosaicSim is a lightweight, modular simulator for heterogeneous and hardware-software co-design systems. It relies on the [DecadesCompiler](https://github.com/PrincetonUniversity/DecadesCompiler).
+MosaicSim: 
 * is tightly integrated with the LLVM framework, providing agile programming models, enabling full-stack approaches; 
 *  provides abstract tile models capturing pragmatic microarchitectural details and specialized tile-to-tile interactions; and 
 *  provides support for accelerator model integration to create complex heterogeneous systems.
 
-To learn more about how the simulator works please read our paper:
-https://dl.acm.org/doi/10.1145/3400302.3415751
+To learn more about the simulator, please read our [paper](https://dl.acm.org/doi/10.1145/3400302.3415751)
+
+To get started on using MosaicSim, we prepared a step-by-step tutorial on how to install, compile and execute it [here](Inhttps://github.com/PrincetonUniversity/DecadesCompilerstallationCompilationExecution.md)
+
 
 MosaicSim provides a platform that can be adapted to simulate a range of different architectures and compiler tools. These are the required
 inputs in order to use the MosaicSim simulator:
@@ -17,7 +20,6 @@ do-all and decoupled parallelization (DeSC or GraphAttack).
 3. Core configs, which are cofigurations of specific cores included in the sim config.
 4. Parallelization mode such as do-all, decoupled and number of threads.
 
-To get started on using MosaicSim, we prepared step-by-step tutorial on how to install, compile and execute it [here](InstallationCompilationExecution.md)
 
 In addition, we prepared a tutorial on how to write your code in order for the compiler tools to be utilized as well as 
 how to incorporate new acceletor tiles [here](HowToUseMosaicSim.md)
