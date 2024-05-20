@@ -82,7 +82,7 @@ Simulator::Simulator(string config, string DRAM_system, string DRAM_device ) {
   global_stat = new Statistics();
 }
 
-void Simulator::registerCore(string wlpath, string cfgfile, PP_static_Buff<pair<int, string>> *acc_comm) {
+void Simulator::registerCore(string wlpath, string cfgfile, PP_static_Buff<string> *acc_comm) {
   int id = tileCount;
   string name = "MosaicSim Core " + to_string(id);
   string gName = wlpath + "/graphOutput.txt";
@@ -106,7 +106,7 @@ void Simulator::registerCore(string wlpath, string cfgfile, PP_static_Buff<pair<
     core->finished_dyn_data = true;
   }
 
-  r.readAccTrace(accName, core->acc_map);
+  // r.readAccTrace(accName, core->acc_map);
   r.ReadPartialBarrier(PBName, core->partial_barrier_sizes);
   
   core->initialize(id, this, acc_comm);
@@ -289,7 +289,7 @@ void Simulator::run() {
 	if(cycles % norm_tile_frequency == 0) {
 	  memInterface->process();
 	  processVec.at(nb_tiles) = cache->process();
-	  // accelerator tile
+	  /** accelerator tile */
 	  processVec.at(nb_tiles-1)  = tiles.at(nb_cores)->process();
 	}
       } else {

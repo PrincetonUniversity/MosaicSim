@@ -175,18 +175,19 @@ public:
   unordered_map<uint64_t,MSHR_entry> mshr;
   /** \brief Addresses that need to be evicted due to atomic conflict.  */
   PP_Buff<pair<uint64_t, int *>> atomic_evictons;
-  
+  /** Accelerator memory to be blocked and evicted */
+  vector<AccBlock> accelerator_mem;  
+  /** Accelerator memory to be blocked and evicted */
+  PP_Buff<AccBlock> acc_comm;
+
   /** \brief   */
   int mshr_size;
   /** \brief   */
   int prefetch_distance=0;
   /** \brief   */
   int num_prefetched_lines=1;
-  /** \brief Buffer used for communication with LLC for the accelerator's memory */
-  PP_Buff<int> unlock_memory;
-  /** \brief Blocks of memory that are locked due to  accelerator usage  */
-  deque<AccBlock> acc_memory;
-
+  /** \brief number of memory blocks from the accelerator   */
+  int new_acc_mem_reqsts = 0;
   
   /** \brief   */
   L1Cache(Config cache_cfg, Statistics *global_stat): Cache(cache_cfg.cache_size, cache_cfg.cache_latency, cache_cfg.cache_linesize, cache_cfg.cache_assoc, cache_cfg.cache_load_ports, cache_cfg.cache_store_ports, cache_cfg.ideal_cache, global_stat, "l1"),
@@ -233,7 +234,7 @@ public:
    */
   void TransactionComplete(MemTransaction *t) override;
   /** \brief Additionally  to checking the port availability, it handles locked memory for the accelerators */
-  bool willAcceptTransaction(bool isLoad, uint64_t addr);
+  bool willAcceptTransaction(bool &isLoad, uint64_t addr);
 private:
   /** \brief   */
   void transComplete_MSHR_update(MemTransaction *t);
@@ -308,7 +309,7 @@ public:
   bool doing_acc = false;
   bool acc_finished = false;
   int nb_acc_blocks = 0;
-  
+  bool acc_started = false;
   LLCache(Config &cache_cfg, Statistics *global_stat, int load_ports, int store_ports):
     Cache(cache_cfg.cache_size, cache_cfg.cache_latency, cache_cfg.cache_linesize,
 	  cache_cfg.cache_assoc, load_ports, store_ports,

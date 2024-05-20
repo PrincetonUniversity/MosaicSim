@@ -71,29 +71,28 @@ bool LLCache::process() {
   /* incoming transaction from L2. */ 
   int nb_loads  = incoming_loads.get_comp_elems(cycles);
   int nb_stores = incoming_stores.get_comp_elems(cycles);
-  MemTransaction ** loads  = incoming_loads.get_comp_buff(cycles);
-  MemTransaction ** stores = incoming_stores.get_comp_buff(cycles);
+  MemTransaction **loads  = incoming_loads.get_comp_buff(cycles);
+  MemTransaction **stores = incoming_stores.get_comp_buff(cycles);
   
-  // accelerator has finished. Unlock all the memory from the L1
-  if(acc_finished) {
+  /** accelerator started. Notify all the L1 */
+  if(acc_started) {
     for(auto id_tile: *tiles)
       if(Core* core=dynamic_cast<Core*>(id_tile.second)) {
-	vector<int> &L1_unlock =  core->cache->unlock_memory.get_comm_buff(cycles);
-	L1_unlock.push_back(nb_acc_blocks);
+    	vector<AccBlock> &L1_acc_memory =  core->cache->acc_comm.get_comm_buff(cycles);
+	for (auto block: accelertor_mem) {
+	  L1_acc_memory.push_back(block);
+	}
       }
-    acc_finished = false;
+    acc_started = false;
   }
 
   /* Process accelerator memory blocks */
+  /* TODO: need to send notification to L1 and somehow wait for a notification back */
   for (auto &block: accelertor_mem) {
     if (block.completed_requesting())  
       continue;
     uint64_t addr;
-    while(1) {
-      addr = block.next_to_send();
-      if (addr == 0)
-	break;
-      
+    while(addr = block.next_to_send()) {
       /* Add accelerator's eviction transaction transaction if present  */
       if (fc.present(addr)) {
 	if (free_store_ports > 0 || store_ports==-1) {
@@ -115,8 +114,7 @@ bool LLCache::process() {
   /* Release the locked data for atomic operations (the data has
      arrived to the Core) */
   for(auto dynNode: cachelines_to_release)
-    // if (hasLock(dynNode))
-      releaseLock(dynNode);
+    releaseLock(dynNode);
   cachelines_to_release.clear();
 
   // add the old transaction from L2
@@ -189,14 +187,6 @@ bool LLCache::process() {
   }
   
   cycles++;
-
-  /* TODO: REINTRODUCE STATS */
-  // //reset mlp stats collection
-  // if(cycles % sim->mlp_epoch==0 && cycles!=0) {
-  //   // sim->accesses_per_epoch.push_back(sim->curr_epoch_accesses);
-  //   sim->curr_epoch_accesses=0;
-  // }
-  
   
   /* check if the transaction for the accelerator memory blocks has
        been completed */
@@ -205,7 +195,7 @@ bool LLCache::process() {
       finished_blocks++;
   if (finished_blocks == accelertor_mem.size() && finished_blocks > 0){ 
     accelertor_mem.clear();
-    memInterface->LLC_evicted = 1;
+    memInterface->LLC_evicted = true;
   }
   
   free_load_ports = load_ports;

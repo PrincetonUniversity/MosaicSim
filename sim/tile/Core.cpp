@@ -7,7 +7,7 @@
 #include "Core.hpp"
 
 using namespace std;
-
+enum mess_type {CF, MEM, ACC, PB, END};
 vector<string> InstrStr={"I_ADDSUB", "I_MULT", "I_DIV", "I_REM", "FP_ADDSUB", "FP_MULT", "FP_DIV", "FP_REM", "LOGICAL", "CAST", "GEP", "LD", "ST",
 			 "TERMINATOR", "PHI", "SEND", "RECV", "STADDR", "STVAL", "LD_PROD", "INVALID", "BS_DONE", "CORE_INTERRUPT",
 			 "CALL_BS", "BS_WAKE", "BS_VECTOR_INC", "BARRIER", "PARTIAL_BARRIER", "ACCELERATOR", "ATOMIC_ADD", "ATOMIC_FADD", "ATOMIC_MIN",
@@ -100,7 +100,7 @@ Core::Core(Simulator* sim, int clockspeed, bool pilot_descq) : Tile(sim, clocksp
   stats = new Statistics();
 }
 
-bool Core::canAccess(bool isLoad, uint64_t addr) {
+bool Core::canAccess(bool &isLoad, uint64_t addr) {
   return cache->willAcceptTransaction(isLoad, addr);
 }
 
@@ -123,7 +123,7 @@ void Core::accessComplete(MemTransaction *t) {
   d->handleMemoryReturn();
 }
 
-void Core::initialize(int id, Simulator *sim, PP_static_Buff<pair<int, string>> *acc_comm) {
+void Core::initialize(int id, Simulator *sim, PP_static_Buff<string> *acc_comm) {
   this->id = id;
   this->sim = sim;
   this->acc_comm = acc_comm;
@@ -197,6 +197,40 @@ bool Core::predict_branch_and_check(DynamicNode* d) {
   return is_pred_ok;
 }
 
+void
+Core::read_acc_data() {
+  char buff[512];
+  int file;
+  int bytes;
+  file = sim->acc_files.at(omp_get_thread_num());
+
+  bytes = read(file, buff, 512);
+  if(bytes < 1)
+    return;
+  int core_id = buff[0];
+  enum mess_type type = (mess_type) buff[4];
+  string arg = string((char *) &buff[8]);
+
+  if( type == ACC) { 
+    if(Core* core=dynamic_cast<Core*>(sim->tiles[core_id])) {
+      core->acc_args.push(arg);
+    } else {
+      assert(false);
+    }
+  } else if (type == PB) { 
+    if(Core* core=dynamic_cast<Core*>(sim->tiles[core_id])) {
+      int fence_id, nb_threads;
+      stringstream stream(arg);
+      stream >> fence_id;
+      stream >> nb_threads;
+      core->partial_barrier_sizes.push_back(pair<int, int>(fence_id, nb_threads));
+    } else {
+      assert(false);
+    }
+  }
+}
+
+	       
 void
 Core::read_dyn_data(int *data) {
   int nb_mem, nb_cf, cf_start, *new_cf, *new_mem;

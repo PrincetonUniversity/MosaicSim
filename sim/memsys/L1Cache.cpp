@@ -3,7 +3,6 @@
 #include "DRAM.hpp"
 #include "../tile/Core.hpp"
 
-static string cache_evicts="cache_evicts";
 static string evicts="l1_evicts";
 static string l1_accesses="l1_accesses";
 static string evicts_dirty="l1_evicts_dirty";
@@ -21,10 +20,11 @@ static string l1_forced_evicts_dirty="l1_forced_evicts_dirty";
 
 
 
-bool L1Cache::willAcceptTransaction(bool isLoad, uint64_t addr)  {
-  for (auto &block:  acc_memory)
+bool L1Cache::willAcceptTransaction(bool &isLoad, uint64_t addr)  {
+  for (auto &block:  accelerator_mem)
     if (block.contains(addr))
       return false;
+
   if(isLoad)
     return free_load_ports > 0 || load_ports==-1;
   else
@@ -56,48 +56,53 @@ void L1Cache::evict(uint64_t addr, int *acknw) {
 
 bool L1Cache::process() {
   vector<pair<uint64_t, int *>> &atomic_evict = atomic_evictons.get_comp_buff(cycles); 
-  vector<int> &unlock_acknw = unlock_memory.get_comp_buff(cycles);
+  vector<AccBlock> &new_acc_mem = acc_comm.get_comp_buff(cycles);
+  int acc_evicted_blocks = 0;
+
+  //First do the prefetch 
   for(auto t: to_prefetch)
     if (free_store_ports > 0)
       addPrefetch(t, -1);
     else
       break;
-  
-  /* accelerator has finished */
-  for(int acknw: unlock_acknw)  {
-    /* only one accelerator finished at a given time */
-    assert(unlock_acknw.size() == 1);
-    /* take out the memory blocks */
-    for(int i =0; i < acknw; i++)
-      if (!acc_memory.empty())
-	acc_memory.pop_front();
-  }
-  unlock_acknw.clear();
+
+  /* Copy the new accelerator's memory blocks */
+  /* TODO: try move operation here, should work; */
+  accelerator_mem = new_acc_mem;
+  new_acc_mem_reqsts = accelerator_mem.size();
+  new_acc_mem.clear();
 
   /* Process accelerator memory blocks */
-  for (auto &block: acc_memory) {
-    if (block.completed_requesting())  
+  for (auto &block: accelerator_mem) {
+    if (block.completed_requesting()) {
+      acc_evicted_blocks++;
       continue;
+    }
     uint64_t addr;
     while(addr = block.next_to_send()) {
       /* Add transaction if present  */
       if (fc.present(addr)) {
-	if (free_store_ports > 0 || store_ports==-1) {
-	  MemTransaction *t = new MemTransaction(-1, -1, -1, addr, false);
-	  t->acc_eviction = true;
-	  addTransaction(t, -2);
-	  block.sent();
-	  free_store_ports--;
-	} else {
-	  break;
-	}
+  	if (free_store_ports > 0 || store_ports==-1) {
+  	  MemTransaction *t = new MemTransaction(-1, -1, -1, addr, false);
+  	  t->acc_eviction = true;
+  	  addTransaction(t, -2);
+  	  block.sent();
+  	  free_store_ports--;
+  	} else {
+  	  break;
+  	}
       } else {
-	block.sent();
-	block.transaction_complete();
+  	block.sent();
+  	block.transaction_complete();
       }
     }
   }  
-    
+  /* if we evict all blocks, clean up the accelerator_mem and TODO:
+     notify LLC*/
+  if( acc_evicted_blocks == new_acc_mem_reqsts)
+    accelerator_mem.clear();
+  new_acc_mem_reqsts  = 0;
+  
   /* send data to the core */
   for(MemTransaction *t: to_core)
     core->accessComplete(t);

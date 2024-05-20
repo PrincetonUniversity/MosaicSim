@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <omp.h>
+#include "DECADES.h"
 #include "DECADES_TensorFlow.h"
 
 void
@@ -11,7 +12,9 @@ _kernel_(float *A, float *B, float *C, int n, int tid, int nb_threads){
     C[i] = A[i];
   }
 
-  decadesTF_sdp(1, n*n, A, B, C, 0, 1);
+  DECADES_BARRIER();
+  if (tid == 0) 
+    decadesTF_sdp(1, n*n, A, B, C, 0, 1);
 }
 
 int

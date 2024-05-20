@@ -331,10 +331,11 @@ sim_parms::update_config(Config &sim_cfg) {
 void
 sim_parms::config_simulator(Simulator *sim) {
   string dyn_file_name;
+  string acc_file_name;
   string in_dir;
   ofstream nb_files_file;
   string nb_files_file_name;
-  PP_static_Buff<pair<int, string>> *acc_comm;  
+  PP_static_Buff<string> *acc_comm;  
   PP_static_Buff<tuple<uint64_t, uint64_t, double, uint64_t>> *acc_to_DRAM;  
   PP_static_Buff<uint64_t> *DRAM_to_acc;  
 
@@ -358,11 +359,12 @@ sim_parms::config_simulator(Simulator *sim) {
   sim->decoupling = decoupled || DeSC;
   sim->nb_cores = sim->decoupling ? 2*nb_cores : nb_cores;
 
-  acc_comm = new PP_static_Buff<pair<int, string>>(sim->nb_cores);
+  acc_comm = new PP_static_Buff<string>(sim->nb_cores);
 
   /* register all the core to the Simulator */
   if(decoupled || DeSC) {
     dyn_file_name = inDir + "/decades_decoupled_implicit" + "/dyn_data.bin";
+    acc_file_name = inDir + "/decades_decoupled_implicit" + "/acc_data.bin";
     nb_files_file_name = inDir + "/decades_decoupled_implicit" + "/nb_files.txt";
     for(int i = 0; i < nb_cores; i++) {
       in_dir = inDir + "/decades_decoupled_implicit/output_compute_" + to_string(i);
@@ -374,6 +376,7 @@ sim_parms::config_simulator(Simulator *sim) {
     }
   } else {
     dyn_file_name = inDir + "/decades_base" + "/dyn_data.bin";
+    acc_file_name = inDir + "/decades_base" + "/acc_data.bin";
     nb_files_file_name = inDir + "/decades_base" + "/nb_files.txt";
     for(int i = 0; i < nb_cores; i++) {
       in_dir = inDir + "/decades_base/output_compute_" + to_string(i);
@@ -391,13 +394,19 @@ sim_parms::config_simulator(Simulator *sim) {
 
     for(int i = 0; i < nb_files; i++) {
       string name = dyn_file_name + to_string(i);
+      string acc_name = acc_file_name + to_string(i);
       remove(name);
+      remove(acc_name);
       mkfifo(name.c_str(), 0666);
+      mkfifo(acc_name.c_str(), 0666);
       sim->dyn_files.push_back(open(name.c_str(), O_RDONLY | O_NONBLOCK));
+      sim->acc_files.push_back(open(acc_name.c_str(), O_RDONLY | O_NONBLOCK));
     }
   } else if (sim->input_files_type == 1) {
-    for(int i = 0; i < nb_cores; i++) 
+    for(int i = 0; i < nb_cores; i++) {
       sim->dyn_files.push_back(open((dyn_file_name+to_string(i)).c_str(), O_RDONLY));
+      sim->acc_files.push_back(open((acc_file_name+to_string(i)).c_str(), O_RDONLY));
+    }
     if(decoupled || DeSC) 
       for(int i = nb_cores; i < 2*nb_cores; i++) 
 	sim->dyn_files.push_back(open((dyn_file_name+to_string(i)).c_str(), O_RDONLY));

@@ -33,14 +33,14 @@ public:
   double energy = 0.0;
   int dram_accesses = 0;
   /** \brief incoming invocation from the cores */
-  PP_static_Buff<pair<int, string>> *incoming_trans;
+  PP_static_Buff<string> *incoming_trans;
   /** \brief request to DRAM to perform the memory transactions  */
   PP_static_Buff<tuple<uint64_t, uint64_t, double, uint64_t>> *DRAM_requests;
   /** \brief response from DRAM that the memory transactions finished  */
   PP_static_Buff<uint64_t> *DRAM_responses;
 
   /** \brief Transactions to complete */
-  map<int, pair<string, int>> to_complete;
+  deque<string> to_complete;
 
   /** \brief Accumulative bytes transfered for each accelerator for a given data size */
   map<pair<string, uint64_t>, uint64_t> acc_bytes;
@@ -51,7 +51,7 @@ public:
   
   /** \bref   */
   Accelerator(Simulator* sim, uint64_t clockspeed, 
-	      PP_static_Buff<pair<int, string>> *incoming_trans,
+	      PP_static_Buff<string> *incoming_trans,
 	      PP_static_Buff<tuple<uint64_t, uint64_t, double, uint64_t>> *DRAM_requests,
 	      PP_static_Buff<uint64_t> *DRAM_responses) :
     Tile(sim, clockspeed), nb_cores(sim->nb_cores),

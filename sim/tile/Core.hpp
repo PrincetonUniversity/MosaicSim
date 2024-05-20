@@ -142,7 +142,7 @@ public:
   /** \brief List of memory accesses per instruction in a program order */
   unordered_map<int, queue<uint64_t> > memory; 
   /** \brief List of memory accesses per instruction in a program order for the accelerator */
-  unordered_map<int, queue<string> > acc_map;  
+  queue<string> acc_args;  
   deque<pair<int, int>> partial_barrier_sizes;  
 
   /** \brief   */
@@ -160,14 +160,14 @@ public:
   int technology_node;
   /** \brief The communiciation buffer that is used to communicate
       with the accelerator tile */ 
-  PP_static_Buff<pair<int, string>> *acc_comm;  
+  PP_static_Buff<string> *acc_comm;  
   int acc_transaction_id = 0;
   
   /** \brief   */
   Core(Simulator* sim, int clockspeed, bool pilot_descq);
   
   /** \brief Initializes internal structure (L1 and L2 cache, window, bpred etc.) */
-  void initialize(int id, Simulator *sim, PP_static_Buff<pair<int, string>> *acc_comm);
+  void initialize(int id, Simulator *sim, PP_static_Buff<string> *acc_comm);
   /** \brief Creates the upcoming Context and initializes some
       internal structers.  */
   bool createContext();
@@ -185,7 +185,7 @@ public:
       Other then checking for free ports, this method checks if that
       memory region is locked.
   */
-  bool canAccess(bool isLoad, uint64_t addr);
+  bool canAccess(bool &isLoad, uint64_t addr);
   /** \brief Creates a new tranasaction to access the memory adress
       tied to the Dynamic node d.  */
   void access(DynamicNode *d);
@@ -220,4 +220,9 @@ public:
       Reads the control flow and memory accesses.
    */ 
   void read_dyn_data(int *data);
+  /** \brief Reads for the input for accelerators and partial barrier.
+
+      Reads the accelerators and partial barrier dynamic info.
+   */ 
+  void read_acc_data();
 };

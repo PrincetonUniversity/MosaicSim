@@ -9,6 +9,8 @@
 #include <stdarg.h>
 #include "omp.h"
 #include <string>
+#include <iostream>
+#include <sstream>
 #include <string.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -17,8 +19,9 @@
 
 #define MAX_THREADS 4096
 using namespace std;
-enum mess_type {CF, MEM, END};
+enum mess_type {CF, MEM, ACC, PB, END};
 int files[MAX_THREADS];
+int acc_files[MAX_THREADS];
 /* TODO: find a better way to pass this parameter */
 int nb_files;
 // Files for partial barrier
@@ -29,7 +32,6 @@ ofstream PB_files[MAX_THREADS];
 int nb_threads;
 int buf[MAX_THREADS][1024];
 
-ofstream acc_files[MAX_THREADS]; 
 mutex files_lock;
 
 #ifdef DUMP_ASCI_INPUT
@@ -53,7 +55,7 @@ char *get_dir_name(string run_dir, string kernel_type, string type) {
   const char *tmp  = file.c_str();
   char *tmp2 = (char *) malloc((strlen(tmp) + 1) * sizeof(*tmp));
   strcpy(tmp2, tmp);
-
+  
   return tmp2;
 }
 
@@ -90,16 +92,15 @@ void insert_mess(int tid, int *data, mess_type type, string dir)
     fstream nb_files_file(dir + "/nb_files.txt" );
     nb_files_file >> nb_files;
     nb_threads = omp_get_num_threads();
-    cout << "<<<<<<<<<<<<<<< nb_thread IS" << nb_threads << endl;
 #ifdef USE_FILES
     for(int i = 0; i < nb_threads; i++) {
       files[i] = open((dir + "/dyn_data.bin" + to_string(i)).c_str(),  O_WRONLY | O_CREAT | O_TRUNC, 0666);
-      cout <<  "using files with i " << i << " !!!! " << endl;
+      acc_files[i] = open((dir + "/acc_data.bin" + to_string(i)).c_str(),  O_WRONLY | O_CREAT | O_TRUNC, 0666);
 #else
     for(int i = 0; i < nb_files; i++) {
       int file_id = tid / ceil(nb_threads/ nb_files);
       files[i] = open((dir + "/dyn_data.bin" + to_string(i)).c_str(),  O_WRONLY | O_NONBLOCK);
-      cout <<  "NOT using files  with i " << i << " !!!! " << endl;
+      acc_files[i] = open((dir + "/acc_data.bin" + to_string(i)).c_str(),  O_WRONLY | O_NONBLOCK);
 #endif
       if(files[i] < 1) {
 	perror("Opening pipe for writing from the native run");
@@ -235,74 +236,7 @@ void printMem(char *name, char *kernel_type, char *run_dir, bool type, long long
   mem_s[tid].flush();
 #endif
 }
-
-__attribute__((noinline))
-extern "C"
-void print_matmul(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA , int rowsB, int colsB, int batch_size, float *A, float *B, float *C)
-{
-  if(!acc_files[omp_get_thread_num()].is_open()) 
-    acc_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), ofstream::out | ofstream::app);
  
-  acc_files[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << ","<< rowsB << ","<< colsB << ","
-			   << batch_size <<","<<reinterpret_cast<long long>(A)<<","<<reinterpret_cast<long long>(B)<<","
-			   <<reinterpret_cast<long long>(C)<<"\n";
-}
-
-__attribute__((noinline))
-extern "C"
-void print_sdp(char *acc_kernel_name, char *kernel_type, char *run_dir,
-	       char* node_id, int working_mode, int size,
-	       float *in, float *filter, float *out)
-{
-  if(!acc_files[omp_get_thread_num()].is_open())
-    acc_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), ofstream::out | ofstream::app);
- 
-  acc_files[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << working_mode << "," << size << "," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(filter)<<","<<reinterpret_cast<long long>(out) << "\n";
-}
-
- __attribute__((noinline))
-extern "C"
-void print_bias(char *acc_kernel_name, char *kernel_type, char *run_dir,
-	       char* node_id, int batch, int size,
-	       float *in, float *bias, float *out)
-{
-  if(!acc_files[omp_get_thread_num()].is_open())
-    acc_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), ofstream::out | ofstream::app);
- 
-  acc_files[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << batch << "," << size << "," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(bias)<<","<<reinterpret_cast<long long>(out) << "\n";
-}
-
-__attribute__((noinline))
-extern "C"
-void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id , int batch, int in_channels, int in_height, int in_width, int out_channels, int filter_height, int filter_width, bool zero_pad, int vert_conv_stride, int horiz_conv_stride, bool pooling, int pool_height, int pool_width, int vertical_pool_stride, int horizontal_pool_stride, float *in, float *filters, float *out)
-{
-  if(!acc_files[omp_get_thread_num()].is_open()) 
-    acc_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), ofstream::out | ofstream::app);
- 
-  acc_files[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," <</*0*/ batch <<"," << /*1*/ in_channels << "," << /*2*/ in_height << "," << /*3*/ in_width << "," << /*4*/ out_channels << "," << /*5*/ filter_height << "," << /*6*/ filter_width << "," << /*7*/ zero_pad << "," << /*8*/ vert_conv_stride << "," << /*9*/ horiz_conv_stride << "," << /*10*/ pooling << "," << /*11*/ pool_height << "," << /*12*/ pool_width << "," << /*13*/ vertical_pool_stride << "," << /*14*/ horizontal_pool_stride <<"," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(filters)<<","<<reinterpret_cast<long long>(out) << "\n";
-}
-
-__attribute__((noinline))
-extern "C"
-void print_dense_layer(char *acc_kernel_name, char *kernel_type, char *run_dir,
-		       char* node_id, int batch, int in_channels, int out_channels,
-		       float *in, float *filters, float *out)
-{
-  if(!acc_files[omp_get_thread_num()].is_open()) 
-    acc_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "acc.txt"), ofstream::out | ofstream::app);
- 
-  acc_files[omp_get_thread_num()] << acc_kernel_name << "," << node_id << "," << /*0*/ batch << ","<< /*1*/ in_channels << ","<< /*2*/ out_channels <<"," <<reinterpret_cast<long long>(in)<<"," <<reinterpret_cast<long long>(filters)<<"," <<reinterpret_cast<long long>(out)<< "\n";
-}
-
-__attribute__((noinline))
-extern "C"
-void print_partial_barrier(char *kernel_type, char *run_dir, int fence_id, int nb_threads)
-{
-  if(!PB_files[omp_get_thread_num()].is_open())
-    PB_files[omp_get_thread_num()].open(get_dir_name(run_dir, kernel_type, "PB.txt"), ofstream::out | ofstream::app);
-  PB_files[omp_get_thread_num()] << fence_id << "\t" << nb_threads << endl;
-}
-
 __attribute__((noinline))
 extern "C"
 void printSw(char *name, char *kernel_type, char *run_dir, int value, char *def, int n, ...)
@@ -339,3 +273,90 @@ void printSw(char *name, char *kernel_type, char *run_dir, int value, char *def,
   insert_mess(tid, mess, CF, string(run_dir));
 }
 
+
+__attribute__((noinline))
+extern "C"
+void write_acc_mess(int tid, string mess, enum mess_type type) {
+   char data[512];
+   int *int_data = (int *)data, bytes;
+   const char *char_mess = mess.c_str();
+   int file_id;
+   int_data[0] = tid;
+   int_data[1] = type;
+   strcpy((char *) &int_data[2], char_mess);
+
+#ifdef USE_FILES
+   file_id = tid;
+#else
+   file_id = tid / ceil(nb_threads/nb_files);
+#endif
+   while((bytes = write(acc_files[file_id], data, 512)) != 512)
+     ;
+}
+
+__attribute__((noinline))
+extern "C"
+void print_matmul(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id, int rowsA, int colsA , int rowsB, int colsB, int batch_size, float *A, float *B, float *C)
+{
+  stringstream stream;
+  stream  << acc_kernel_name << "," << node_id << "," << rowsA << ","<< colsA << ","<< rowsB << ","<< colsB << ","
+			   << batch_size <<","<<reinterpret_cast<long long>(A)<<","<<reinterpret_cast<long long>(B)<<","
+			   <<reinterpret_cast<long long>(C);
+  write_acc_mess(omp_get_thread_num(),  stream.str(), ACC);
+}
+
+__attribute__((noinline))
+extern "C"
+void print_sdp(char *acc_kernel_name, char *kernel_type, char *run_dir,
+	       char* node_id, int working_mode, int size,
+	       float *in, float *filter, float *out)
+{
+  stringstream stream;
+ 
+  stream << acc_kernel_name << "," << node_id << "," << working_mode << "," << size << "," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(filter)<<","<<reinterpret_cast<long long>(out);
+  write_acc_mess(omp_get_thread_num(),  stream.str(), ACC);
+}
+
+ __attribute__((noinline))
+extern "C"
+void print_bias(char *acc_kernel_name, char *kernel_type, char *run_dir,
+	       char* node_id, int batch, int size,
+	       float *in, float *bias, float *out)
+{
+  stringstream stream;
+ 
+  stream << acc_kernel_name << "," << node_id << "," << batch << "," << size << "," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(bias)<<","<<reinterpret_cast<long long>(out);
+    write_acc_mess(omp_get_thread_num(),  stream.str(), ACC);
+}
+
+__attribute__((noinline))
+extern "C"
+void print_conv2d_layer(char *acc_kernel_name, char *kernel_type, char *run_dir, char* node_id , int batch, int in_channels, int in_height, int in_width, int out_channels, int filter_height, int filter_width, bool zero_pad, int vert_conv_stride, int horiz_conv_stride, bool pooling, int pool_height, int pool_width, int vertical_pool_stride, int horizontal_pool_stride, float *in, float *filters, float *out)
+{
+  stringstream stream;
+ 
+  stream << acc_kernel_name << "," << node_id << "," <</*0*/ batch <<"," << /*1*/ in_channels << "," << /*2*/ in_height << "," << /*3*/ in_width << "," << /*4*/ out_channels << "," << /*5*/ filter_height << "," << /*6*/ filter_width << "," << /*7*/ zero_pad << "," << /*8*/ vert_conv_stride << "," << /*9*/ horiz_conv_stride << "," << /*10*/ pooling << "," << /*11*/ pool_height << "," << /*12*/ pool_width << "," << /*13*/ vertical_pool_stride << "," << /*14*/ horizontal_pool_stride <<"," << reinterpret_cast<long long>(in)<<","<<reinterpret_cast<long long>(filters)<<","<<reinterpret_cast<long long>(out);
+  write_acc_mess(omp_get_thread_num(),  stream.str(), ACC);
+}
+
+__attribute__((noinline))
+extern "C"
+void print_dense_layer(char *acc_kernel_name, char *kernel_type, char *run_dir,
+		       char* node_id, int batch, int in_channels, int out_channels,
+		       float *in, float *filters, float *out)
+{
+  stringstream stream;
+ 
+  stream << acc_kernel_name << "," << node_id << "," << /*0*/ batch << ","<< /*1*/ in_channels << ","<< /*2*/ out_channels <<"," <<reinterpret_cast<long long>(in)<<"," <<reinterpret_cast<long long>(filters)<<"," <<reinterpret_cast<long long>(out)<< "\n";
+  write_acc_mess(omp_get_thread_num(),  stream.str(), ACC);
+}
+
+__attribute__((noinline))
+extern "C"
+void print_partial_barrier(char *kernel_type, char *run_dir, int fence_id, int nb_threads)
+{
+  stringstream stream;
+ 
+  stream << fence_id << "\t" << nb_threads;
+  write_acc_mess(omp_get_thread_num(),  stream.str(), PB);
+}

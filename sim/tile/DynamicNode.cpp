@@ -97,16 +97,16 @@ void Context::initialize(BasicBlock *bb, int next_bbid, int prev_bbid) {
       /* pull in accelerator string for command and args
 	 exception for just matmul */
       d = new DynamicNode(n, this, core);
-      if (core->acc_map.find(n->id)==core->acc_map.end()) {
-        d->print("assertion to fail",-10);
-        assert(false);
-      }
-      d->acc_args=core->acc_map.at(n->id).front();
-      core->acc_map.at(n->id).pop();
+      while(core->acc_args.empty())
+	core->read_acc_data();
+      d->acc_args=core->acc_args.front();
+      core->acc_args.pop();
       nodes.insert(make_pair(n, d));
     } else if(n->typeInstr==PARTIAL_BARRIER) {
       d = new DynamicNode(n, this, core);
-      pair<int, int> PB = core->partial_barrier_sizes.front();
+      while(core->partial_barrier_sizes.empty())
+	core->read_acc_data();
+      auto PB = core->partial_barrier_sizes.front();
       d->partial_barrier_id = PB.first;
       d->partial_barrier_size = PB.second;
       core->partial_barrier_sizes.pop_front();
@@ -547,7 +547,7 @@ bool DynamicNode::issueCompNode() {
 
 bool DynamicNode::issueAccNode() {
   vector<string> split_args = split(acc_args, ',');
-  core->acc_comm->insert(core->cycles, {core->acc_transaction_id++,acc_args});
+  core->acc_comm->insert(core->cycles, acc_args);
   
 
   if (split_args[1] == "decadesTF_matmul") {
@@ -558,15 +558,6 @@ bool DynamicNode::issueAccNode() {
     uint64_t B = stoll(split_args[8]);
     uint64_t C = stoll(split_args[9]);
     
-    core->cache->acc_memory.push_back(AccBlock(A, m*n*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(B, n*k*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(C, m*k*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
   } else if (split_args[1] == "decadesTF_sdp") {
     uint64_t size = stoll(split_args[3]);
     uint64_t A = stoll(split_args[4]);
@@ -574,33 +565,12 @@ bool DynamicNode::issueAccNode() {
     uint64_t C = stoll(split_args[6]);
     int mode   = stoi(split_args[2]);
 
-    core->cache->acc_memory.push_back(AccBlock(A, size*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    if (mode < 4) {
-      core->cache->acc_memory.push_back(AccBlock(B, size*4, 1.0,
-						 core->cache->size_of_cacheline,
-						 core->cycles));
-    }
-    core->cache->acc_memory.push_back(AccBlock(C, size*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
   } else if (split_args[1] == "decadesTF_bias_add") {
     int batch  = stoi(split_args[2]);
     int  size  = stoi(split_args[3]);
     uint64_t in   = stoll(split_args[4]);
     uint64_t bias = stoll(split_args[5]);
     uint64_t out  = stoll(split_args[6]);
-
-    core->cache->acc_memory.push_back(AccBlock(in, size*batch*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(bias, size*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(out, size*batch*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
   } else if (split_args[1] == "decadesTF_dense_layer") {
     uint64_t inC  = stoll(split_args[3]);
     uint64_t outC = stoll(split_args[4]);
@@ -608,16 +578,6 @@ bool DynamicNode::issueAccNode() {
     uint64_t filter = stoll(split_args[6]);
     uint64_t out = stoll(split_args[7]);
     uint64_t batch = stoll(split_args[2]);
-
-    core->cache->acc_memory.push_back(AccBlock(in, batch*inC*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(filter, inC*outC*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(out, outC*batch*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
   } else if (split_args[1] == "decadesTF_conv2d_layer") {
     uint64_t inChanels  = stoll(split_args[3]);
     uint64_t outChanels  = stoll(split_args[6]);
@@ -629,16 +589,6 @@ bool DynamicNode::issueAccNode() {
     uint64_t in = stoll(split_args[17]);
     uint64_t filter = stoll(split_args[18]);
     uint64_t out = stoll(split_args[19]);
-
-    core->cache->acc_memory.push_back(AccBlock(in, batch*inChanels*inHeigh*inWidth*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(filter, batch*filterHeigh*filterWidth*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
-    core->cache->acc_memory.push_back(AccBlock(out, batch*outChanels*inHeigh*inWidth*4, 1.0,
-					       core->cache->size_of_cacheline,
-					       core->cycles));
   }
   
   return true;
@@ -647,8 +597,8 @@ bool DynamicNode::issueAccNode() {
 bool DynamicNode::issueMemNode() {
   bool speculate = false;
   int forwardRes = -1; 
-  
-  if(!core->canAccess(type == LD, addr)) { 
+  bool is_load = type == LD;
+  if(!core->canAccess(is_load, addr)) {  
     return false;
   }
 
@@ -747,7 +697,8 @@ bool DynamicNode::issueDESCNode() {
     //here ld_prod must go to memory, check if mem system can accept
     if(!can_forward_from_lsq && !can_forward_from_svb) {
       mem_status=PENDING; //must issue mem request below
-      can_issue=can_issue && core->canAccess(true, addr);
+      bool is_load = true;
+      can_issue=can_issue && core->canAccess(is_load, addr);
     } else if(can_forward_from_lsq) {
       mem_status=LSQ_FWD;      
     } else if(can_forward_from_svb) {

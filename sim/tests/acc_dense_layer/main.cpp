@@ -5,13 +5,14 @@
 
 void
 _kernel_(float *A, float *B, float *C, int n, int tid, int nb_threads){
-  for(int i =0; i < n*n; i+=nb_threads) {
+  for(int i =tid; i < n*n; i+=nb_threads) {
     A[i] = B[i];
     B[i] = C[i];
     C[i] = A[i];
   }
 
-  decadesTF_dense_layer(n, n, n,  false, 0,
+  if (!tid)
+    decadesTF_dense_layer(n, n, n,  false, 0,
   			A, B, C, tid, nb_threads);
 }
 

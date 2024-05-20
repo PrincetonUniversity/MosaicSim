@@ -10,16 +10,11 @@
 
 void Accelerator::RecieveTransactions(){
   int nb_trans = incoming_trans->get_comp_elems(cycles);
-  pair<int, string> *new_tranasctions = incoming_trans->get_comp_buff(cycles);
+  string *new_tranasctions = incoming_trans->get_comp_buff(cycles);
 
   for(int i = 0; i < nb_trans; i++)  {
-    string t = new_tranasctions[i].second;    
-    int id = new_tranasctions[i].first;
-    
-    if (to_complete.find(id) != to_complete.end()) 
-      to_complete[id].second++;
-    else
-      to_complete.emplace(id, make_pair(t, 1));
+    string t = new_tranasctions[i];    
+    to_complete.push_back(t);
   }
 }
 
@@ -28,18 +23,13 @@ void Accelerator::fastForward(uint64_t inc) {
 }
 
 string Accelerator::getNextTransaction() {
-  if (to_complete.empty())
+  if (to_complete.empty()) {
     return "";
-
-  auto it = to_complete.begin(); 
-  auto elem = *it;
-  if(elem.second.second == nb_cores) {
-    string t = elem.second.first;
-    to_complete.erase(it);
-    return t;
+  } else {
+    auto elem = to_complete.front();
+    to_complete.pop_front();
+    return elem;
   }
-  
-  return "";
 }
 
 bool Accelerator::process() {
@@ -75,7 +65,7 @@ bool Accelerator::execute() {
     wait_on_DRAM = false;
   }
   
-  ret = cycles <= final_cycle || wait_on_DRAM;
+  ret = (cycles <= final_cycle) || wait_on_DRAM;
 
   /* finished, update processing */
   if(!ret) 
@@ -85,9 +75,6 @@ bool Accelerator::execute() {
 }
 
 bool Accelerator::invoke(string t) {
-  cout << "acc_arguments: " << t << endl;
-  
-  //assert(false);
   //create a vector of the args
   vector<string> arg_vec=split(t, ',');
   acc_perf_t perf;
@@ -99,6 +86,10 @@ bool Accelerator::invoke(string t) {
   */
   int offset_size=2; //num args in dyn trace before acc args
   uint64_t total_size;
+
+  /*set the execution flags */
+  wait_on_DRAM = true;
+  processing=true;
   
   if(arg_vec[1].find("decadesTF_matmul") != std::string::npos) {
     int arg_size=arg_vec.size();
@@ -219,11 +210,8 @@ bool Accelerator::invoke(string t) {
     cout << "no matching acc model for invocation \n";
     return false;
   }
-  wait_on_DRAM = true;
-  processing=true;
   
   cout << "predicted_cycles: " << perf.cycles << endl;
-    
   final_cycle=cycles+perf.cycles;
   cout << "final_cycle from transaction: " << final_cycle << endl;
 

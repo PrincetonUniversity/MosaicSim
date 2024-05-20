@@ -196,6 +196,8 @@ public:
   int input_files_type = 0;
   /** \brief Dynamic data input pipe */
   vector<int> dyn_files;
+  /** \brief Dynamic data input pipe */
+  vector<int> acc_files;
 
   /** 
       \brief Forwards everything for #inc normalized cycles with respect
@@ -234,7 +236,7 @@ public:
       object Core, and initialize everything that is needed. then pass
       the object to registerTile() method.
    */
-  void registerCore(string wlpath, string cfgfile, PP_static_Buff<pair<int, string>> *acc_comm);
+  void registerCore(string wlpath, string cfgfile, PP_static_Buff<string> *acc_comm);
   /** \brief Resgister a new Tile as number tid
 
       Same as regiserCore(), BUT this method does not increase teh

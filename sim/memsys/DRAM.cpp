@@ -124,19 +124,23 @@ bool DRAMSimInterface::process() {
 
   free_read_ports = read_ports;
   free_write_ports = write_ports;
+  free_acc_read_ports = read_ports;
+  free_acc_write_ports = write_ports;
 
-  /* Get accelerator new memory blocks */
-  for(int i = 0; i < nb_trans; i++) {
-    uint64_t addr; uint64_t size;  double factor; uint64_t acc_end;
-    tie(addr, size, factor, acc_end) = new_tranasctions[i];
-    acc_memory.push_back(AccBlock(addr, size, factor, cacheline_size, cycles));
-    cache->accelertor_mem.push_back(AccBlock(addr, size, 1.0, cacheline_size, cycles));
-    cache->nb_acc_blocks = nb_trans;
-    acc_final_cycle = acc_end;
-    finished_acc = false;
-    LLC_evicted = false;
+  /* check if there is new accelerator memory blocks */
+  if (nb_trans) {
+    cache->acc_started = true;
+    for(int i = 0; i < nb_trans; i++) {
+      uint64_t addr; uint64_t size;  double factor; uint64_t acc_end;
+      tie(addr, size, factor, acc_end) = new_tranasctions[i];
+      acc_memory.push_back(AccBlock(addr, size, factor, cacheline_size, cycles));
+      cache->accelertor_mem.push_back(AccBlock(addr, size, 1.0, cacheline_size, cycles));
+      cache->nb_acc_blocks = nb_trans;
+      acc_final_cycle = acc_end;
+      finished_acc = false;
+      LLC_evicted = false;
+    }
   }
-
   if(use_SimpleDRAM) 
     simpleDRAM->process();
   else 
@@ -150,7 +154,7 @@ bool DRAMSimInterface::process() {
       uint64_t acc_addr;
       while(acc_addr = block.next_to_send()) {
 	if (willAcceptAccTransaction(acc_addr, true)) {
-	  free_read_ports--;
+	  free_acc_read_ports--;
 	  if(use_SimpleDRAM) {       
 	    simpleDRAM->addTransaction(false, acc_addr);
 	  } else {
@@ -167,9 +171,9 @@ bool DRAMSimInterface::process() {
     }
   }
 
+  /* Check if the transaction for the accelerator memory blocks has
+     been completed */
   if(!finished_acc) { 
-    /* Check if the transaction for the accelerator memory blocks has
-       been completed */
     for (auto &block:  acc_memory) 
       if (block.completed())
 	finished_blocks++;
@@ -180,8 +184,9 @@ bool DRAMSimInterface::process() {
     }
   }
   
+  /* The memory trnasaction are finished and/or the estimiation for the accelerator has finished. 
+   time to reset everything */
   if (finished_acc && cycles >= acc_final_cycle) {
-    // cout << "FROM DRAM accelerator done on cycle " << cycles << endl;
     acc_memory.clear();
     cache->acc_finished = true;
     finished_acc = false;

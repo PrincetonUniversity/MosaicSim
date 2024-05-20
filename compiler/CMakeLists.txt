@@ -28,7 +28,6 @@ configure_file(preproc.sh ${PREPROC_FILES} @ONLY)
 # TODO: find a way to compile the tracer.cc in camke correctly 
 # sources: https://github.com/compor/llvm-ir-cmake-utils
 # TODO2: is clang++ in there when only llvm package is installed?
-# if(DUMP_ASCI_INPUT)
 
 if(DUMP_ASCI_INPUT)
 add_custom_target(tracer_pipes.llvm ALL
