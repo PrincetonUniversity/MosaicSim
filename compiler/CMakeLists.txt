@@ -55,7 +55,7 @@ if(LOCAL_DEC)
   INCLUDE(ExternalProject)
   ExternalProject_Add(DEC++
     PREFIX DEC
-    DOWNLOAD_COMMAND git clone git@github.com:PrincetonUniversity/DECADES_compiler_private.git
-    CMAKE_ARGS ../DECADES_compiler_private -DLLVM_REQ_VERSION=${LLVM_REQ_VERSION}
+    DOWNLOAD_COMMAND git clone https://github.com/PrincetonUniversity/DecadesCompiler.git
+    CMAKE_ARGS ../DecadesCompiler -DLLVM_REQ_VERSION=${LLVM_REQ_VERSION}
     INSTALL_COMMAND ""  )
 endif()
