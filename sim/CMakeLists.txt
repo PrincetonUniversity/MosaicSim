@@ -46,34 +46,34 @@ add_library(MosaicSim
 link_directories(${CMAKE_SOURCE_DIR}/sim/memsys/DRAMSim2)
 
 # Create the executable 
-ADD_EXECUTABLE(sim_driver sim_driver.cpp) 
+ADD_EXECUTABLE(mosaicSim_sim sim_driver.cpp) 
 
 # Create the executable 
-ADD_EXECUTABLE(compiler_driver compiler_driver.cpp) 
+ADD_EXECUTABLE(mosaicSim_compile compiler_driver.cpp) 
 
 # Create the executable 
-ADD_EXECUTABLE(mosaic mosaic_driver.cpp) 
+ADD_EXECUTABLE(mosaicSim mosaic_driver.cpp) 
 
 # Compile DRAMSIM2 library 
 add_custom_command(
-  TARGET sim_driver PRE_BUILD
+  TARGET mosaicSim_sim PRE_BUILD
   COMMAND make libdramsim.so
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/sim/memsys/DRAMSim2/)
 # Compile DRAMSIM2 library 
 add_custom_command(
-  TARGET compiler_driver PRE_BUILD
+  TARGET mosaicSim_compile PRE_BUILD
   COMMAND make libdramsim.so
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/sim/memsys/DRAMSim2/)
 # Compile DRAMSIM2 library 
 add_custom_command(
-  TARGET mosaic PRE_BUILD
+  TARGET mosaicSim PRE_BUILD
   COMMAND make libdramsim.so
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/sim/memsys/DRAMSim2/)
 
 # Link with the additional libraries
-target_link_libraries(sim_driver MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
-target_link_libraries(compiler_driver MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
-target_link_libraries(mosaic  MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
+target_link_libraries(mosaicSim_sim MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
+target_link_libraries(mosaicSim_compile MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
+target_link_libraries(mosaicSim  MosaicSim dramsim pthread stdc++fs OpenMP::OpenMP_CXX)
 
 # Add the tests
 add_subdirectory(tests)

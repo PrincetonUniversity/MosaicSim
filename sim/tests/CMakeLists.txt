@@ -1,5 +1,5 @@
-set(MOSAIC "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mosaic")
-set(SIM "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/sim_driver")
+set(MOSAIC "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mosaicSim")
+set(SIM "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/mosaicSim_sim")
 configure_file(check.sh check.sh)
 
 file(COPY graph_projections_fast_llamas DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
