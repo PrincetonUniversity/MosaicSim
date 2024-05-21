@@ -139,7 +139,7 @@ public:
   /** \brief every tile has a transaction priority queue   */
   unordered_map<int,priority_queue<TransactionOp, vector<TransactionOp>, TransactionOpCompare>> transq_map;
   /** \brief   */
-  array< map<int, DynamicNode*>, 100> partial_barrier_maps;
+  array< map<int, DynamicNode*>, 10000> partial_barrier_maps;
   /** \brief   */
   int transq_latency=3;
   /** \brief   */

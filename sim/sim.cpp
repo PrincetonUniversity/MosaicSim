@@ -106,9 +106,6 @@ void Simulator::registerCore(string wlpath, string cfgfile, PP_static_Buff<strin
     core->finished_dyn_data = true;
   }
 
-  // r.readAccTrace(accName, core->acc_map);
-  r.ReadPartialBarrier(PBName, core->partial_barrier_sizes);
-  
   core->initialize(id, this, acc_comm);
   registerTile(core);
 
