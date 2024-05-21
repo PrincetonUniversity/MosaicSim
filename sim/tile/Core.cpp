@@ -202,8 +202,12 @@ Core::read_acc_data() {
   char buff[512];
   int file;
   int bytes;
-  file = sim->acc_files.at(omp_get_thread_num());
-
+  int file_id;
+  if (sim->input_files_type == 0)
+    file_id = omp_get_thread_num();
+  else if (sim->input_files_type == 1)
+    file_id = id;
+  file = sim->acc_files.at(file_id);
   bytes = read(file, buff, 512);
   if(bytes < 1)
     return;
